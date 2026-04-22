@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "NutriAI es una potente y escalable aplicación de nutrición diseñada para ayudar a los usuarios a gestionar su dieta, realizar un seguimiento de calorías y generar recetas personalizadas de forma inteligente. El núcleo de la aplicación se basa en el concepto de \"nevera virtual\", permitiendo a los usuarios obtener sugerencias de comidas basadas específicamente en los ingredientes que ya tienen a su disposición.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
