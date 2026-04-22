@@ -5,6 +5,7 @@ dotenv.config();
 const env = process.env
 
 export const config = {
+    node_env: env.NODE_ENV,
     port: env.PORT,
     db: {
         host: env.HOST_DB,
