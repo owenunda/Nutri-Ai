@@ -11,7 +11,7 @@ export const config = {
         host: env.HOST_DB,
         user: env.USER_DB,
         password: env.PASS_DB,
-        database: env.DATABASE,
+        name: env.NAME_DB,
         port: env.PORT_DB,
     },
     jwt: {

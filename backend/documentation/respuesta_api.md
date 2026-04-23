@@ -198,6 +198,61 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 
 ---
 
+## Implementación y Utilidades
+
+Para mantener este estándar en todo el backend, se deben utilizar las utilidades y clases proveídas en el código:
+
+### Utilidades de Respuesta (`src/utils/response.js`)
+
+En los controladores, se deben retornar las respuestas utilizando las funciones auxiliares:
+
+```javascript
+import { successResponse, errorResponse } from '../utils/response.js';
+
+// Respuesta exitosa
+export const getSomeData = (req, res) => {
+  const data = { id: 1, name: "Test" };
+  // status por defecto es 200, message por defecto es 'Success'
+  return successResponse(res, data, 'Datos obtenidos exitosamente'); 
+};
+
+// Respuesta de error manual (aunque se prefiere usar AppError y throw)
+export const doSomethingWrong = (req, res) => {
+  return errorResponse(res, 'Mensaje de error', 'ERROR_CODE', 400, ['Detalle 1']);
+};
+```
+
+### Clase AppError (`src/utils/AppError.js`)
+
+Para manejar errores operacionales o de negocio, se debe lanzar (o pasar a `next()`) una instancia de `AppError` y dejar que el middleware global se encargue de enviar la respuesta al cliente.
+
+```javascript
+import { AppError } from '../utils/AppError.js';
+
+export const processAction = (req, res, next) => {
+  try {
+    const isValid = false;
+    if (!isValid) {
+      // (message, status, code, details)
+      throw new AppError('Error de validación', 400, 'VALIDATION_ERROR', ['Campo requerido']);
+    }
+    return successResponse(res, null, 'Acción procesada');
+  } catch (error) {
+    // Pasa el error al middleware global de manejo de errores
+    next(error); 
+  }
+};
+```
+
+### Middleware Global de Errores (`src/middleware/error.middleware.js`)
+
+Todo error capturado y enviado a través de `next(error)` es procesado de forma centralizada:
+* **Errores Controlados (`AppError`)**: Se formatean y envían con el mensaje, el código y el HTTP status definido en la clase.
+* **Errores No Controlados**: Se manejan como errores `500` genéricos.
+* **Entornos**: En modo de desarrollo (`NODE_ENV=development`), el stack trace de los errores no manejados se incluye automáticamente dentro del arreglo `details` para facilitar el *debugging*. En producción, los errores no controlados devuelven siempre un mensaje de error opaco y genérico por seguridad.
+
+---
+
 ## Objetivo
 
 * Consistencia en el backend
