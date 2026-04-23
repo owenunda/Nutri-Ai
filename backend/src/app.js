@@ -1,15 +1,30 @@
 import express from 'express';
 import cors from 'cors';
+import foodRoutes from './modules/food/food.routes.js';
+import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 
 const app = express();
 
 // Middlewares globales
-app.use(cors()); // podemos usar cors() para permitir peticiones desde cualquier origen
-app.use(express.json()); // podemos usar express.json() para permitir peticiones con body en formato json
+app.use(cors());
+app.use(express.json());
 
-// Ruta de prueba
+// Ruta de prueba general
 app.get('/health', (req, res) => {
-  res.json({ message: 'NutriAI API is running' });
+  res.json({
+    success: true,
+    data: null,
+    message: 'NutriAI API is running'
+  });
 });
+
+// Rutas del módulo food
+app.use('/foods', foodRoutes);
+
+// Middleware para rutas no encontradas
+app.use(notFoundHandler);
+
+// Middleware global de errores
+app.use(errorHandler);
 
 export default app;
