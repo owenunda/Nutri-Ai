@@ -13,5 +13,5 @@ pool.connect()
 
 app.listen(PORT, () => {
   console.log(`El servidor está corriendo en el puerto http://localhost:${PORT}`);
-  console.log(`Checar el estado del servidor en: http://localhost:${PORT}/health`);
+  console.log(`Checar el estado del servidor en: http://localhost:${PORT}api/v1/health`);
 });
