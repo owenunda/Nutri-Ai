@@ -5,7 +5,7 @@ import { getFoods, getFoodModuleStatus } from './food.service.js';
 
 export const getAllFoods = async (req, res, next) => {
     try {
-        const foods = await getFoods();
+        const foods = await getFoods(req.foodFilters ?? {});
         return successResponse(res, foods, 'Foods retrieved successfully', 200);
     } catch (error) {
         next(error);

@@ -20,7 +20,7 @@ app.get('/api/v1/health', (req, res) => {
 });
 
 // Rutas del módulo food
-app.use('/foods', foodRoutes);
+app.use('/api/v1/food', foodRoutes);
 app.use('/api/v1/recipe', recipeRoutes)
 
 // Middleware para rutas no encontradas
