@@ -1,10 +1,8 @@
 import pool from "../../database/conection.js";
 
-export const getAllRecipesRepository = async (temporalId) => {
+export const getAllRecipesRepository = async (userId) => {
     try {
-        const sql = `SELECT * FROM recipes where recipe_id = $1`;
-        const { rows } = await pool.query(sql, [temporalId]);
-        return rows;
+        return "coming soon";
     } catch (error) {
         throw error;
     }

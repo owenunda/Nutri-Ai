@@ -1,9 +1,9 @@
 import { getAllRecipesRepository } from "./recipe.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
-export const getAllRecipesService = async (TemporalId) => {
+export const getAllRecipesService = async (userId) => {
   try {
-    const recipes = await getAllRecipesRepository(TemporalId);
+    const recipes = await getAllRecipesRepository(userId);
     if (!recipes || recipes.length === 0) {
       throw new AppError('No se encontraron recetas', 404, 'RECIPE_NOT_FOUND');
     }
