@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import app from './app.js';
 import { config } from './config/env_config.js';
-import pool from './database/conection.js';
+import pool from './database/connection.js';
 
 const PORT = config.port;
 

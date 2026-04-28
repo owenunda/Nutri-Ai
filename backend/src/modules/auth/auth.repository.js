@@ -1,4 +1,4 @@
-import pool from '../../database/conection.js';
+import pool from '../../database/connection.js';
 
 export const getAuthRepositoryStatus = async () => {
   return {

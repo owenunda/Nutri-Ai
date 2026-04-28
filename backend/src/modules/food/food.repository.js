@@ -1,4 +1,4 @@
-import pool from '../../database/conection.js';
+import pool from '../../database/connection.js';
 
 // Esta capa consulta alimentos globales y, opcionalmente, los creados por un usuario.
 export const findAllFoods = async ({ userId = null, page = null, limit = null } = {}) => {
