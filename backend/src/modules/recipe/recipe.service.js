@@ -30,3 +30,15 @@ export const createRecipeService = async (userId, name) => {
     throw new AppError(error.message, 500, 'RECIPE_SERVICE_ERROR', error);
   }
 };
+
+export const addIngredientsToRecipeService = async (userId, recipeId, ingredients) => {
+  try {
+    const recipe = await addIngredientsToRecipeRepository(userId, recipeId, ingredients);
+    return recipe;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(error.message, 500, 'RECIPE_SERVICE_ERROR', error);
+  }
+};

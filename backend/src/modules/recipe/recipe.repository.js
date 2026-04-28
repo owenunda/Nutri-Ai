@@ -29,3 +29,14 @@ export const createRecipeRepository = async (userId, name) => {
         throw error;
     }
 };
+
+export const addIngredientsToRecipeRepository = async (userId, recipeId, ingredients) => {
+    try {
+        console.log("userId", userId);
+        console.log("recipeId", recipeId);
+        console.log("ingredients", ingredients);
+        return "coming soon";
+    } catch (error) {
+        throw error;
+    }
+};
