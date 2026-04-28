@@ -1,0 +1,111 @@
+opencollection: 1.0.0
+info:
+  name: NutriAi
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ''
+      port: ''
+      auth:
+        username: ''
+        password: ''
+      bypassProxy: ''
+items:
+  - info:
+      name: auth
+      type: folder
+      seq: 1
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: register
+          type: http
+          seq: 1
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/auth/register
+          body:
+            type: json
+            data: |-
+              {
+                "name": "Oween",
+                "email": "owenunda@gmail.com",
+                "password": "012345"
+              }
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: login
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/auth/login
+          body:
+            type: json
+            data: |-
+              {
+                "email": "owenunda@gmail.com",
+                "password": "012345"
+              }
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
+      name: food
+      type: folder
+      seq: 2
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: getAllFoods
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/food
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
+      name: recipe
+      type: folder
+      seq: 3
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: getAllRecipe
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/recipe
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+bundled: true
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    exportedAt: '2026-04-28T08:41:59.222Z'
+    exportedUsing: Bruno
