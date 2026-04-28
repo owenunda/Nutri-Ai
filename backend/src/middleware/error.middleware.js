@@ -1,4 +1,4 @@
-import { AppError } from '../utils/appError.js';
+import { AppError } from '../utils/AppError.js';
 import { errorResponse } from '../utils/response.js';
 import { config } from '../config/env_config.js';
 /*
