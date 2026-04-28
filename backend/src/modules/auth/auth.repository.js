@@ -29,3 +29,35 @@ export const findUserByEmail = async (email) => {
   const { rows } = await pool.query(query, [email]);
   return rows[0] ?? null;
 };
+
+export const getDefaultRoleAndPlanIds = async () => {
+  const query = `
+    SELECT
+      (SELECT role_id FROM roles WHERE name = 'USER' LIMIT 1) AS "roleId",
+      (SELECT plan_id FROM plans WHERE name = 'FREE' LIMIT 1) AS "planId"
+  `;
+
+  const { rows } = await pool.query(query);
+  return rows[0] ?? null;
+};
+
+export const createUser = async ({ name, email, passwordHash, goal, roleId, planId }) => {
+  const query = `
+    INSERT INTO users (name, email, password, goal, role_id, plan_id)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING
+      user_id AS "userId",
+      name,
+      email,
+      goal,
+      role_id AS "roleId",
+      plan_id AS "planId",
+      created_at AS "createdAt",
+      updated_at AS "updatedAt"
+  `;
+
+  const values = [name, email, passwordHash, goal, roleId, planId];
+  const { rows } = await pool.query(query, values);
+
+  return rows[0];
+};

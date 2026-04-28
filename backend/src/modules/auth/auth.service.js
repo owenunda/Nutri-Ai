@@ -2,9 +2,15 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { config } from '../../config/env_config.js';
 import { AppError } from '../../utils/AppError.js';
-import { findUserByEmail, getAuthRepositoryStatus } from './auth.repository.js';
+import {
+  createUser,
+  findUserByEmail,
+  getAuthRepositoryStatus,
+  getDefaultRoleAndPlanIds,
+} from './auth.repository.js';
 
 const JWT_EXPIRES_IN = '24h';
+const SALT_ROUNDS = 10;
 
 export const getAuthModuleStatus = async () => {
   try {
@@ -58,6 +64,49 @@ export const loginUser = async ({ email, password }) => {
     return {
       token,
       user: safeUser,
+    };
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw new AppError(error.message, 500, 'AUTH_SERVICE_ERROR');
+  }
+};
+
+export const registerUser = async ({ name, email, password, goal }) => {
+  try {
+    const existingUser = await findUserByEmail(email);
+
+    if (existingUser) {
+      throw new AppError('Email is already registered', 409, 'EMAIL_ALREADY_EXISTS');
+    }
+
+    const defaults = await getDefaultRoleAndPlanIds();
+
+    if (!defaults?.roleId || !defaults?.planId) {
+      throw new AppError(
+        'Default role or plan is not configured',
+        500,
+        'AUTH_DEFAULTS_NOT_FOUND'
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const newUser = await createUser({
+      name,
+      email,
+      passwordHash,
+      goal,
+      roleId: Number(defaults.roleId),
+      planId: Number(defaults.planId),
+    });
+
+    return {
+      ...newUser,
+      role: 'USER',
+      plan: 'FREE',
     };
   } catch (error) {
     if (error instanceof AppError) {
