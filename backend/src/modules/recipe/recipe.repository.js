@@ -31,12 +31,38 @@ export const createRecipeRepository = async (userId, name) => {
 };
 
 export const addIngredientsToRecipeRepository = async (userId, recipeId, ingredients) => {
+    const client = await pool.connect();
     try {
-        console.log("userId", userId);
-        console.log("recipeId", recipeId);
-        console.log("ingredients", ingredients);
-        return "coming soon";
+        await client.query('BEGIN');
+
+        const recipeCheck = await client.query(`
+            SELECT recipe_id FROM recipes WHERE recipe_id = $1 AND created_by_user_id = $2
+        `, [recipeId, userId]);
+
+        if (recipeCheck.rows.length === 0) {
+            throw new AppError('Recipe not found or does not belong to user', 404, 'RECIPE_NOT_FOUND');
+        }
+        for (const ingredient of ingredients) {
+            const { food_id, quantity, unit } = ingredient;
+            try {
+                await client.query(`
+                    INSERT INTO recipe_ingredients (recipe_id, food_id, quantity, unit)
+                    VALUES ($1, $2, $3, $4)
+                `, [recipeId, food_id, quantity, unit]);
+            } catch (error) {
+                if (error.code === '23505') { // Unique violation (if ON CONFLICT wasn't used)
+                    throw new AppError(`Ingredient with food_id ${food_id} already exists in this recipe`, 400, 'DUPLICATE_INGREDIENT');
+                }
+                throw error;
+            }
+        }
+
+        await client.query('COMMIT');
+        return { success: true };
     } catch (error) {
+        await client.query('ROLLBACK');
         throw error;
+    } finally {
+        client.release();
     }
 };
