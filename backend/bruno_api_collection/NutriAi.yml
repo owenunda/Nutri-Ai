@@ -12,6 +12,11 @@ config:
         username: ''
         password: ''
       bypassProxy: ''
+  environments:
+    - name: token
+      variables:
+        - name: TokenAccess
+          value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQxMzI1OCwiZXhwIjoxNzc3NDk5NjU4fQ.JVzJFduH_kRX9AgilKN-5uCNbKAdSqp199a-TCAqW38
 items:
   - info:
       name: auth
@@ -20,6 +25,40 @@ items:
     request:
       auth: inherit
     items:
+      - info:
+          name: login
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/auth/login
+          body:
+            type: json
+            data: |-
+              {
+                "email": "owenunda@gmail.com",
+                "password": "012345"
+              }
+          auth: inherit
+        runtime:
+          scripts:
+            - type: after-response
+              code: |-
+                const jsonData = res.getBody();
+
+                // Verificar si existe la propiedad 'token' dentro de 'data'
+                if (jsonData && jsonData.data && jsonData.data.token) {
+                    // Establecer el valor como variable de entorno
+                    bru.setEnvVar("TokenAccess", jsonData.data.token);
+                    console.log("Token establecido correctamente");
+                } else {
+                    console.log("No se pudo encontrar el 'token' en la respuesta.");
+                }
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
       - info:
           name: register
           type: http
@@ -32,26 +71,6 @@ items:
             data: |-
               {
                 "name": "Oween",
-                "email": "owenunda@gmail.com",
-                "password": "012345"
-              }
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: login
-          type: http
-          seq: 2
-        http:
-          method: POST
-          url: http://localhost:3000/api/v1/auth/login
-          body:
-            type: json
-            data: |-
-              {
                 "email": "owenunda@gmail.com",
                 "password": "012345"
               }
@@ -95,7 +114,9 @@ items:
         http:
           method: GET
           url: http://localhost:3000/api/v1/recipe
-          auth: inherit
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
         settings:
           encodeUrl: true
           timeout: 0
@@ -107,5 +128,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-04-28T08:41:59.222Z'
+    exportedAt: '2026-04-28T21:58:37.640Z'
     exportedUsing: Bruno
