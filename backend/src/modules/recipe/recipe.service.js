@@ -1,4 +1,5 @@
-import { getAllRecipesRepository, createRecipeRepository } from "./recipe.repository.js";
+import { getAllRecipesRepository, createRecipeRepository, addIngredientsToRecipeRepository } from "./recipe.repository.js";
+import { checkFoodsExist } from "../food/food.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
 export const getAllRecipesService = async (userId) => {
@@ -22,6 +23,49 @@ export const createRecipeService = async (userId, name) => {
       throw new AppError('El nombre de la receta es requerido', 400, 'RECIPE_NAME_REQUIRED');
     }
     const recipe = await createRecipeRepository(userId, name);
+    return recipe;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(error.message, 500, 'RECIPE_SERVICE_ERROR', error);
+  }
+};
+
+export const addIngredientsToRecipeService = async (userId, recipeId, ingredients) => {
+  try {
+    if (!Array.isArray(ingredients) || ingredients.length === 0) {
+      throw new AppError('Se requiere una lista de ingredientes', 400, 'INGREDIENTS_REQUIRED');
+    }
+
+    const foodIds = [];
+    for (const ingredient of ingredients) {
+      const { food_id, quantity, unit } = ingredient;
+
+      if (!food_id) {
+        throw new AppError('food_id es requerido para todos los ingredientes', 400, 'FOOD_ID_REQUIRED');
+      }
+
+      if (typeof quantity !== 'number' || quantity <= 0) {
+        throw new AppError(`La cantidad debe ser mayor a 0 para el alimento ${food_id}`, 400, 'INVALID_QUANTITY');
+      }
+
+      if (!unit) {
+        throw new AppError(`La unidad es requerida para el alimento ${food_id}`, 400, 'UNIT_REQUIRED');
+      }
+
+      foodIds.push(food_id);
+    }
+
+    // Check if all foods exist
+    const existingFoodIds = await checkFoodsExist(foodIds);
+    const missingFoodIds = foodIds.filter(id => !existingFoodIds.includes(id));
+
+    if (missingFoodIds.length > 0) {
+      throw new AppError(`Los siguientes alimentos no existen: ${missingFoodIds.join(', ')}`, 404, 'FOOD_NOT_FOUND');
+    }
+
+    const recipe = await addIngredientsToRecipeRepository(userId, recipeId, ingredients);
     return recipe;
   } catch (error) {
     if (error instanceof AppError) {

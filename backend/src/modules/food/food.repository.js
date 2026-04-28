@@ -65,3 +65,13 @@ export const findAllFoods = async ({ userId = null, page = null, limit = null } 
 
   return response;
 };
+
+export const checkFoodsExist = async (foodIds) => {
+  const query = `
+    SELECT food_id 
+    FROM foods 
+    WHERE food_id = ANY($1)
+  `;
+  const { rows } = await pool.query(query, [foodIds]);
+  return rows.map(row => row.food_id);
+};
