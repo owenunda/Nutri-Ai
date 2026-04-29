@@ -22,6 +22,8 @@ app.get('/api/v1/health', (req, res) => {
 
 // Rutas del módulo food
 app.use('/api/v1/food', foodRoutes);
+
+// Rutas del módulo recipe
 app.use('/api/v1/recipe', recipeRoutes)
 
 // Rutas del módulo auth
