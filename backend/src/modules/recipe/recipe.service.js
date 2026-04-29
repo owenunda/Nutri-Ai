@@ -17,12 +17,12 @@ export const getAllRecipesService = async (userId) => {
   }
 };
 
-export const createRecipeService = async (userId, name) => {
+export const createRecipeService = async (userId, name, description) => {
   try {
     if (!name) {
       throw new AppError('El nombre de la receta es requerido', 400, 'RECIPE_NAME_REQUIRED');
     }
-    const recipe = await createRecipeRepository(userId, name);
+    const recipe = await createRecipeRepository(userId, name, description);
     return recipe;
   } catch (error) {
     if (error instanceof AppError) {
