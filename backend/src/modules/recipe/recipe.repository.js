@@ -20,7 +20,12 @@ export const getAllRecipesRepository = async (userId) => {
                                 'name', f.name,
                                 'quantity', ri.quantity,
                                 'unit', ri.unit,
-                                'calories_per_unit', f.calories_per_unit
+                                'calories_per_unit', f.calories_per_unit,
+                                'base_unit', f.base_unit,
+                                'is_global', f.is_global,
+                                'created_by_user_id', f.created_by_user_id,
+                                'created_at', f.created_at,
+                                'updated_at', f.updated_at
                             )
                         )
                         FROM recipe_ingredients ri
@@ -37,6 +42,51 @@ export const getAllRecipesRepository = async (userId) => {
         `;
         const { rows } = await pool.query(query, [userId]);
         return rows;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getRecipeByIdRepository = async (userId, recipeId) => {
+    try {
+        const query = `
+            SELECT 
+                r.recipe_id, 
+                r.name, 
+                r.description, 
+                r.created_at,
+                ur.status_id,
+                s.name AS status_name,
+                ur.recipe_date,
+                COALESCE(
+                    (
+                        SELECT json_agg(
+                            json_build_object(
+                                'food_id', f.food_id,
+                                'name', f.name,
+                                'quantity', ri.quantity,
+                                'unit', ri.unit,
+                                'calories_per_unit', f.calories_per_unit,
+                                'base_unit', f.base_unit,
+                                'is_global', f.is_global,
+                                'created_by_user_id', f.created_by_user_id,
+                                'created_at', f.created_at,
+                                'updated_at', f.updated_at
+                            )
+                        )
+                        FROM recipe_ingredients ri
+                        JOIN foods f ON ri.food_id = f.food_id
+                        WHERE ri.recipe_id = r.recipe_id
+                    ), 
+                    '[]'::json
+                ) AS ingredients
+            FROM recipes r
+            JOIN user_recipes ur ON r.recipe_id = ur.recipe_id
+            JOIN statuses s ON ur.status_id = s.status_id
+            WHERE r.recipe_id = $1 AND ur.user_id = $2
+        `;
+        const { rows } = await pool.query(query, [recipeId, userId]);
+        return rows[0] || null;
     } catch (error) {
         throw error;
     }
@@ -135,7 +185,12 @@ export const addIngredientsToRecipeRepository = async (userId, recipeId, ingredi
                                 'name', f.name,
                                 'quantity', ri.quantity,
                                 'unit', ri.unit,
-                                'calories_per_unit', f.calories_per_unit
+                                'calories_per_unit', f.calories_per_unit,
+                                'base_unit', f.base_unit,
+                                'is_global', f.is_global,
+                                'created_by_user_id', f.created_by_user_id,
+                                'created_at', f.created_at,
+                                'updated_at', f.updated_at
                             )
                         )
                         FROM recipe_ingredients ri
