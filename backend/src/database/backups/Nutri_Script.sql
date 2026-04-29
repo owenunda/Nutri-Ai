@@ -78,9 +78,8 @@ CREATE TABLE foods (
 CREATE TABLE recipes (
     recipe_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    created_by_user_id INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_user_recipe_creator FOREIGN KEY (created_by_user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =========================================================

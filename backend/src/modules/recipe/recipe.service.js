@@ -1,4 +1,4 @@
-import { getAllRecipesRepository, createRecipeRepository, addIngredientsToRecipeRepository } from "./recipe.repository.js";
+import { getAllRecipesRepository, createRecipeRepository, addIngredientsToRecipeRepository, getRecipeByIdRepository } from "./recipe.repository.js";
 import { checkFoodsExist } from "../food/food.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
@@ -17,12 +17,27 @@ export const getAllRecipesService = async (userId) => {
   }
 };
 
-export const createRecipeService = async (userId, name) => {
+export const getRecipeByIdService = async (userId, recipeId) => {
+  try {
+    const recipe = await getRecipeByIdRepository(userId, recipeId);
+    if (!recipe) {
+      throw new AppError('Recipe not found or does not belong to user', 404, 'RECIPE_NOT_FOUND');
+    }
+    return recipe;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(error.message, 500, 'RECIPE_SERVICE_ERROR', error);
+  }
+};
+
+export const createRecipeService = async (userId, name, description) => {
   try {
     if (!name) {
       throw new AppError('El nombre de la receta es requerido', 400, 'RECIPE_NAME_REQUIRED');
     }
-    const recipe = await createRecipeRepository(userId, name);
+    const recipe = await createRecipeRepository(userId, name, description);
     return recipe;
   } catch (error) {
     if (error instanceof AppError) {
