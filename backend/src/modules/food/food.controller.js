@@ -1,10 +1,16 @@
 import { successResponse } from '../../utils/response.js';
-import { getFoods, getFoodModuleStatus, createFood as createFoodService } from './food.service.js';
-import { AppError } from '../../utils/AppError.js';
+import {
+    getFoods,
+    getFoodModuleStatus,
+    createFood as createFoodService,
+    updateFoodItem
+} from './food.service.js';
+import { validateUpdateFood, validateCreateFood } from './food.validation.js';
 
 // Obtener todos los alimentos
 export const getAllFoods = async (req, res, next) => {
     try {
+        // req.foodFilters viene del middleware de validación
         const foods = await getFoods({
             userId: req.user.userId,
             page: req.foodFilters?.page ?? null,
@@ -29,24 +35,29 @@ export const getFoodHealth = async (req, res, next) => {
 // Crear alimento 
 export const createFood = async (req, res, next) => {
     try {
-        // 1. Extraemos con los nombres 
-        const { name, calories_per_unit, base_unit } = req.body;
-        const userId = req.user.userId;
+        const foodData = { ...req.body, userId: req.user.userId };
 
-        // 2. Validación con los nuevos nombres
-        if (!name || !base_unit || calories_per_unit === undefined) {
-            throw new AppError('Missing required fields: name, calories_per_unit, or base_unit', 400, 'VALIDATION_ERROR');
-        }
+        // Al ser función pura, si falla lanza el error directo al catch
+        validateCreateFood(foodData);
 
-        // 3. Llamada al servicio
-        const foodId = await createFoodService({
-            name,
-            calories_per_unit,
-            base_unit,
-            userId
-        });
-
+        const foodId = await createFoodService(foodData);
         return successResponse(res, { foodId }, 'Food created successfully', 201);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Editar alimento
+export const updateFood = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.userId;
+        const updateData = req.body;
+
+        validateUpdateFood(updateData);
+
+        const updatedFood = await updateFoodItem(id, userId, updateData);
+        return successResponse(res, updatedFood, 'Food updated successfully', 200);
     } catch (error) {
         next(error);
     }

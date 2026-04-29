@@ -1,4 +1,4 @@
-import { findAllFoods, create as createFoodRepository } from './food.repository.js';
+import * as foodRepository from './food.repository.js';
 import { AppError } from '../../utils/AppError.js';
 
 /**
@@ -6,17 +6,16 @@ import { AppError } from '../../utils/AppError.js';
  */
 export const getFoods = async (filters) => {
     try {
-        return await findAllFoods(filters);
+        return await foodRepository.findAllFoods(filters);
     } catch (error) {
-        // Si el error ya es una instancia de AppError, lo lanzamos tal cual
-        if (error instanceof AppError) {
-            throw error;
-        }
-        // Si es un error inesperado, lo envolvemos en un AppError 500
+        if (error instanceof AppError) throw error;
         throw new AppError(error.message, 500, 'FOOD_SERVICE_ERROR');
     }
 };
 
+/**
+ * Verifica el estado del módulo
+ */
 export const getFoodModuleStatus = async () => {
     return {
         module: 'food',
@@ -24,18 +23,42 @@ export const getFoodModuleStatus = async () => {
     };
 };
 
-
+/**
+ * Crea un nuevo alimento
+ */
 export const createFood = async (foodData) => {
     try {
-        // Aquí se puede añadir lógica de negocio extra en el futuro
-        // como validar que el nombre no sea ofensivo o verificar duplicados
-
-        return await createFoodRepository(foodData);
+        // En el futuro se pueden añadir validaciones de negocio aquí
+        return await foodRepository.create(foodData);
     } catch (error) {
-        // Manejo consistente de errores
-        if (error instanceof AppError) {
-            throw error;
+        if (error instanceof AppError) throw error;
+        throw new AppError(error.message, 500, 'FOOD_SERVICE_ERROR');
+    }
+};
+
+/**
+ * Actualiza un alimento existente validando propiedad
+ */
+export const updateFoodItem = async (foodId, userId, updateData) => {
+    try {
+        // 1. Buscamos el alimento usando el ID de la URL
+        const food = await foodRepository.getFoodById(foodId);
+
+        // Caso 4 de Bruno: No existe
+        if (!food) {
+            throw new AppError('Food item not found', 404, 'NOT_FOUND');
         }
+
+        // Caso 2 de Bruno: El usuario no es el dueño
+        if (food.createdByUserId !== userId) {
+            throw new AppError('Unauthorized: You can only edit your own food items', 403, 'FORBIDDEN');
+        }
+
+        // Caso 1 de Bruno: Todo OK, procedemos a actualizar
+        return await foodRepository.updateFood(foodId, updateData);
+
+    } catch (error) {
+        if (error instanceof AppError) throw error;
         throw new AppError(error.message, 500, 'FOOD_SERVICE_ERROR');
     }
 };

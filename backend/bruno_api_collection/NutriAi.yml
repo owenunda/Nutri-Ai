@@ -90,6 +90,29 @@ items:
       auth: inherit
     items:
       - info:
+          name: create custom food
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/food
+          body:
+            type: json
+            data: |-
+              {
+                "name": "Pechuga de Pollo a la Plancha",
+                "calories_per_unit": 165,
+                "base_unit": "100g"
+              }
+          auth:
+            type: bearer
+            token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQzNTA0OCwiZXhwIjoxNzc3NTIxNDQ4fQ.4hNI3DY5qL8-4bkHCdooJK6dUAD5o4q9-4b1MeGS0Z0
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
           name: getAllFoods
           type: http
           seq: 1
@@ -105,23 +128,23 @@ items:
           followRedirects: true
           maxRedirects: 5
       - info:
-          name: create custom food
+          name: 'Update food '
           type: http
-          seq: 2
+          seq: 3
         http:
-          method: POST
-          url: http://localhost:3000/api/v1/food
+          method: PUT
+          url: http://localhost:3000/api/v1/food/1
           body:
             type: json
             data: |-
               {
-                "nombre": "Chicharrón",
-                "calorias": 500,
-                "unidad": "porcion"
+                "name": "Pechuga de Pollo Premium",
+                "calories_per_unit": 165,
+                "base_unit": "100g"
               }
           auth:
             type: bearer
-            token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQzNTA0OCwiZXhwIjoxNzc3NTIxNDQ4fQ.4hNI3DY5qL8-4bkHCdooJK6dUAD5o4q9-4b1MeGS0Z0
+            token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQ4Nzg1NiwiZXhwIjoxNzc3NTc0MjU2fQ.Fd5sljUzLaZN-fLZGsyEY92uE43CrTd2HpOb2NJevRI
         settings:
           encodeUrl: true
           timeout: 0
@@ -226,5 +249,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-04-29T04:32:14.714Z'
+    exportedAt: '2026-04-29T20:11:01.726Z'
     exportedUsing: Bruno
