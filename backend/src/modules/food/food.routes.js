@@ -1,13 +1,25 @@
 import { Router } from 'express';
-import { getAllFoods, getFoodHealth } from './food.controller.js';
-import { validateListFoodsQuery } from './food.validation.js';
+import * as FoodController from './food.controller.js';
+import authenticateToken from '../../middleware/auth.middleware.js';
+
 
 const router = Router();
 
 // Ruta de verificación del modulo
-router.get('/health', getFoodHealth);
+
+router.get('/health', FoodController.getFoodHealth);
 
 // Ruta base del modulo
-router.get('/', validateListFoodsQuery, getAllFoods);
+
+router.get('/',
+    authenticateToken(['ADMIN', 'USER']),
+    FoodController.getAllFoods
+);
+
+// Tu nueva ruta POST para crear alimentos
+router.post('/',
+    authenticateToken(['USER', 'ADMIN']),
+    FoodController.createFood
+);
 
 export default router;

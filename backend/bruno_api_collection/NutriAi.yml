@@ -39,7 +39,9 @@ items:
                 "email": "owenunda@gmail.com",
                 "password": "012345"
               }
-          auth: inherit
+          auth:
+            type: bearer
+            token: ''
         runtime:
           scripts:
             - type: after-response
@@ -75,6 +77,51 @@ items:
                 "password": "012345"
               }
           auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
+      name: food
+      type: folder
+      seq: 2
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: getAllFoods
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/food
+          auth:
+            type: bearer
+            token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQzMDU2MSwiZXhwIjoxNzc3NTE2OTYxfQ.9e3zwaNUVuQb3k7GdvaQia0gAldZdRFaRh4uPPiKunU
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: create custom food
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/food
+          body:
+            type: json
+            data: |-
+              {
+                "nombre": "Chicharrón",
+                "calorias": 500,
+                "unidad": "porcion"
+              }
+          auth:
+            type: bearer
+            token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQzNTA0OCwiZXhwIjoxNzc3NTIxNDQ4fQ.4hNI3DY5qL8-4bkHCdooJK6dUAD5o4q9-4b1MeGS0Z0
         settings:
           encodeUrl: true
           timeout: 0
@@ -154,28 +201,6 @@ items:
           followRedirects: true
           maxRedirects: 5
   - info:
-      name: food
-      type: folder
-      seq: 2
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: getAllFoods
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/food
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-  - info:
       name: user
       type: folder
       seq: 4
@@ -201,5 +226,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-04-29T01:27:49.470Z'
+    exportedAt: '2026-04-29T04:32:14.714Z'
     exportedUsing: Bruno
