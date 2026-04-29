@@ -86,7 +86,6 @@ export const createRecipeRepository = async (userId, name, description) => {
         client.release();
     }
 };
-
 export const addIngredientsToRecipeRepository = async (userId, recipeId, ingredients) => {
     const client = await pool.connect();
     try {
@@ -110,7 +109,7 @@ export const addIngredientsToRecipeRepository = async (userId, recipeId, ingredi
                     VALUES ($1, $2, $3, $4)
                 `, [recipeId, food_id, quantity, unit]);
             } catch (error) {
-                if (error.code === '23505') { // Unique violation (if ON CONFLICT wasn't used)
+                if (error.code === '23505') { 
                     throw new AppError(`Ingredient with food_id ${food_id} already exists in this recipe`, 400, 'DUPLICATE_INGREDIENT');
                 }
                 throw error;
@@ -118,7 +117,40 @@ export const addIngredientsToRecipeRepository = async (userId, recipeId, ingredi
         }
 
         await client.query('COMMIT');
-        return { success: true };
+        
+        const fetchQuery = `
+            SELECT 
+                r.recipe_id, 
+                r.name, 
+                r.description, 
+                r.created_at,
+                ur.status_id,
+                s.name AS status_name,
+                ur.recipe_date,
+                COALESCE(
+                    (
+                        SELECT json_agg(
+                            json_build_object(
+                                'food_id', f.food_id,
+                                'name', f.name,
+                                'quantity', ri.quantity,
+                                'unit', ri.unit,
+                                'calories_per_unit', f.calories_per_unit
+                            )
+                        )
+                        FROM recipe_ingredients ri
+                        JOIN foods f ON ri.food_id = f.food_id
+                        WHERE ri.recipe_id = r.recipe_id
+                    ), 
+                    '[]'::json
+                ) AS ingredients
+            FROM recipes r
+            JOIN user_recipes ur ON r.recipe_id = ur.recipe_id
+            JOIN statuses s ON ur.status_id = s.status_id
+            WHERE r.recipe_id = $1 AND ur.user_id = $2
+        `;
+        const result = await client.query(fetchQuery, [recipeId, userId]);
+        return result.rows[0];
     } catch (error) {
         await client.query('ROLLBACK');
         throw error;
