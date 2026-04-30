@@ -1,4 +1,4 @@
-import { getAllRecipesRepository, createRecipeRepository, addIngredientsToRecipeRepository, getRecipeByIdRepository } from "./recipe.repository.js";
+import { getAllRecipesRepository, createRecipeRepository, addIngredientsToRecipeRepository, getRecipeByIdRepository, updateRecipeStatusRepository } from "./recipe.repository.js";
 import { checkFoodsExist } from "../food/food.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
@@ -81,6 +81,21 @@ export const addIngredientsToRecipeService = async (userId, recipeId, ingredient
     }
 
     const recipe = await addIngredientsToRecipeRepository(userId, recipeId, ingredients);
+    return recipe;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(error.message, 500, 'RECIPE_SERVICE_ERROR', error);
+  }
+};
+
+export const updateRecipeStatusService = async (userId, recipeId, statusId) => {
+  try {
+    if (!statusId) {
+      throw new AppError('El ID de estado es requerido', 400, 'STATUS_ID_REQUIRED');
+    }
+    const recipe = await updateRecipeStatusRepository(userId, recipeId, statusId);
     return recipe;
   } catch (error) {
     if (error instanceof AppError) {
