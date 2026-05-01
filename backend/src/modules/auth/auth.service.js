@@ -9,7 +9,7 @@ import {
   getDefaultRoleAndPlanIds,
 } from './auth.repository.js';
 
-const JWT_EXPIRES_IN = '24h';
+const JWT_EXPIRES_IN = '15m';
 const SALT_ROUNDS = 10;
 
 export const getAuthModuleStatus = async () => {

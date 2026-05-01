@@ -151,26 +151,6 @@ items:
           followRedirects: true
           maxRedirects: 5
   - info:
-      name: user
-      type: folder
-      seq: 4
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: getAllUser
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/user
-          auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-  - info:
       name: recipe
       type: folder
       seq: 3
@@ -243,11 +223,36 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
+  - info:
+      name: user
+      type: folder
+      seq: 4
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: getAllUser
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/user/profile
+          body:
+            type: json
+            data: ''
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
 bundled: true
 extensions:
   bruno:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-04-30T19:01:21.701Z'
+    exportedAt: '2026-05-01T01:23:17.757Z'
     exportedUsing: Bruno
