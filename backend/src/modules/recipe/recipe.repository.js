@@ -213,3 +213,27 @@ export const addIngredientsToRecipeRepository = async (userId, recipeId, ingredi
         client.release();
     }
 };
+
+export const updateRecipeStatusRepository = async (userId, recipeId, statusId) => {
+    try {
+        const query = `
+            UPDATE user_recipes 
+            SET status_id = $1, updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = $2 AND recipe_id = $3
+            RETURNING *;
+        `;
+        const { rows } = await pool.query(query, [statusId, userId, recipeId]);
+        
+        if (rows.length === 0) {
+            throw new AppError('La receta no fue encontrada para este usuario', 404, 'RECIPE_NOT_FOUND');
+        }
+
+        // Return the full recipe details after update
+        return await getRecipeByIdRepository(userId, recipeId);
+    } catch (error) {
+        if (error.code === '23503') { // Foreign key violation (status_id)
+            throw new AppError('El ID de estado proporcionado no es válido', 400, 'INVALID_STATUS_ID');
+        }
+        throw error;
+    }
+};
