@@ -4,12 +4,12 @@ import pool from '../../database/connection.js';
  * Busca alimentos globales y, opcionalmente, los creados por un usuario específico.
  */
 export const findAllFoods = async ({ userId = null, page = null, limit = null } = {}) => {
-  const filters = ['is_global = true'];
+  const filters = ['is_global = true AND is_active = true'];
   const params = [];
 
   if (userId !== null) {
     params.push(userId);
-    filters.push(`created_by_user_id = $${params.length}`);
+    filters.push(`created_by_user_id = $${params.length} AND is_active = true`);
   }
 
   const whereClause = `WHERE ${filters.join(' OR ')}`;
@@ -27,6 +27,7 @@ export const findAllFoods = async ({ userId = null, page = null, limit = null } 
             calories_per_unit AS "caloriesPerUnit",
             base_unit AS "baseUnit",
             is_global AS "isGlobal",
+            is_active AS "isActive",
             created_by_user_id AS "createdByUserId",
             created_at AS "createdAt",
             updated_at AS "updatedAt"
@@ -94,8 +95,9 @@ export const create = async (foodData) => {
             calories_per_unit, 
             base_unit, 
             is_global, 
+            is_active,
             created_by_user_id
-        ) VALUES ($1, $2, $3, false, $4)
+        ) VALUES ($1, $2, $3, false, true, $4)
         RETURNING food_id AS "foodId"
     `;
 
@@ -112,7 +114,8 @@ export const getFoodById = async (id) => {
         SELECT 
             food_id AS "foodId", 
             created_by_user_id AS "createdByUserId", 
-            is_global AS "isGlobal" 
+            is_global AS "isGlobal",
+            is_active AS "isActive"
         FROM foods 
         WHERE food_id = $1
     `;
@@ -125,6 +128,10 @@ export const getFoodById = async (id) => {
  * Implementa consultas parametrizadas para seguridad.
  */
 export const updateFood = async (id, data) => {
+  if (Object.keys(data).length === 0) {
+    return null;
+  }
+
   const fields = [];
   const values = [];
   let idx = 1;
@@ -149,5 +156,19 @@ export const updateFood = async (id, data) => {
     `;
 
   const { rows } = await pool.query(query, values);
+  return rows[0];
+};
+
+/**
+ * Desactiva un alimento por su ID.
+ */
+export const deactivateFood = async (id) => {
+  const query = `
+        UPDATE foods
+        SET is_active = false, updated_at = NOW()
+        WHERE food_id = $1
+        RETURNING food_id AS "foodId"
+    `;
+  const { rows } = await pool.query(query, [id]);
   return rows[0];
 };
