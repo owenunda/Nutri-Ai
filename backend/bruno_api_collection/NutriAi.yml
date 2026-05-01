@@ -19,72 +19,13 @@ config:
           value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQxMzI1OCwiZXhwIjoxNzc3NDk5NjU4fQ.JVzJFduH_kRX9AgilKN-5uCNbKAdSqp199a-TCAqW38
 items:
   - info:
-<<<<<<< feat/delete-food
-      name: food
-      type: folder
-      seq: 2
-=======
       name: auth
       type: folder
       seq: 1
->>>>>>> dev
     request:
       auth: inherit
     items:
       - info:
-<<<<<<< feat/delete-food
-          name: create custom food
-=======
-          name: login
->>>>>>> dev
-          type: http
-          seq: 2
-        http:
-          method: POST
-<<<<<<< feat/delete-food
-          url: http://localhost:3000/api/v1/food
-=======
-          url: http://localhost:3000/api/v1/auth/login
->>>>>>> dev
-          body:
-            type: json
-            data: |
-              {
-<<<<<<< feat/delete-food
-                "name": "Pechuga de Pollo a la Plancha",
-                "calories_per_unit": 165,
-                "base_unit": "100g"
-=======
-                "email": "owenunda@gmail.com",
-                "password": "012345"
->>>>>>> dev
-              }
-          auth:
-            type: bearer
-            token: ''
-        runtime:
-          scripts:
-            - type: after-response
-              code: |-
-                const jsonData = res.getBody();
-
-                // Verificar si existe la propiedad 'token' dentro de 'data'
-                if (jsonData && jsonData.data && jsonData.data.token) {
-                    // Establecer el valor como variable de entorno
-                    bru.setEnvVar("TokenAccess", jsonData.data.token);
-                    console.log("Token establecido correctamente");
-                } else {
-                    console.log("No se pudo encontrar el 'token' en la respuesta.");
-                }
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-<<<<<<< feat/delete-food
-          name: desactivateFood
-=======
           name: register
           type: http
           seq: 1
@@ -105,163 +46,21 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
-  - info:
-      name: food
-      type: folder
-      seq: 2
-    request:
-      auth: inherit
-    items:
       - info:
-          name: create custom food
->>>>>>> dev
-          type: http
-          seq: 4
-        http:
-<<<<<<< feat/delete-food
-          method: DELETE
-          url: http://localhost:3000/api/v1/food/:id
-          params:
-            - name: id
-              value: '1'
-              type: path
-=======
-          method: POST
-          url: http://localhost:3000/api/v1/food
-          body:
-            type: json
-            data: |-
-              {
-                "name": "Pechuga de Pollo a la Plancha",
-                "calories_per_unit": 165,
-                "base_unit": "100g"
-              }
->>>>>>> dev
-          auth:
-            type: bearer
-            token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQzNTA0OCwiZXhwIjoxNzc3NTIxNDQ4fQ.4hNI3DY5qL8-4bkHCdooJK6dUAD5o4q9-4b1MeGS0Z0
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: getAllFoods
-<<<<<<< feat/delete-food
-=======
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/food
-          auth:
-            type: bearer
-            token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQzMDU2MSwiZXhwIjoxNzc3NTE2OTYxfQ.9e3zwaNUVuQb3k7GdvaQia0gAldZdRFaRh4uPPiKunU
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: 'Update food '
-          type: http
-          seq: 3
-        http:
-          method: PUT
-          url: http://localhost:3000/api/v1/food/1
-          body:
-            type: json
-            data: |-
-              {
-                "name": "Pechuga de Pollo Premium",
-                "calories_per_unit": 165,
-                "base_unit": "100g"
-              }
-          auth:
-            type: bearer
-            token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQ4Nzg1NiwiZXhwIjoxNzc3NTc0MjU2fQ.Fd5sljUzLaZN-fLZGsyEY92uE43CrTd2HpOb2NJevRI
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-  - info:
-      name: recipe
-      type: folder
-      seq: 3
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: addIngredientsInRecipe
->>>>>>> dev
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/food
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-<<<<<<< feat/delete-food
-          name: 'Update food '
-          type: http
-          seq: 3
-        http:
-          method: PUT
-          url: http://localhost:3000/api/v1/food/1
-=======
-          name: createRecipe
+          name: login
           type: http
           seq: 2
         http:
           method: POST
-          url: http://localhost:3000/api/v1/recipe
->>>>>>> dev
+          url: http://localhost:3000/api/v1/auth/login
           body:
             type: json
-            data: |-
-              {
-<<<<<<< feat/delete-food
-                "name": "Pechuga de Pollo Premium",
-                "calories_per_unit": 165,
-                "base_unit": "100g"
-=======
-                "name": "Recipe tests"
->>>>>>> dev
-              }
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: getAllRecipe
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/recipe
-          body:
-            type: json
-<<<<<<< feat/delete-food
             data: |-
               {
                 "email": "owenunda@gmail.com",
                 "password": "012345"
               }
-          auth:
-            type: bearer
-            token: ''
+          auth: inherit
         runtime:
           scripts:
             - type: after-response
@@ -276,34 +75,48 @@ items:
                 } else {
                     console.log("No se pudo encontrar el 'token' en la respuesta.");
                 }
-=======
-            data: ''
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
->>>>>>> dev
         settings:
           encodeUrl: true
           timeout: 0
           followRedirects: true
           maxRedirects: 5
   - info:
-      name: user
+      name: food
       type: folder
-      seq: 4
+      seq: 2
     request:
       auth: inherit
     items:
       - info:
-          name: getAllUser
+          name: getAllFoods
           type: http
           seq: 1
         http:
           method: GET
-          url: http://localhost:3000/api/v1/user/profile
+          url: http://localhost:3000/api/v1/food
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: create custom food
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/food
           body:
             type: json
-            data: ''
+            data: |-
+              {
+                "name": "Pechuga de Pollo a la Plancha",
+                "calories_per_unit": 165,
+                "base_unit": "100g"
+              }
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -312,21 +125,43 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
-  - info:
-      name: user
-      type: folder
-      seq: 4
-    request:
-      auth: inherit
-    items:
       - info:
-          name: getAllUser
+          name: Update food
           type: http
-          seq: 1
+          seq: 3
         http:
-          method: GET
-          url: http://localhost:3000/api/v1/user
-          auth: inherit
+          method: PUT
+          url: http://localhost:3000/api/v1/food/1
+          body:
+            type: json
+            data: |-
+              {
+                "name": "Pechuga de Pollo Premium",
+                "calories_per_unit": 165,
+                "base_unit": "100g"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: desactivateFood
+          type: http
+          seq: 4
+        http:
+          method: DELETE
+          url: http://localhost:3000/api/v1/food/:id
+          params:
+            - name: id
+              value: '1'
+              type: path
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
         settings:
           encodeUrl: true
           timeout: 0
@@ -339,6 +174,42 @@ items:
     request:
       auth: inherit
     items:
+      - info:
+          name: getAllRecipe
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/recipe
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: createRecipe
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/recipe
+          body:
+            type: json
+            data: |-
+              {
+                "name": "Recipe tests"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
       - info:
           name: addIngredientsInRecipe
           type: http
@@ -366,19 +237,20 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
+  - info:
+      name: user
+      type: folder
+      seq: 4
+    request:
+      auth: inherit
+    items:
       - info:
-          name: createRecipe
+          name: getUserProfile
           type: http
-          seq: 2
+          seq: 1
         http:
-          method: POST
-          url: http://localhost:3000/api/v1/recipe
-          body:
-            type: json
-            data: |-
-              {
-                "name": "Recipe tests"
-              }
+          method: GET
+          url: http://localhost:3000/api/v1/user/profile
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -388,15 +260,12 @@ items:
           followRedirects: true
           maxRedirects: 5
       - info:
-          name: getAllRecipe
+          name: getAllUser
           type: http
-          seq: 1
+          seq: 2
         http:
           method: GET
-          url: http://localhost:3000/api/v1/recipe
-          body:
-            type: json
-            data: ''
+          url: http://localhost:3000/api/v1/user
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -411,9 +280,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-<<<<<<< feat/delete-food
     exportedAt: '2026-05-01T20:32:36.033Z'
-=======
-    exportedAt: '2026-05-01T01:23:17.757Z'
->>>>>>> dev
     exportedUsing: Bruno
