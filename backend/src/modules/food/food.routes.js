@@ -23,4 +23,9 @@ router.put('/:id',
     FoodController.updateFood
 );
 
+router.delete('/:id',
+    authenticateToken(['USER', 'ADMIN']),
+    FoodController.deleteFood
+);
+
 export default router;

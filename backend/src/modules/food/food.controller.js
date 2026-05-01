@@ -3,9 +3,9 @@ import {
     getFoods,
     getFoodModuleStatus,
     createFood as createFoodService,
-    updateFoodItem
+    updateFoodItem,
+    deactivateFoodItem
 } from './food.service.js';
-import { validateUpdateFood, validateCreateFood } from './food.validation.js';
 
 // Obtener todos los alimentos
 export const getAllFoods = async (req, res, next) => {
@@ -35,11 +35,12 @@ export const getFoodHealth = async (req, res, next) => {
 // Crear alimento 
 export const createFood = async (req, res, next) => {
     try {
-        const foodData = { ...req.body, userId: req.user.userId };
-
-        // Al ser función pura, si falla lanza el error directo al catch
-        validateCreateFood(foodData);
-
+        const foodData = {
+            name: req.body.name,
+            calories_per_unit: req.body.calories_per_unit ?? req.body.caloriesPerUnit,
+            base_unit: req.body.base_unit ?? req.body.baseUnit,
+            userId: req.user.userId,
+        };
         const foodId = await createFoodService(foodData);
         return successResponse(res, { foodId }, 'Food created successfully', 201);
     } catch (error) {
@@ -52,12 +53,34 @@ export const updateFood = async (req, res, next) => {
     try {
         const { id } = req.params;
         const userId = req.user.userId;
-        const updateData = req.body;
+        const updateData = {};
 
-        validateUpdateFood(updateData);
+        if (req.body.name !== undefined) {
+            updateData.name = req.body.name;
+        }
+
+        if (req.body.calories_per_unit !== undefined || req.body.caloriesPerUnit !== undefined) {
+            updateData.calories_per_unit = req.body.calories_per_unit ?? req.body.caloriesPerUnit;
+        }
+
+        if (req.body.base_unit !== undefined || req.body.baseUnit !== undefined) {
+            updateData.base_unit = req.body.base_unit ?? req.body.baseUnit;
+        }
 
         const updatedFood = await updateFoodItem(id, userId, updateData);
         return successResponse(res, updatedFood, 'Food updated successfully', 200);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Desactivar alimento
+export const deleteFood = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.userId;
+        await deactivateFoodItem(id, userId);
+        return successResponse(res, null, 'Food deactivated successfully', 200);
     } catch (error) {
         next(error);
     }

@@ -45,12 +45,16 @@ export const validateCreateFood = (data) => {
         throw new AppError('Missing required fields: name, calories_per_unit, or base_unit', 400, 'VALIDATION_ERROR');
     }
 
-    if (typeof calories_per_unit !== 'number' || calories_per_unit < 0) {
-        throw new AppError('Calories must be a non-negative number', 400, 'VALIDATION_ERROR');
+    if (typeof calories_per_unit !== 'number' || calories_per_unit <= 0) {
+        throw new AppError('Calories must be greater than 0', 400, 'VALIDATION_ERROR');
     }
 
     if (typeof name !== 'string' || name.trim() === '') {
         throw new AppError('Name cannot be empty', 400, 'VALIDATION_ERROR');
+    }
+
+    if (typeof base_unit !== 'string' || base_unit.trim() === '') {
+        throw new AppError('Base unit cannot be empty', 400, 'VALIDATION_ERROR');
     }
 };
 
@@ -63,12 +67,16 @@ export const validateUpdateFood = (data) => {
     }
 
     if (data.calories_per_unit !== undefined) {
-        if (typeof data.calories_per_unit !== 'number' || data.calories_per_unit < 0) {
-            throw new AppError('Calories must be a non-negative number', 400, 'VALIDATION_ERROR');
+        if (typeof data.calories_per_unit !== 'number' || data.calories_per_unit <= 0) {
+            throw new AppError('Calories must be greater than 0', 400, 'VALIDATION_ERROR');
         }
     }
 
     if (data.name !== undefined && (typeof data.name !== 'string' || data.name.trim() === '')) {
         throw new AppError('Name cannot be empty', 400, 'VALIDATION_ERROR');
+    }
+
+    if (data.base_unit !== undefined && (typeof data.base_unit !== 'string' || data.base_unit.trim() === '')) {
+        throw new AppError('Base unit cannot be empty', 400, 'VALIDATION_ERROR');
     }
 };
