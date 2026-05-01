@@ -39,7 +39,9 @@ items:
                 "email": "owenunda@gmail.com",
                 "password": "012345"
               }
-          auth: inherit
+          auth:
+            type: bearer
+            token: ''
         runtime:
           scripts:
             - type: after-response
@@ -75,93 +77,6 @@ items:
                 "password": "012345"
               }
           auth: inherit
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-  - info:
-      name: food
-      type: folder
-      seq: 2
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: Update food
-          type: http
-          seq: 3
-        http:
-          method: PUT
-          url: http://localhost:3000/api/v1/food/1
-          body:
-            type: json
-            data: |-
-              {
-                "name": "Pechuga de Pollo Premium",
-                "calories_per_unit": 165,
-                "base_unit": "100g"
-              }
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: create custom food
-          type: http
-          seq: 2
-        http:
-          method: POST
-          url: http://localhost:3000/api/v1/food
-          body:
-            type: json
-            data: |-
-              {
-                "name": "Pechuga de Pollo a la Plancha",
-                "calories_per_unit": 165,
-                "base_unit": "100g"
-              }
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: desactivateFood
-          type: http
-          seq: 4
-        http:
-          method: DELETE
-          url: http://localhost:3000/api/v1/food/:id
-          params:
-            - name: id
-              value: '1'
-              type: path
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: getAllFoods
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/food
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
         settings:
           encodeUrl: true
           timeout: 0
@@ -229,31 +144,9 @@ items:
         http:
           method: GET
           url: http://localhost:3000/api/v1/recipe
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: updateRecipeStatus
-          type: http
-          seq: 4
-        http:
-          method: PATCH
-          url: http://localhost:3000/api/v1/recipe/:id/status
-          params:
-            - name: id
-              value: '4'
-              type: path
           body:
             type: json
-            data: |-
-              {
-                "status_id": "4"
-              }
+            data: ''
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -272,10 +165,38 @@ items:
       - info:
           name: getAllUser
           type: http
-          seq: 2
+          seq: 1
         http:
           method: GET
           url: http://localhost:3000/api/v1/user
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
+      name: food
+      type: folder
+      seq: 2
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: create custom food
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/food
+          body:
+            type: json
+            data: |
+              {
+                "name": "Pechuga de Pollo a la Plancha",
+                "calories_per_unit": 165,
+                "base_unit": "100g"
+              }
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -285,12 +206,76 @@ items:
           followRedirects: true
           maxRedirects: 5
       - info:
-          name: getUserProfile
+          name: desactivateFood
+          type: http
+          seq: 4
+        http:
+          method: DELETE
+          url: http://localhost:3000/api/v1/food/:id
+          params:
+            - name: id
+              value: '1'
+              type: path
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: getAllFoods
           type: http
           seq: 1
         http:
           method: GET
-          url: http://localhost:3000/api/v1/user/profile
+          url: http://localhost:3000/api/v1/food
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: 'Update food '
+          type: http
+          seq: 3
+        http:
+          method: PUT
+          url: http://localhost:3000/api/v1/food/1
+          body:
+            type: json
+            data: |-
+              {
+                "name": "Pechuga de Pollo Premium",
+                "calories_per_unit": 165,
+                "base_unit": "100g"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
+      name: fridge
+      type: folder
+      seq: 5
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: Untitled
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/fridge
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -305,5 +290,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-05-01T21:45:47.456Z'
+    exportedAt: '2026-05-01T22:20:21.376Z'
     exportedUsing: Bruno
