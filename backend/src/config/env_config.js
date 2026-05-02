@@ -16,5 +16,9 @@ export const config = {
     },
     jwt: {
         secret: env.JWT_SECRET,
+    },
+    n8n: {
+        url_dev: env.N8N_URL_DEV,
+        url_pro: env.N8N_URL_PRO,
     }
 }   

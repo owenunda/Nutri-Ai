@@ -35,7 +35,6 @@ export const getAuthModuleStatus = async () => {
 export const loginUser = async ({ email, password }) => {
   try {
     const user = await findUserByEmail(email);
-
     if (!user) {
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
@@ -55,6 +54,8 @@ export const loginUser = async ({ email, password }) => {
       email: user.email,
       role: user.role,
       plan: user.plan,
+      name: user.name,
+      goal: user.goal
     };
 
     const token = jwt.sign(tokenPayload, config.jwt.secret, {

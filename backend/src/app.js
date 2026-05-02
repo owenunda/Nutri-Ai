@@ -5,7 +5,10 @@ import fridgeRoutes from './modules/fridge/fridge.routes.js';
 import recipeRoutes from './modules/recipe/recipe.routes.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import userRoutes from './modules/user/user.routes.js';
+import authenticateToken from './middleware/auth.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
+import { errorResponse, successResponse } from './utils/response.js';
+import { sendChatN8n } from './utils/n8n.service.js';
 
 const app = express();
 
@@ -21,6 +24,20 @@ app.get('/api/v1/health', (req, res) => {
     message: 'NutriAI API is running'
   });
 });
+
+app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), async (req, res) => {
+  try {
+    const { message } = req.body;
+    const { userId, name } = req.user;
+    if (!message) throw new AppError("Bad request", 400, "BAD_REQUEST");
+
+    const result = await sendChatN8n(message, userId, name);
+    return successResponse(res, result, 'Mensaje enviado correctamente a n8n');
+  } catch (error) {
+    errorResponse(res, error.message, error.code, error.status, error.details);
+  }
+})
+
 
 // Rutas del módulo food
 app.use('/api/v1/food', foodRoutes);
