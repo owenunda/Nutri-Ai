@@ -1,5 +1,5 @@
 import { AppError } from '../../utils/AppError.js';
-import { getFridgeByUserIdRepository } from './fridge.repository.js';
+import { createFridgeRepository, getFridgeByUserIdRepository } from './fridge.repository.js';
 
 export const getFridge = async (userId) => {
     try {
@@ -30,4 +30,21 @@ export const getFridgeModuleStatus = async () => {
         module: 'fridge',
         status: 'running',
     };
+};
+
+// Crea la nevera del usuario, validando que no exista una previa
+export const createFridgeService = async (userId) => {
+    try {
+        const existing = await getFridgeByUserIdRepository(userId);
+
+        if (existing) {
+            throw new AppError('User already has a fridge', 409, 'FRIDGE_ALREADY_EXISTS');
+        }
+
+        const fridge = await createFridgeRepository(userId);
+        return fridge;
+    } catch (error) {
+        if (error instanceof AppError) throw error;
+        throw new AppError(error.message, 500, 'FRIDGE_SERVICE_ERROR');
+    }
 };
