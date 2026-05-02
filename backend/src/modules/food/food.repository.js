@@ -172,3 +172,17 @@ export const deactivateFood = async (id) => {
   const { rows } = await pool.query(query, [id]);
   return rows[0];
 };
+
+/**
+ * Verifica si existe un alimento con el nombre dado (global o creado por el usuario)
+ */
+export const findFoodByName = async (name, userId) => {
+  const query = `
+        SELECT food_id AS "foodId", name, is_global AS "isGlobal", created_by_user_id AS "createdByUserId"
+        FROM foods
+        WHERE name = $1 AND (is_global = true OR created_by_user_id = $2)
+        LIMIT 1
+    `;
+  const { rows } = await pool.query(query, [name, userId]);
+  return rows[0];
+};
