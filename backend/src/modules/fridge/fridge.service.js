@@ -1,5 +1,5 @@
 import { AppError } from '../../utils/AppError.js';
-import { createFridgeRepository, getFridgeByUserIdRepository } from './fridge.repository.js';
+import { addFridgeItemRepository, createFridgeRepository, getFridgeByUserIdRepository } from './fridge.repository.js';
 
 export const getFridge = async (userId) => {
     try {
@@ -43,6 +43,23 @@ export const createFridgeService = async (userId) => {
 
         const fridge = await createFridgeRepository(userId);
         return fridge;
+    } catch (error) {
+        if (error instanceof AppError) throw error;
+        throw new AppError(error.message, 500, 'FRIDGE_SERVICE_ERROR');
+    }
+};
+
+// Agrega automáticamente un alimento recién creado a la nevera del usuario
+export const addItemToFridgeService = async (userId, foodId, unit) => {
+    try {
+        const fridge = await getFridgeByUserIdRepository(userId);
+
+        if (!fridge) {
+            throw new AppError('Fridge not found for this user', 404, 'FRIDGE_NOT_FOUND');
+        }
+
+        const item = await addFridgeItemRepository(fridge.fridgeId, foodId, unit);
+        return item;
     } catch (error) {
         if (error instanceof AppError) throw error;
         throw new AppError(error.message, 500, 'FRIDGE_SERVICE_ERROR');
