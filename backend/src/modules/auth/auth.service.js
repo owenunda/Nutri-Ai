@@ -8,6 +8,8 @@ import {
   getAuthRepositoryStatus,
   getDefaultRoleAndPlanIds,
 } from './auth.repository.js';
+import { createFridgeService } from '../fridge/fridge.service.js'; // línea nueva
+
 
 const JWT_EXPIRES_IN = '15m';
 const SALT_ROUNDS = 10;
@@ -102,6 +104,9 @@ export const registerUser = async ({ name, email, password, goal }) => {
       roleId: Number(defaults.roleId),
       planId: Number(defaults.planId),
     });
+
+    // Crea automáticamente la nevera del usuario recién registrado
+    await createFridgeService(newUser.userId); // 👈 aquí
 
     return {
       ...newUser,
