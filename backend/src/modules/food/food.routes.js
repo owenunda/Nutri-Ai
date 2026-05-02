@@ -28,4 +28,7 @@ router.delete('/:id',
     FoodController.deleteFood
 );
 
+// ruta para matchear alimentos
+router.post('/match', authenticateToken(['USER', 'ADMIN']), FoodController.matchFoods);
+
 export default router;

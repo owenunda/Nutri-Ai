@@ -9,6 +9,8 @@ import authenticateToken from './middleware/auth.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 import { errorResponse, successResponse } from './utils/response.js';
 import { sendChatN8n } from './utils/n8n.service.js';
+import { AppError } from './utils/AppError.js';
+
 
 const app = express();
 
@@ -29,9 +31,11 @@ app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), async (req, r
   try {
     const { message } = req.body;
     const { userId, name } = req.user;
+    const token = req.headers.authorization?.split(" ")[1];
+
     if (!message) throw new AppError("Bad request", 400, "BAD_REQUEST");
 
-    const result = await sendChatN8n(message, userId, name);
+    const result = await sendChatN8n(message, userId, name, token);
     return successResponse(res, result, 'Mensaje enviado correctamente a n8n');
   } catch (error) {
     errorResponse(res, error.message, error.code, error.status, error.details);

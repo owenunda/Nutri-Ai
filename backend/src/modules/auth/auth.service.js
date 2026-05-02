@@ -11,7 +11,7 @@ import {
 import { createFridgeService } from '../fridge/fridge.service.js'; // línea nueva
 
 
-const JWT_EXPIRES_IN = '15m';
+const JWT_EXPIRES_IN = '1h';
 const SALT_ROUNDS = 10;
 
 export const getAuthModuleStatus = async () => {

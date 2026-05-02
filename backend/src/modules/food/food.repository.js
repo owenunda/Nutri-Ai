@@ -172,3 +172,17 @@ export const deactivateFood = async (id) => {
   const { rows } = await pool.query(query, [id]);
   return rows[0];
 };
+
+export const findFoodByName = async (name) => {
+    const query = `
+        SELECT 
+            food_id AS "foodId", 
+            name, 
+            calories_per_unit AS "caloriesPerUnit", 
+            base_unit AS "baseUnit"
+        FROM foods
+        WHERE name = $1
+    `;
+    const { rows } = await pool.query(query, [name]);
+    return rows[0];
+}

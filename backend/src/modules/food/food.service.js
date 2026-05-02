@@ -103,3 +103,32 @@ export const deactivateFoodItem = async (foodId, userId) => {
         throw new AppError(error.message, 500, 'FOOD_SERVICE_ERROR');
     }
 };
+
+export const matchFoods = async (ingredients, userId) => {
+    try {
+        const matchedFoods = [];
+        
+        for (const ingredient of ingredients) {
+            // Normalizar el nombre (minúsculas, sin espacios extras, y quitar 's' final para plurales básicos)
+            const normalizedName = ingredient.name
+                .toLowerCase()
+                .trim()
+                .replace(/s$/, ""); // tomates → tomate
+                
+            const food = await foodRepository.findFoodByName(normalizedName);
+            
+            if (food) {
+                matchedFoods.push({
+                    ...food,
+                    quantity: ingredient.quantity ?? 1 
+                });
+            }
+        }
+        
+        return matchedFoods;
+
+    } catch (error) {
+        if (error instanceof AppError) throw error;
+        throw new AppError(error.message, 500, 'FOOD_SERVICE_ERROR');
+    }
+}
