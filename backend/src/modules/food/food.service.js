@@ -1,7 +1,7 @@
 import * as foodRepository from './food.repository.js';
 import { AppError } from '../../utils/AppError.js';
 import { validateCreateFood, validateUpdateFood } from './food.validation.js';
-
+import { addItemToFridgeService } from '../fridge/fridge.service.js';
 /**
  * Obtiene la lista de alimentos (Globales y específicos del usuario)
  */
@@ -30,8 +30,20 @@ export const getFoodModuleStatus = async () => {
 export const createFood = async (foodData) => {
     try {
         validateCreateFood(foodData);
+
+        // Verificar si el alimento ya existe (global o creado por el usuario)
+        const existingFood = await foodRepository.findFoodByName(foodData.name, foodData.userId);
+        if (existingFood) {
+            throw new AppError('Food item with this name already exists', 409, 'DUPLICATE_FOOD');
+        }
+
         // En el futuro se pueden añadir validaciones de negocio aquí
-        return await foodRepository.create(foodData);
+        const foodId = await foodRepository.create(foodData);
+
+        // Agregar el alimento a la nevera del usuario
+        await addItemToFridgeService(foodData.userId, foodId, foodData.base_unit);
+
+        return foodId;
     } catch (error) {
         if (error instanceof AppError) throw error;
         throw new AppError(error.message, 500, 'FOOD_SERVICE_ERROR');
@@ -45,6 +57,15 @@ export const updateFoodItem = async (foodId, userId, updateData) => {
     try {
 
         validateUpdateFood(updateData);
+
+        // Si se está actualizando el nombre, verificar duplicados
+        if (updateData.name) {
+            const existingFood = await foodRepository.findFoodByName(updateData.name, userId);
+            if (existingFood && existingFood.foodId !== foodId) {
+                throw new AppError('Food item with this name already exists', 409, 'DUPLICATE_FOOD');
+            }
+        }
+
         // 1. Buscamos el alimento usando el ID de la URL
         const food = await foodRepository.getFoodById(foodId);
 
