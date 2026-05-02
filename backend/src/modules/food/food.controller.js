@@ -90,11 +90,11 @@ export const deleteFood = async (req, res, next) => {
 
 export const matchFoods = async (req, res, next) => {
     try {
-        const { ingredients } = req.body;
+        const ingredients = Array.isArray(req.body) ? req.body : req.body.ingredients;
         const userId = req.user.userId;
         const foods = await matchFoodsService(ingredients, userId);
         return successResponse(res, foods, 'Foods matched successfully', 200);
     } catch (error) {
-        console.log(error);
+        next(error);
     }
 }
