@@ -35,3 +35,18 @@ export const getFridgeByUserIdRepository = async (userId) => {
     const { rows } = await pool.query(query, [userId]);
     return rows[0] || null;
 };
+// Crea una nevera nueva para el usuario recién registrado
+export const createFridgeRepository = async (userId) => {
+    const query = `
+        INSERT INTO fridges (user_id)
+        VALUES ($1)
+        RETURNING
+            fridge_id  AS "fridgeId",
+            user_id    AS "userId",
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+    `;
+
+    const { rows } = await pool.query(query, [userId]);
+    return rows[0];
+};
