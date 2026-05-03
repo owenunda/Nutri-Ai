@@ -84,93 +84,6 @@ items:
           followRedirects: true
           maxRedirects: 5
   - info:
-      name: food
-      type: folder
-      seq: 2
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: create custom food
-          type: http
-          seq: 2
-        http:
-          method: POST
-          url: http://localhost:3000/api/v1/food
-          body:
-            type: json
-            data: |
-              {
-                "name": "huevo",
-                "calories_per_unit": 165,
-                "base_unit": "100g"
-              }
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: desactivateFood
-          type: http
-          seq: 4
-        http:
-          method: DELETE
-          url: http://localhost:3000/api/v1/food/:id
-          params:
-            - name: id
-              value: '1'
-              type: path
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: getAllFoods
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/food
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: 'Update food '
-          type: http
-          seq: 3
-        http:
-          method: PUT
-          url: http://localhost:3000/api/v1/food/1
-          body:
-            type: json
-            data: |-
-              {
-                "name": "Pechuga de Pollo Premium",
-                "calories_per_unit": 165,
-                "base_unit": "100g"
-              }
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-  - info:
       name: fridge
       type: folder
       seq: 5
@@ -188,10 +101,25 @@ items:
             type: json
             data: |-
               {
-                "foodId": 16,
-                "quantity": 1,
-                "unit": "unidades"
+                "foodId": 17,
+                "quantity": 2.5,
+                "unit": "kg"
               }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: delete item fridge
+          type: http
+          seq: 4
+        http:
+          method: DELETE
+          url: http://localhost:3000/api/v1/fridge/items/6
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -224,25 +152,10 @@ items:
           seq: 3
         http:
           method: PUT
-          url: http://localhost:3000/api/v1/fridge/items/1
+          url: http://localhost:3000/api/v1/fridge/items/6
           body:
             type: json
             data: '{"quantity": 5.0}'
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: delete item fridge
-          type: http
-          seq: 4
-        http:
-          method: DELETE
-          url: http://localhost:3000/api/v1/fridge/items/1
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -325,6 +238,91 @@ items:
           followRedirects: true
           maxRedirects: 5
   - info:
+      name: food
+      type: folder
+      seq: 2
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: create custom food
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/food
+          body:
+            type: json
+            data: |
+              {
+                "name": "Banana",
+                "caloriesPerUnit": 89,
+                "baseUnit": "unidad"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: desactivateFood
+          type: http
+          seq: 4
+        http:
+          method: DELETE
+          url: http://localhost:3000/api/v1/food/:id
+          params:
+            - name: id
+              value: '1'
+              type: path
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: getAllFoods
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/food
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: 'Update food '
+          type: http
+          seq: 3
+        http:
+          method: PUT
+          url: http://localhost:3000/api/v1/food/17
+          body:
+            type: json
+            data: |-
+              {
+                "caloriesPerUnit": 95
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
       name: user
       type: folder
       seq: 4
@@ -350,5 +348,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-05-03T01:21:33.414Z'
+    exportedAt: '2026-05-03T02:57:50.143Z'
     exportedUsing: Bruno

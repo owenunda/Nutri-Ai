@@ -100,16 +100,18 @@ export const checkFoodExistsRepository = async (foodId) => {
 // Actualiza la cantidad de un item en la nevera, verificando propiedad
 export const updateFridgeItemRepository = async (itemId, userId, quantity) => {
     const query = `
-        UPDATE fridge_items
+        UPDATE fridge_items fi
         SET quantity = $1, updated_at = NOW()
-        WHERE fridge_item_id = $2
-        AND fridge_id = (SELECT fridge_id FROM fridges WHERE user_id = $3)
+        FROM fridges fr
+        WHERE fi.fridge_item_id = $2
+        AND fi.fridge_id = fr.fridge_id
+        AND fr.user_id = $3
         RETURNING
-            fridge_item_id AS "fridgeItemId",
-            fridge_id      AS "fridgeId",
-            food_id        AS "foodId",
-            quantity,
-            unit
+            fi.fridge_item_id AS "fridgeItemId",
+            fi.fridge_id      AS "fridgeId",
+            fi.food_id        AS "foodId",
+            fi.quantity,
+            fi.unit
     `;
 
     const { rows } = await pool.query(query, [quantity, itemId, userId]);
@@ -118,47 +120,39 @@ export const updateFridgeItemRepository = async (itemId, userId, quantity) => {
 
 // Elimina un item de la nevera, validando propiedad del usuario
 export const deleteFridgeItemRepository = async (itemId, userId) => {
-    // Primero, obtener el food_id del item a eliminar
-    const getItemQuery = `
-        SELECT fi.food_id, f.is_global, f.created_by_user_id
-        FROM fridge_items fi
-        JOIN foods f ON f.food_id = fi.food_id
-        WHERE fi.fridge_item_id = $1
-        AND fi.fridge_id = (SELECT fridge_id FROM fridges WHERE user_id = $2)
-    `;
-    const { rows: itemRows } = await pool.query(getItemQuery, [itemId, userId]);
-    if (itemRows.length === 0) {
-        return null; // Item no encontrado o no pertenece al usuario
-    }
-
-    const { food_id, is_global, created_by_user_id } = itemRows[0];
-
-    // Eliminar el item de la nevera
-    const deleteQuery = `
-        DELETE FROM fridge_items
-        WHERE fridge_item_id = $1
-        AND fridge_id = (SELECT fridge_id FROM fridges WHERE user_id = $2)
-        RETURNING
-            fridge_item_id AS "fridgeItemId",
-            fridge_id      AS "fridgeId",
-            food_id        AS "foodId",
-            quantity,
-            unit
-    `;
-    const { rows } = await pool.query(deleteQuery, [itemId, userId]);
-    if (rows.length === 0) {
-        return null;
-    }
-
-    // Si el alimento es personalizado y creado por el usuario, desactivarlo
-    if (!is_global && created_by_user_id === userId) {
-        const deactivateQuery = `
-            UPDATE foods
+    const query = `
+        WITH item AS (
+            SELECT fi.food_id, f.is_global, f.created_by_user_id
+            FROM fridge_items fi
+            JOIN foods f ON f.food_id = fi.food_id
+            JOIN fridges fr ON fr.fridge_id = fi.fridge_id
+            WHERE fi.fridge_item_id = $1
+              AND fr.user_id = $2
+        ),
+        deleted AS (
+            DELETE FROM fridge_items fi
+            USING fridges fr
+            WHERE fi.fridge_item_id = $1
+              AND fi.fridge_id = fr.fridge_id
+              AND fr.user_id = $2
+            RETURNING
+                fi.fridge_item_id AS "fridgeItemId",
+                fi.fridge_id      AS "fridgeId",
+                fi.food_id        AS "foodId",
+                fi.quantity,
+                fi.unit
+        ),
+        deactivated AS (
+            UPDATE foods f
             SET is_active = false, updated_at = NOW()
-            WHERE food_id = $1
-        `;
-        await pool.query(deactivateQuery, [food_id]);
-    }
+            FROM item
+            WHERE f.food_id = item.food_id
+              AND item.is_global = false
+              AND item.created_by_user_id = $2
+        )
+        SELECT * FROM deleted;
+    `;
 
-    return rows[0];
+    const { rows } = await pool.query(query, [itemId, userId]);
+    return rows[0] || null;
 };
