@@ -1,5 +1,5 @@
 import { AppError } from '../../utils/AppError.js';
-import { addFridgeItemRepository, createFridgeRepository, getFridgeByUserIdRepository } from './fridge.repository.js';
+import { addFridgeItemRepository, addOrUpdateFridgeItemRepository, checkFoodExistsRepository, createFridgeRepository, getFridgeByUserIdRepository } from './fridge.repository.js';
 
 export const getFridge = async (userId) => {
     try {
@@ -59,6 +59,30 @@ export const addItemToFridgeService = async (userId, foodId, unit) => {
         }
 
         const item = await addFridgeItemRepository(fridge.fridgeId, foodId, unit);
+        return item;
+    } catch (error) {
+        if (error instanceof AppError) throw error;
+        throw new AppError(error.message, 500, 'FRIDGE_SERVICE_ERROR');
+    }
+};
+
+// Agrega o actualiza un item en la nevera del usuario con cantidad específica
+export const addItemToFridgeWithQuantityService = async (userId, foodId, quantity, unit) => {
+    try {
+        // Verificar que el alimento existe y está activo
+        const food = await checkFoodExistsRepository(foodId);
+        if (!food) {
+            throw new AppError('Food item not found or inactive', 404, 'FOOD_NOT_FOUND');
+        }
+
+        // Obtener la nevera del usuario
+        const fridge = await getFridgeByUserIdRepository(userId);
+        if (!fridge) {
+            throw new AppError('Fridge not found for this user', 404, 'FRIDGE_NOT_FOUND');
+        }
+
+        // Agregar o actualizar el item
+        const item = await addOrUpdateFridgeItemRepository(fridge.fridgeId, foodId, quantity, unit);
         return item;
     } catch (error) {
         if (error instanceof AppError) throw error;

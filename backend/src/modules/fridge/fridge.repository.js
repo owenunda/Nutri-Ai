@@ -63,3 +63,36 @@ export const addFridgeItemRepository = async (fridgeId, foodId, unit) => {
     const { rows } = await pool.query(query, [fridgeId, foodId, unit]);
     return rows[0];
 };
+
+// Agrega o actualiza un item en la nevera (upsert)
+export const addOrUpdateFridgeItemRepository = async (fridgeId, foodId, quantity, unit) => {
+    const query = `
+        INSERT INTO fridge_items (fridge_id, food_id, quantity, unit)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (fridge_id, food_id)
+        DO UPDATE SET
+            quantity = fridge_items.quantity + EXCLUDED.quantity,
+            unit = EXCLUDED.unit,
+            updated_at = NOW()
+        RETURNING
+            fridge_item_id AS "fridgeItemId",
+            fridge_id      AS "fridgeId",
+            food_id        AS "foodId",
+            quantity,
+            unit
+    `;
+
+    const { rows } = await pool.query(query, [fridgeId, foodId, quantity, unit]);
+    return rows[0];
+};
+
+// Verifica si un alimento existe y está activo
+export const checkFoodExistsRepository = async (foodId) => {
+    const query = `
+        SELECT food_id AS "foodId", name, is_active AS "isActive"
+        FROM foods
+        WHERE food_id = $1 AND is_active = true
+    `;
+    const { rows } = await pool.query(query, [foodId]);
+    return rows[0] || null;
+};
