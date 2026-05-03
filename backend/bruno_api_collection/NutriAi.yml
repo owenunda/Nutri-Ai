@@ -236,6 +236,21 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
+      - info:
+          name: delete item fridge
+          type: http
+          seq: 4
+        http:
+          method: DELETE
+          url: http://localhost:3000/api/v1/fridge/items/1
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
   - info:
       name: recipe
       type: folder
@@ -335,5 +350,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-05-03T00:31:34.863Z'
+    exportedAt: '2026-05-03T01:21:33.414Z'
     exportedUsing: Bruno

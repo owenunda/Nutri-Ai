@@ -70,3 +70,19 @@ export const validateUpdateFridgeItem = (req, res, next) => {
 
     next();
 };
+
+/**
+ * Middleware: Valida el ID y el body para eliminar un item de la nevera
+ */
+export const validateDeleteFridgeItem = (req, res, next) => {
+    const itemId = Number(req.params.id);
+    if (!Number.isInteger(itemId) || itemId <= 0) {
+        return next(new AppError('Item ID must be a positive integer', 400, 'VALIDATION_ERROR'));
+    }
+
+    req.fridgeDeleteData = {
+        itemId,
+    };
+
+    next();
+};
