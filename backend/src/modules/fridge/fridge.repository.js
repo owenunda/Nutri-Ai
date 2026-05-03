@@ -115,3 +115,50 @@ export const updateFridgeItemRepository = async (itemId, userId, quantity) => {
     const { rows } = await pool.query(query, [quantity, itemId, userId]);
     return rows[0] || null;
 };
+
+// Elimina un item de la nevera, validando propiedad del usuario
+export const deleteFridgeItemRepository = async (itemId, userId) => {
+    // Primero, obtener el food_id del item a eliminar
+    const getItemQuery = `
+        SELECT fi.food_id, f.is_global, f.created_by_user_id
+        FROM fridge_items fi
+        JOIN foods f ON f.food_id = fi.food_id
+        WHERE fi.fridge_item_id = $1
+        AND fi.fridge_id = (SELECT fridge_id FROM fridges WHERE user_id = $2)
+    `;
+    const { rows: itemRows } = await pool.query(getItemQuery, [itemId, userId]);
+    if (itemRows.length === 0) {
+        return null; // Item no encontrado o no pertenece al usuario
+    }
+
+    const { food_id, is_global, created_by_user_id } = itemRows[0];
+
+    // Eliminar el item de la nevera
+    const deleteQuery = `
+        DELETE FROM fridge_items
+        WHERE fridge_item_id = $1
+        AND fridge_id = (SELECT fridge_id FROM fridges WHERE user_id = $2)
+        RETURNING
+            fridge_item_id AS "fridgeItemId",
+            fridge_id      AS "fridgeId",
+            food_id        AS "foodId",
+            quantity,
+            unit
+    `;
+    const { rows } = await pool.query(deleteQuery, [itemId, userId]);
+    if (rows.length === 0) {
+        return null;
+    }
+
+    // Si el alimento es personalizado y creado por el usuario, desactivarlo
+    if (!is_global && created_by_user_id === userId) {
+        const deactivateQuery = `
+            UPDATE foods
+            SET is_active = false, updated_at = NOW()
+            WHERE food_id = $1
+        `;
+        await pool.query(deactivateQuery, [food_id]);
+    }
+
+    return rows[0];
+};
