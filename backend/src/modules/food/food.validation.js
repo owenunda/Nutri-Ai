@@ -41,12 +41,12 @@ export const validateListFoodsQuery = (req, res, next) => {
 export const validateCreateFood = (data) => {
     const { name, calories_per_unit, base_unit } = data;
 
-    if (!name || !base_unit || calories_per_unit === undefined) {
+    if (!name || calories_per_unit === undefined || !base_unit) {
         throw new AppError('Missing required fields: name, calories_per_unit, or base_unit', 400, 'VALIDATION_ERROR');
     }
 
-    if (typeof calories_per_unit !== 'number' || calories_per_unit <= 0) {
-        throw new AppError('Calories must be greater than 0', 400, 'VALIDATION_ERROR');
+    if (typeof calories_per_unit !== 'number' || Number.isNaN(calories_per_unit) || calories_per_unit <= 0) {
+        throw new AppError('Calories must be a number greater than 0', 400, 'VALIDATION_ERROR');
     }
 
     if (typeof name !== 'string' || name.trim() === '') {
@@ -67,16 +67,20 @@ export const validateUpdateFood = (data) => {
     }
 
     if (data.calories_per_unit !== undefined) {
-        if (typeof data.calories_per_unit !== 'number' || data.calories_per_unit <= 0) {
-            throw new AppError('Calories must be greater than 0', 400, 'VALIDATION_ERROR');
+        if (typeof data.calories_per_unit !== 'number' || Number.isNaN(data.calories_per_unit) || data.calories_per_unit <= 0) {
+            throw new AppError('Calories must be a number greater than 0', 400, 'VALIDATION_ERROR');
         }
     }
 
-    if (data.name !== undefined && (typeof data.name !== 'string' || data.name.trim() === '')) {
-        throw new AppError('Name cannot be empty', 400, 'VALIDATION_ERROR');
+    if (data.name !== undefined) {
+        if (typeof data.name !== 'string' || data.name.trim() === '') {
+            throw new AppError('Name cannot be empty', 400, 'VALIDATION_ERROR');
+        }
     }
 
-    if (data.base_unit !== undefined && (typeof data.base_unit !== 'string' || data.base_unit.trim() === '')) {
-        throw new AppError('Base unit cannot be empty', 400, 'VALIDATION_ERROR');
+    if (data.base_unit !== undefined) {
+        if (typeof data.base_unit !== 'string' || data.base_unit.trim() === '') {
+            throw new AppError('Base unit cannot be empty', 400, 'VALIDATION_ERROR');
+        }
     }
 };
