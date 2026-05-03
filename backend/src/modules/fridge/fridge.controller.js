@@ -1,5 +1,5 @@
 import { successResponse } from '../../utils/response.js';
-import { getFridge, getFridgeModuleStatus, addItemToFridgeWithQuantityService } from './fridge.service.js';
+import { getFridge, getFridgeModuleStatus, addItemToFridgeWithQuantityService, updateFridgeItemService } from './fridge.service.js';
 
 export const getFridgeItems = async (req, res, next) => {
     try {
@@ -27,6 +27,18 @@ export const addItemToFridge = async (req, res, next) => {
 
         const item = await addItemToFridgeWithQuantityService(userId, foodId, quantity, unit);
         return successResponse(res, item, 'Item added to fridge successfully', 201);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const updateFridgeItem = async (req, res, next) => {
+    try {
+        const userId = Number(req.user.userId);
+        const { itemId, quantity } = req.fridgeUpdateData;
+
+        const updatedItem = await updateFridgeItemService(userId, itemId, quantity);
+        return successResponse(res, updatedItem, 'Fridge item updated successfully', 200);
     } catch (error) {
         next(error);
     }

@@ -96,3 +96,22 @@ export const checkFoodExistsRepository = async (foodId) => {
     const { rows } = await pool.query(query, [foodId]);
     return rows[0] || null;
 };
+
+// Actualiza la cantidad de un item en la nevera, verificando propiedad
+export const updateFridgeItemRepository = async (itemId, userId, quantity) => {
+    const query = `
+        UPDATE fridge_items
+        SET quantity = $1, updated_at = NOW()
+        WHERE fridge_item_id = $2
+        AND fridge_id = (SELECT fridge_id FROM fridges WHERE user_id = $3)
+        RETURNING
+            fridge_item_id AS "fridgeItemId",
+            fridge_id      AS "fridgeId",
+            food_id        AS "foodId",
+            quantity,
+            unit
+    `;
+
+    const { rows } = await pool.query(query, [quantity, itemId, userId]);
+    return rows[0] || null;
+};
