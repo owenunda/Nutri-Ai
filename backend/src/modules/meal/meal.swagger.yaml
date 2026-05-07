@@ -1,0 +1,41 @@
+/api/v1/meals:
+  post:
+    summary: Crear una nueva comida/plan alimenticio
+    tags: [Meals]
+    security:
+      - bearerAuth: []
+    responses:
+      201:
+        description: Comida creada
+
+/api/v1/meals/{id}/items:
+  post:
+    summary: Añadir ítems (alimentos) a una comida
+    tags: [Meals]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Ítems añadidos
+
+/api/v1/meals/{id}/recipes:
+  post:
+    summary: Añadir recetas a una comida
+    tags: [Meals]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Recetas añadidas

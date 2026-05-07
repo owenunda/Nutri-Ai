@@ -1,0 +1,80 @@
+/api/v1/fridge/health:
+  get:
+    summary: Verificar el estado del módulo de nevera
+    tags: [Fridge]
+    responses:
+      200:
+        description: El módulo de nunca está funcionando
+
+/api/v1/fridge:
+  get:
+    summary: Obtener los artículos en la nevera del usuario
+    tags: [Fridge]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: Inventario obtenido exitosamente
+
+/api/v1/fridge/items:
+  post:
+    summary: Agregar un alimento a la nevera
+    tags: [Fridge]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [foodId, cantidad]
+            properties:
+              foodId:
+                type: integer
+              cantidad:
+                type: number
+              unidad:
+                type: string
+    responses:
+      201:
+        description: Agregado correctamente
+
+/api/v1/fridge/items/{id}:
+  put:
+    summary: Actualizar cantidad en la nevera
+    tags: [Fridge]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              cantidad:
+                type: number
+    responses:
+      200:
+        description: Actualizado correctamente
+  delete:
+    summary: Eliminar ítem de la nevera
+    tags: [Fridge]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Eliminado correctamente

@@ -1,0 +1,9 @@
+/api/v1/ai/recipe:
+  post:
+    summary: Recibir receta generada por IA
+    tags: [AI]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: Receta procesada correctamente

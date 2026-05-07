@@ -1,0 +1,92 @@
+/api/v1/recipe:
+  get:
+    summary: Listar todas las recetas
+    tags: [Recipes]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: Lista de recetas
+  post:
+    summary: Crear una nueva receta
+    tags: [Recipes]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              titulo:
+                type: string
+              instrucciones:
+                type: string
+    responses:
+      201:
+        description: Receta creada
+
+/api/v1/recipe/{recipeId}:
+  get:
+    summary: Obtener receta por ID
+    tags: [Recipes]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: recipeId
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Detalles de la receta
+
+/api/v1/recipe/{recipeId}/ingredients:
+  post:
+    summary: Añadir ingredientes a una receta
+    tags: [Recipes]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: recipeId
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Ingredientes añadidos
+
+/api/v1/recipe/{recipeId}/status:
+  patch:
+    summary: Actualizar estado de la receta
+    tags: [Recipes]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: recipeId
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Estado actualizado
+
+/api/v1/recipe/{recipeId}/action:
+  post:
+    summary: Ejecutar acción sobre la receta
+    tags: [Recipes]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: recipeId
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Acción ejecutada

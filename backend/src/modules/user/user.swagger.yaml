@@ -1,0 +1,47 @@
+/api/v1/user/profile:
+  get:
+    summary: Obtener perfil del usuario
+    tags: [User]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: Perfil del usuario obtenido
+  put:
+    summary: Actualizar perfil del usuario
+    tags: [User]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              nombre:
+                type: string
+    responses:
+      200:
+        description: Perfil actualizado
+
+/api/v1/user/physical:
+  post:
+    summary: Crear registro físico del usuario (peso, altura, etc)
+    tags: [User]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              peso:
+                type: number
+              altura:
+                type: number
+    responses:
+      201:
+        description: Registro físico creado

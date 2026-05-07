@@ -1,0 +1,55 @@
+/api/v1/auth/health:
+  get:
+    summary: Verificar el estado del módulo de autenticación
+    tags: [Auth]
+    responses:
+      200:
+        description: El módulo de autenticación está funcionando
+
+/api/v1/auth/login:
+  post:
+    summary: Iniciar sesión
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [email, password]
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: password
+    responses:
+      200:
+        description: Login exitoso
+      401:
+        $ref: '#/components/responses/UnauthorizedError'
+
+/api/v1/auth/register:
+  post:
+    summary: Registrar un nuevo usuario
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [nombre, email, password]
+            properties:
+              nombre:
+                type: string
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: password
+    responses:
+      201:
+        description: Usuario registrado exitosamente
