@@ -19,6 +19,18 @@ config:
           value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib3dlbnVuZGFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJwbGFuIjoiRlJFRSIsImlhdCI6MTc3NzQxMzI1OCwiZXhwIjoxNzc3NDk5NjU4fQ.JVzJFduH_kRX9AgilKN-5uCNbKAdSqp199a-TCAqW38
 items:
   - info:
+      name: health
+      type: http
+      seq: 0
+    http:
+      method: GET
+      url: http://localhost:3000/api/v1/health
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+  - info:
       name: auth
       type: folder
       seq: 1
@@ -78,6 +90,18 @@ items:
                   "goal": "lose weight"
               }
           auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: health
+          type: http
+          seq: 3
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/auth/health
         settings:
           encodeUrl: true
           timeout: 0
@@ -168,6 +192,18 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
+      - info:
+          name: health
+          type: http
+          seq: 5
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/food/health
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
   - info:
       name: recipe
       type: folder
@@ -241,6 +277,76 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
+      - info:
+          name: getRecipeById
+          type: http
+          seq: 4
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/recipe/:id
+          params:
+            - name: id
+              value: '1'
+              type: path
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: updateRecipeStatus
+          type: http
+          seq: 5
+        http:
+          method: PATCH
+          url: http://localhost:3000/api/v1/recipe/:id/status
+          params:
+            - name: id
+              value: '1'
+              type: path
+          body:
+            type: json
+            data: |-
+              {
+                "status": "COMPLETED"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: recipeAction
+          type: http
+          seq: 6
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/recipe/:id/action
+          params:
+            - name: id
+              value: '1'
+              type: path
+          body:
+            type: json
+            data: |-
+              {
+                "action": "accept",
+                "date": "2026-05-07"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
   - info:
       name: user
       type: folder
@@ -249,12 +355,12 @@ items:
       auth: inherit
     items:
       - info:
-          name: getAllUser
+          name: getProfile
           type: http
           seq: 1
         http:
           method: GET
-          url: http://localhost:3000/api/v1/user
+          url: http://localhost:3000/api/v1/user/profile
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -355,7 +461,7 @@ items:
           followRedirects: true
           maxRedirects: 5
       - info:
-          name: Untitled
+          name: getAllFridgeItems
           type: http
           seq: 1
         http:
@@ -382,6 +488,167 @@ items:
           body:
             type: json
             data: '{"quantity": 5.0}'
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: health
+          type: http
+          seq: 5
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/fridge/health
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
+      name: stats
+      type: folder
+      seq: 6
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: consumptionValidation
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/stats/consumption-validation
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: getTodayCalories
+          type: http
+          seq: 2
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/stats/today-calories
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
+      name: meals
+      type: folder
+      seq: 7
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: createMeal
+          type: http
+          seq: 1
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/meals
+          body:
+            type: json
+            data: |-
+              {
+                "date": "2026-05-07"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: addMealItems
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/meals/:id/items
+          params:
+            - name: id
+              value: '1'
+              type: path
+          body:
+            type: json
+            data: |-
+              [
+                { "food_id": 1, "quantity": 100 },
+                { "recipe_id": 1, "quantity": 1 }
+              ]
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: addMealRecipes
+          type: http
+          seq: 3
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/meals/:id/recipes
+          params:
+            - name: id
+              value: '1'
+              type: path
+          body:
+            type: json
+            data: |-
+              [
+                { "recipe_id": 1, "quantity": 1 }
+              ]
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
+      name: ai
+      type: folder
+      seq: 8
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: receiveRecipe
+          type: http
+          seq: 1
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/ai/recipe
+          body:
+            type: json
+            data: |-
+              {
+                "name": "Arroz chaufa saludable",
+                "description": "Una versión fit del clásico chaufa generada por NutriAI",
+                "ingredients": [
+                  { "food_id": 1, "quantity": 100, "unit": "g" },
+                  { "food_id": 2, "quantity": 50, "unit": "g" }
+                ]
+              }
           auth:
             type: bearer
             token: '{{TokenAccess}}'

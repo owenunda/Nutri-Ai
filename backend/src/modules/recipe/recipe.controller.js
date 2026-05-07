@@ -1,4 +1,4 @@
-import { getAllRecipesService, createRecipeService, addIngredientsToRecipeService, getRecipeByIdService, updateRecipeStatusService } from "./recipe.service.js";
+import { getAllRecipesService, createRecipeService, addIngredientsToRecipeService, getRecipeByIdService, updateRecipeStatusService, handleRecipeActionService } from "./recipe.service.js";
 import { successResponse } from "../../utils/response.js";
 
 export const getAllRecipes = async (req, res, next) => {
@@ -52,6 +52,25 @@ export const updateRecipeStatus = async (req, res, next) => {
     const { status_id } = req.body;
     const recipe = await updateRecipeStatusService(userId, recipeId, status_id);
     return successResponse(res, recipe, 'Estado de la receta actualizado correctamente');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const handleRecipeAction = async (req, res, next) => {
+  try {
+    const userId = Number(req.user.userId);
+    const { recipeId } = req.params;
+    const { action, date } = req.body;
+
+    const recipe = await handleRecipeActionService(userId, recipeId, action, date);
+    
+    return successResponse(
+      res, 
+      recipe, 
+      `Receta ${action === 'reject' ? 'rechazada' : (action === 'accept' ? 'aceptada' : 'ejecutada')} correctamente`, 
+      200
+    );
   } catch (error) {
     next(error);
   }

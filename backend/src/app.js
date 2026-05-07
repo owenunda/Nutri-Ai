@@ -5,6 +5,9 @@ import fridgeRoutes from './modules/fridge/fridge.routes.js';
 import recipeRoutes from './modules/recipe/recipe.routes.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import userRoutes from './modules/user/user.routes.js';
+import statsRoutes from './modules/stats/stats.routes.js';
+import mealRoutes from './modules/meal/meal.routes.js';
+import aiRoutes from './modules/ai/ai.routes.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 
 const app = express();
@@ -34,6 +37,15 @@ app.use('/api/v1/auth', authRoutes);
 
 // Rutas del módulo user 
 app.use('/api/v1/user', userRoutes);
+
+// Rutas del módulo stats
+app.use('/api/v1/stats', statsRoutes);
+
+// Rutas del módulo meal
+app.use('/api/v1/meals', mealRoutes);
+
+// Rutas de integración IA (n8n)
+app.use('/api/v1/ai', aiRoutes);
 
 // Middleware para rutas no encontradas
 app.use(notFoundHandler);

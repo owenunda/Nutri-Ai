@@ -1,4 +1,4 @@
-import { getAllRecipesRepository, createRecipeRepository, addIngredientsToRecipeRepository, getRecipeByIdRepository, updateRecipeStatusRepository } from "./recipe.repository.js";
+import { getAllRecipesRepository, createRecipeRepository, addIngredientsToRecipeRepository, getRecipeByIdRepository, updateRecipeStatusRepository, updateRecipeActionRepository } from "./recipe.repository.js";
 import { checkFoodsExist } from "../food/food.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
@@ -96,6 +96,37 @@ export const updateRecipeStatusService = async (userId, recipeId, statusId) => {
       throw new AppError('El ID de estado es requerido', 400, 'STATUS_ID_REQUIRED');
     }
     const recipe = await updateRecipeStatusRepository(userId, recipeId, statusId);
+    return recipe;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(error.message, 500, 'RECIPE_SERVICE_ERROR', error);
+  }
+};
+
+export const handleRecipeActionService = async (userId, recipeId, action, date) => {
+  try {
+    if (!action) {
+      throw new AppError('La acción es requerida (accept, reject, execute)', 400, 'ACTION_REQUIRED');
+    }
+
+    const actionMap = {
+      'accept': 2,  // ACCEPTED
+      'reject': 3,  // REJECTED
+      'execute': 4  // EXECUTED
+    };
+
+    const statusId = actionMap[action.toLowerCase()];
+
+    if (!statusId) {
+      throw new AppError('Acción no válida. Use: accept, reject, execute', 400, 'INVALID_ACTION');
+    }
+
+    // Si no se proporciona fecha, usar hoy
+    const recipeDate = date || new Date().toISOString().split('T')[0];
+
+    const recipe = await updateRecipeActionRepository(userId, recipeId, statusId, recipeDate);
     return recipe;
   } catch (error) {
     if (error instanceof AppError) {
