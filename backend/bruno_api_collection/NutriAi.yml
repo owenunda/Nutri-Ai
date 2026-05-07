@@ -242,6 +242,74 @@ items:
           followRedirects: true
           maxRedirects: 5
   - info:
+      name: user
+      type: folder
+      seq: 4
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: getAllUser
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/user
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: UserPhysicalDataLogger
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/user/physical
+          body:
+            type: json
+            data: |
+              {
+                "height": 175,
+                "weight": 72.5
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: UpdateUserData
+          type: http
+          seq: 6
+        http:
+          method: PUT
+          url: http://localhost:3000/api/v1/user/profile
+          body:
+            type: json
+            data: |
+              {
+                "age": 18,
+                "weight": 72.5,
+                "height": 175,
+                "goal": "Ganar masa muscular"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
       name: fridge
       type: folder
       seq: 5
@@ -314,50 +382,6 @@ items:
           body:
             type: json
             data: '{"quantity": 5.0}'
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-  - info:
-      name: user
-      type: folder
-      seq: 4
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: getAllUser
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/user
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: UserPhysicalDataLogger
-          type: http
-          seq: 2
-        http:
-          method: POST
-          url: http://localhost:3000/api/v1/user/physical
-          body:
-            type: json
-            data: |
-              {
-                "height": 175,
-                "weight": 72.5
-              }
           auth:
             type: bearer
             token: '{{TokenAccess}}'

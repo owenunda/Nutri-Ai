@@ -1,5 +1,9 @@
 import { AppError } from '../../utils/AppError.js';
-import { createPhysicalRecord, findUserProfileById } from './user.repository.js';
+import {
+  createPhysicalRecord,
+  findUserProfileById,
+  updateUserProfileData,
+} from './user.repository.js';
 
 export const getUserProfile = async (userId) => {
   try {
@@ -28,6 +32,24 @@ export const savePhysicalRecord = async (userId, physicalData) => {
     }
 
     return physicalRecord;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw new AppError(error.message, 500, 'USER_SERVICE_ERROR');
+  }
+};
+
+export const updateUserProfile = async (userId, profileData) => {
+  try {
+    const updatedUser = await updateUserProfileData(userId, profileData);
+
+    if (!updatedUser) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    return updatedUser;
   } catch (error) {
     if (error instanceof AppError) {
       throw error;
