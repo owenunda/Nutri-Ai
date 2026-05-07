@@ -36,6 +36,37 @@ export const findUserProfileById = async (userId) => {
   return rows[0] ?? null;
 };
 
+export const createPhysicalRecord = async (userId, { height, weight }) => {
+  const existingUserResult = await pool.query(
+    `
+      SELECT user_id AS "userId"
+      FROM users
+      WHERE user_id = $1
+      LIMIT 1
+    `,
+    [userId]
+  );
+
+  if (existingUserResult.rows.length === 0) {
+    return null;
+  }
+
+  const query = `
+    INSERT INTO physical_records (user_id, height, weight)
+    VALUES ($1, $2, $3)
+    RETURNING
+      physical_record_id AS "physicalRecordId",
+      user_id AS "userId",
+      height,
+      weight,
+      record_date AS "recordDate",
+      created_at AS "createdAt"
+  `;
+
+  const { rows } = await pool.query(query, [userId, height, weight]);
+  return rows[0] ?? null;
+};
+
 export const updateUserProfileData = async (userId, { age, goal, height, weight }) => {
   const client = await pool.connect();
 

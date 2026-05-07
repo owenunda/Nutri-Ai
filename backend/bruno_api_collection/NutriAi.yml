@@ -255,7 +255,31 @@ items:
         http:
           method: GET
           url: http://localhost:3000/api/v1/user
-          auth: inherit
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: UserPhysicalDataLogger
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/user/physical
+          body:
+            type: json
+            data: |
+              {
+                "height": 175,
+                "weight": 72.5
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
         settings:
           encodeUrl: true
           timeout: 0
@@ -372,5 +396,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-05-04T18:16:54.604Z'
+    exportedAt: '2026-05-07T01:00:26.523Z'
     exportedUsing: Bruno
