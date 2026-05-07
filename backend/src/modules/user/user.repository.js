@@ -36,6 +36,24 @@ export const findUserProfileById = async (userId) => {
   return rows[0] ?? null;
 };
 
+export const findPhysicalHistoryByUserId = async (userId) => {
+  const query = `
+    SELECT
+      physical_record_id AS "physicalRecordId",
+      user_id AS "userId",
+      height,
+      weight,
+      record_date AS "recordDate",
+      created_at AS "createdAt"
+    FROM physical_records
+    WHERE user_id = $1
+    ORDER BY record_date DESC, physical_record_id DESC
+  `;
+
+  const { rows } = await pool.query(query, [userId]);
+  return rows;
+};
+
 export const createPhysicalRecord = async (userId, { height, weight }) => {
   const existingUserResult = await pool.query(
     `

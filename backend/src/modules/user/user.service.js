@@ -1,6 +1,7 @@
 import { AppError } from '../../utils/AppError.js';
 import {
   createPhysicalRecord,
+  findPhysicalHistoryByUserId,
   findUserProfileById,
   updateUserProfileData,
 } from './user.repository.js';
@@ -32,6 +33,24 @@ export const savePhysicalRecord = async (userId, physicalData) => {
     }
 
     return physicalRecord;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw new AppError(error.message, 500, 'USER_SERVICE_ERROR');
+  }
+};
+
+export const getPhysicalHistory = async (userId) => {
+  try {
+    const user = await findUserProfileById(userId);
+
+    if (!user) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    return await findPhysicalHistoryByUserId(userId);
   } catch (error) {
     if (error instanceof AppError) {
       throw error;

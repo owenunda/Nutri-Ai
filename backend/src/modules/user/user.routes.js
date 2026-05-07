@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import authenticateToken from '../../middleware/auth.middleware.js';
-import { createPhysical, getProfile, updateProfile } from './user.controller.js';
+import {
+  createPhysical,
+  getPhysicalHistoryController,
+  getProfile,
+  updateProfile,
+} from './user.controller.js';
 import {
   validateCreatePhysicalRecordRequest,
   validateUpdateProfileRequest,
@@ -9,6 +14,7 @@ import {
 const router = Router();
 
 router.get('/profile', authenticateToken(), getProfile);
+router.get('/physical/history', authenticateToken(), getPhysicalHistoryController);
 router.post('/physical', authenticateToken(), validateCreatePhysicalRecordRequest, createPhysical);
 router.put('/profile', authenticateToken(), validateUpdateProfileRequest, updateProfile);
 

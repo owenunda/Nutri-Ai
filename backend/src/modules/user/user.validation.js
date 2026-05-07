@@ -1,4 +1,5 @@
 import { AppError } from '../../utils/AppError.js';
+const goalSeparatorRegex = /[,;|\n]/;
 
 export const validateCreatePhysicalRecordRequest = (req, res, next) => {
   const { height, weight } = req.body ?? {};
@@ -72,6 +73,8 @@ export const validateUpdateProfileRequest = (req, res, next) => {
 
   if (goal !== undefined && (typeof goal !== 'string' || !goal.trim())) {
     details.push({ field: 'goal', message: 'Goal must be a non-empty string' });
+  } else if (goal !== undefined && goalSeparatorRegex.test(goal.trim())) {
+    details.push({ field: 'goal', message: 'Goal must contain a single value' });
   }
 
   if (details.length > 0) {
