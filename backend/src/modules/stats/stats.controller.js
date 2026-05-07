@@ -1,9 +1,6 @@
 import { validateConsumptionService, getTodayCaloriesService } from './stats.service.js';
 import { successResponse } from '../../utils/response.js';
 
-/**
- * Controlador para obtener la validación del consumo diario.
- */
 export const getConsumptionValidation = async (req, res, next) => {
   try {
     const userId = req.user.userId;
@@ -20,9 +17,6 @@ export const getConsumptionValidation = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene el total de calorías consumidas hoy.
- */
 export const getTodayCalories = async (req, res, next) => {
   try {
     const userId = req.user.userId;

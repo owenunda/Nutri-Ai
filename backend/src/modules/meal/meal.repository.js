@@ -1,11 +1,5 @@
 import pool from '../../database/connection.js';
 
-/**
- * Crea un nuevo registro de comida (encabezado) para un usuario.
- * @param {number} userId 
- * @param {string} date - Fecha en formato YYYY-MM-DD
- * @returns {Promise<Object>}
- */
 export const createMealRecordRepository = async (userId, date) => {
   const query = `
     INSERT INTO meal_records (user_id, record_date)
@@ -20,12 +14,6 @@ export const createMealRecordRepository = async (userId, date) => {
   return rows[0];
 };
 
-/**
- * Añade detalles de alimentos o recetas consumidas a un registro de comida.
- * @param {number} mealRecordId 
- * @param {Array<Object>} items - [{ food_id, recipe_id, quantity }]
- * @returns {Promise<Array<Object>>}
- */
 export const addItemsToMealRepository = async (mealRecordId, items) => {
   const client = await pool.connect();
   try {
@@ -53,11 +41,6 @@ export const addItemsToMealRepository = async (mealRecordId, items) => {
   }
 };
 
-/**
- * Verifica si ya existe un registro de comida para un usuario en una fecha específica.
- * @param {number} userId 
- * @param {string} date 
- */
 export const findMealRecordByUserAndDate = async (userId, date) => {
   const query = `
     SELECT meal_record_id AS "mealRecordId"

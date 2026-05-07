@@ -2,11 +2,6 @@ import pool from '../../database/connection.js';
 import { AppError } from '../../utils/AppError.js';
 import { getRecipeByIdRepository } from '../recipe/recipe.repository.js';
 
-/**
- * Guarda una receta generada por IA y la asocia al usuario.
- * @param {number} userId 
- * @param {Object} recipeData - { name, description, ingredients: [{ food_id, quantity, unit }] }
- */
 export const saveGeneratedRecipeService = async (userId, recipeData) => {
   const { name, description, ingredients } = recipeData;
   const client = await pool.connect();
@@ -18,7 +13,6 @@ export const saveGeneratedRecipeService = async (userId, recipeData) => {
 
     await client.query('BEGIN');
 
-    // 1. Insertar en la tabla recipes
     const recipeQuery = `
       INSERT INTO recipes (name, description)
       VALUES ($1, $2)
@@ -27,14 +21,12 @@ export const saveGeneratedRecipeService = async (userId, recipeData) => {
     const recipeResult = await client.query(recipeQuery, [name, description || 'Generada por NutriAI']);
     const recipeId = recipeResult.rows[0].recipe_id;
 
-    // 2. Asociar al usuario en user_recipes (Estado 1: PENDING)
     const userRecipeQuery = `
       INSERT INTO user_recipes (user_id, recipe_id, status_id, recipe_date)
       VALUES ($1, $2, 1, CURRENT_DATE)
     `;
     await client.query(userRecipeQuery, [userId, recipeId]);
 
-    // 3. Insertar ingredientes
     for (const ing of ingredients) {
       const { food_id, quantity, unit } = ing;
       if (!food_id || !quantity) {
@@ -50,7 +42,6 @@ export const saveGeneratedRecipeService = async (userId, recipeData) => {
 
     await client.query('COMMIT');
 
-    // Retornar la receta completa usando el repositorio existente
     return await getRecipeByIdRepository(userId, recipeId);
   } catch (error) {
     await client.query('ROLLBACK');

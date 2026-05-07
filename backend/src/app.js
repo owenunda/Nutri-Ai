@@ -12,11 +12,11 @@ import { errorHandler, notFoundHandler } from './middleware/error.middleware.js'
 
 const app = express();
 
-// Middlewares globales
+
 app.use(cors());
 app.use(express.json());
 
-// Ruta de prueba general
+
 app.get('/api/v1/health', (req, res) => {
   res.json({
     success: true,
@@ -25,32 +25,23 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
-// Rutas del módulo food
 app.use('/api/v1/food', foodRoutes);
 app.use('/api/v1/fridge', fridgeRoutes);
 
-// Rutas del módulo recipe
 app.use('/api/v1/recipe', recipeRoutes)
 
-// Rutas del módulo auth
 app.use('/api/v1/auth', authRoutes);
 
-// Rutas del módulo user 
 app.use('/api/v1/user', userRoutes);
 
-// Rutas del módulo stats
 app.use('/api/v1/stats', statsRoutes);
 
-// Rutas del módulo meal
 app.use('/api/v1/meals', mealRoutes);
 
-// Rutas de integración IA (n8n)
 app.use('/api/v1/ai', aiRoutes);
 
-// Middleware para rutas no encontradas
 app.use(notFoundHandler);
 
-// Middleware global de errores
 app.use(errorHandler);
 
 export default app;

@@ -3,16 +3,10 @@ import { checkFoodsExist } from '../food/food.repository.js';
 import { checkRecipesExist } from '../recipe/recipe.repository.js';
 import { AppError } from '../../utils/AppError.js';
 
-/**
- * Crea un registro de comida para el usuario.
- * @param {number} userId 
- * @param {string} date 
- */
 export const createMealService = async (userId, date) => {
   try {
     const mealDate = date || new Date().toISOString().split('T')[0];
     
-    // Verificar si ya existe para evitar duplicados
     const existing = await findMealRecordByUserAndDate(userId, mealDate);
     if (existing) {
       return existing;
@@ -25,12 +19,6 @@ export const createMealService = async (userId, date) => {
   }
 };
 
-/**
- * Añade ítems al registro de comida.
- * @param {number} userId - Necesario para validar recetas propias
- * @param {number} mealRecordId 
- * @param {Array} items 
- */
 export const addItemsToMealService = async (userId, mealRecordId, items) => {
   try {
     if (!Array.isArray(items) || items.length === 0) {
@@ -40,7 +28,6 @@ export const addItemsToMealService = async (userId, mealRecordId, items) => {
     const foodIds = items.filter(i => i.food_id).map(i => i.food_id);
     const recipeIds = items.filter(i => i.recipe_id).map(i => i.recipe_id);
 
-    // Validar alimentos
     if (foodIds.length > 0) {
       const existingFoodIds = await checkFoodsExist(foodIds);
       const missingFoods = foodIds.filter(id => !existingFoodIds.includes(id));
@@ -49,7 +36,6 @@ export const addItemsToMealService = async (userId, mealRecordId, items) => {
       }
     }
 
-    // Validar recetas
     if (recipeIds.length > 0) {
       const existingRecipeIds = await checkRecipesExist(userId, recipeIds);
       const missingRecipes = recipeIds.filter(id => !existingRecipeIds.includes(id));
@@ -58,7 +44,6 @@ export const addItemsToMealService = async (userId, mealRecordId, items) => {
       }
     }
 
-    // Validar cantidades
     for (const item of items) {
       if (typeof item.quantity !== 'number' || item.quantity <= 0) {
         throw new AppError('La cantidad debe ser un número mayor a 0', 400, 'INVALID_QUANTITY');
@@ -76,12 +61,6 @@ export const addItemsToMealService = async (userId, mealRecordId, items) => {
   }
 };
 
-/**
- * Añade específicamente recetas al registro de comida.
- * @param {number} userId 
- * @param {number} mealRecordId 
- * @param {Array} recipes - [{ recipe_id, quantity }]
- */
 export const addRecipesToMealService = async (userId, mealRecordId, recipes) => {
   try {
     if (!Array.isArray(recipes) || recipes.length === 0) {

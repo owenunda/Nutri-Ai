@@ -1,11 +1,6 @@
 import { getUserNutritionalData, getTodayConsumptionCalories } from './stats.repository.js';
 import { AppError } from '../../utils/AppError.js';
 
-/**
- * Valida el consumo de calorías del día actual frente al objetivo del usuario.
- * @param {number} userId 
- * @returns {Promise<Object>}
- */
 export const validateConsumptionService = async (userId) => {
   try {
     const userData = await getUserNutritionalData(userId);
@@ -16,16 +11,12 @@ export const validateConsumptionService = async (userId) => {
 
     const { age, goal, height, weight } = userData;
 
-    // Verificar que tengamos los datos mínimos para el cálculo
     if (!age || !height || !weight) {
       throw new AppError('Faltan datos físicos (edad, altura o peso) para calcular el objetivo', 400, 'MISSING_PHYSICAL_DATA');
     }
 
-    // Cálculo de BMR (Fórmula de Mifflin-St Jeor - Promedio neutral)
-    // BMR = 10 * peso (kg) + 6.25 * altura (cm) - 5 * edad (y) - 80
     const bmr = (10 * parseFloat(weight)) + (6.25 * parseFloat(height)) - (5 * parseInt(age)) - 80;
 
-    // Ajuste según el objetivo
     let dailyLimit = bmr;
     const normalizedGoal = goal?.toLowerCase() || '';
 
@@ -35,7 +26,6 @@ export const validateConsumptionService = async (userId) => {
       dailyLimit += 500;
     }
 
-    // Obtener consumo de hoy
     const totalConsumed = await getTodayConsumptionCalories(userId);
 
     const status = totalConsumed > dailyLimit ? 'EXCEDIDO' : 'OK';
