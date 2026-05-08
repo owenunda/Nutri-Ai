@@ -21,7 +21,7 @@ items:
   - info:
       name: health
       type: http
-      seq: 0
+      seq: 1
     http:
       method: GET
       url: http://localhost:3000/api/v1/health
@@ -37,6 +37,18 @@ items:
     request:
       auth: inherit
     items:
+      - info:
+          name: health
+          type: http
+          seq: 3
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/auth/health
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
       - info:
           name: login
           type: http
@@ -95,13 +107,34 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
+  - info:
+      name: ai
+      type: folder
+      seq: 8
+    request:
+      auth: inherit
+    items:
       - info:
-          name: health
+          name: receiveRecipe
           type: http
-          seq: 3
+          seq: 1
         http:
-          method: GET
-          url: http://localhost:3000/api/v1/auth/health
+          method: POST
+          url: http://localhost:3000/api/v1/ai/recipe
+          body:
+            type: json
+            data: |-
+              {
+                "name": "Arroz chaufa saludable",
+                "description": "Una versión fit del clásico chaufa generada por NutriAI",
+                "ingredients": [
+                  { "food_id": 1, "quantity": 100, "unit": "g" },
+                  { "food_id": 2, "quantity": 50, "unit": "g" }
+                ]
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
         settings:
           encodeUrl: true
           timeout: 0
@@ -172,6 +205,18 @@ items:
           followRedirects: true
           maxRedirects: 5
       - info:
+          name: health
+          type: http
+          seq: 5
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/food/health
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
           name: 'Update food '
           type: http
           seq: 3
@@ -192,13 +237,173 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
+  - info:
+      name: fridge
+      type: folder
+      seq: 5
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: add fridge item
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/fridge/items
+          body:
+            type: json
+            data: |-
+              {
+                "foodId": 17,
+                "quantity": 2.5,
+                "unit": "kg"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: delete item fridge
+          type: http
+          seq: 4
+        http:
+          method: DELETE
+          url: http://localhost:3000/api/v1/fridge/items/6
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: getAllFridgeItems
+          type: http
+          seq: 1
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/fridge
+          body:
+            type: json
+            data: ''
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
       - info:
           name: health
           type: http
           seq: 5
         http:
           method: GET
-          url: http://localhost:3000/api/v1/food/health
+          url: http://localhost:3000/api/v1/fridge/health
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: update item fridge
+          type: http
+          seq: 3
+        http:
+          method: PUT
+          url: http://localhost:3000/api/v1/fridge/items/6
+          body:
+            type: json
+            data: '{"quantity": 5.0}'
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+  - info:
+      name: meals
+      type: folder
+      seq: 7
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: addMealItems
+          type: http
+          seq: 2
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/meals/:id/items
+          params:
+            - name: id
+              value: '1'
+              type: path
+          body:
+            type: json
+            data: |-
+              [
+                { "food_id": 1, "quantity": 100 },
+                { "recipe_id": 1, "quantity": 1 }
+              ]
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: addMealRecipes
+          type: http
+          seq: 3
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/meals/:id/recipes
+          params:
+            - name: id
+              value: '1'
+              type: path
+          body:
+            type: json
+            data: |-
+              [
+                { "recipe_id": 1, "quantity": 1 }
+              ]
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: createMeal
+          type: http
+          seq: 1
+        http:
+          method: POST
+          url: http://localhost:3000/api/v1/meals
+          body:
+            type: json
+            data: |-
+              {
+                "date": "2026-05-07"
+              }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
         settings:
           encodeUrl: true
           timeout: 0
@@ -297,31 +502,6 @@ items:
           followRedirects: true
           maxRedirects: 5
       - info:
-          name: updateRecipeStatus
-          type: http
-          seq: 5
-        http:
-          method: PATCH
-          url: http://localhost:3000/api/v1/recipe/:id/status
-          params:
-            - name: id
-              value: '1'
-              type: path
-          body:
-            type: json
-            data: |-
-              {
-                "status": "COMPLETED"
-              }
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
           name: recipeAction
           type: http
           seq: 6
@@ -347,162 +527,26 @@ items:
           timeout: 0
           followRedirects: true
           maxRedirects: 5
-  - info:
-      name: user
-      type: folder
-      seq: 4
-    request:
-      auth: inherit
-    items:
       - info:
-          name: getProfile
+          name: updateRecipeStatus
           type: http
-          seq: 1
+          seq: 5
         http:
-          method: GET
-          url: http://localhost:3000/api/v1/user/profile
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: UserPhysicalDataLogger
-          type: http
-          seq: 2
-        http:
-          method: POST
-          url: http://localhost:3000/api/v1/user/physical
-          body:
-            type: json
-            data: |
-              {
-                "height": 175,
-                "weight": 72.5
-              }
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: UpdateUserData
-          type: http
-          seq: 6
-        http:
-          method: PUT
-          url: http://localhost:3000/api/v1/user/profile
-          body:
-            type: json
-            data: |
-              {
-                "age": 18,
-                "weight": 72.5,
-                "height": 175,
-                "goal": "Ganar masa muscular"
-              }
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-  - info:
-      name: fridge
-      type: folder
-      seq: 5
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: add fridge item
-          type: http
-          seq: 2
-        http:
-          method: POST
-          url: http://localhost:3000/api/v1/fridge/items
+          method: PATCH
+          url: http://localhost:3000/api/v1/recipe/:id/status
+          params:
+            - name: id
+              value: '1'
+              type: path
           body:
             type: json
             data: |-
               {
-                "foodId": 17,
-                "quantity": 2.5,
-                "unit": "kg"
+                "status": "COMPLETED"
               }
           auth:
             type: bearer
             token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: delete item fridge
-          type: http
-          seq: 4
-        http:
-          method: DELETE
-          url: http://localhost:3000/api/v1/fridge/items/6
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: getAllFridgeItems
-          type: http
-          seq: 1
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/fridge
-          body:
-            type: json
-            data: ''
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: update item fridge
-          type: http
-          seq: 3
-        http:
-          method: PUT
-          url: http://localhost:3000/api/v1/fridge/items/6
-          body:
-            type: json
-            data: '{"quantity": 5.0}'
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: health
-          type: http
-          seq: 5
-        http:
-          method: GET
-          url: http://localhost:3000/api/v1/fridge/health
         settings:
           encodeUrl: true
           timeout: 0
@@ -546,24 +590,42 @@ items:
           followRedirects: true
           maxRedirects: 5
   - info:
-      name: meals
+      name: user
       type: folder
-      seq: 7
+      seq: 4
     request:
       auth: inherit
     items:
       - info:
-          name: createMeal
+          name: getProfile
           type: http
           seq: 1
         http:
-          method: POST
-          url: http://localhost:3000/api/v1/meals
+          method: GET
+          url: http://localhost:3000/api/v1/user/profile
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: UpdateUserData
+          type: http
+          seq: 6
+        http:
+          method: PUT
+          url: http://localhost:3000/api/v1/user/profile
           body:
             type: json
-            data: |-
+            data: |
               {
-                "date": "2026-05-07"
+                "age": 18,
+                "weight": 72.5,
+                "height": 175,
+                "goal": "Ganar masa muscular"
               }
           auth:
             type: bearer
@@ -574,81 +636,37 @@ items:
           followRedirects: true
           maxRedirects: 5
       - info:
-          name: addMealItems
+          name: UserPhysicalDataLogger
           type: http
           seq: 2
         http:
           method: POST
-          url: http://localhost:3000/api/v1/meals/:id/items
-          params:
-            - name: id
-              value: '1'
-              type: path
+          url: http://localhost:3000/api/v1/user/physical
           body:
             type: json
-            data: |-
-              [
-                { "food_id": 1, "quantity": 100 },
-                { "recipe_id": 1, "quantity": 1 }
-              ]
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-      - info:
-          name: addMealRecipes
-          type: http
-          seq: 3
-        http:
-          method: POST
-          url: http://localhost:3000/api/v1/meals/:id/recipes
-          params:
-            - name: id
-              value: '1'
-              type: path
-          body:
-            type: json
-            data: |-
-              [
-                { "recipe_id": 1, "quantity": 1 }
-              ]
-          auth:
-            type: bearer
-            token: '{{TokenAccess}}'
-        settings:
-          encodeUrl: true
-          timeout: 0
-          followRedirects: true
-          maxRedirects: 5
-  - info:
-      name: ai
-      type: folder
-      seq: 8
-    request:
-      auth: inherit
-    items:
-      - info:
-          name: receiveRecipe
-          type: http
-          seq: 1
-        http:
-          method: POST
-          url: http://localhost:3000/api/v1/ai/recipe
-          body:
-            type: json
-            data: |-
+            data: |
               {
-                "name": "Arroz chaufa saludable",
-                "description": "Una versión fit del clásico chaufa generada por NutriAI",
-                "ingredients": [
-                  { "food_id": 1, "quantity": 100, "unit": "g" },
-                  { "food_id": 2, "quantity": 50, "unit": "g" }
-                ]
+                "height": 175,
+                "weight": 72.5
               }
+          auth:
+            type: bearer
+            token: '{{TokenAccess}}'
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+      - info:
+          name: LastValidation
+          type: http
+          seq: 4
+        http:
+          method: GET
+          url: http://localhost:3000/api/v1/user/physical/history
+          body:
+            type: json
+            data: ''
           auth:
             type: bearer
             token: '{{TokenAccess}}'
@@ -663,5 +681,5 @@ extensions:
     ignore:
       - node_modules
       - .git
-    exportedAt: '2026-05-07T01:00:26.523Z'
+    exportedAt: '2026-05-07T07:04:24.490Z'
     exportedUsing: Bruno
