@@ -18,7 +18,6 @@ class AppTheme {
         seedColor: primaryStart,
         primary: primaryStart,
         onPrimary: onPrimary,
-        background: background,
         surface: surface,
       ),
       // Definición personalizada para los botones elevados e interactivos
