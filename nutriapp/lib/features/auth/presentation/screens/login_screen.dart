@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -38,7 +39,15 @@ class LoginScreen extends StatelessWidget {
                       SizedBox(height: isCompact ? 16 : 22),
                       _LoginPanel(isCompact: isCompact),
                       SizedBox(height: isCompact ? 16 : 20),
-                      const _CreateAccountPrompt(),
+                      _CreateAccountPrompt(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterScreen(),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 );
@@ -365,7 +374,11 @@ class _SocialButton extends StatelessWidget {
 }
 
 class _CreateAccountPrompt extends StatelessWidget {
-  const _CreateAccountPrompt();
+  const _CreateAccountPrompt({
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -382,7 +395,7 @@ class _CreateAccountPrompt extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         GestureDetector(
-          onTap: () {},
+          onTap: onTap,
           child: const Text(
             'Crea una cuenta',
             style: TextStyle(

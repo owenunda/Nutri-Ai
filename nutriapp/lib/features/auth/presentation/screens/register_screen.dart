@@ -1,0 +1,503 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/widgets/primary_button.dart';
+
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  bool _acceptedTerms = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _RegisterPalette.background,
+      body: Stack(
+        children: [
+          // Luces de fondo suaves para dar profundidad.
+          Positioned(
+            top: -90,
+            right: -90,
+            child: _GlowCircle(
+              color: _RegisterPalette.primary.withValues(alpha: 0.10),
+              size: 240,
+            ),
+          ),
+          Positioned(
+            bottom: -120,
+            left: -120,
+            child: _GlowCircle(
+              color: _RegisterPalette.tertiary.withValues(alpha: 0.08),
+              size: 260,
+            ),
+          ),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Scroll para evitar la franja amarilla/negra en Chrome.
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 22),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 560),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _RegisterCard(
+                            acceptedTerms: _acceptedTerms,
+                            obscurePassword: _obscurePassword,
+                            obscureConfirmPassword: _obscureConfirmPassword,
+                            onToggleTerms: () {
+                              setState(() {
+                                _acceptedTerms = !_acceptedTerms;
+                              });
+                            },
+                            onTogglePasswordVisibility: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                            onToggleConfirmVisibility: () {
+                              setState(() {
+                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                              });
+                            },
+                            onLoginTap: () => Navigator.pop(context),
+                          ),
+                          const SizedBox(height: 24),
+                          const _BrandFooter(),
+                          SizedBox(height: constraints.maxHeight < 760 ? 24 : 12),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RegisterCard extends StatelessWidget {
+  const _RegisterCard({
+    required this.acceptedTerms,
+    required this.obscurePassword,
+    required this.obscureConfirmPassword,
+    required this.onToggleTerms,
+    required this.onTogglePasswordVisibility,
+    required this.onToggleConfirmVisibility,
+    required this.onLoginTap,
+  });
+
+  final bool acceptedTerms;
+  final bool obscurePassword;
+  final bool obscureConfirmPassword;
+  final VoidCallback onToggleTerms;
+  final VoidCallback onTogglePasswordVisibility;
+  final VoidCallback onToggleConfirmVisibility;
+  final VoidCallback onLoginTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+      decoration: BoxDecoration(
+        color: _RegisterPalette.surface,
+        borderRadius: BorderRadius.circular(34),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 28,
+            offset: const Offset(0, 18),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Crear cuenta',
+            style: TextStyle(
+              color: _RegisterPalette.title,
+              fontSize: 30,
+              height: 1.02,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.9,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Comienza tu camino hacia una precision organica.',
+            style: TextStyle(
+              color: _RegisterPalette.subtitle,
+              fontSize: 16,
+              height: 1.4,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 26),
+          const _FieldLabel('NOMBRE COMPLETO'),
+          const SizedBox(height: 10),
+          const _RegisterField(
+            icon: Icons.person_outline_rounded,
+            hintText: '',
+            keyboardType: TextInputType.text,
+          ),
+          const SizedBox(height: 18),
+          const _FieldLabel('CORREO ELECTRONICO'),
+          const SizedBox(height: 10),
+          const _RegisterField(
+            icon: Icons.mail_outline_rounded,
+            hintText: '',
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 18),
+          const _FieldLabel('CONTRASENA'),
+          const SizedBox(height: 10),
+          _RegisterField(
+            icon: Icons.lock_outline_rounded,
+            hintText: '',
+            obscureText: obscurePassword,
+            trailingIcon: obscurePassword
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            onTrailingTap: onTogglePasswordVisibility,
+          ),
+          const SizedBox(height: 18),
+          const _FieldLabel('CONFIRMAR'),
+          const SizedBox(height: 10),
+          _RegisterField(
+            icon: Icons.verified_user_outlined,
+            hintText: '',
+            obscureText: obscureConfirmPassword,
+            trailingIcon: obscureConfirmPassword
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            onTrailingTap: onToggleConfirmVisibility,
+          ),
+          const SizedBox(height: 22),
+          GestureDetector(
+            onTap: onToggleTerms,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  width: 28,
+                  height: 28,
+                  margin: const EdgeInsets.only(top: 1),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: acceptedTerms
+                        ? _RegisterPalette.primary.withValues(alpha: 0.10)
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: acceptedTerms
+                          ? _RegisterPalette.primary
+                          : _RegisterPalette.outline,
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.check_rounded,
+                    size: 18,
+                    color: acceptedTerms
+                        ? _RegisterPalette.primary
+                        : Colors.transparent,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      style: const TextStyle(
+                        color: _RegisterPalette.body,
+                        fontSize: 15,
+                        height: 1.4,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      children: [
+                        const TextSpan(text: 'Acepto los '),
+                        TextSpan(
+                          text: 'Terminos del Servicio',
+                          style: const TextStyle(
+                            color: _RegisterPalette.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const TextSpan(text: ' y la '),
+                        TextSpan(
+                          text: 'Politica de Privacidad.',
+                          style: const TextStyle(
+                            color: _RegisterPalette.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          PrimaryButton(
+            textButton: 'Registrarse',
+            width: double.infinity,
+            height: 58,
+            icon: Icons.arrow_forward_rounded,
+            iconSize: 20,
+            textSize: 16,
+            startColor: _RegisterPalette.primary,
+            endColor: _RegisterPalette.primaryDark,
+            onPressed: () {},
+          ),
+          const SizedBox(height: 20),
+          Container(
+            height: 1,
+            decoration: BoxDecoration(
+              color: _RegisterPalette.divider,
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Ya tienes una cuenta?',
+                style: TextStyle(
+                  color: _RegisterPalette.body.withValues(alpha: 0.82),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: onLoginTap,
+                child: const Text(
+                  'Iniciar sesion',
+                  style: TextStyle(
+                    color: _RegisterPalette.primary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        color: _RegisterPalette.label,
+        fontSize: 11,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 1.1,
+      ),
+    );
+  }
+}
+
+class _RegisterField extends StatelessWidget {
+  const _RegisterField({
+    required this.hintText,
+    required this.icon,
+    this.keyboardType,
+    this.obscureText = false,
+    this.trailingIcon,
+    this.onTrailingTap,
+  });
+
+  final String hintText;
+  final IconData icon;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+  final IconData? trailingIcon;
+  final VoidCallback? onTrailingTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      style: const TextStyle(
+        color: _RegisterPalette.title,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      ),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: _RegisterPalette.fieldFill,
+        hintText: hintText,
+        hintStyle: const TextStyle(
+          color: _RegisterPalette.hint,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: _RegisterPalette.icon,
+          size: 20,
+        ),
+        suffixIcon: trailingIcon == null
+            ? null
+            : IconButton(
+                onPressed: onTrailingTap,
+                icon: Icon(
+                  trailingIcon,
+                  color: _RegisterPalette.icon,
+                  size: 20,
+                ),
+              ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 18,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(28),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(28),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(28),
+          borderSide: BorderSide(
+            color: _RegisterPalette.primary.withValues(alpha: 0.16),
+            width: 1,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BrandFooter extends StatelessWidget {
+  const _BrandFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+            decoration: BoxDecoration(
+              color: _RegisterPalette.primarySoft,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.eco_rounded,
+                  size: 20,
+                  color: _RegisterPalette.primary,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'NUTRIAI',
+                  style: TextStyle(
+                    color: _RegisterPalette.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          const Text.rich(
+            TextSpan(
+              style: TextStyle(
+                color: _RegisterPalette.title,
+                fontSize: 30,
+                height: 1.02,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.8,
+              ),
+              children: [
+                TextSpan(text: 'Comienza tu '),
+                TextSpan(
+                  text: 'viaje',
+                  style: TextStyle(
+                    color: _RegisterPalette.primary,
+                  ),
+                ),
+                TextSpan(text: '\nconsciente.'),
+              ],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GlowCircle extends StatelessWidget {
+  const _GlowCircle({
+    required this.color,
+    required this.size,
+  });
+
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+      ),
+    );
+  }
+}
+
+class _RegisterPalette {
+  static const Color background = Color(0xFFF8FAFC);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color title = Color(0xFF23262F);
+  static const Color body = Color(0xFF525866);
+  static const Color subtitle = Color(0xFF5A6170);
+  static const Color label = Color(0xFF6B7280);
+  static const Color hint = Color(0xFF97A0AA);
+  static const Color icon = Color(0xFF78808A);
+  static const Color outline = Color(0xFFBBC4CC);
+  static const Color divider = Color(0xFFE4E8ED);
+  static const Color fieldFill = Color(0xFFF0F3F6);
+  static const Color primary = Color(0xFF2EB67D);
+  static const Color primaryDark = Color(0xFF249B6A);
+  static const Color primarySoft = Color(0xFFCFF4E5);
+  static const Color tertiary = Color(0xFF00E0FD);
+}
