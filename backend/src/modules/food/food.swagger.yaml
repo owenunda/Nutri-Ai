@@ -1,20 +1,20 @@
 /api/v1/food/health:
   get:
-    summary: Verificar el estado del módulo de alimentos
+    summary: Check food module health
     tags: [Food]
     responses:
       200:
-        description: El módulo de alimentos está funcionando
+        description: Food module is working
 
 /api/v1/food:
   get:
-    summary: Obtener todos los alimentos
+    summary: Get all foods
     tags: [Food]
     security:
       - bearerAuth: []
     responses:
       200:
-        description: Lista de alimentos
+        description: List of foods
         content:
           application/json:
             schema:
@@ -24,7 +24,7 @@
       401:
         $ref: '#/components/responses/UnauthorizedError'
   post:
-    summary: Crear un nuevo alimento
+    summary: Create a new food
     tags: [Food]
     security:
       - bearerAuth: []
@@ -36,11 +36,11 @@
             $ref: '#/components/schemas/Food'
     responses:
       201:
-        description: Alimento creado exitosamente
+        description: Food created successfully
 
 /api/v1/food/{id}:
   put:
-    summary: Actualizar un alimento
+    summary: Update a food
     tags: [Food]
     security:
       - bearerAuth: []
@@ -58,9 +58,9 @@
             $ref: '#/components/schemas/Food'
     responses:
       200:
-        description: Alimento actualizado
+        description: Food updated
   delete:
-    summary: Eliminar un alimento
+    summary: Delete a food
     tags: [Food]
     security:
       - bearerAuth: []
@@ -72,4 +72,4 @@
           type: integer
     responses:
       200:
-        description: Alimento eliminado
+        description: Food deleted

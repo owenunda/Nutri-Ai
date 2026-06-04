@@ -1,16 +1,16 @@
 /api/v1/meals:
   post:
-    summary: Crear una nueva comida/plan alimenticio
+    summary: Create a new meal/meal plan
     tags: [Meals]
     security:
       - bearerAuth: []
     responses:
       201:
-        description: Comida creada
+        description: Meal created
 
 /api/v1/meals/{id}/items:
   post:
-    summary: Añadir ítems (alimentos) a una comida
+    summary: Add items (foods) to a meal
     tags: [Meals]
     security:
       - bearerAuth: []
@@ -22,11 +22,11 @@
           type: integer
     responses:
       200:
-        description: Ítems añadidos
+        description: Items added
 
 /api/v1/meals/{id}/recipes:
   post:
-    summary: Añadir recetas a una comida
+    summary: Add recipes to a meal
     tags: [Meals]
     security:
       - bearerAuth: []
@@ -38,4 +38,4 @@
           type: integer
     responses:
       200:
-        description: Recetas añadidas
+        description: Recipes added

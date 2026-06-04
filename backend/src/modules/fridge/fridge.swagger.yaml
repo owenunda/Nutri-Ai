@@ -1,24 +1,24 @@
 /api/v1/fridge/health:
   get:
-    summary: Verificar el estado del módulo de nevera
+    summary: Check fridge module health
     tags: [Fridge]
     responses:
       200:
-        description: El módulo de nunca está funcionando
+        description: Fridge module is working
 
 /api/v1/fridge:
   get:
-    summary: Obtener los artículos en la nevera del usuario
+    summary: Get user's fridge items
     tags: [Fridge]
     security:
       - bearerAuth: []
     responses:
       200:
-        description: Inventario obtenido exitosamente
+        description: Inventory retrieved successfully
 
 /api/v1/fridge/items:
   post:
-    summary: Agregar un alimento a la nevera
+    summary: Add food to fridge
     tags: [Fridge]
     security:
       - bearerAuth: []
@@ -28,21 +28,21 @@
         application/json:
           schema:
             type: object
-            required: [foodId, cantidad]
+            required: [foodId, quantity, unit]
             properties:
               foodId:
                 type: integer
-              cantidad:
+              quantity:
                 type: number
-              unidad:
+              unit:
                 type: string
     responses:
       201:
-        description: Agregado correctamente
+        description: Added successfully
 
 /api/v1/fridge/items/{id}:
   put:
-    summary: Actualizar cantidad en la nevera
+    summary: Update fridge item quantity
     tags: [Fridge]
     security:
       - bearerAuth: []
@@ -59,13 +59,13 @@
           schema:
             type: object
             properties:
-              cantidad:
+              quantity:
                 type: number
     responses:
       200:
-        description: Actualizado correctamente
+        description: Updated successfully
   delete:
-    summary: Eliminar ítem de la nevera
+    summary: Delete fridge item
     tags: [Fridge]
     security:
       - bearerAuth: []
@@ -77,4 +77,4 @@
           type: integer
     responses:
       200:
-        description: Eliminado correctamente
+        description: Deleted successfully

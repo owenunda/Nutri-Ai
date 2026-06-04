@@ -1,34 +1,34 @@
-# Contrato de Respuestas API - NutriAI
+# API Response Contract - NutriAI
 
-Este documento define el formato estándar de las respuestas del backend de NutriAI.
-Todas las respuestas deben seguir esta estructura para mantener consistencia en el sistema.
+This document defines the standard format for NutriAI backend responses.
+All responses must follow this structure to maintain consistency in the system.
 
 ---
 
-## Respuesta Exitosa
+## Successful Response
 
 ```json
 {
   "success": true,
   "data": {},
-  "message": "Operación exitosa"
+  "message": "Operation successful"
 }
 ```
 
-### Campos:
+### Fields:
 
-* `success`: Indica si la operación fue exitosa (true)
-* `data`: Contiene la información solicitada
-* `message`: Mensaje opcional descriptivo
+* `success`: Indicates if the operation was successful (true)
+* `data`: Contains the requested information
+* `message`: Optional descriptive message
 
 ---
 
-## Respuesta de Error
+## Error Response
 
 ```json
 {
   "success": false,
-  "message": "Descripción del error",
+  "message": "Error description",
   "error": {
     "code": "ERROR_CODE",
     "details": []
@@ -36,29 +36,29 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 }
 ```
 
-### Campos:
+### Fields:
 
-* `success`: Siempre false
-* `message`: Explicación clara del error
-* `error.code`: Código interno del error
-* `error.details`: Lista de errores específicos (opcional)
+* `success`: Always false
+* `message`: Clear explanation of the error
+* `error.code`: Internal error code
+* `error.details`: List of specific errors (optional)
 
 ---
 
-## Tipos de Errores
+## Error Types
 
-### Validación (400)
+### Validation Error (400)
 
 ```json
 {
   "success": false,
-  "message": "Error de validación",
+  "message": "Validation error",
   "error": {
     "code": "VALIDATION_ERROR",
     "details": [
       {
         "field": "email",
-        "message": "El email es inválido"
+        "message": "Invalid email"
       }
     ]
   }
@@ -67,12 +67,12 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 
 ---
 
-### No autorizado (401)
+### Unauthorized (401)
 
 ```json
 {
   "success": false,
-  "message": "No autorizado",
+  "message": "Unauthorized",
   "error": {
     "code": "UNAUTHORIZED"
   }
@@ -81,12 +81,12 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 
 ---
 
-### Prohibido (403)
+### Forbidden (403)
 
 ```json
 {
   "success": false,
-  "message": "Acceso denegado",
+  "message": "Access denied",
   "error": {
     "code": "FORBIDDEN"
   }
@@ -95,12 +95,12 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 
 ---
 
-### No encontrado (404)
+### Not Found (404)
 
 ```json
 {
   "success": false,
-  "message": "Recurso no encontrado",
+  "message": "Resource not found",
   "error": {
     "code": "NOT_FOUND"
   }
@@ -109,12 +109,12 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 
 ---
 
-### Error interno (500)
+### Internal Error (500)
 
 ```json
 {
   "success": false,
-  "message": "Error interno del servidor",
+  "message": "Internal server error",
   "error": {
     "code": "INTERNAL_ERROR"
   }
@@ -125,12 +125,12 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 
 ## Ejemplos Reales
 
-### Login exitoso
+### Successful Login
 
 ```json
 {
   "success": true,
-  "message": "Login exitoso",
+  "message": "Login successful",
   "data": {
     "token": "jwt_token",
     "user": {
@@ -143,7 +143,7 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 
 ---
 
-### Obtener alimentos
+### Get Foods
 
 ```json
 {
@@ -151,8 +151,11 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
   "data": [
     {
       "id": 1,
-      "nombre": "Pollo",
-      "calorias": 200
+      "name": "Chicken",
+      "calories": 200,
+      "proteins": 25,
+      "carbohydrates": 0,
+      "fats": 10
     }
   ]
 }
@@ -160,12 +163,12 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 
 ---
 
-### Error al crear alimento
+### Error Creating Food
 
 ```json
 {
   "success": false,
-  "message": "Calorías inválidas",
+  "message": "Invalid calories",
   "error": {
     "code": "INVALID_CALORIES"
   }
@@ -174,57 +177,57 @@ Todas las respuestas deben seguir esta estructura para mantener consistencia en 
 
 ---
 
-## Reglas Generales
+## General Rules
 
-* Todas las respuestas deben tener `success`
-* Nunca devolver errores sin `message`
-* No exponer errores internos del servidor
-* Mantener consistencia en todos los endpoints
-* Usar códigos HTTP correctos
-
----
-
-## Códigos HTTP
-
-| Código | Uso                 |
-| ------ | ------------------- |
-| 200    | OK                  |
-| 201    | Creado              |
-| 400    | Error de validación |
-| 401    | No autenticado      |
-| 403    | Sin permisos        |
-| 404    | No encontrado       |
-| 500    | Error servidor      |
+* All responses must have `success`
+* Never return errors without `message`
+* Don't expose internal server errors
+* Maintain consistency across all endpoints
+* Use correct HTTP codes
 
 ---
 
-## Implementación y Utilidades
+## HTTP Codes
 
-Para mantener este estándar en todo el backend, se deben utilizar las utilidades y clases proveídas en el código:
+| Code | Usage                   |
+|------|-------------------------|
+| 200  | OK                      |
+| 201  | Created                 |
+| 400  | Validation error        |
+| 401  | Not authenticated       |
+| 403  | No permissions          |
+| 404  | Not found               |
+| 500  | Server error            |
 
-### Utilidades de Respuesta (`src/utils/response.js`)
+---
 
-En los controladores, se deben retornar las respuestas utilizando las funciones auxiliares:
+## Implementation and Utilities
+
+To maintain this standard across the entire backend, use the provided utilities and classes in the code:
+
+### Response Utilities (`src/utils/response.js`)
+
+In controllers, return responses using helper functions:
 
 ```javascript
 import { successResponse, errorResponse } from '../utils/response.js';
 
-// Respuesta exitosa
+// Successful response
 export const getSomeData = (req, res) => {
   const data = { id: 1, name: "Test" };
-  // status por defecto es 200, message por defecto es 'Success'
-  return successResponse(res, data, 'Datos obtenidos exitosamente'); 
+  // default status is 200, default message is 'Success'
+  return successResponse(res, data, 'Data retrieved successfully'); 
 };
 
-// Respuesta de error manual (aunque se prefiere usar AppError y throw)
+// Manual error response (although using AppError and throw is preferred)
 export const doSomethingWrong = (req, res) => {
-  return errorResponse(res, 'Mensaje de error', 'ERROR_CODE', 400, ['Detalle 1']);
+  return errorResponse(res, 'Error message', 'ERROR_CODE', 400, ['Detail 1']);
 };
 ```
 
-### Clase AppError (`src/utils/AppError.js`)
+### AppError Class (`src/utils/AppError.js`)
 
-Para manejar errores operacionales o de negocio, se debe lanzar (o pasar a `next()`) una instancia de `AppError` y dejar que el middleware global se encargue de enviar la respuesta al cliente.
+To handle operational or business errors, throw (or pass to `next()`) an `AppError` instance and let the global middleware handle sending the response to the client.
 
 ```javascript
 import { AppError } from '../utils/AppError.js';
@@ -234,28 +237,28 @@ export const processAction = (req, res, next) => {
     const isValid = false;
     if (!isValid) {
       // (message, status, code, details)
-      throw new AppError('Error de validación', 400, 'VALIDATION_ERROR', ['Campo requerido']);
+      throw new AppError('Validation error', 400, 'VALIDATION_ERROR', ['Required field']);
     }
-    return successResponse(res, null, 'Acción procesada');
+    return successResponse(res, null, 'Action processed');
   } catch (error) {
-    // Pasa el error al middleware global de manejo de errores
+    // Pass error to global error handling middleware
     next(error); 
   }
 };
 ```
 
-### Middleware Global de Errores (`src/middleware/error.middleware.js`)
+### Global Error Middleware (`src/middleware/error.middleware.js`)
 
-Todo error capturado y enviado a través de `next(error)` es procesado de forma centralizada:
-* **Errores Controlados (`AppError`)**: Se formatean y envían con el mensaje, el código y el HTTP status definido en la clase.
-* **Errores No Controlados**: Se manejan como errores `500` genéricos.
-* **Entornos**: En modo de desarrollo (`NODE_ENV=development`), el stack trace de los errores no manejados se incluye automáticamente dentro del arreglo `details` para facilitar el *debugging*. En producción, los errores no controlados devuelven siempre un mensaje de error opaco y genérico por seguridad.
+All errors captured and sent through `next(error)` are processed centrally:
+* **Controlled Errors (`AppError`)**: They are formatted and sent with the message, code, and HTTP status defined in the class.
+* **Uncontrolled Errors**: They are handled as generic `500` errors.
+* **Environments**: In development mode (`NODE_ENV=development`), the stack trace of unhandled errors is automatically included in the `details` array to facilitate debugging. In production, uncontrolled errors always return an opaque and generic error message for security.
 
 ---
 
-## Objetivo
+## Objective
 
-* Consistencia en el backend
-* Fácil integración con frontend
-* Mejor manejo de errores
-* Escalabilidad del sistema
+* Consistency in the backend
+* Easy frontend integration
+* Better error handling
+* System scalability

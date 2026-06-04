@@ -7,31 +7,70 @@
  *       properties:
  *         id:
  *           type: integer
- *         nombre:
+ *         name:
  *           type: string
  *         email:
  *           type: string
  *           format: email
- *     
+ *         goal:
+ *           type: string
+ *           description: User's nutritional goal
+ *
  *     Food:
  *       type: object
  *       properties:
  *         id:
  *           type: integer
- *         nombre:
+ *         name:
  *           type: string
- *         calorias:
+ *         calories_per_unit:
  *           type: number
- *         proteinas:
+ *           description: Calories per base unit
+ *         proteins:
  *           type: number
- *         carbohidratos:
+ *         carbohydrates:
  *           type: number
- *         grasas:
+ *         fats:
  *           type: number
+ *         base_unit:
+ *           type: string
+ *           description: Base unit of measurement (e.g., "g", "ml")
+ *
+ *     FridgeItem:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         foodId:
+ *           type: integer
+ *           description: Reference to food id
+ *         quantity:
+ *           type: number
+ *         unit:
+ *           type: string
+ *           description: Unit of measurement
+ *         food:
+ *           type: object
+ *           description: Associated food object
+ *
+ *     PhysicalRecord:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         height:
+ *           type: number
+ *           description: Height in cm
+ *         weight:
+ *           type: number
+ *           description: Weight in kg
+ *         createdAt:
+ *           type: string
+ *           format: date-time
  *
  *   responses:
  *     UnauthorizedError:
- *       description: Token no proporcionado o inválido
+ *       description: Token not provided or invalid
  *       content:
  *         application/json:
  *           schema:
@@ -42,5 +81,5 @@
  *                 example: false
  *               message:
  *                 type: string
- *                 example: "No autorizado"
+ *                 example: "Unauthorized"
  */

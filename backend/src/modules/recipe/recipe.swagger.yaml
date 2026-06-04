@@ -1,14 +1,14 @@
 /api/v1/recipe:
   get:
-    summary: Listar todas las recetas
+    summary: List all recipes
     tags: [Recipes]
     security:
       - bearerAuth: []
     responses:
       200:
-        description: Lista de recetas
+        description: List of recipes
   post:
-    summary: Crear una nueva receta
+    summary: Create a new recipe
     tags: [Recipes]
     security:
       - bearerAuth: []
@@ -19,17 +19,17 @@
           schema:
             type: object
             properties:
-              titulo:
+              title:
                 type: string
-              instrucciones:
+              instructions:
                 type: string
     responses:
       201:
-        description: Receta creada
+        description: Recipe created
 
 /api/v1/recipe/{recipeId}:
   get:
-    summary: Obtener receta por ID
+    summary: Get recipe by ID
     tags: [Recipes]
     security:
       - bearerAuth: []
@@ -41,11 +41,11 @@
           type: integer
     responses:
       200:
-        description: Detalles de la receta
+        description: Recipe details
 
 /api/v1/recipe/{recipeId}/ingredients:
   post:
-    summary: Añadir ingredientes a una receta
+    summary: Add ingredients to a recipe
     tags: [Recipes]
     security:
       - bearerAuth: []
@@ -57,11 +57,11 @@
           type: integer
     responses:
       200:
-        description: Ingredientes añadidos
+        description: Ingredients added
 
 /api/v1/recipe/{recipeId}/status:
   patch:
-    summary: Actualizar estado de la receta
+    summary: Update recipe status
     tags: [Recipes]
     security:
       - bearerAuth: []
@@ -73,11 +73,11 @@
           type: integer
     responses:
       200:
-        description: Estado actualizado
+        description: Status updated
 
 /api/v1/recipe/{recipeId}/action:
   post:
-    summary: Ejecutar acción sobre la receta
+    summary: Execute action on recipe
     tags: [Recipes]
     security:
       - bearerAuth: []
@@ -89,4 +89,4 @@
           type: integer
     responses:
       200:
-        description: Acción ejecutada
+        description: Action executed
