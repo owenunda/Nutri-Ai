@@ -1,0 +1,75 @@
+/api/v1/food/health:
+  get:
+    summary: Check food module health
+    tags: [Food]
+    responses:
+      200:
+        description: Food module is working
+
+/api/v1/food:
+  get:
+    summary: Get all foods
+    tags: [Food]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: List of foods
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Food'
+      401:
+        $ref: '#/components/responses/UnauthorizedError'
+  post:
+    summary: Create a new food
+    tags: [Food]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Food'
+    responses:
+      201:
+        description: Food created successfully
+
+/api/v1/food/{id}:
+  put:
+    summary: Update a food
+    tags: [Food]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Food'
+    responses:
+      200:
+        description: Food updated
+  delete:
+    summary: Delete a food
+    tags: [Food]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Food deleted

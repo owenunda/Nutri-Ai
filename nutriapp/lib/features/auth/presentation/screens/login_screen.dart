@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../services/auth_service.dart';
+import 'login_success_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -36,9 +39,17 @@ class LoginScreen extends StatelessWidget {
                       SizedBox(height: isCompact ? 8 : 14),
                       _BrandHeader(logoSize: isCompact ? 78 : 88),
                       SizedBox(height: isCompact ? 16 : 22),
-                      _LoginPanel(isCompact: isCompact),
+                      Expanded(child: _LoginPanel(isCompact: isCompact)),
                       SizedBox(height: isCompact ? 16 : 20),
-                      const _CreateAccountPrompt(),
+                      _CreateAccountPrompt(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterScreen(),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 );
@@ -101,121 +112,233 @@ class _BrandHeader extends StatelessWidget {
   }
 }
 
-class _LoginPanel extends StatelessWidget {
+class _LoginPanel extends StatefulWidget {
   const _LoginPanel({required this.isCompact});
 
   final bool isCompact;
 
   @override
+  State<_LoginPanel> createState() => _LoginPanelState();
+}
+
+class _LoginPanelState extends State<_LoginPanel> {
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  bool _isPasswordVisible = false;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    setState(() {
+      _errorMessage = null;
+      _isLoading = true;
+    });
+
+    try {
+      final result = await AuthService.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      if (result['success'] == true) {
+        if (!mounted) return;
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const LoginSuccessScreen()),
+        );
+        return;
+      } else {
+        setState(() {
+          _errorMessage = result['message'] ?? 'Login failed';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.fromLTRB(28, isCompact ? 24 : 28, 28, 26),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(34),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1E2A24).withValues(alpha: 0.05),
-            blurRadius: 34,
-            offset: const Offset(0, 22),
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(28, 28, 28, 26),
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(34),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1E2A24).withValues(alpha: 0.05),
+                blurRadius: 34,
+                offset: const Offset(0, 22),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Bienvenido de nuevo',
-            style: TextStyle(
-              color: Color(0xFF2C2F31),
-              fontSize: 21,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Ingresa tus credenciales para acceder a\ntu espacio de bienestar.',
-            style: TextStyle(
-              color: const Color(0xFF595C5E).withValues(alpha: 0.78),
-              fontSize: 13,
-              height: 1.35,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: isCompact ? 20 : 24),
-          const _FieldLabel('CORREO ELECTRONICO'),
-          const SizedBox(height: 9),
-          const _LoginInput(
-            hintText: 'name@example.com',
-            icon: Icons.mail_outline_rounded,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          SizedBox(height: isCompact ? 16 : 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const _FieldLabel('CONTRASENA'),
-              GestureDetector(
-                onTap: () {},
-                child: const Text(
-                  'Olvidaste tu contrasena?',
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Bienvenido de nuevo',
                   style: TextStyle(
-                    color: AppTheme.primaryStart,
-                    fontSize: 11,
+                    color: Color(0xFF2C2F31),
+                    fontSize: 21,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  'Ingresa tus credenciales para acceder a tu espacio de bienestar.',
+                  style: TextStyle(
+                    color: const Color(0xFF595C5E).withValues(alpha: 0.78),
+                    fontSize: 13,
+                    height: 1.35,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const _FieldLabel('CORREO ELECTRONICO'),
+                const SizedBox(height: 9),
+                _LoginInput(
+                  hintText: 'name@example.com',
+                  icon: Icons.mail_outline_rounded,
+                  keyboardType: TextInputType.emailAddress,
+                  controller: _emailController,
+                  enabled: !_isLoading,
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const _FieldLabel('CONTRASENA'),
+                    GestureDetector(
+                      onTap: () {},
+                      child: const Text(
+                        'Olvidaste tu contrasena?',
+                        style: TextStyle(
+                          color: AppTheme.primaryStart,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 9),
+                _LoginInput(
+                  hintText: '••••••••',
+                  icon: Icons.lock_outline_rounded,
+                  obscureText: !_isPasswordVisible,
+                  controller: _passwordController,
+                  enabled: !_isLoading,
+                  suffixIcon: _isPasswordVisible
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  onSuffixPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.red.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 22),
+                PrimaryButton(
+                  textButton: _isLoading ? 'Iniciando...' : 'Iniciar sesion',
+                  width: double.infinity,
+                  height: 56,
+                  textSize: 15,
+                  iconSize: 18,
+                  onPressed: _isLoading ? null : _handleLogin,
+                ),
+                const SizedBox(height: 26),
+                Center(
+                  child: Text(
+                    'O CONTINUA CON',
+                    style: TextStyle(
+                      color: const Color(0xFF595C5E).withValues(alpha: 0.72),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  children: const [
+                    Expanded(
+                      child: _SocialButton(label: 'Google', iconText: 'G'),
+                    ),
+                    SizedBox(width: 18),
+                    Expanded(
+                      child: _SocialButton(label: 'Apple', icon: Icons.apple),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_isLoading)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(34),
               ),
-            ],
-          ),
-          const SizedBox(height: 9),
-          const _LoginInput(
-            hintText: '••••••••',
-            icon: Icons.lock_outline_rounded,
-            obscureText: true,
-            suffixIcon: Icons.visibility_outlined,
-          ),
-          SizedBox(height: isCompact ? 18 : 22),
-          PrimaryButton(
-            textButton: 'Iniciar sesion',
-            width: double.infinity,
-            height: isCompact ? 52 : 56,
-            textSize: 15,
-            iconSize: 18,
-            onPressed: () {},
-          ),
-          SizedBox(height: isCompact ? 22 : 26),
-          Center(
-            child: Text(
-              'O CONTINUA CON',
-              style: TextStyle(
-                color: const Color(0xFF595C5E).withValues(alpha: 0.72),
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppTheme.primaryStart,
+                  ),
+                ),
               ),
             ),
           ),
-          SizedBox(height: isCompact ? 18 : 22),
-          Row(
-            children: const [
-              Expanded(
-                child: _SocialButton(
-                  label: 'Google',
-                  iconText: 'G',
-                ),
-              ),
-              SizedBox(width: 18),
-              Expanded(
-                child: _SocialButton(
-                  label: 'Apple',
-                  icon: Icons.apple,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -245,6 +368,9 @@ class _LoginInput extends StatelessWidget {
     this.suffixIcon,
     this.obscureText = false,
     this.keyboardType,
+    this.controller,
+    this.enabled = true,
+    this.onSuffixPressed,
   });
 
   final String hintText;
@@ -252,10 +378,15 @@ class _LoginInput extends StatelessWidget {
   final IconData? suffixIcon;
   final bool obscureText;
   final TextInputType? keyboardType;
+  final TextEditingController? controller;
+  final bool enabled;
+  final VoidCallback? onSuffixPressed;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
+      enabled: enabled,
       obscureText: obscureText,
       keyboardType: keyboardType,
       style: const TextStyle(
@@ -279,10 +410,13 @@ class _LoginInput extends StatelessWidget {
         ),
         suffixIcon: suffixIcon == null
             ? null
-            : Icon(
-                suffixIcon,
-                color: const Color(0xFF595C5E).withValues(alpha: 0.72),
-                size: 20,
+            : GestureDetector(
+                onTap: onSuffixPressed,
+                child: Icon(
+                  suffixIcon,
+                  color: const Color(0xFF595C5E).withValues(alpha: 0.72),
+                  size: 20,
+                ),
               ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
@@ -308,11 +442,7 @@ class _LoginInput extends StatelessWidget {
 }
 
 class _SocialButton extends StatelessWidget {
-  const _SocialButton({
-    required this.label,
-    this.icon,
-    this.iconText,
-  });
+  const _SocialButton({required this.label, this.icon, this.iconText});
 
   final String label;
   final IconData? icon;
@@ -342,19 +472,16 @@ class _SocialButton extends StatelessWidget {
                 style: const TextStyle(
                   color: Color(0xFF2C2F31),
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  height: 1,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                label,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
+            if (icon != null || iconText != null) const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFF2C2F31),
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],
@@ -365,7 +492,9 @@ class _SocialButton extends StatelessWidget {
 }
 
 class _CreateAccountPrompt extends StatelessWidget {
-  const _CreateAccountPrompt();
+  const _CreateAccountPrompt({required this.onTap});
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -373,21 +502,20 @@ class _CreateAccountPrompt extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'No tienes una cuenta?',
+          'No tienes una cuenta? ',
           style: TextStyle(
-            color: const Color(0xFF2C2F31).withValues(alpha: 0.78),
-            fontSize: 13,
+            color: const Color(0xFF595C5E).withValues(alpha: 0.76),
+            fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(width: 6),
         GestureDetector(
-          onTap: () {},
+          onTap: onTap,
           child: const Text(
-            'Crea una cuenta',
+            'Crea una',
             style: TextStyle(
               color: AppTheme.primaryStart,
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
           ),

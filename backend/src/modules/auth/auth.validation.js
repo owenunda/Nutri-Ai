@@ -1,6 +1,7 @@
 import { AppError } from '../../utils/AppError.js';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const goalSeparatorRegex = /[,;|\n]/;
 
 export const validateAuthHealthRequest = (req, res, next) => {
   next();
@@ -52,8 +53,12 @@ export const validateRegisterRequest = (req, res, next) => {
     details.push({ field: 'password', message: 'Password must be at least 6 characters' });
   }
 
-  if (goal !== undefined && goal !== null && typeof goal !== 'string') {
-    details.push({ field: 'goal', message: 'Goal must be a string' });
+  if (goal !== undefined && goal !== null) {
+    if (typeof goal !== 'string' || !goal.trim()) {
+      details.push({ field: 'goal', message: 'Goal must be a non-empty string' });
+    } else if (goalSeparatorRegex.test(goal.trim())) {
+      details.push({ field: 'goal', message: 'Goal must contain a single value' });
+    }
   }
 
   if (details.length > 0) {

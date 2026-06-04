@@ -1,9 +1,15 @@
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger.js';
 import foodRoutes from './modules/food/food.routes.js';
+import fridgeRoutes from './modules/fridge/fridge.routes.js';
 import recipeRoutes from './modules/recipe/recipe.routes.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import userRoutes from './modules/user/user.routes.js';
+import statsRoutes from './modules/stats/stats.routes.js';
+import mealRoutes from './modules/meal/meal.routes.js';
+import aiRoutes from './modules/ai/ai.routes.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 
 const app = express();
@@ -12,7 +18,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Ruta de prueba general
+// Documentación de la API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.get('/api/v1/health', (req, res) => {
   res.json({
     success: true,
@@ -21,22 +29,24 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
-// Rutas del módulo food
-app.use('/api/v1/food', foodRoutes);
 
-// Rutas del módulo recipe
+app.use('/api/v1/food', foodRoutes);
+app.use('/api/v1/fridge', fridgeRoutes);
+
 app.use('/api/v1/recipe', recipeRoutes)
 
-// Rutas del módulo auth
 app.use('/api/v1/auth', authRoutes);
 
-// Rutas del módulo user 
 app.use('/api/v1/user', userRoutes);
 
-// Middleware para rutas no encontradas
+app.use('/api/v1/stats', statsRoutes);
+
+app.use('/api/v1/meals', mealRoutes);
+
+app.use('/api/v1/ai', aiRoutes);
+
 app.use(notFoundHandler);
 
-// Middleware global de errores
 app.use(errorHandler);
 
 export default app;

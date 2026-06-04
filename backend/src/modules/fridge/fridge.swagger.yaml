@@ -1,0 +1,80 @@
+/api/v1/fridge/health:
+  get:
+    summary: Check fridge module health
+    tags: [Fridge]
+    responses:
+      200:
+        description: Fridge module is working
+
+/api/v1/fridge:
+  get:
+    summary: Get user's fridge items
+    tags: [Fridge]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: Inventory retrieved successfully
+
+/api/v1/fridge/items:
+  post:
+    summary: Add food to fridge
+    tags: [Fridge]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [foodId, quantity, unit]
+            properties:
+              foodId:
+                type: integer
+              quantity:
+                type: number
+              unit:
+                type: string
+    responses:
+      201:
+        description: Added successfully
+
+/api/v1/fridge/items/{id}:
+  put:
+    summary: Update fridge item quantity
+    tags: [Fridge]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              quantity:
+                type: number
+    responses:
+      200:
+        description: Updated successfully
+  delete:
+    summary: Delete fridge item
+    tags: [Fridge]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Deleted successfully

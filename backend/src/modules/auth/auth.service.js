@@ -8,6 +8,8 @@ import {
   getAuthRepositoryStatus,
   getDefaultRoleAndPlanIds,
 } from './auth.repository.js';
+import { createFridgeService } from '../fridge/fridge.service.js'; // línea nueva
+
 
 const JWT_EXPIRES_IN = '15m';
 const SALT_ROUNDS = 10;
@@ -32,16 +34,32 @@ export const getAuthModuleStatus = async () => {
 
 export const loginUser = async ({ email, password }) => {
   try {
-    const user = await findUserByEmail(email);
+    const dbNotConfigured = !config.db?.host || !config.db?.user || !config.db?.name;
+    let user;
+
+    if (dbNotConfigured && config.node_env === 'development') {
+      if (email === 'test@example.com') {
+        user = {
+          userId: 0,
+          name: 'Local Tester',
+          email,
+          passwordHash: await bcrypt.hash('password', SALT_ROUNDS),
+          role: 'USER',
+          plan: 'FREE',
+        };
+      }
+    } else {
+      user = await findUserByEmail(email);
+    }
 
     if (!user) {
-      throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
+      throw new AppError('Cuenta no existe', 404, 'USER_NOT_FOUND');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isPasswordValid) {
-      throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
+      throw new AppError('Contraseña incorrecta', 401, 'INVALID_PASSWORD');
     }
 
     if (!config.jwt.secret) {
@@ -102,6 +120,9 @@ export const registerUser = async ({ name, email, password, goal }) => {
       roleId: Number(defaults.roleId),
       planId: Number(defaults.planId),
     });
+
+    // Crea automáticamente la nevera del usuario recién registrado
+    await createFridgeService(newUser.userId); // 👈 aquí
 
     return {
       ...newUser,

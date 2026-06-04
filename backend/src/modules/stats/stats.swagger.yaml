@@ -1,0 +1,19 @@
+/api/v1/stats/consumption-validation:
+  get:
+    summary: Validate daily consumption
+    tags: [Stats]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: Consumption validation retrieved
+
+/api/v1/stats/today-calories:
+  get:
+    summary: Get today's consumed calories
+    tags: [Stats]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: Today's calories retrieved

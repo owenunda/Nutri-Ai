@@ -1,0 +1,41 @@
+/api/v1/meals:
+  post:
+    summary: Create a new meal/meal plan
+    tags: [Meals]
+    security:
+      - bearerAuth: []
+    responses:
+      201:
+        description: Meal created
+
+/api/v1/meals/{id}/items:
+  post:
+    summary: Add items (foods) to a meal
+    tags: [Meals]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Items added
+
+/api/v1/meals/{id}/recipes:
+  post:
+    summary: Add recipes to a meal
+    tags: [Meals]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Recipes added

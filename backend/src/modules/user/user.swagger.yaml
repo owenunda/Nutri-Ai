@@ -1,0 +1,63 @@
+/api/v1/user/profile:
+  get:
+    summary: Get user profile
+    tags: [User]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: User profile retrieved
+  put:
+    summary: Update user profile
+    tags: [User]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              age:
+                type: integer
+              weight:
+                type: number
+              height:
+                type: number
+              goal:
+                type: string
+    responses:
+      200:
+        description: Profile updated
+
+/api/v1/user/physical:
+  post:
+    summary: Create physical record (weight, height, etc)
+    tags: [User]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              height:
+                type: number
+              weight:
+                type: number
+    responses:
+      201:
+        description: Physical record created
+
+/api/v1/user/physical/history:
+  get:
+    summary: Get physical history records
+    tags: [User]
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: Physical history retrieved

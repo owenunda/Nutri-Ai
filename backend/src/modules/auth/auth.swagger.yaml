@@ -1,0 +1,55 @@
+/api/v1/auth/health:
+  get:
+    summary: Check authentication module health
+    tags: [Auth]
+    responses:
+      200:
+        description: Authentication module is working
+
+/api/v1/auth/login:
+  post:
+    summary: User login
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [email, password]
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: password
+    responses:
+      200:
+        description: Successful login
+      401:
+        $ref: '#/components/responses/UnauthorizedError'
+
+/api/v1/auth/register:
+  post:
+    summary: Register new user
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [name, email, password]
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: password
+    responses:
+      201:
+        description: User registered successfully

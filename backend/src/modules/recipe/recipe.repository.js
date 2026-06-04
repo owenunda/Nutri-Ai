@@ -58,6 +58,12 @@ export const getRecipeByIdRepository = async (userId, recipeId) => {
                 ur.status_id,
                 s.name AS status_name,
                 ur.recipe_date,
+                (
+                    SELECT SUM(f2.calories_per_unit * ri2.quantity)
+                    FROM recipe_ingredients ri2
+                    JOIN foods f2 ON ri2.food_id = f2.food_id
+                    WHERE ri2.recipe_id = r.recipe_id
+                ) AS total_calories,
                 COALESCE(
                     (
                         SELECT json_agg(
@@ -232,6 +238,50 @@ export const updateRecipeStatusRepository = async (userId, recipeId, statusId) =
         return await getRecipeByIdRepository(userId, recipeId);
     } catch (error) {
         if (error.code === '23503') { // Foreign key violation (status_id)
+            throw new AppError('El ID de estado proporcionado no es válido', 400, 'INVALID_STATUS_ID');
+        }
+        throw error;
+    }
+};
+
+export const checkRecipesExist = async (userId, recipeIds) => {
+  const query = `
+    SELECT recipe_id
+    FROM user_recipes
+    WHERE user_id = $1 AND recipe_id = ANY($2::int[])
+  `;
+  const { rows } = await pool.query(query, [userId, recipeIds]);
+  return rows.map(r => r.recipe_id);
+};
+
+export const getRecipeTotalCaloriesRepository = async (recipeId) => {
+    const query = `
+        SELECT SUM(f.calories_per_unit * ri.quantity) AS total_calories
+        FROM recipe_ingredients ri
+        JOIN foods f ON ri.food_id = f.food_id
+        WHERE ri.recipe_id = $1
+    `;
+    const { rows } = await pool.query(query, [recipeId]);
+    return parseFloat(rows[0]?.total_calories || 0);
+};
+
+export const updateRecipeActionRepository = async (userId, recipeId, statusId, date) => {
+    try {
+        const query = `
+            UPDATE user_recipes 
+            SET status_id = $1, recipe_date = $2, updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = $3 AND recipe_id = $4
+            RETURNING *;
+        `;
+        const { rows } = await pool.query(query, [statusId, date, userId, recipeId]);
+        
+        if (rows.length === 0) {
+            throw new AppError('La receta no fue encontrada para este usuario', 404, 'RECIPE_NOT_FOUND');
+        }
+
+        return await getRecipeByIdRepository(userId, recipeId);
+    } catch (error) {
+        if (error.code === '23503') { 
             throw new AppError('El ID de estado proporcionado no es válido', 400, 'INVALID_STATUS_ID');
         }
         throw error;
