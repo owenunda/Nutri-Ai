@@ -12,6 +12,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -38,6 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     FocusScope.of(context).unfocus();
 
     final isFormValid = _formKey.currentState?.validate() ?? false;
+
     if (!isFormValid) {
       return;
     }
@@ -60,32 +62,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
       );
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       _showSnackBar('Cuenta creada correctamente. Ya puedes iniciar sesión.');
+
       await Future<void>.delayed(const Duration(milliseconds: 700));
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       Navigator.of(context).pop();
     } on AuthException catch (error) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       _showSnackBar(error.message);
     } catch (_) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
-      _showSnackBar(
-        'No se pudo completar el registro. Inténtalo de nuevo.',
-      );
+      _showSnackBar('No se pudo completar el registro. Inténtalo de nuevo.');
     } finally {
       if (mounted) {
         setState(() {
@@ -97,10 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -108,9 +98,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _RegisterPalette.background,
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          // Luces suaves 
           Positioned(
             top: -90,
             right: -90,
@@ -119,21 +109,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
               size: 240,
             ),
           ),
+
           Positioned(
             bottom: -120,
             left: -120,
             child: _GlowCircle(
-              color: _RegisterPalette.tertiary.withValues(alpha: 0.08),
+              color: const Color(0xFFBCEED9).withValues(alpha: 0.22),
               size: 260,
             ),
           ),
+
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                // Scroll para evitar overflow en web y pantallas pequeñas.
                 return SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 22),
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: EdgeInsets.fromLTRB(
+                    18,
+                    16,
+                    18,
+                    MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 560),
@@ -170,10 +168,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onSubmit: _submitRegister,
                             onLoginTap: () => Navigator.pop(context),
                           ),
-                          const SizedBox(height: 24),
+
+                          const SizedBox(height: 22),
+
                           const _BrandFooter(),
+
                           SizedBox(
-                            height: constraints.maxHeight < 760 ? 24 : 12,
+                            height: constraints.maxHeight < 760 ? 18 : 10,
                           ),
                         ],
                       ),
@@ -212,10 +213,12 @@ class _RegisterCard extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
+
   final bool acceptedTerms;
   final bool obscurePassword;
   final bool obscureConfirmPassword;
   final bool isSubmitting;
+
   final VoidCallback onToggleTerms;
   final VoidCallback onTogglePasswordVisibility;
   final VoidCallback onToggleConfirmVisibility;
@@ -229,12 +232,12 @@ class _RegisterCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
       decoration: BoxDecoration(
         color: _RegisterPalette.surface,
-        borderRadius: BorderRadius.circular(34),
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 28,
-            offset: const Offset(0, 18),
+            color: const Color(0xFF1E2A24).withValues(alpha: 0.05),
+            blurRadius: 34,
+            offset: const Offset(0, 22),
           ),
         ],
       ),
@@ -253,9 +256,11 @@ class _RegisterCard extends StatelessWidget {
                 letterSpacing: -0.9,
               ),
             ),
+
             const SizedBox(height: 8),
+
             const Text(
-              'Comienza tu camino hacia una precisión orgánica.',
+              'Comienza tu camino hacia una alimentación inteligente.',
               style: TextStyle(
                 color: _RegisterPalette.subtitle,
                 fontSize: 16,
@@ -263,9 +268,13 @@ class _RegisterCard extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
+
             const SizedBox(height: 26),
+
             const _FieldLabel('NOMBRE COMPLETO'),
+
             const SizedBox(height: 10),
+
             _RegisterField(
               controller: nameController,
               icon: Icons.person_outline_rounded,
@@ -278,12 +287,17 @@ class _RegisterCard extends StatelessWidget {
                 if (value == null || value.trim().isEmpty) {
                   return 'El nombre es obligatorio.';
                 }
+
                 return null;
               },
             ),
+
             const SizedBox(height: 18),
+
             const _FieldLabel('CORREO ELECTRÓNICO'),
+
             const SizedBox(height: 10),
+
             _RegisterField(
               controller: emailController,
               icon: Icons.mail_outline_rounded,
@@ -293,6 +307,7 @@ class _RegisterCard extends StatelessWidget {
               enabled: !isSubmitting,
               validator: (value) {
                 final email = value?.trim() ?? '';
+
                 final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 
                 if (email.isEmpty) {
@@ -306,9 +321,13 @@ class _RegisterCard extends StatelessWidget {
                 return null;
               },
             ),
+
             const SizedBox(height: 18),
+
             const _FieldLabel('CONTRASEÑA'),
+
             const SizedBox(height: 10),
+
             _RegisterField(
               controller: passwordController,
               icon: Icons.lock_outline_rounded,
@@ -335,9 +354,13 @@ class _RegisterCard extends StatelessWidget {
                 return null;
               },
             ),
+
             const SizedBox(height: 18),
+
             const _FieldLabel('CONFIRMAR'),
+
             const SizedBox(height: 10),
+
             _RegisterField(
               controller: confirmPasswordController,
               icon: Icons.verified_user_outlined,
@@ -365,7 +388,9 @@ class _RegisterCard extends StatelessWidget {
                 return null;
               },
             ),
+
             const SizedBox(height: 22),
+
             GestureDetector(
               onTap: isSubmitting ? null : onToggleTerms,
               child: Row(
@@ -396,7 +421,9 @@ class _RegisterCard extends StatelessWidget {
                           : Colors.transparent,
                     ),
                   ),
+
                   const SizedBox(width: 12),
+
                   Expanded(
                     child: Text.rich(
                       TextSpan(
@@ -430,11 +457,13 @@ class _RegisterCard extends StatelessWidget {
                 ],
               ),
             ),
+
             const SizedBox(height: 24),
+
             PrimaryButton(
               textButton: isSubmitting ? 'Registrando...' : 'Registrarse',
               width: double.infinity,
-              height: 58,
+              height: 56,
               icon: isSubmitting
                   ? Icons.hourglass_top_rounded
                   : Icons.arrow_forward_rounded,
@@ -444,7 +473,9 @@ class _RegisterCard extends StatelessWidget {
               endColor: _RegisterPalette.primaryDark,
               onPressed: isSubmitting ? null : onSubmit,
             ),
+
             const SizedBox(height: 20),
+
             Container(
               height: 1,
               decoration: BoxDecoration(
@@ -452,7 +483,9 @@ class _RegisterCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
+
             const SizedBox(height: 18),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -464,7 +497,9 @@ class _RegisterCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+
                 const SizedBox(width: 6),
+
                 GestureDetector(
                   onTap: onLoginTap,
                   child: const Text(
@@ -559,11 +594,7 @@ class _RegisterField extends StatelessWidget {
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
-        prefixIcon: Icon(
-          icon,
-          color: _RegisterPalette.icon,
-          size: 20,
-        ),
+        prefixIcon: Icon(icon, color: _RegisterPalette.icon, size: 20),
         suffixIcon: trailingIcon == null
             ? null
             : IconButton(
@@ -576,20 +607,20 @@ class _RegisterField extends StatelessWidget {
               ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
-          vertical: 18,
+          vertical: 17,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide(
-            color: _RegisterPalette.primary.withValues(alpha: 0.16),
+            color: _RegisterPalette.primary.withValues(alpha: 0.18),
             width: 1,
           ),
         ),
@@ -634,23 +665,23 @@ class _BrandFooter extends StatelessWidget {
               ],
             ),
           ),
+
           const SizedBox(height: 18),
+
           const Text.rich(
             TextSpan(
               style: TextStyle(
                 color: _RegisterPalette.title,
-                fontSize: 30,
+                fontSize: 26,
                 height: 1.02,
                 fontWeight: FontWeight.w800,
-                letterSpacing: -0.8,
+                letterSpacing: -0.5,
               ),
               children: [
                 TextSpan(text: 'Comienza tu '),
                 TextSpan(
                   text: 'viaje',
-                  style: TextStyle(
-                    color: _RegisterPalette.primary,
-                  ),
+                  style: TextStyle(color: _RegisterPalette.primary),
                 ),
                 TextSpan(text: '\nconsciente.'),
               ],
@@ -664,10 +695,7 @@ class _BrandFooter extends StatelessWidget {
 }
 
 class _GlowCircle extends StatelessWidget {
-  const _GlowCircle({
-    required this.color,
-    required this.size,
-  });
+  const _GlowCircle({required this.color, required this.size});
 
   final Color color;
   final double size;
@@ -677,28 +705,39 @@ class _GlowCircle extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
     );
   }
 }
 
 class _RegisterPalette {
   static const Color background = Color(0xFFF8FAFC);
+
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color title = Color(0xFF23262F);
-  static const Color body = Color(0xFF525866);
-  static const Color subtitle = Color(0xFF5A6170);
+
+  static const Color title = Color(0xFF2C2F31);
+
+  static const Color body = Color(0xFF595C5E);
+
+  static const Color subtitle = Color(0xFF595C5E);
+
   static const Color label = Color(0xFF6B7280);
+
   static const Color hint = Color(0xFF97A0AA);
+
   static const Color icon = Color(0xFF78808A);
-  static const Color outline = Color(0xFFBBC4CC);
-  static const Color divider = Color(0xFFE4E8ED);
-  static const Color fieldFill = Color(0xFFF0F3F6);
-  static const Color primary = Color(0xFF2EB67D);
-  static const Color primaryDark = Color(0xFF249B6A);
-  static const Color primarySoft = Color(0xFFCFF4E5);
-  static const Color tertiary = Color(0xFF00E0FD);
+
+  static const Color outline = Color(0xFFD7DEE5);
+
+  static const Color divider = Color(0xFFE7ECF0);
+
+  static const Color fieldFill = Color(0xFFEFF3F5);
+
+  static const Color primary = Color(0xFF0A6B3F);
+
+  static const Color primaryDark = Color(0xFF085531);
+
+  static const Color primarySoft = Color(0xFFDDF3E8);
+
+  static const Color tertiary = Color(0xFF8FE3BE);
 }
