@@ -6,135 +6,127 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent, // Transparente para usar el fondo del Navigator
+      backgroundColor: Colors.transparent,
+
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+
           child: Column(
             children: [
-              // Espaciador para no chocar con el Header Fijo Global
+              // Espacio superior
               const SizedBox(height: 56),
 
-              const Spacer(),
-              
-              // Sección de la Imagen con Tarjeta de Información IA
-              Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
+              const SizedBox(height: 24),
+
+              // =========================
+              // Presentación de Nutri
+              // =========================
+              Column(
                 children: [
-                  // Imagen Principal con bordes redondeados
                   Container(
-                    width: 320,
-                    height: 340,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 10,
+                    ),
+
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(48),
+                      color: Colors.white.withValues(alpha: 0.75),
+
+                      borderRadius: BorderRadius.circular(100),
+
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF0F172A).withValues(alpha: 0.06),
-                          blurRadius: 30,
-                          offset: const Offset(0, 15),
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
                         ),
                       ],
-                      image: const DecorationImage(
-                        image: AssetImage('assets/images/diet_character.jpg'),
-                        fit: BoxFit.cover,
-                      ),
+                    ),
+
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          radius: 6,
+                          backgroundColor: Color(0xFF0A6B3F),
+                        ),
+
+                        SizedBox(width: 10),
+
+                        Text(
+                          'Nutri • Tu acompañante nutricional',
+                          style: TextStyle(
+                            color: Color(0xFF334155),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  
-                  // Tarjeta Flotante (Resultado IA)
-                  Positioned(
-                    bottom: -20,
-                    right: -10,
-                    child: Container(
-                      width: 220,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF0F172A).withValues(alpha: 0.08),
-                            blurRadius: 24,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF0A6B3F),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.auto_awesome,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'RESULTADO IA',
-                                    style: TextStyle(
-                                      color: Color(0xFF64748B),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                  Text(
-                                    '485 kcal',
-                                    style: TextStyle(
-                                      color: Color(0xFF1E293B),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 8, height: 12),
-                          
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: const LinearProgressIndicator(
-                              value: 0.8,
-                              minHeight: 8,
-                              backgroundColor: Color(0xFFE2E8F0),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Color(0xFF0A6B3F),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Meta de proteína: 80% alcanzado',
-                            style: TextStyle(
-                              color: Color(0xFF64748B),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+
+                  const SizedBox(height: 18),
+                  const SizedBox(height: 14),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+
+                    child: Text(
+                      'Nutri te ayudará a construir hábitos saludables, entender mejor tu alimentación y mantenerte motivado día a día.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 15,
+                        height: 1.6,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                 ],
               ),
-              
-              const Spacer(flex: 2),
-              
-              // Título Principal
+
+              const SizedBox(height: 36),
+
+              // =========================
+              // Imagen principal
+              // =========================
+              Container(
+                width: 320,
+                height: 340,
+
+                decoration: BoxDecoration(
+                  color: const Color(0xFFCFECC7),
+
+                  borderRadius: BorderRadius.circular(48),
+
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+                      blurRadius: 30,
+                      offset: const Offset(0, 15),
+                    ),
+                  ],
+                ),
+
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(48),
+
+                  child: Image.asset(
+                    'assets/images/nutria.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+
+              // =========================
+              // Título principal
+              // =========================
               const Text(
                 'IA nutricional\npersonalizada',
                 textAlign: TextAlign.center,
@@ -146,9 +138,12 @@ class OnboardingScreen extends StatelessWidget {
                   letterSpacing: -0.5,
                 ),
               ),
+
               const SizedBox(height: 16),
-              
+
+              // =========================
               // Descripción
+              // =========================
               const Text(
                 'Tu asistente nutricional inteligente te ayuda a mejorar tu alimentación según tus objetivos.',
                 textAlign: TextAlign.center,
@@ -158,10 +153,10 @@ class OnboardingScreen extends StatelessWidget {
                   height: 1.5,
                 ),
               ),
-              
+
               const Spacer(),
 
-              // Espacio inferior para evitar que el Footer Global cubra el texto
+              // Espacio inferior
               const SizedBox(height: 140),
             ],
           ),
