@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Instala solo las dependencias de producción
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Etapa 2: Imagen final para ejecución en producción
 FROM node:20-alpine AS runner
