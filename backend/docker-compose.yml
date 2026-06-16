@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nutriai-backend
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST_DB=db
+      - PORT_DB=5432
+      - USER_DB=${USER_DB:-postgres}
+      - PASS_DB=${PASS_DB:-postgres}
+      - NAME_DB=${NAME_DB:-nutriai}
+      - JWT_SECRET=${JWT_SECRET:-some-secure-jwt-secret-key-12345}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15-alpine
+    container_name: nutriai-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${USER_DB:-postgres}
+      POSTGRES_PASSWORD: ${PASS_DB:-postgres}
+      POSTGRES_DB: ${NAME_DB:-nutriai}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

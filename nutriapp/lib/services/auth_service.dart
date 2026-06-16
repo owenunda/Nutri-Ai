@@ -1,50 +1,31 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
+import '../core/network/dio_client.dart';
+import '../core/network/api_routes.dart';
 
 class AuthService {
-  // Base URL del backend.
-  // En modo debug usamos localhost y `adb reverse` para pruebas con dispositivo físico:
-  // - Debug: http://127.0.0.1:3000/api/v1  (usa `adb reverse tcp:3000 tcp:3000`)
-  // - Release: mantiene la URL real (ajusta antes de producción)
-  static String get baseUrl {
-    if (kDebugMode) return 'http://127.0.0.1:3000/api/v1';
-    return 'http://192.168.1.8:3000/api/v1';
-  }
-
-  /// Realiza el login con email y password
+  /// Realiza el login con email y password usando el cliente centralizado de la API (Dio)
   ///
   /// Retorna un mapa con:
   /// - success: bool
   /// - token: string (si success=true)
-  /// - user: Map<String, dynamic> (si success=true)
+  /// - user: `Map<String, dynamic>` (si success=true)
   /// - message: string (mensaje de error si success=false)
-  ///
-  /// Lanza Exception si hay error de red o parsing
   static Future<Map<String, dynamic>> login(
     String email,
     String password,
   ) async {
     try {
-      final response = await http
-          .post(
-            Uri.parse('$baseUrl/auth/login'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: jsonEncode({'email': email, 'password': password}),
-          )
-          .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () => throw Exception('Connection timeout'),
-          );
+      final response = await DioClient.instance.post<Map<String, dynamic>>(
+        ApiRoutes.authLogin,
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
 
-      // Parsear la respuesta
-      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseData = response.data;
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        // Login exitoso
+      if (responseData != null && responseData['success'] == true) {
         return {
           'success': true,
           'token': responseData['data']['token'],
@@ -52,20 +33,46 @@ class AuthService {
           'message': responseData['message'] ?? 'Login successful',
         };
       } else {
-        // Error del backend
-        final errorMessage = responseData['message'] ?? 'Login failed';
+        final errorMessage = responseData?['message'] ?? 'Login failed';
         return {
           'success': false,
           'message': errorMessage,
-          'error': responseData['error'],
+          'error': responseData?['error'],
         };
       }
-    } on http.ClientException catch (e) {
-      // Error de red
-      throw Exception('Network error: ${e.message}');
+    } on DioException catch (e) {
+      // Extraer mensaje de error del backend si existe
+      final responseData = e.response?.data;
+      String errorMessage = 'No se pudo iniciar sesión. Inténtalo de nuevo.';
+      
+      if (responseData is Map<String, dynamic> && responseData['message'] != null) {
+        errorMessage = responseData['message'];
+      } else {
+        // Fallbacks para problemas de conexión
+        switch (e.type) {
+          case DioExceptionType.connectionTimeout:
+          case DioExceptionType.sendTimeout:
+          case DioExceptionType.receiveTimeout:
+            errorMessage = 'La conexión con el servidor tardó demasiado. Inténtalo de nuevo.';
+            break;
+          case DioExceptionType.connectionError:
+            errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión o si el servidor está activo.';
+            break;
+          default:
+            errorMessage = 'Error de red: ${e.message}';
+        }
+      }
+
+      return {
+        'success': false,
+        'message': errorMessage,
+        'error': responseData?['error'] ?? e.error,
+      };
     } catch (e) {
-      // Otros errores
-      throw Exception('Error: $e');
+      return {
+        'success': false,
+        'message': 'Error: $e',
+      };
     }
   }
 }
