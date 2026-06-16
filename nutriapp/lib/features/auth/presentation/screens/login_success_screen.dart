@@ -1,9 +1,31 @@
 import 'package:flutter/material.dart';
-
 import '../../../../core/theme/app_theme.dart';
+import '../../../home/presentation/screens/dashboard_screen.dart';
 
-class LoginSuccessScreen extends StatelessWidget {
-  const LoginSuccessScreen({super.key});
+class LoginSuccessScreen extends StatefulWidget {
+  final Map<String, dynamic>? user;
+
+  const LoginSuccessScreen({super.key, this.user});
+
+  @override
+  State<LoginSuccessScreen> createState() => _LoginSuccessScreenState();
+}
+
+class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Redirección automática al Dashboard después de 1.5 segundos, pasando el usuario
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => DashboardScreen(user: widget.user),
+          ),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

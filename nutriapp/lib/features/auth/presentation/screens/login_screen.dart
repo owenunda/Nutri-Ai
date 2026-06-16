@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../services/auth_service.dart';
-import 'login_success_screen.dart';
+import '../../../home/presentation/screens/dashboard_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -188,7 +188,9 @@ class _LoginPanelState extends State<_LoginPanel> {
 
       if (result['success'] == true) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginSuccessScreen()),
+          MaterialPageRoute(
+            builder: (_) => DashboardScreen(user: result['user']),
+          ),
         );
 
         return;

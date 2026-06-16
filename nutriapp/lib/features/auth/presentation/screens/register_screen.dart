@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/primary_button.dart';
+import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../data/auth_repository.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -64,13 +65,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (!mounted) return;
 
-      _showSnackBar('Cuenta creada correctamente. Ya puedes iniciar sesión.');
+      _showSnackBar('Cuenta creada correctamente. ¡Bienvenido!');
 
       await Future<void>.delayed(const Duration(milliseconds: 700));
 
       if (!mounted) return;
 
-      Navigator.of(context).pop();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => DashboardScreen(
+            user: {
+              'name': _nameController.text.trim(),
+              'email': _emailController.text.trim(),
+            },
+          ),
+        ),
+        (route) => false,
+      );
     } on AuthException catch (error) {
       if (!mounted) return;
 
