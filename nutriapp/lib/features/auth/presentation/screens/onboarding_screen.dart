@@ -19,77 +19,7 @@ class OnboardingScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // =========================
-              // Presentación de Nutri
-              // =========================
-              Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 10,
-                    ),
 
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.75),
-
-                      borderRadius: BorderRadius.circular(100),
-
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircleAvatar(
-                          radius: 6,
-                          backgroundColor: Color(0xFF0A6B3F),
-                        ),
-
-                        SizedBox(width: 10),
-
-                        Text(
-                          'Nutri • Tu acompañante nutricional',
-                          style: TextStyle(
-                            color: Color(0xFF334155),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 18),
-                  const SizedBox(height: 14),
-
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-
-                    child: Text(
-                      'Nutri te ayudará a construir hábitos saludables, entender mejor tu alimentación y mantenerte motivado día a día.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF64748B),
-                        fontSize: 15,
-                        height: 1.6,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 36),
 
               // =========================
               // Imagen principal
