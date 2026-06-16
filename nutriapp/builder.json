@@ -1,13 +1,15 @@
 {
-  "project": "\n",
+  "project": "nutriapp",
   "platform": "ios",
   "github": {
     "owner": "owenunda",
     "repo": "Nutri-Ai"
   },
-  "ios": {},
+  "ios": {
+    "path": "nutriapp/ios"
+  },
   "flutter": {
-    "version": "\n",
+    "version": "",
     "watch": {}
   },
   "reactNative": {},

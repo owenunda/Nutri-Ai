@@ -8,10 +8,10 @@ on:
         required: true
         type: string
       ios_path:
-        description: 'Path to iOS project (e.g., "ios" for React Native)'
+        description: 'Path to iOS project (e.g., "nutriapp/ios" for Flutter)'
         required: false
         type: string
-        default: '.'
+        default: 'nutriapp/ios'
       scheme:
         description: 'Xcode scheme to build (auto-detected if empty)'
         required: false
@@ -59,11 +59,12 @@ jobs:
       - name: Detect project type
         id: detect
         run: |
-          if [ -f "pubspec.yaml" ]; then
+          # Check in ios_path first, then parent (for Flutter projects where ios is inside Flutter app)
+          if [ -f "$IOS_PATH/pubspec.yaml" ] || [ -f "../pubspec.yaml" ]; then
             echo "type=flutter" >> $GITHUB_OUTPUT
-          elif [ -f "package.json" ] && grep -q '"expo"' package.json; then
+          elif [ -f "$IOS_PATH/package.json" ] && grep -q '"expo"' "$IOS_PATH/package.json"; then
             echo "type=expo" >> $GITHUB_OUTPUT
-          elif [ -f "package.json" ] && grep -q '"react-native"' package.json; then
+          elif [ -f "$IOS_PATH/package.json" ] && grep -q '"react-native"' "$IOS_PATH/package.json"; then
             echo "type=reactnative" >> $GITHUB_OUTPUT
           else
             echo "type=native" >> $GITHUB_OUTPUT
