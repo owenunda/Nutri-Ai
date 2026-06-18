@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/primary_button.dart';
-import '../../../home/presentation/screens/dashboard_screen.dart';
+import '../../../setup/presentation/screens/profile_setup_screen.dart';
 import '../../data/auth_repository.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -73,11 +73,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) => DashboardScreen(
-            user: {
-              'name': _nameController.text.trim(),
-              'email': _emailController.text.trim(),
-            },
+          builder: (_) => ProfileSetupScreen(
+            userName: _nameController.text.trim(),
           ),
         ),
         (route) => false,
@@ -100,8 +97,109 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _showSnackBar(String message) {
+    final lowerMessage = message.toLowerCase();
+    final isSuccess = lowerMessage.contains('correctamente');
+    final isDuplicate = lowerMessage.contains('registrado');
+    final isWarning = lowerMessage.contains('debes aceptar');
+
+    final Color accentColor = isSuccess
+        ? _RegisterPalette.primary
+        : isDuplicate
+            ? const Color(0xFFD97706)
+            : isWarning
+                ? const Color(0xFFD97706)
+                : const Color(0xFFB42318);
+
+    final IconData icon = isSuccess
+        ? Icons.check_circle_rounded
+        : isDuplicate
+            ? Icons.mark_email_unread_rounded
+            : isWarning
+                ? Icons.warning_amber_rounded
+                : Icons.error_outline_rounded;
+
+    final String title = isSuccess
+        ? 'Registro exitoso'
+        : isDuplicate
+            ? 'Correo ya registrado'
+            : isWarning
+                ? 'Falta confirmar'
+                : 'Registro no completado';
+
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        padding: EdgeInsets.zero,
+        duration: const Duration(seconds: 4),
+        content: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: _RegisterPalette.surface,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: accentColor.withValues(alpha: 0.18),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1E2A24).withValues(alpha: 0.10),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.14),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: accentColor,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: _RegisterPalette.title,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      message,
+                      style: TextStyle(
+                        color: _RegisterPalette.body.withValues(alpha: 0.95),
+                        fontSize: 13,
+                        height: 1.35,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -750,5 +848,4 @@ class _RegisterPalette {
 
   static const Color primarySoft = Color(0xFFDDF3E8);
 
-  static const Color tertiary = Color(0xFF8FE3BE);
 }
