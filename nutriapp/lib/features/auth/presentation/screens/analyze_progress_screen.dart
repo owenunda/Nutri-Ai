@@ -14,10 +14,12 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
   @override
   void initState() {
     super.initState();
+
     _chartAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
+
     _chartAnimationController.forward();
   }
 
@@ -30,67 +32,84 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          Colors.transparent, // Transparente para usar el fondo del Navigator
+      backgroundColor: Colors.transparent,
+
       body: Stack(
         children: [
           SafeArea(
             child: Column(
               children: [
-                // Espaciador para no chocar con el Header Fijo Global
+                // Espaciador superior
                 const SizedBox(height: 56),
 
                 const Spacer(),
 
-                // Sección de Ilustración (Gráfico interactivo de Progreso)
+                // =========================
+                // Ilustración de progreso
+                // =========================
                 Center(
                   child: Stack(
                     clipBehavior: Clip.none,
                     alignment: Alignment.center,
+
                     children: [
-                      // Bento Card de Progreso
+                      // Tarjeta principal
                       Container(
                         width: 300,
                         height: 300,
+
                         decoration: BoxDecoration(
                           color: Colors.white,
+
                           borderRadius: BorderRadius.circular(40),
+
                           boxShadow: [
                             BoxShadow(
                               color: const Color(
                                 0xFF0F172A,
                               ).withValues(alpha: 0.04),
+
                               blurRadius: 40,
                               offset: const Offset(0, 20),
                             ),
                           ],
                         ),
+
                         padding: const EdgeInsets.all(24),
+
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                               children: [
                                 Container(
                                   width: 80,
                                   height: 12,
+
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFE2E8F0),
+
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
+
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
                                     vertical: 4,
                                   ),
+
                                   decoration: BoxDecoration(
                                     color: const Color(
                                       0xFF0A6B3F,
                                     ).withValues(alpha: 0.1),
+
                                     borderRadius: BorderRadius.circular(12),
                                   ),
+
                                   child: const Text(
                                     '+24%',
                                     style: TextStyle(
@@ -102,14 +121,17 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
                                 ),
                               ],
                             ),
+
                             const SizedBox(height: 32),
 
                             Expanded(
                               child: AnimatedBuilder(
                                 animation: _chartAnimationController,
+
                                 builder: (context, child) {
                                   return CustomPaint(
                                     size: const Size(double.infinity, 120),
+
                                     painter: ProgressChartPainter(
                                       progress: _chartAnimationController.value,
                                     ),
@@ -121,67 +143,87 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
                         ),
                       ),
 
-                      // Insignia Flotante (Trofeo)
+                      // =========================
+                      // Trofeo verde premium
+                      // =========================
                       Positioned(
                         top: -16,
                         right: -10,
+
                         child: Container(
                           padding: const EdgeInsets.all(16),
+
                           decoration: BoxDecoration(
-                            color: const Color(0xFFC8CFFF),
+                            color: const Color(0xFFDDE8D5),
+
                             borderRadius: BorderRadius.circular(24),
+
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFF0132C5,
+                                  0xFF0A6B3F,
                                 ).withValues(alpha: 0.12),
+
                                 blurRadius: 24,
                                 offset: const Offset(0, 8),
                               ),
                             ],
                           ),
+
                           child: const Icon(
                             Icons.emoji_events,
-                            color: Color(0xFF0132C5),
+                            color: Color(0xFF0A6B3F),
                             size: 32,
                           ),
                         ),
                       ),
 
-                      // Tarjeta de Meta Cumplida con blur
+                      // =========================
+                      // Tarjeta Meta Cumplida
+                      // =========================
                       Positioned(
                         bottom: 16,
                         right: 16,
+
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
                             vertical: 10,
                           ),
+
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.8),
+
                             borderRadius: BorderRadius.circular(20),
+
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.5),
                             ),
+
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
                                   0xFF0F172A,
                                 ).withValues(alpha: 0.05),
+
                                 blurRadius: 16,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
+
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
+
                             children: [
                               Icon(
                                 Icons.check_circle,
                                 color: Color(0xFF0A6B3F),
                                 size: 18,
                               ),
+
                               SizedBox(width: 8),
+
                               Text(
                                 'META CUMPLIDA',
                                 style: TextStyle(
@@ -201,14 +243,18 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
 
                 const Spacer(flex: 2),
 
-                // Títulos e Información de Progreso
+                // =========================
+                // Textos inferiores
+                // =========================
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24.0),
+
                   child: Column(
                     children: [
                       Text(
                         'Analiza tu Progreso',
                         textAlign: TextAlign.center,
+
                         style: TextStyle(
                           color: Color(0xFF2C2F31),
                           fontSize: 32,
@@ -216,10 +262,13 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
                           letterSpacing: -0.5,
                         ),
                       ),
+
                       SizedBox(height: 16),
+
                       Text(
                         'Mantente motivado con información detallada sobre tus hábitos. Revisa tus tendencias y celebra cada logro en tu camino.',
                         textAlign: TextAlign.center,
+
                         style: TextStyle(
                           color: Color(0xFF595C5E),
                           fontSize: 16,
@@ -232,7 +281,7 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
 
                 const Spacer(),
 
-                // Espacio inferior para evitar que el Footer Global cubra el texto
+                // Espacio inferior
                 const SizedBox(height: 180),
               ],
             ),
@@ -274,6 +323,7 @@ class ProgressChartPainter extends CustomPainter {
       final p1 = points[i + 1];
 
       final controlPoint1 = Offset(p0.dx + (p1.dx - p0.dx) / 2, p0.dy);
+
       final controlPoint2 = Offset(p0.dx + (p1.dx - p0.dx) / 2, p1.dy);
 
       path.cubicTo(
@@ -287,6 +337,7 @@ class ProgressChartPainter extends CustomPainter {
     }
 
     final pathMetrics = path.computeMetrics().toList();
+
     if (pathMetrics.isEmpty) return;
 
     final extractPath = Path();
@@ -302,9 +353,11 @@ class ProgressChartPainter extends CustomPainter {
 
     if (progress > 0) {
       final lastMetric = pathMetrics.last;
+
       final tangent = lastMetric.getTangentForOffset(
         lastMetric.length * progress,
       );
+
       if (tangent != null) {
         final dotPaint = Paint()
           ..color = const Color(0xFF0A6B3F)

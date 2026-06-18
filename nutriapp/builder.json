@@ -1,0 +1,15 @@
+{
+  "project": "\n",
+  "platform": "ios",
+  "github": {
+    "owner": "owenunda",
+    "repo": "Nutri-Ai"
+  },
+  "ios": {},
+  "flutter": {
+    "version": "\n",
+    "watch": {}
+  },
+  "reactNative": {},
+  "mobai": {}
+}
