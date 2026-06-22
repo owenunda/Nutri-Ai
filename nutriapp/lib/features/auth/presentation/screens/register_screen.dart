@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/network/dio_client.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../services/auth_service.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../data/auth_repository.dart';
 
@@ -62,6 +64,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
+
+      // Auto login to retrieve JWT auth token
+      final loginResult = await AuthService.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (loginResult['success'] == true) {
+        DioClient.authToken = loginResult['token'];
+      }
 
       if (!mounted) return;
 

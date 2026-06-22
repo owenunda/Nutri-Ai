@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/network/dio_client.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../services/auth_service.dart';
@@ -187,6 +188,7 @@ class _LoginPanelState extends State<_LoginPanel> {
       if (!mounted) return;
 
       if (result['success'] == true) {
+        DioClient.authToken = result['token'];
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => DashboardScreen(user: result['user']),
