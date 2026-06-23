@@ -164,12 +164,15 @@ export const deactivateFood = async (id) => {
   return rows[0];
 };
 
-/**
- * Verifica si existe un alimento con el nombre dado (global o creado por el usuario)
- */
 export const findFoodByName = async (name, userId) => {
   const query = `
-        SELECT food_id AS "foodId", name, is_global AS "isGlobal", created_by_user_id AS "createdByUserId"
+        SELECT
+            food_id AS "foodId",
+            name,
+            calories_per_unit AS "caloriesPerUnit",
+            base_unit AS "baseUnit",
+            is_global AS "isGlobal",
+            created_by_user_id AS "createdByUserId"
         FROM foods
         WHERE name = $1
             AND is_active = true
