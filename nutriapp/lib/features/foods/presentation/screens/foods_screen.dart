@@ -264,8 +264,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
     return ListenableBuilder(
       listenable: _viewModel,
       builder: (context, _) {
-        return Expanded(
-          child: RefreshIndicator(
+        return RefreshIndicator(
             color: AppTheme.primaryStart,
             onRefresh: _viewModel.fetchFoods,
             child: SingleChildScrollView(
@@ -528,8 +527,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                 ],
               ),
             ),
-          ),
-        );
+          );
       },
     );
   }
