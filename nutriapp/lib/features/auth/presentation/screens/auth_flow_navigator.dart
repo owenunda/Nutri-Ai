@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/widgets/primary_button.dart';
 import 'discover_foods_screen.dart';
 import 'onboarding_screen.dart';
@@ -80,11 +81,15 @@ class _AuthFlowNavigatorState extends State<AuthFlowNavigator> {
       buttonAction = _nextPage;
     } else if (roundedPage == 2) {
       buttonText = 'Comenzar';
-      buttonAction = () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+      buttonAction = () async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('has_seen_onboarding', true);
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
       };
     }
 
@@ -139,12 +144,15 @@ class _AuthFlowNavigatorState extends State<AuthFlowNavigator> {
                     child: IgnorePointer(
                       ignoring: _currentPage >= 1.5,
                       child: TextButton(
-                        onPressed: () {
-                          _pageController.animateToPage(
-                            2,
-                            duration: const Duration(milliseconds: 800),
-                            curve: Curves.easeInOutCubic,
-                          );
+                        onPressed: () async {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setBool('has_seen_onboarding', true);
+                          if (context.mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            );
+                          }
                         },
                         child: const Text(
                           'SALTAR',

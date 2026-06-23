@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../services/auth_service.dart';
+import '../../../../core/services/auth_service.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../data/auth_repository.dart';
 

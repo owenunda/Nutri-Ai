@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/network/dio_client.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../services/auth_service.dart';
+import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/session_service.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import 'register_screen.dart';
 
@@ -188,7 +188,12 @@ class _LoginPanelState extends State<_LoginPanel> {
       if (!mounted) return;
 
       if (result['success'] == true) {
-        DioClient.authToken = result['token'];
+        await SessionService.save(
+          token: result['token'] as String,
+          user: result['user'] as Map<String, dynamic>,
+        );
+
+        if (!mounted) return;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => DashboardScreen(user: result['user']),

@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import '../../../../core/network/dio_client.dart';
+import '../../../core/network/dio_client.dart';
 import 'models/food_model.dart';
 
 class FoodRepository {
@@ -7,7 +7,6 @@ class FoodRepository {
 
   FoodRepository({Dio? dio}) : _dio = dio ?? DioClient.instance;
 
-  /// Obtiene la lista de alimentos (Globales y del Usuario) desde el backend.
   Future<List<FoodModel>> getFoods() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>('/food');
@@ -26,7 +25,6 @@ class FoodRepository {
     }
   }
 
-  /// Crea un nuevo alimento personalizado en la base de datos.
   Future<FoodModel> createFood({
     required String name,
     required double caloriesPerUnit,

@@ -1,15 +1,8 @@
 import 'package:dio/dio.dart';
-import '../core/network/dio_client.dart';
-import '../core/network/api_routes.dart';
+import '../network/dio_client.dart';
+import '../network/api_routes.dart';
 
 class AuthService {
-  /// Realiza el login con email y password usando el cliente centralizado de la API (Dio)
-  ///
-  /// Retorna un mapa con:
-  /// - success: bool
-  /// - token: string (si success=true)
-  /// - user: `Map<String, dynamic>` (si success=true)
-  /// - message: string (mensaje de error si success=false)
   static Future<Map<String, dynamic>> login(
     String email,
     String password,
@@ -41,14 +34,12 @@ class AuthService {
         };
       }
     } on DioException catch (e) {
-      // Extraer mensaje de error del backend si existe
       final responseData = e.response?.data;
       String errorMessage = 'No se pudo iniciar sesión. Inténtalo de nuevo.';
-      
+
       if (responseData is Map<String, dynamic> && responseData['message'] != null) {
         errorMessage = responseData['message'];
       } else {
-        // Fallbacks para problemas de conexión
         switch (e.type) {
           case DioExceptionType.connectionTimeout:
           case DioExceptionType.sendTimeout:

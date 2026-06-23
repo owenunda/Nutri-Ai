@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/custom_bottom_nav_bar.dart';
 import '../widgets/ai_suggestion_card.dart';
-import '../../../../features/chatbot/presentation/views/ai_chat_view.dart';
-import '../../../foods/presentation/screens/foods_screen.dart';
+import '../../../../features/chatbot/presentation/screens/ai_chat_view.dart';
+import '../../../nutrition/presentation/screens/foods_screen.dart';
 
 import '../widgets/home_header.dart';
 import '../widgets/meal_card.dart';

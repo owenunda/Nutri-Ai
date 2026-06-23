@@ -16,7 +16,6 @@ class AiChatView extends StatelessWidget {
             child: ChatWelcomeHeader(),
           ),
         ),
-        // Input Area
         const ChatInputField(),
       ],
     );

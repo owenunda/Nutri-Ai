@@ -19,7 +19,6 @@ class FoodsViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String get searchQuery => _searchQuery;
 
-  /// Obtiene los alimentos desde el backend y actualiza el estado.
   Future<void> fetchFoods() async {
     _isLoading = true;
     _errorMessage = null;
@@ -37,14 +36,12 @@ class FoodsViewModel extends ChangeNotifier {
     }
   }
 
-  /// Establece el filtro de búsqueda por texto.
   void searchFoods(String query) {
     _searchQuery = query;
     _applyFilter();
     notifyListeners();
   }
 
-  /// Aplica internamente el filtro de búsqueda.
   void _applyFilter() {
     if (_searchQuery.trim().isEmpty) {
       _filteredFoods = List.from(_allFoods);
@@ -56,7 +53,6 @@ class FoodsViewModel extends ChangeNotifier {
     }
   }
 
-  /// Registra un nuevo alimento personalizado y recarga la lista.
   Future<bool> addCustomFood({
     required String name,
     required double calories,
