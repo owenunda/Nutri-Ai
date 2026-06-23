@@ -48,13 +48,41 @@ app.get('/api/v1/health', (_req, res) => {
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/ChatRequest'
+ *           examples:
+ *             con_ingredientes:
+ *               summary: Usuario menciona alimentos
+ *               value:
+ *                 message: "necesito un desayuno, tengo 3 huevos y 2 cebollas"
+ *             sin_ingredientes:
+ *               summary: Usuario solo pide comida
+ *               value:
+ *                 message: "quiero ideas para la cena"
  *     responses:
  *       200:
- *         description: Respuesta del agente de IA
+ *         description: JSON estructurado generado por el agente de IA
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ApiResponse'
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         intent:
+ *                           type: string
+ *                           enum: [GENERATE_RECIPE_WITH_INPUT, GENERATE_RECIPE_FROM_FRIDGE, UNKNOWN]
+ *                           example: GENERATE_RECIPE_WITH_INPUT
+ *                         ingredients:
+ *                           type: array
+ *                           items:
+ *                             $ref: '#/components/schemas/Ingredient'
+ *                         meal_type:
+ *                           type: string
+ *                           nullable: true
+ *                           enum: [desayuno, almuerzo, cena, null]
+ *                           example: desayuno
  *       400:
  *         $ref: '#/components/responses/BadRequestError'
  *       401:
