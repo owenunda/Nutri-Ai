@@ -27,7 +27,7 @@ class AiSuggestionCard extends StatelessWidget {
           children: [
             ClipOval(
               child: Image.asset(
-                'assets/images/nutria.png',
+                'assets/images/nutria_logo.png',
                 width: 52,
                 height: 52,
                 fit: BoxFit.cover,
