@@ -23,7 +23,7 @@ class ChatWelcomeHeader extends StatelessWidget {
           ),
           child: ClipOval(
             child: Image.asset(
-              'assets/images/nutriai_logo.png',
+              'assets/images/nutria_logo.png',
               width: 64,
               height: 64,
               fit: BoxFit.cover,

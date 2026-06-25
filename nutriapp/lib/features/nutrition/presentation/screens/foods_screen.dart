@@ -272,7 +272,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                             fontWeight: FontWeight.w500,
                           ),
                           decoration: const InputDecoration(
-                            hintText: 'Search 100,000+ foods...',
+                            hintText: 'Busca más de 100,000 alimentos...',
                             hintStyle: TextStyle(
                               color: Color(0xFF94A3B8),
                               fontSize: 15,
@@ -291,72 +291,6 @@ class _FoodsScreenState extends State<FoodsScreen> {
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF6DE8A2), Color(0xFF53D48B)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Identify with AI',
-                              style: TextStyle(
-                                color: Color(0xFF0F3D26),
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              'Take a photo of your meal to instantly log nutrition data.',
-                              style: TextStyle(
-                                color: Color(0xFF0F3D26),
-                                fontSize: 13,
-                                height: 1.4,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0A6B3F),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                elevation: 0,
-                              ),
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('El escaneo de comida con cámara estará disponible próximamente.'),
-                                    backgroundColor: AppTheme.primaryStart,
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.camera_alt, size: 18),
-                              label: const Text(
-                                'SCAN MEAL',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
@@ -372,7 +306,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'Add Custom',
+                              'Agregar personalizado',
                               style: TextStyle(
                                 color: Color(0xFF2C2F31),
                                 fontSize: 20,
@@ -382,7 +316,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                             ),
                             const SizedBox(height: 6),
                             const Text(
-                              "Can't find your food? Add your own nutritional details manually.",
+                              '¿No encuentras tu alimento? Agrega tus propios detalles nutricionales manualmente.',
                               style: TextStyle(
                                 color: Color(0xFF64748B),
                                 fontSize: 13,
@@ -402,7 +336,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                               onPressed: _showAddCustomFoodSheet,
                               icon: const Icon(Icons.edit_note, size: 18, color: Color(0xFF0A6B3F)),
                               label: const Text(
-                                'MANUAL ENTRY',
+                                'ENTRADA MANUAL',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -421,7 +355,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
                               Text(
-                                'Common Foods',
+                                'Alimentos comunes',
                                 style: TextStyle(
                                   color: Color(0xFF2C2F31),
                                   fontSize: 20,
@@ -431,7 +365,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                               ),
                               SizedBox(height: 2),
                               Text(
-                                'Based on your recent activity',
+                                'Basado en tu actividad reciente',
                                 style: TextStyle(
                                   color: Color(0xFF64748B),
                                   fontSize: 13,
@@ -442,7 +376,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                           TextButton(
                             onPressed: () {},
                             child: const Text(
-                              'See all',
+                              'Ver todo',
                               style: TextStyle(
                                 color: Color(0xFF0A6B3F),
                                 fontWeight: FontWeight.bold,
@@ -477,7 +411,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                         SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Pro Tip: Logging your protein first helps you hit your satiety goals 20% faster today.',
+                            'Consejo: Registrar tu proteína primero te ayuda a alcanzar tus objetivos de saciedad un 20% más rápido.',
                             style: TextStyle(
                               color: Color(0xFF0369A1),
                               fontSize: 13,
@@ -560,7 +494,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
               ),
               SizedBox(height: 6),
               Text(
-                'Tu base de datos está vacía. ¡Presiona "Manual Entry" arriba para registrar tu primer alimento!',
+                'Tu base de datos está vacía. ¡Presiona "Entrada Manual" arriba para registrar tu primer alimento!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Color(0xFF64748B),
