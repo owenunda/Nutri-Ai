@@ -39,27 +39,36 @@ class _ChatInputFieldState extends State<ChatInputField> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(48),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
               width: 40,
               height: 40,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFFE2E8F0),
+                border: Border.all(color: const Color(0xFFCBD5E1), width: 1.5),
               ),
-              child: const Icon(Icons.add_rounded, color: Color(0xFF64748B), size: 24),
+              child: const Icon(Icons.add_rounded, color: Color(0xFF64748B), size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: TextField(
                 controller: _controller,
                 focusNode: _focusNode,
-                onSubmitted: (_) => _handleSend(),
-                textInputAction: TextInputAction.send,
+                minLines: 1,
+                maxLines: 5,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
                 decoration: const InputDecoration(
                   hintText: 'Mensaje a NutriAI...',
                   hintStyle: TextStyle(
