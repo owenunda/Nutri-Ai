@@ -93,6 +93,18 @@ export const addMessageRepository = async (sessionId, role, content) => {
     return rows[0];
 };
 
+export const findSessionsByUserIdRepository = async (userId, limit = 30) => {
+    const query = `
+        SELECT ${SESSION_SELECT_FIELDS}
+        FROM chat_sessions
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT $2
+    `;
+    const { rows } = await pool.query(query, [userId, limit]);
+    return rows;
+};
+
 export const findMessagesBySessionIdRepository = async (sessionId) => {
     const query = `
         SELECT
