@@ -26,6 +26,15 @@ class ChatViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteChat() async {
+    try {
+      await _repository.closeSession();
+    } catch (_) {
+      // session may not exist; clear locally regardless
+    }
+    clearMessages();
+  }
+
   @override
   void dispose() {
     _typingTimer?.cancel();

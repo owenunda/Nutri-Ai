@@ -21,11 +21,32 @@ class ChatRepository {
         ApiRoutes.n8nChat,
         data: {'message': message},
       );
-      final data = response.data?['data'];
-      return _parseResponse(data);
+      final firstLevel = response.data?['data'];
+
+      // n8n now returns the backend session response:
+      // { success, message, data: { ..., conversationState: { recipe, media } } }
+      if (firstLevel is Map && firstLevel['data'] is Map) {
+        final inner = firstLevel['data'] as Map;
+        if (inner['conversationState'] is Map) {
+          return _parseResponse(inner['conversationState'] as Map);
+        }
+      }
+
+      return _parseResponse(firstLevel);
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ??
           'Error de conexión con el servidor';
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Ocurrió un error inesperado: $e');
+    }
+  }
+
+  Future<void> closeSession() async {
+    try {
+      await _dio.put<void>(ApiRoutes.chatSessionClose);
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Error al cerrar la sesión';
       throw Exception(msg);
     } catch (e) {
       throw Exception('Ocurrió un error inesperado: $e');
