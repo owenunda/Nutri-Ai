@@ -75,7 +75,7 @@ class _AiChatViewState extends State<AiChatView> {
       ),
     );
     if (confirm == true) {
-      _viewModel.clearMessages();
+      await _viewModel.deleteChat();
     }
   }
 
