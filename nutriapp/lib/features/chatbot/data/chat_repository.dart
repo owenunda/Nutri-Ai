@@ -24,7 +24,8 @@ class ChatRepository {
       final data = response.data?['data'];
       return _parseResponse(data);
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? 'Error de conexión con el servidor';
+      final msg = e.response?.data?['message'] ??
+          'Error de conexión con el servidor';
       throw Exception(msg);
     } catch (e) {
       throw Exception('Ocurrió un error inesperado: $e');
@@ -35,10 +36,23 @@ class ChatRepository {
     if (data == null) return const ChatResponse(text: 'Sin respuesta');
 
     if (data is Map) {
+      // New format: { "recipe": {...}, "media": { "youtube": {...} } }
+      if (RecipeModel.isNestedRecipeMap(data)) {
+        final recipeMap = data['recipe'] as Map;
+        final youtubeMap = data['media']?['youtube'] as Map?;
+        final youtube = youtubeMap != null
+            ? YoutubeVideoModel.fromMap(youtubeMap)
+            : null;
+        final recipe = RecipeModel.fromMap(recipeMap, youtube: youtube);
+        return ChatResponse(text: recipe.chefReason, recipe: recipe);
+      }
+
+      // Old flat format: the map itself is the recipe
       if (RecipeModel.isRecipeMap(data)) {
         final recipe = RecipeModel.fromMap(data);
         return ChatResponse(text: recipe.chefReason, recipe: recipe);
       }
+
       for (final key in ['output', 'response', 'message', 'text', 'reply']) {
         if (data[key] is String && (data[key] as String).isNotEmpty) {
           return ChatResponse(text: data[key] as String);

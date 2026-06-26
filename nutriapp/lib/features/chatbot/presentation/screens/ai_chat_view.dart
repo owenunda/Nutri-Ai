@@ -185,47 +185,57 @@ class _ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (message.isUser) {
-      return Align(
-        alignment: Alignment.centerRight,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.75,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: const BoxDecoration(
-            color: Color(0xFF0A6B3F),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(4),
+      return _AnimatedAppear(
+        slideFrom: _SlideFrom.right,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
             ),
-          ),
-          child: Text(
-            message.text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              height: 1.4,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: const BoxDecoration(
+              color: Color(0xFF0A6B3F),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(4),
+              ),
+            ),
+            child: Text(
+              message.text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                height: 1.4,
+              ),
             ),
           ),
         ),
       );
     }
 
-    // Recipe message: text bubble + recipe card
+    // Recipe message: text bubble + recipe card staggered
     if (message.isRecipe) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _BotTextBubble(message: message),
-          RecipeCardWidget(recipe: message.recipeData!),
+          _AnimatedAppear(
+            child: _BotTextBubble(message: message),
+          ),
+          _AnimatedAppear(
+            delay: const Duration(milliseconds: 180),
+            child: RecipeCardWidget(recipe: message.recipeData!),
+          ),
         ],
       );
     }
 
-    return _BotTextBubble(message: message);
+    return _AnimatedAppear(
+      child: _BotTextBubble(message: message),
+    );
   }
 }
 
@@ -359,6 +369,74 @@ class _TypingIndicatorState extends State<_TypingIndicator>
           ),
         ],
       ),
+    );
+  }
+}
+
+// ── Appear animation ──────────────────────────────────────────────────────────
+
+enum _SlideFrom { left, right, bottom }
+
+class _AnimatedAppear extends StatefulWidget {
+  final Widget child;
+  final Duration delay;
+  final _SlideFrom slideFrom;
+
+  const _AnimatedAppear({
+    required this.child,
+    this.delay = Duration.zero,
+    this.slideFrom = _SlideFrom.bottom,
+  });
+
+  @override
+  State<_AnimatedAppear> createState() => _AnimatedAppearState();
+}
+
+class _AnimatedAppearState extends State<_AnimatedAppear>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 380),
+    );
+
+    _opacity = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+
+    final begin = switch (widget.slideFrom) {
+      _SlideFrom.right => const Offset(0.06, 0),
+      _SlideFrom.left => const Offset(-0.06, 0),
+      _SlideFrom.bottom => const Offset(0, 0.06),
+    };
+    _slide = Tween<Offset>(begin: begin, end: Offset.zero).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
+    );
+
+    if (widget.delay == Duration.zero) {
+      _ctrl.forward();
+    } else {
+      Future.delayed(widget.delay, () {
+        if (mounted) _ctrl.forward();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(position: _slide, child: widget.child),
     );
   }
 }
