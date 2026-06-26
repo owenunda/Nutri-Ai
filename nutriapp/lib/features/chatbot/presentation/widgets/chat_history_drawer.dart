@@ -16,8 +16,6 @@ class ChatHistoryDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.78,
-      height: double.infinity,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -33,6 +31,7 @@ class ChatHistoryDrawer extends StatelessWidget {
         ],
       ),
       child: SafeArea(
+        right: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

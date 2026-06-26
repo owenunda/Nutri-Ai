@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
@@ -19,10 +20,6 @@ class _AiChatViewState extends State<AiChatView> {
   late final ChatViewModel _viewModel;
   late final ChatRepository _repository;
   final ScrollController _scrollController = ScrollController();
-
-  bool _drawerOpen = false;
-  List<ChatSessionModel> _sessions = [];
-  bool _isLoadingSessions = false;
 
   @override
   void initState() {
@@ -51,21 +48,50 @@ class _AiChatViewState extends State<AiChatView> {
   }
 
   Future<void> _openDrawer() async {
-    setState(() {
-      _drawerOpen = true;
-      _isLoadingSessions = true;
-    });
+    final notifier = ValueNotifier<({List<ChatSessionModel> sessions, bool loading})>(
+      (sessions: [], loading: true),
+    );
+
+    unawaited(showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Cerrar historial',
+      barrierColor: Colors.black.withValues(alpha: 0.4),
+      transitionDuration: const Duration(milliseconds: 280),
+      transitionBuilder: (ctx, animation, _, child) => SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(-1, 0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+        child: child,
+      ),
+      pageBuilder: (ctx, animation, secondaryAnimation) {
+        final size = MediaQuery.sizeOf(ctx);
+        return Material(
+          color: Colors.transparent,
+          child: SizedBox(
+            width: size.width * 0.78,
+            height: size.height,
+            child: ValueListenableBuilder(
+              valueListenable: notifier,
+              builder: (context, value, child) => ChatHistoryDrawer(
+                sessions: value.sessions,
+                isLoading: value.loading,
+                onClose: () => Navigator.of(ctx).pop(),
+              ),
+            ),
+          ),
+        );
+      },
+    ).whenComplete(notifier.dispose));
+
     try {
       final sessions = await _repository.getSessions();
-      if (mounted) setState(() => _sessions = sessions);
+      if (mounted) notifier.value = (sessions: sessions, loading: false);
     } catch (_) {
-      // show empty state on error
-    } finally {
-      if (mounted) setState(() => _isLoadingSessions = false);
+      if (mounted) notifier.value = (sessions: [], loading: false);
     }
   }
-
-  void _closeDrawer() => setState(() => _drawerOpen = false);
 
   Future<void> _handleSend(String message) async {
     await _viewModel.sendMessage(message);
@@ -107,94 +133,63 @@ class _AiChatViewState extends State<AiChatView> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: [
-        // ── Main content ────────────────────────────────────────────────
-        Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-              child: Row(
-                children: [
-                  _TopBarButton(
-                    icon: Icons.menu_rounded,
-                    tooltip: 'Historial',
-                    onTap: _openDrawer,
-                  ),
-                  const Spacer(),
-                  _TopBarButton(
-                    icon: Icons.chat_bubble_outline_rounded,
-                    tooltip: 'Nueva conversación',
-                    onTap: _handleNewChat,
-                  ),
-                  const SizedBox(width: 8),
-                  _TopBarButton(
-                    icon: Icons.delete_outline_rounded,
-                    tooltip: 'Eliminar chat',
-                    onTap: _handleDeleteChat,
-                    color: Colors.red,
-                  ),
-                ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+          child: Row(
+            children: [
+              _TopBarButton(
+                icon: Icons.menu_rounded,
+                tooltip: 'Historial',
+                onTap: _openDrawer,
               ),
-            ),
-            Expanded(
-              child: ListenableBuilder(
-                listenable: _viewModel,
-                builder: (context, _) {
-                  if (_viewModel.messages.isEmpty) {
-                    return const SingleChildScrollView(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-                      child: ChatWelcomeHeader(),
-                    );
-                  }
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    itemCount: _viewModel.messages.length +
-                        (_viewModel.isLoading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == _viewModel.messages.length) {
-                        return const _TypingIndicator();
-                      }
-                      return _ChatBubble(message: _viewModel.messages[index]);
-                    },
-                  );
-                },
+              const Spacer(),
+              _TopBarButton(
+                icon: Icons.chat_bubble_outline_rounded,
+                tooltip: 'Nueva conversación',
+                onTap: _handleNewChat,
               ),
-            ),
-            ListenableBuilder(
-              listenable: _viewModel,
-              builder: (context, _) => ChatInputField(
-                onSend: _handleSend,
-                isLoading: _viewModel.isLoading,
+              const SizedBox(width: 8),
+              _TopBarButton(
+                icon: Icons.delete_outline_rounded,
+                tooltip: 'Eliminar chat',
+                onTap: _handleDeleteChat,
+                color: Colors.red,
               ),
-            ),
-          ],
-        ),
-
-        // ── Backdrop ────────────────────────────────────────────────────
-        IgnorePointer(
-          ignoring: !_drawerOpen,
-          child: AnimatedOpacity(
-            opacity: _drawerOpen ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 250),
-            child: GestureDetector(
-              onTap: _closeDrawer,
-              child: Container(color: Colors.black.withValues(alpha: 0.4)),
-            ),
+            ],
           ),
         ),
-
-        // ── Drawer ──────────────────────────────────────────────────────
-        AnimatedSlide(
-          offset: _drawerOpen ? Offset.zero : const Offset(-1, 0),
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
-          child: ChatHistoryDrawer(
-            sessions: _sessions,
-            isLoading: _isLoadingSessions,
-            onClose: _closeDrawer,
+        Expanded(
+          child: ListenableBuilder(
+            listenable: _viewModel,
+            builder: (context, _) {
+              if (_viewModel.messages.isEmpty) {
+                return const SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                  child: ChatWelcomeHeader(),
+                );
+              }
+              return ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                itemCount: _viewModel.messages.length +
+                    (_viewModel.isLoading ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == _viewModel.messages.length) {
+                    return const _TypingIndicator();
+                  }
+                  return _ChatBubble(message: _viewModel.messages[index]);
+                },
+              );
+            },
+          ),
+        ),
+        ListenableBuilder(
+          listenable: _viewModel,
+          builder: (context, _) => ChatInputField(
+            onSend: _handleSend,
+            isLoading: _viewModel.isLoading,
           ),
         ),
       ],
