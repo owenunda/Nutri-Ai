@@ -134,6 +134,106 @@
  *         message:
  *           type: string
  *
+ *     ConversationStateMetadata:
+ *       type: object
+ *       properties:
+ *         meal_type:
+ *           type: string
+ *           nullable: true
+ *           enum: [desayuno, almuerzo, cena, null]
+ *           example: almuerzo
+ *         servings:
+ *           type: integer
+ *           nullable: true
+ *           example: 4
+ *         generated_at:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         last_modified_at:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         version:
+ *           type: integer
+ *           minimum: 1
+ *           example: 1
+ *
+ *     ConversationState:
+ *       type: object
+ *       properties:
+ *         recipe:
+ *           type: object
+ *           nullable: true
+ *           description: Receta generada por el Chef Agent
+ *         media:
+ *           type: object
+ *           nullable: true
+ *           description: Respuesta del Media Agent
+ *         last_intent:
+ *           type: string
+ *           nullable: true
+ *           enum:
+ *             - GENERATE_RECIPE_WITH_INPUT
+ *             - GENERATE_RECIPE_FROM_FRIDGE
+ *             - MODIFY_RECIPE
+ *             - ASK_RECIPE
+ *             - NEW_RECIPE
+ *           example: GENERATE_RECIPE_WITH_INPUT
+ *         metadata:
+ *           $ref: '#/components/schemas/ConversationStateMetadata'
+ *       example:
+ *         recipe: null
+ *         media: null
+ *         last_intent: null
+ *         metadata:
+ *           meal_type: null
+ *           servings: null
+ *           generated_at: null
+ *           last_modified_at: null
+ *           version: 1
+ *
+ *     ChatSession:
+ *       type: object
+ *       properties:
+ *         sessionId:
+ *           type: integer
+ *           example: 1
+ *         userId:
+ *           type: integer
+ *           example: 42
+ *         active:
+ *           type: boolean
+ *           example: true
+ *         conversationState:
+ *           $ref: '#/components/schemas/ConversationState'
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *
+ *     ChatMessage:
+ *       type: object
+ *       properties:
+ *         messageId:
+ *           type: integer
+ *           example: 7
+ *         sessionId:
+ *           type: integer
+ *           example: 1
+ *         role:
+ *           type: string
+ *           enum: [USER, ASSISTANT]
+ *           example: USER
+ *         content:
+ *           type: string
+ *           example: Hazla para 4 personas
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *
  *   responses:
  *     UnauthorizedError:
  *       description: Token no proporcionado o inválido

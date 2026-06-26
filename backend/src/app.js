@@ -10,6 +10,7 @@ import userRoutes from './modules/user/user.routes.js';
 import statsRoutes from './modules/stats/stats.routes.js';
 import mealRoutes from './modules/meal/meal.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
+import chatRoutes from './modules/chat/chat.routes.js';
 import authenticateToken from './middleware/auth.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 import { errorResponse, successResponse } from './utils/response.js';
@@ -113,6 +114,7 @@ app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/stats', statsRoutes);
 app.use('/api/v1/meals', mealRoutes);
 app.use('/api/v1/ai', aiRoutes);
+app.use('/api/v1/chat', chatRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
