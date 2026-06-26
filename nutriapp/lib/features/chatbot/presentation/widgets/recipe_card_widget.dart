@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/recipe_model.dart';
 
 class RecipeCardWidget extends StatefulWidget {
@@ -134,6 +135,11 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
                   ],
                 ),
                 const SizedBox(height: 16),
+                // YouTube video (if available)
+                if (recipe.youtubeVideo != null) ...[
+                  _YoutubeCard(video: recipe.youtubeVideo!),
+                  const SizedBox(height: 16),
+                ],
                 // Primary button — opens step modal
                 SizedBox(
                   width: double.infinity,
@@ -665,6 +671,127 @@ class _HeaderSection extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _YoutubeCard extends StatelessWidget {
+  final YoutubeVideoModel video;
+
+  const _YoutubeCard({required this.video});
+
+  Future<void> _open() async {
+    final uri = Uri.parse(video.url);
+    if (await canLaunchUrl(uri)) await launchUrl(uri);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _open,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Row(
+          children: [
+            // Thumbnail with play button
+            ClipRRect(
+              borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(12)),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.network(
+                    video.thumbnailUrl,
+                    width: 100,
+                    height: 70,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, err, st) => Container(
+                      width: 100,
+                      height: 70,
+                      color: const Color(0xFFFF0000).withValues(alpha: 0.1),
+                      child: const Icon(Icons.play_circle_outline_rounded,
+                          color: Color(0xFFFF0000), size: 32),
+                    ),
+                  ),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.play_arrow_rounded,
+                        color: Colors.white, size: 20),
+                  ),
+                ],
+              ),
+            ),
+            // Info
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF0000),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'YouTube',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      video.title,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1A1A2E),
+                        height: 1.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      video.channel,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF64748B),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: Icon(Icons.open_in_new_rounded,
+                  size: 15, color: Color(0xFF94A3B8)),
+            ),
+          ],
+        ),
       ),
     );
   }

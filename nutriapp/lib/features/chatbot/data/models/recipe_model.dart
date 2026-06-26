@@ -22,6 +22,30 @@ class RecipeIngredient {
       );
 }
 
+class YoutubeVideoModel {
+  final String videoId;
+  final String title;
+  final String channel;
+  final String thumbnailUrl;
+  final String url;
+
+  const YoutubeVideoModel({
+    required this.videoId,
+    required this.title,
+    required this.channel,
+    required this.thumbnailUrl,
+    required this.url,
+  });
+
+  factory YoutubeVideoModel.fromMap(Map map) => YoutubeVideoModel(
+        videoId: map['video_id'] as String? ?? '',
+        title: map['title'] as String? ?? '',
+        channel: map['channel'] as String? ?? '',
+        thumbnailUrl: map['thumbnail'] as String? ?? '',
+        url: map['url'] as String? ?? '',
+      );
+}
+
 class RecipeModel {
   final String title;
   final String summary;
@@ -34,6 +58,7 @@ class RecipeModel {
   final List<String> tips;
   final List<RecipeStep> steps;
   final List<RecipeIngredient> ingredients;
+  final YoutubeVideoModel? youtubeVideo;
 
   const RecipeModel({
     required this.title,
@@ -47,13 +72,19 @@ class RecipeModel {
     required this.tips,
     required this.steps,
     required this.ingredients,
+    this.youtubeVideo,
   });
 
+  // Old flat format: data itself is the recipe
   static bool isRecipeMap(Map map) => map.containsKey('recipe_title');
 
-  factory RecipeModel.fromMap(Map map) => RecipeModel(
-        title: map['recipe_title'] as String? ?? '',
-        summary: map['recipe_summary'] as String? ?? '',
+  // New nested format: data has 'recipe' key
+  static bool isNestedRecipeMap(Map map) => map.containsKey('recipe');
+
+  factory RecipeModel.fromMap(Map map, {YoutubeVideoModel? youtube}) =>
+      RecipeModel(
+        title: map['recipe_title'] as String? ?? map['title'] as String? ?? '',
+        summary: map['recipe_summary'] as String? ?? map['summary'] as String? ?? '',
         chefReason: map['chef_reason'] as String? ?? '',
         mealType: map['meal_type'] as String? ?? '',
         difficulty: map['difficulty'] as String? ?? '',
@@ -70,5 +101,6 @@ class RecipeModel {
                 ?.map((e) => RecipeIngredient.fromMap(e as Map))
                 .toList() ??
             [],
+        youtubeVideo: youtube,
       );
 }
