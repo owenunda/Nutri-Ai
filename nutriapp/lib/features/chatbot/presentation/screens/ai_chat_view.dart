@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
+import '../../data/models/chat_session_model.dart';
 import '../controllers/chat_view_model.dart';
+import '../widgets/chat_history_drawer.dart';
 import '../widgets/chat_input_field.dart';
 import '../widgets/chat_welcome_header.dart';
 import '../widgets/recipe_card_widget.dart';
@@ -14,12 +17,18 @@ class AiChatView extends StatefulWidget {
 
 class _AiChatViewState extends State<AiChatView> {
   late final ChatViewModel _viewModel;
+  late final ChatRepository _repository;
   final ScrollController _scrollController = ScrollController();
+
+  bool _drawerOpen = false;
+  List<ChatSessionModel> _sessions = [];
+  bool _isLoadingSessions = false;
 
   @override
   void initState() {
     super.initState();
     _viewModel = ChatViewModel();
+    _repository = ChatRepository();
   }
 
   @override
@@ -41,13 +50,30 @@ class _AiChatViewState extends State<AiChatView> {
     });
   }
 
+  Future<void> _openDrawer() async {
+    setState(() {
+      _drawerOpen = true;
+      _isLoadingSessions = true;
+    });
+    try {
+      final sessions = await _repository.getSessions();
+      if (mounted) setState(() => _sessions = sessions);
+    } catch (_) {
+      // show empty state on error
+    } finally {
+      if (mounted) setState(() => _isLoadingSessions = false);
+    }
+  }
+
+  void _closeDrawer() => setState(() => _drawerOpen = false);
+
   Future<void> _handleSend(String message) async {
     await _viewModel.sendMessage(message);
     _scrollToBottom();
   }
 
-  void _handleNewChat() {
-    _viewModel.clearMessages();
+  Future<void> _handleNewChat() async {
+    await _viewModel.deleteChat();
   }
 
   Future<void> _handleDeleteChat() async {
@@ -81,61 +107,94 @@ class _AiChatViewState extends State<AiChatView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        // Top bar with action buttons
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 12, 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              _TopBarButton(
-                icon: Icons.add_rounded,
-                tooltip: 'Nuevo chat',
-                onTap: _handleNewChat,
+        // ── Main content ────────────────────────────────────────────────
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+              child: Row(
+                children: [
+                  _TopBarButton(
+                    icon: Icons.menu_rounded,
+                    tooltip: 'Historial',
+                    onTap: _openDrawer,
+                  ),
+                  const Spacer(),
+                  _TopBarButton(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    tooltip: 'Nueva conversación',
+                    onTap: _handleNewChat,
+                  ),
+                  const SizedBox(width: 8),
+                  _TopBarButton(
+                    icon: Icons.delete_outline_rounded,
+                    tooltip: 'Eliminar chat',
+                    onTap: _handleDeleteChat,
+                    color: Colors.red,
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              _TopBarButton(
-                icon: Icons.delete_outline_rounded,
-                tooltip: 'Eliminar chat',
-                onTap: _handleDeleteChat,
-                color: Colors.red,
-              ),
-            ],
-          ),
-        ),
-        // Chat area
-        Expanded(
-          child: ListenableBuilder(
-            listenable: _viewModel,
-            builder: (context, _) {
-              if (_viewModel.messages.isEmpty) {
-                return const SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-                  child: ChatWelcomeHeader(),
-                );
-              }
-              return ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                itemCount: _viewModel.messages.length +
-                    (_viewModel.isLoading ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _viewModel.messages.length) {
-                    return const _TypingIndicator();
+            ),
+            Expanded(
+              child: ListenableBuilder(
+                listenable: _viewModel,
+                builder: (context, _) {
+                  if (_viewModel.messages.isEmpty) {
+                    return const SingleChildScrollView(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                      child: ChatWelcomeHeader(),
+                    );
                   }
-                  return _ChatBubble(message: _viewModel.messages[index]);
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    itemCount: _viewModel.messages.length +
+                        (_viewModel.isLoading ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _viewModel.messages.length) {
+                        return const _TypingIndicator();
+                      }
+                      return _ChatBubble(message: _viewModel.messages[index]);
+                    },
+                  );
                 },
-              );
-            },
+              ),
+            ),
+            ListenableBuilder(
+              listenable: _viewModel,
+              builder: (context, _) => ChatInputField(
+                onSend: _handleSend,
+                isLoading: _viewModel.isLoading,
+              ),
+            ),
+          ],
+        ),
+
+        // ── Backdrop ────────────────────────────────────────────────────
+        IgnorePointer(
+          ignoring: !_drawerOpen,
+          child: AnimatedOpacity(
+            opacity: _drawerOpen ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 250),
+            child: GestureDetector(
+              onTap: _closeDrawer,
+              child: Container(color: Colors.black.withValues(alpha: 0.4)),
+            ),
           ),
         ),
-        // Input
-        ListenableBuilder(
-          listenable: _viewModel,
-          builder: (context, _) => ChatInputField(
-            onSend: _handleSend,
-            isLoading: _viewModel.isLoading,
+
+        // ── Drawer ──────────────────────────────────────────────────────
+        AnimatedSlide(
+          offset: _drawerOpen ? Offset.zero : const Offset(-1, 0),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          child: ChatHistoryDrawer(
+            sessions: _sessions,
+            isLoading: _isLoadingSessions,
+            onClose: _closeDrawer,
           ),
         ),
       ],

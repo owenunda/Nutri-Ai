@@ -4,4 +4,5 @@ class ApiRoutes {
   static const String authHealth = '/auth/health';
   static const String n8nChat = '/n8n/chat';
   static const String chatSessionClose = '/chat/session/close';
+  static const String chatSessions = '/chat/sessions';
 }

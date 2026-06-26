@@ -1,6 +1,7 @@
 import { successResponse } from '../../utils/response.js';
 import {
     getActiveSession,
+    getSessionsByUser,
     createSession,
     updateConversationState,
     addMessage,
@@ -14,6 +15,15 @@ export const getActiveSessionController = async (req, res, next) => {
             return successResponse(res, { hasActiveSession: false }, 'No hay sesión activa', 200);
         }
         return successResponse(res, { hasActiveSession: true, session }, 'Sesión activa obtenida correctamente', 200);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getSessionsController = async (req, res, next) => {
+    try {
+        const sessions = await getSessionsByUser(req.user.userId);
+        return successResponse(res, sessions, 'Sesiones obtenidas correctamente', 200);
     } catch (error) {
         next(error);
     }

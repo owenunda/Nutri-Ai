@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authenticateToken from '../../middleware/auth.middleware.js';
 import {
     getActiveSessionController,
+    getSessionsController,
     createSessionController,
     updateConversationStateController,
     addMessageController,
@@ -43,6 +44,8 @@ const router = Router();
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
+router.get('/sessions', authenticateToken(['ADMIN', 'USER']), getSessionsController);
+
 router.get('/session', authenticateToken(['ADMIN', 'USER']), getActiveSessionController);
 
 /**

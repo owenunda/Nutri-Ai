@@ -1,6 +1,7 @@
 import { AppError } from '../../utils/AppError.js';
 import {
     findActiveSessionByUserIdRepository,
+    findSessionsByUserIdRepository,
     createSessionRepository,
     updateConversationStateRepository,
     closeSessionRepository,
@@ -53,6 +54,15 @@ export const addMessage = async (userId, role, content) => {
             throw new AppError('No se encontró una sesión activa', 404, 'SESSION_NOT_FOUND');
         }
         return await addMessageRepository(session.sessionId, role, content);
+    } catch (error) {
+        if (error instanceof AppError) throw error;
+        throw new AppError(error.message, 500, 'CHAT_SERVICE_ERROR');
+    }
+};
+
+export const getSessionsByUser = async (userId) => {
+    try {
+        return await findSessionsByUserIdRepository(userId);
     } catch (error) {
         if (error instanceof AppError) throw error;
         throw new AppError(error.message, 500, 'CHAT_SERVICE_ERROR');

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 import 'models/recipe_model.dart';
+import 'models/chat_session_model.dart';
 
 class ChatResponse {
   final String text;
@@ -36,6 +37,22 @@ class ChatRepository {
     } on DioException catch (e) {
       final msg = e.response?.data?['message'] ??
           'Error de conexión con el servidor';
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Ocurrió un error inesperado: $e');
+    }
+  }
+
+  Future<List<ChatSessionModel>> getSessions() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(ApiRoutes.chatSessions);
+      final list = response.data?['data'] as List? ?? [];
+      return list
+          .cast<Map<String, dynamic>>()
+          .map(ChatSessionModel.fromMap)
+          .toList();
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Error al obtener el historial';
       throw Exception(msg);
     } catch (e) {
       throw Exception('Ocurrió un error inesperado: $e');
