@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/services/session_service.dart';
 import '../../../../core/widgets/custom_bottom_nav_bar.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
 import '../widgets/ai_suggestion_card.dart';
-import '../../../../features/chatbot/presentation/views/ai_chat_view.dart';
+import '../../../../features/chatbot/presentation/screens/ai_chat_view.dart';
+import '../../../nutrition/presentation/screens/foods_screen.dart';
 
 import '../widgets/home_header.dart';
 import '../widgets/meal_card.dart';
@@ -46,10 +49,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 index: _currentTab,
                 children: [
                   _buildHomeTab(),
-                  const SizedBox.shrink(), // Foods tab blank
+                  FoodsScreen(user: widget.user), // Foods tab
                   const AiChatView(),      // AI tab
                   const SizedBox.shrink(), // Progress tab blank
-                  const SizedBox.shrink(), // Profile tab blank
+                  _buildProfileTab(),       // Profile tab
                 ],
               ),
             ),
@@ -150,6 +153,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           const SizedBox(height: 32), // Padding inferior
         ],
+      ),
+    );
+  }
+
+  // ----------------------------------------------------
+  // PESTAÑA PERFIL
+  // ----------------------------------------------------
+  Widget _buildProfileTab() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              await SessionService.clear();
+              if (!mounted) return;
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (_) => false,
+              );
+            },
+            icon: const Icon(Icons.logout_rounded, size: 20),
+            label: const Text(
+              'Cerrar sesión',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

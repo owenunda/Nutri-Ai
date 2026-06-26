@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../services/auth_service.dart';
+import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/session_service.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
+import 'auth_flow_navigator.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -70,6 +72,19 @@ class LoginScreen extends StatelessWidget {
                               },
                             ),
 
+                            // TODO: remove — solo para previsualizar onboarding
+                            TextButton(
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const AuthFlowNavigator(),
+                                ),
+                              ),
+                              child: const Text(
+                                'Ver onboarding',
+                                style: TextStyle(fontSize: 11, color: Color(0xFFADB5BD)),
+                              ),
+                            ),
+
                             SizedBox(
                               height:
                                   MediaQuery.of(context).viewInsets.bottom > 0
@@ -105,7 +120,7 @@ class _BrandHeader extends StatelessWidget {
           height: logoSize,
 
           child: Image.asset(
-            'assets/images/nutriai_logo.png',
+            'assets/images/nutria_logo.png',
             fit: BoxFit.contain,
           ),
         ),
@@ -187,6 +202,12 @@ class _LoginPanelState extends State<_LoginPanel> {
       if (!mounted) return;
 
       if (result['success'] == true) {
+        await SessionService.save(
+          token: result['token'] as String,
+          user: result['user'] as Map<String, dynamic>,
+        );
+
+        if (!mounted) return;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => DashboardScreen(user: result['user']),

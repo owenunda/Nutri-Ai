@@ -13,6 +13,10 @@ const options = {
       },
     },
     servers: [
+      ...(config.node_env !== 'development' ? [{
+        url: 'https://api.nutri.oween.software',
+        description: 'Servidor Producción',
+      }] : []),
       {
         url: `http://localhost:${config.port || 3000}`,
         description: 'Servidor Local',

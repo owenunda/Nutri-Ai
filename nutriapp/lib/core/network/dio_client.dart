@@ -5,6 +5,8 @@ import '../constants/api_base_url.dart';
 class DioClient {
   DioClient._();
 
+  static String? authToken;
+
   static final Dio instance = Dio(
     BaseOptions(
       baseUrl: ApiBaseUrl.value,
@@ -17,5 +19,15 @@ class DioClient {
         'Accept': 'application/json',
       },
     ),
-  );
+  )..interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          if (authToken != null) {
+            options.headers['Authorization'] = 'Bearer $authToken';
+          }
+          return handler.next(options);
+        },
+      ),
+    );
 }
+
