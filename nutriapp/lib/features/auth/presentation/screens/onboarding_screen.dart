@@ -19,8 +19,6 @@ class OnboardingScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-
-
               // =========================
               // Imagen principal
               // =========================
@@ -46,7 +44,7 @@ class OnboardingScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(48),
 
                   child: Image.asset(
-                    'assets/images/nutria.png',
+                    'assets/images/nutria.gif',
                     fit: BoxFit.cover,
                   ),
                 ),

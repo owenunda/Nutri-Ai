@@ -11,7 +11,7 @@ import {
 import { createFridgeService } from '../fridge/fridge.service.js'; // línea nueva
 
 
-const JWT_EXPIRES_IN = '15m';
+const JWT_EXPIRES_IN = '1h';
 const SALT_ROUNDS = 10;
 
 export const getAuthModuleStatus = async () => {
@@ -34,23 +34,7 @@ export const getAuthModuleStatus = async () => {
 
 export const loginUser = async ({ email, password }) => {
   try {
-    const dbNotConfigured = !config.db?.host || !config.db?.user || !config.db?.name;
-    let user;
-
-    if (dbNotConfigured && config.node_env === 'development') {
-      if (email === 'test@example.com') {
-        user = {
-          userId: 0,
-          name: 'Local Tester',
-          email,
-          passwordHash: await bcrypt.hash('password', SALT_ROUNDS),
-          role: 'USER',
-          plan: 'FREE',
-        };
-      }
-    } else {
-      user = await findUserByEmail(email);
-    }
+    const user = await findUserByEmail(email);
 
     if (!user) {
       throw new AppError('Cuenta no existe', 404, 'USER_NOT_FOUND');
@@ -71,6 +55,8 @@ export const loginUser = async ({ email, password }) => {
       email: user.email,
       role: user.role,
       plan: user.plan,
+      name: user.name,
+      goal: user.goal
     };
 
     const token = jwt.sign(tokenPayload, config.jwt.secret, {

@@ -4,7 +4,8 @@ import {
     getFoodModuleStatus,
     createFood as createFoodService,
     updateFoodItem,
-    deactivateFoodItem
+    deactivateFoodItem,
+    matchFoods as matchFoodsService
 } from './food.service.js';
 
 // Obtener todos los alimentos
@@ -85,3 +86,15 @@ export const deleteFood = async (req, res, next) => {
         next(error);
     }
 };
+
+
+export const matchFoods = async (req, res, next) => {
+    try {
+        const ingredients = Array.isArray(req.body) ? req.body : req.body.ingredients;
+        const userId = req.user.userId;
+        const foods = await matchFoodsService(ingredients, userId);
+        return successResponse(res, foods, 'Foods matched successfully', 200);
+    } catch (error) {
+        next(error);
+    }
+}

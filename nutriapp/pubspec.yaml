@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   dio: ^5.7.0
   http: ^0.13.6
+  shared_preferences: ^2.3.0
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
