@@ -3,33 +3,193 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
+import '../../data/setup_repository.dart';
 
 class GoalSetupScreen extends StatefulWidget {
-  const GoalSetupScreen({super.key, this.userName});
+  const GoalSetupScreen({
+    super.key,
+    this.userName,
+    this.age,
+    this.weight,
+    this.height,
+  });
 
   final String? userName;
+  final int? age;
+  final double? weight;
+  final double? height;
 
   @override
   State<GoalSetupScreen> createState() => _GoalSetupScreenState();
 }
 
 class _GoalSetupScreenState extends State<GoalSetupScreen> {
+  static const double _activityFactor = 1.2;
+  static const double _maxWeightLossDeficit = 500;
+  static const double _weightLossDeficitRatio = 0.15;
+  static const double _minWeightLossCalories = 1200;
+  static const int _minSafeDailyCalories = 1200;
+
+  final SetupRepository _setupRepository = SetupRepository();
   _GoalType _selectedGoal = _GoalType.maintainWeight;
+  bool _isSaving = false;
 
   double get _progress => 1.0;
 
-  int get _recommendedCalories => _selectedGoal.info.calories;
+  int get _recommendedCalories {
+    final age = widget.age;
+    final weight = widget.weight;
+    final height = widget.height;
 
-  void _goHome() {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) => DashboardScreen(
-          user: {
-            'name': widget.userName ?? 'Usuario',
-          },
+    if (age == null || weight == null || height == null) {
+      return _selectedGoal.info.calories;
+    }
+
+    final bmr = (10 * weight) + (6.25 * height) - (5 * age) - 80;
+    final maintenanceCalories = bmr * _activityFactor;
+    final adjustedCalories = switch (_selectedGoal) {
+      _GoalType.loseWeight => _weightLossCalories(maintenanceCalories),
+      _GoalType.maintainWeight => maintenanceCalories,
+      _GoalType.gainWeight =>
+        maintenanceCalories + _moderateAdjustment(maintenanceCalories),
+    };
+
+    return _safeDailyCalories(adjustedCalories);
+  }
+
+  double _weightLossCalories(double maintenanceCalories) {
+    final deficit = _moderateAdjustment(maintenanceCalories);
+    final calories = maintenanceCalories - deficit;
+    return calories < _minWeightLossCalories ? _minWeightLossCalories : calories;
+  }
+
+  double _moderateAdjustment(double maintenanceCalories) {
+    final proportionalDeficit = maintenanceCalories * _weightLossDeficitRatio;
+    return proportionalDeficit > _maxWeightLossDeficit
+        ? _maxWeightLossDeficit
+        : proportionalDeficit;
+  }
+
+  int _safeDailyCalories(double calories) {
+    final roundedCalories = calories.round();
+    return roundedCalories < _minSafeDailyCalories
+        ? _minSafeDailyCalories
+        : roundedCalories.clamp(_minSafeDailyCalories, 10000).toInt();
+  }
+
+  Future<void> _goHome() async {
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      await _setupRepository.updateProfile(
+        goal: _selectedGoal.info.backendGoal,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) =>
+              DashboardScreen(user: {'name': widget.userName ?? 'Usuario'}),
+        ),
+        (route) => false,
+      );
+    } on SetupException catch (error) {
+      if (mounted) {
+        _showSnackBar(error.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showSnackBar('No se pudo guardar tu meta. Inténtalo de nuevo.');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        padding: EdgeInsets.zero,
+        duration: const Duration(seconds: 4),
+        content: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: const Color(0xFFB42318).withValues(alpha: 0.16),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1E2A24).withValues(alpha: 0.10),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB42318).withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.error_outline_rounded,
+                  color: Color(0xFFB42318),
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'No se pudo guardar',
+                      style: TextStyle(
+                        color: Color(0xFF2C2F31),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      message,
+                      style: TextStyle(
+                        color: const Color(0xFF59606A).withValues(alpha: 0.95),
+                        fontSize: 13,
+                        height: 1.35,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      (route) => false,
     );
   }
 
@@ -120,7 +280,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                       Text(
                         'Calcularemos tu plan según lo que\nquieras lograr.',
                         style: TextStyle(
-                          color: const Color(0xFF595C5E).withValues(alpha: 0.92),
+                          color: const Color(
+                            0xFF595C5E,
+                          ).withValues(alpha: 0.92),
                           fontSize: 17,
                           height: 1.35,
                           fontWeight: FontWeight.w500,
@@ -163,12 +325,16 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(28),
                           border: Border.all(
-                            color: AppTheme.primaryStart.withValues(alpha: 0.16),
+                            color: AppTheme.primaryStart.withValues(
+                              alpha: 0.16,
+                            ),
                             width: 2.2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF1E2A24).withValues(alpha: 0.05),
+                              color: const Color(
+                                0xFF1E2A24,
+                              ).withValues(alpha: 0.05),
                               blurRadius: 28,
                               offset: const Offset(0, 16),
                             ),
@@ -182,7 +348,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                               child: Text(
                                 'CALORÍAS DIARIAS RECOMENDADAS',
                                 style: TextStyle(
-                                  color: const Color(0xFF595C5E).withValues(alpha: 0.9),
+                                  color: const Color(
+                                    0xFF595C5E,
+                                  ).withValues(alpha: 0.9),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 1.2,
@@ -229,7 +397,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                               'Basado en tu metabolismo basal y\nnivel de actividad actual.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: const Color(0xFF595C5E).withValues(alpha: 0.95),
+                                color: const Color(
+                                  0xFF595C5E,
+                                ).withValues(alpha: 0.95),
                                 fontSize: 15,
                                 height: 1.35,
                                 fontWeight: FontWeight.w500,
@@ -261,7 +431,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                                   borderRadius: BorderRadius.circular(999),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF1E2A24).withValues(alpha: 0.06),
+                                      color: const Color(
+                                        0xFF1E2A24,
+                                      ).withValues(alpha: 0.06),
                                       blurRadius: 18,
                                       offset: const Offset(0, 8),
                                     ),
@@ -297,7 +469,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                                   color: Colors.white.withValues(alpha: 0.55),
                                   borderRadius: BorderRadius.circular(18),
                                   border: Border.all(
-                                    color: const Color(0xFF6B61F4).withValues(alpha: 0.5),
+                                    color: const Color(
+                                      0xFF6B61F4,
+                                    ).withValues(alpha: 0.5),
                                     width: 2,
                                   ),
                                 ),
@@ -318,7 +492,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                           Text(
                             'PROGRESO DE REGISTRO',
                             style: TextStyle(
-                              color: const Color(0xFF595C5E).withValues(alpha: 0.85),
+                              color: const Color(
+                                0xFF595C5E,
+                              ).withValues(alpha: 0.85),
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.9,
@@ -355,12 +531,16 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                       ),
                       const SizedBox(height: 26),
                       PrimaryButton(
-                        textButton: 'Empieza tu meta',
+                        textButton: _isSaving
+                            ? 'Guardando meta...'
+                            : 'Empieza tu meta',
                         width: double.infinity,
                         height: 58,
-                        icon: Icons.arrow_forward_rounded,
+                        icon: _isSaving
+                            ? Icons.hourglass_top_rounded
+                            : Icons.arrow_forward_rounded,
                         iconSize: 22,
-                        onPressed: _goHome,
+                        onPressed: _isSaving ? null : _goHome,
                       ),
                     ],
                   ),
@@ -406,7 +586,9 @@ class _GoalOptionCard extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF1E2A24).withValues(alpha: selected ? 0.07 : 0.04),
+                color: const Color(
+                  0xFF1E2A24,
+                ).withValues(alpha: selected ? 0.07 : 0.04),
                 blurRadius: selected ? 24 : 22,
                 offset: const Offset(0, 12),
               ),
@@ -421,11 +603,7 @@ class _GoalOptionCard extends StatelessWidget {
                   color: info.iconBackground,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  info.icon,
-                  color: info.iconColor,
-                  size: 28,
-                ),
+                child: Icon(info.icon, color: info.iconColor, size: 28),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -481,11 +659,7 @@ class _GoalOptionCard extends StatelessWidget {
   }
 }
 
-enum _GoalType {
-  loseWeight,
-  maintainWeight,
-  gainWeight,
-}
+enum _GoalType { loseWeight, maintainWeight, gainWeight }
 
 extension _GoalTypeInfoX on _GoalType {
   _GoalTypeInfo get info {
@@ -493,6 +667,7 @@ extension _GoalTypeInfoX on _GoalType {
       case _GoalType.loseWeight:
         return const _GoalTypeInfo(
           title: 'Bajar de peso',
+          backendGoal: 'Perder peso',
           subtitle: 'Déficit calórico saludable',
           calories: 2100,
           icon: Icons.trending_down_rounded,
@@ -502,6 +677,7 @@ extension _GoalTypeInfoX on _GoalType {
       case _GoalType.maintainWeight:
         return const _GoalTypeInfo(
           title: 'Mantener peso',
+          backendGoal: 'Mantener peso',
           subtitle: 'Estabilidad y nutrición diaria',
           calories: 2450,
           icon: Icons.scale_rounded,
@@ -511,6 +687,7 @@ extension _GoalTypeInfoX on _GoalType {
       case _GoalType.gainWeight:
         return const _GoalTypeInfo(
           title: 'Subir de peso',
+          backendGoal: 'Ganar peso',
           subtitle: 'Superávit para masa muscular',
           calories: 2800,
           icon: Icons.trending_up_rounded,
@@ -524,6 +701,7 @@ extension _GoalTypeInfoX on _GoalType {
 class _GoalTypeInfo {
   const _GoalTypeInfo({
     required this.title,
+    required this.backendGoal,
     required this.subtitle,
     required this.calories,
     required this.icon,
@@ -532,6 +710,7 @@ class _GoalTypeInfo {
   });
 
   final String title;
+  final String backendGoal;
   final String subtitle;
   final int calories;
   final IconData icon;
@@ -540,10 +719,7 @@ class _GoalTypeInfo {
 }
 
 class _GlowCircle extends StatelessWidget {
-  const _GlowCircle({
-    required this.color,
-    required this.size,
-  });
+  const _GlowCircle({required this.color, required this.size});
 
   final Color color;
   final double size;
@@ -553,10 +729,7 @@ class _GlowCircle extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
     );
   }
 }
