@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../data/setup_repository.dart';
 import 'goal_setup_screen.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
@@ -19,6 +19,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
+  final SetupRepository _setupRepository = SetupRepository();
+  final List<String> _ageOptions = List.generate(101, (index) => '$index');
+  final List<String> _weightOptions = List.generate(
+    76,
+    (index) => '${index + 45}',
+  );
+  final List<String> _heightOptions = List.generate(
+    101,
+    (index) => (1.50 + (index / 100)).toStringAsFixed(2),
+  );
 
   String? _selectedSex;
   bool _isSaving = false;
@@ -34,8 +44,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   double get _progress {
     final completed = <bool>[
       _isValidAge(_ageController.text),
-      _isValidValue(_weightController.text),
-      _isValidValue(_heightController.text),
+      _isValidWeight(_weightController.text),
+      _isValidHeight(_heightController.text),
       _selectedSex != null,
     ].where((value) => value).length;
 
@@ -44,13 +54,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   bool _isValidAge(String value) {
     final age = int.tryParse(value.trim());
-    return age != null && age >= 16 && age <= 120;
+    return age != null && age >= 16 && age <= 100;
   }
 
-  bool _isValidValue(String value) {
+  bool _isValidWeight(String value) {
     final normalized = value.trim().replaceAll(',', '.');
     final parsed = double.tryParse(normalized);
-    return parsed != null && parsed > 0;
+    return parsed != null && parsed >= 45 && parsed <= 120;
+  }
+
+  bool _isValidHeight(String value) {
+    final normalized = value.trim().replaceAll(',', '.');
+    final parsed = double.tryParse(normalized);
+    return parsed != null && parsed >= 1.50 && parsed <= 2.50;
   }
 
   String? _validateAge(String? value) {
@@ -69,24 +85,48 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       return 'Debes tener al menos 16 años.';
     }
 
-    if (age > 120) {
+    if (age > 100) {
       return 'Ingresa una edad válida.';
     }
 
     return null;
   }
 
-  String? _validateNumber(String? value, String label) {
+  String? _validateWeight(String? value, String label) {
     final text = value?.trim() ?? '';
 
     if (text.isEmpty) {
-      return 'El $label es obligatorio.';
+      return 'El peso es obligatorio.';
     }
 
     final normalized = text.replaceAll(',', '.');
     final parsed = double.tryParse(normalized);
-    if (parsed == null || parsed <= 0) {
+    if (parsed == null) {
       return 'Ingresa un $label válido.';
+    }
+
+    if (parsed < 45 || parsed > 120) {
+      return 'Selecciona un peso valido.';
+    }
+
+    return null;
+  }
+
+  String? _validateHeight(String? value) {
+    final text = value?.trim() ?? '';
+
+    if (text.isEmpty) {
+      return 'La altura es obligatoria.';
+    }
+
+    final normalized = text.replaceAll(',', '.');
+    final parsed = double.tryParse(normalized);
+    if (parsed == null) {
+      return 'Ingresa una altura valida.';
+    }
+
+    if (parsed < 1.50 || parsed > 2.50) {
+      return 'La altura debe estar entre 1.50 cm y 2.50 cm.';
     }
 
     return null;
@@ -108,7 +148,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     });
 
     try {
-      await Future<void>.delayed(const Duration(milliseconds: 700));
+      final age = int.parse(_ageController.text.trim());
+      final weight = double.parse(
+        _weightController.text.trim().replaceAll(',', '.'),
+      );
+      final heightInMeters = double.parse(
+        _heightController.text.trim().replaceAll(',', '.'),
+      );
+      final heightInCentimeters = heightInMeters * 100;
+
+      await _setupRepository.updateProfile(
+        age: age,
+        weight: weight,
+        height: heightInCentimeters,
+      );
 
       if (!mounted) {
         return;
@@ -116,9 +169,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => GoalSetupScreen(userName: widget.userName),
+          builder: (_) => GoalSetupScreen(
+            userName: widget.userName,
+            age: age,
+            weight: weight,
+            height: heightInCentimeters,
+          ),
         ),
       );
+    } on SetupException catch (error) {
+      if (mounted) {
+        _showSnackBar(error.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showSnackBar('No se pudo guardar tu perfil. Inténtalo de nuevo.');
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -136,16 +202,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final Color accentColor = isSuccess
         ? AppTheme.primaryStart
         : isWarning
-            ? const Color(0xFFD97706)
-            : const Color(0xFFB42318);
+        ? const Color(0xFFD97706)
+        : const Color(0xFFB42318);
 
     final IconData icon = isSuccess
         ? Icons.check_circle_rounded
         : isWarning
-            ? Icons.info_outline_rounded
-            : Icons.error_outline_rounded;
+        ? Icons.info_outline_rounded
+        : Icons.error_outline_rounded;
 
-    final String title = isSuccess ? 'Perfil listo' : 'Falta un dato';
+    final String title = isSuccess
+        ? 'Perfil listo'
+        : isWarning
+        ? 'Falta un dato'
+        : 'No se pudo guardar';
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -162,9 +232,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: accentColor.withValues(alpha: 0.16),
-            ),
+            border: Border.all(color: accentColor.withValues(alpha: 0.16)),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF1E2A24).withValues(alpha: 0.10),
@@ -183,11 +251,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   color: accentColor.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  color: accentColor,
-                  size: 22,
-                ),
+                child: Icon(icon, color: accentColor, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -308,7 +372,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       Text(
                         'Estos datos nos ayudan a personalizar tu\nplan nutricional.',
                         style: TextStyle(
-                          color: const Color(0xFF595C5E).withValues(alpha: 0.92),
+                          color: const Color(
+                            0xFF595C5E,
+                          ).withValues(alpha: 0.92),
                           fontSize: 16,
                           height: 1.35,
                           fontWeight: FontWeight.w500,
@@ -322,67 +388,38 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           children: [
                             _FieldBlock(
                               label: 'EDAD',
-                              child: TextFormField(
+                              child: _PickerField(
                                 controller: _ageController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                onChanged: (_) => setState(() {}),
+                                icon: Icons.calendar_month_outlined,
+                                options: _ageOptions,
+                                unit: 'años',
                                 validator: _validateAge,
-                                decoration: _inputDecoration(
-                                  prefixIcon: Icons.calendar_month_outlined,
-                                ),
+                                onChanged: () => setState(() {}),
                               ),
                             ),
                             const SizedBox(height: 16),
                             _FieldBlock(
                               label: 'PESO (KG)',
-                              child: TextFormField(
+                              child: _PickerField(
                                 controller: _weightController,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9.,]'),
-                                  ),
-                                ],
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                onChanged: (_) => setState(() {}),
+                                icon: Icons.monitor_weight_outlined,
+                                options: _weightOptions,
+                                unit: 'kg',
                                 validator: (value) =>
-                                    _validateNumber(value, 'peso'),
-                                decoration: _inputDecoration(
-                                  prefixIcon: Icons.monitor_weight_outlined,
-                                ),
+                                    _validateWeight(value, 'peso'),
+                                onChanged: () => setState(() {}),
                               ),
                             ),
                             const SizedBox(height: 16),
                             _FieldBlock(
                               label: 'ALTURA (CM)',
-                              child: TextFormField(
+                              child: _PickerField(
                                 controller: _heightController,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9.,]'),
-                                  ),
-                                ],
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                onChanged: (_) => setState(() {}),
-                                validator: (value) =>
-                                    _validateNumber(value, 'altura'),
-                                decoration: _inputDecoration(
-                                  prefixIcon: Icons.height_rounded,
-                                ),
+                                icon: Icons.height_rounded,
+                                options: _heightOptions,
+                                unit: 'cm',
+                                validator: _validateHeight,
+                                onChanged: () => setState(() {}),
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -451,8 +488,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                         Text(
                                           'Tu metabolismo basal se calculará\nautomáticamente.',
                                           style: TextStyle(
-                                            color: const Color(0xFF2C2F31)
-                                                .withValues(alpha: 0.76),
+                                            color: const Color(
+                                              0xFF2C2F31,
+                                            ).withValues(alpha: 0.76),
                                             fontSize: 13,
                                             height: 1.25,
                                             fontWeight: FontWeight.w500,
@@ -471,8 +509,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                 Text(
                                   'PROGRESO DE REGISTRO',
                                   style: TextStyle(
-                                    color: const Color(0xFF595C5E)
-                                        .withValues(alpha: 0.85),
+                                    color: const Color(
+                                      0xFF595C5E,
+                                    ).withValues(alpha: 0.85),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 0.9,
@@ -502,16 +541,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                     backgroundColor: const Color(0xFFDDE4E8),
                                     valueColor:
                                         const AlwaysStoppedAnimation<Color>(
-                                      AppTheme.primaryStart,
-                                    ),
+                                          AppTheme.primaryStart,
+                                        ),
                                   );
                                 },
                               ),
                             ),
                             const SizedBox(height: 28),
                             PrimaryButton(
-                              textButton:
-                                  _isSaving ? 'Guardando...' : 'Guardar perfil',
+                              textButton: _isSaving
+                                  ? 'Guardando...'
+                                  : 'Guardar perfil',
                               width: double.infinity,
                               height: 58,
                               icon: _isSaving
@@ -533,45 +573,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       ),
     );
   }
-
-  InputDecoration _inputDecoration({
-    required IconData prefixIcon,
-  }) {
-    return InputDecoration(
-      filled: true,
-      fillColor: const Color(0xFFF0F3F5),
-      prefixIcon: Icon(
-        prefixIcon,
-        color: AppTheme.primaryStart,
-        size: 20,
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 18,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(28),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(28),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(28),
-        borderSide: BorderSide(
-          color: AppTheme.primaryStart.withValues(alpha: 0.18),
-        ),
-      ),
-    );
-  }
 }
 
 class _FieldBlock extends StatelessWidget {
-  const _FieldBlock({
-    required this.label,
-    required this.child,
-  });
+  const _FieldBlock({required this.label, required this.child});
 
   final String label;
   final Widget child;
@@ -593,6 +598,217 @@ class _FieldBlock extends StatelessWidget {
         const SizedBox(height: 10),
         child,
       ],
+    );
+  }
+}
+
+class _PickerField extends StatelessWidget {
+  const _PickerField({
+    required this.controller,
+    required this.icon,
+    required this.options,
+    required this.unit,
+    required this.validator,
+    required this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final IconData icon;
+  final List<String> options;
+  final String unit;
+  final String? Function(String?) validator;
+  final VoidCallback onChanged;
+
+  Future<void> _openPicker(
+    BuildContext context,
+    FormFieldState<String> field,
+  ) async {
+    final selectedValue = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          constraints: const BoxConstraints(maxHeight: 360),
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: ListView.separated(
+            itemCount: options.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 6),
+            itemBuilder: (context, index) {
+              final option = options[index];
+              final selected = option == controller.text;
+
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => Navigator.of(context).pop(option),
+                  borderRadius: BorderRadius.circular(18),
+                  child: Container(
+                    height: 52,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? AppTheme.primaryStart.withValues(alpha: 0.10)
+                          : const Color(0xFFF0F3F5),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 32),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                option,
+                                style: const TextStyle(
+                                  color: Color(0xFF2C2F31),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                unit,
+                                style: TextStyle(
+                                  color: const Color(
+                                    0xFF595C5E,
+                                  ).withValues(alpha: 0.75),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 32,
+                          child: selected
+                              ? const Icon(
+                                  Icons.check_rounded,
+                                  color: AppTheme.primaryStart,
+                                  size: 22,
+                                )
+                              : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (selectedValue == null) {
+      return;
+    }
+
+    controller.text = selectedValue;
+    field.didChange(selectedValue);
+    onChanged();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FormField<String>(
+      initialValue: controller.text,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (_) => validator(controller.text),
+      builder: (field) {
+        final hasValue = controller.text.trim().isNotEmpty;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _openPicker(context, field),
+                borderRadius: BorderRadius.circular(28),
+                child: Container(
+                  height: 64,
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F3F5),
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(
+                      color: field.hasError
+                          ? const Color(0xFFB42318)
+                          : Colors.transparent,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(icon, color: AppTheme.primaryStart, size: 20),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            hasValue ? controller.text : '',
+                            style: const TextStyle(
+                              color: Color(0xFF2C2F31),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 42,
+                        child: hasValue
+                            ? Text(
+                                unit,
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  color: const Color(
+                                    0xFF595C5E,
+                                  ).withValues(alpha: 0.78),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.keyboard_arrow_up_rounded,
+                            color: Color(0xFF6B7280),
+                            size: 18,
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Color(0xFF6B7280),
+                            size: 18,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (field.hasError) ...[
+              const SizedBox(height: 8),
+              Text(
+                field.errorText ?? '',
+                style: const TextStyle(
+                  color: Color(0xFFB42318),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -640,10 +856,7 @@ class _SexOption extends StatelessWidget {
 }
 
 class _GlowCircle extends StatelessWidget {
-  const _GlowCircle({
-    required this.color,
-    required this.size,
-  });
+  const _GlowCircle({required this.color, required this.size});
 
   final Color color;
   final double size;
@@ -653,10 +866,7 @@ class _GlowCircle extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
     );
   }
 }
