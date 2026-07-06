@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/services/auth_service.dart';
@@ -401,6 +402,9 @@ class _RegisterCard extends StatelessWidget {
               icon: Icons.person_outline_rounded,
               hintText: '',
               keyboardType: TextInputType.name,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(30),
+              ],
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
               enabled: !isSubmitting,
@@ -667,6 +671,7 @@ class _RegisterField extends StatelessWidget {
     required this.icon,
     this.keyboardType,
     this.textInputAction,
+    this.inputFormatters,
     this.textCapitalization = TextCapitalization.none,
     this.obscureText = false,
     this.trailingIcon,
@@ -681,6 +686,7 @@ class _RegisterField extends StatelessWidget {
   final IconData icon;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
+  final List<TextInputFormatter>? inputFormatters;
   final TextCapitalization textCapitalization;
   final bool obscureText;
   final IconData? trailingIcon;
@@ -696,6 +702,7 @@ class _RegisterField extends StatelessWidget {
       enabled: enabled,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
+      inputFormatters: inputFormatters,
       textCapitalization: textCapitalization,
       obscureText: obscureText,
       validator: validator,
