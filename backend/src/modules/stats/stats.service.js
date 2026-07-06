@@ -1,6 +1,12 @@
 import { getUserNutritionalData, getTodayConsumptionCalories } from './stats.repository.js';
 import { AppError } from '../../utils/AppError.js';
 
+const ACTIVITY_FACTOR = 1.2;
+const MAX_WEIGHT_LOSS_DEFICIT = 500;
+const WEIGHT_LOSS_DEFICIT_RATIO = 0.15;
+const MIN_WEIGHT_LOSS_CALORIES = 1200;
+const MIN_SAFE_DAILY_CALORIES = 1200;
+
 export const validateConsumptionService = async (userId) => {
   try {
     const userData = await getUserNutritionalData(userId);
@@ -15,16 +21,33 @@ export const validateConsumptionService = async (userId) => {
       throw new AppError('Faltan datos físicos (edad, altura o peso) para calcular el objetivo', 400, 'MISSING_PHYSICAL_DATA');
     }
 
-    const bmr = (10 * parseFloat(weight)) + (6.25 * parseFloat(height)) - (5 * parseInt(age)) - 80;
+    const parsedHeight = parseFloat(height);
+    const heightInCentimeters = parsedHeight <= 3 ? parsedHeight * 100 : parsedHeight;
+    const bmr = (10 * parseFloat(weight)) + (6.25 * heightInCentimeters) - (5 * parseInt(age)) - 80;
+    const maintenanceCalories = bmr * ACTIVITY_FACTOR;
 
-    let dailyLimit = bmr;
+    let dailyLimit = maintenanceCalories;
     const normalizedGoal = goal?.toLowerCase() || '';
 
-    if (normalizedGoal.includes('perder') || normalizedGoal.includes('lose')) {
-      dailyLimit -= 500;
-    } else if (normalizedGoal.includes('ganar') || normalizedGoal.includes('gain')) {
-      dailyLimit += 500;
+    if (
+      normalizedGoal.includes('perder') ||
+      normalizedGoal.includes('bajar') ||
+      normalizedGoal.includes('lose')
+    ) {
+      const deficit = Math.min(
+        MAX_WEIGHT_LOSS_DEFICIT,
+        maintenanceCalories * WEIGHT_LOSS_DEFICIT_RATIO
+      );
+      dailyLimit = Math.max(MIN_WEIGHT_LOSS_CALORIES, maintenanceCalories - deficit);
+    } else if (
+      normalizedGoal.includes('ganar') ||
+      normalizedGoal.includes('subir') ||
+      normalizedGoal.includes('gain')
+    ) {
+      dailyLimit += Math.min(MAX_WEIGHT_LOSS_DEFICIT, maintenanceCalories * 0.15);
     }
+
+    dailyLimit = Math.max(MIN_SAFE_DAILY_CALORIES, dailyLimit);
 
     const totalConsumed = await getTodayConsumptionCalories(userId);
 
