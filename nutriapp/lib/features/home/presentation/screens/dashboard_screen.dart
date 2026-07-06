@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/services/session_service.dart';
 import '../../../../core/widgets/custom_bottom_nav_bar.dart';
-import '../../../auth/presentation/screens/login_screen.dart';
-import '../widgets/ai_suggestion_card.dart';
 import '../../../../features/chatbot/presentation/screens/ai_chat_view.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
 import '../../../nutrition/presentation/screens/foods_screen.dart';
-
+import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../progress/presentation/screens/progress_screen.dart';
+import '../widgets/ai_suggestion_card.dart';
 import '../widgets/home_header.dart';
 import '../widgets/meal_card.dart';
 
-
 class DashboardScreen extends StatefulWidget {
-  final Map<String, dynamic>? user;
-
   const DashboardScreen({super.key, this.user});
+
+  final Map<String, dynamic>? user;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -22,6 +22,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentTab = 0;
+  int _progressRefreshToken = 0;
   late final String _userName;
 
   @override
@@ -32,6 +33,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _onTabSelected(int index) {
     setState(() {
+      if (index == 3) {
+        _progressRefreshToken++;
+      }
+
       _currentTab = index;
     });
   }
@@ -39,20 +44,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F9), // surface per DESIGN.md
+      backgroundColor: const Color(0xFFF5F7F9),
       body: SafeArea(
         child: Column(
           children: [
-            const HomeHeader(),
+            if (_currentTab != 3 && _currentTab != 4) const HomeHeader(),
             Expanded(
               child: IndexedStack(
                 index: _currentTab,
                 children: [
                   _buildHomeTab(),
-                  FoodsScreen(user: widget.user), // Foods tab
-                  const AiChatView(),      // AI tab
-                  const SizedBox.shrink(), // Progress tab blank
-                  _buildProfileTab(),       // Profile tab
+                  FoodsScreen(user: widget.user),
+                  const AiChatView(),
+                  ProgressScreen(
+                    user: widget.user,
+                    refreshToken: _progressRefreshToken,
+                  ),
+                  _buildProfileTab(),
                 ],
               ),
             ),
@@ -66,13 +74,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ----------------------------------------------------
-  // PESTAÑA INICIO (HOME)
-  // ----------------------------------------------------
   Widget _buildHomeTab() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -89,30 +94,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text(
             'Hola $_userName',
             style: const TextStyle(
-              color: Color(0xFF2C2F31), // on_surface
+              color: Color(0xFF2C2F31),
               fontSize: 28,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 24),
-
-          
-          // Tarjeta: Pregúntale a la IA qué comer
           AiSuggestionCard(
             onTap: () => _onTabSelected(2),
           ),
-          
           const SizedBox(height: 32),
-          
-          // Comidas de hoy
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
                 'Comidas de hoy',
                 style: TextStyle(
-                  color: Color(0xFF2C2F31), // on_surface
+                  color: Color(0xFF2C2F31),
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                 ),
@@ -128,7 +127,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          
           const MealCard(
             emoji: '🥑',
             title: 'Desayuno',
@@ -149,48 +147,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
             description: 'Aún no registrada',
             isLogged: false,
           ),
-          
-
-          const SizedBox(height: 32), // Padding inferior
+          const SizedBox(height: 32),
         ],
       ),
     );
   }
 
-  // ----------------------------------------------------
-  // PESTAÑA PERFIL
-  // ----------------------------------------------------
   Widget _buildProfileTab() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: OutlinedButton.icon(
-            onPressed: () async {
-              await SessionService.clear();
-              if (!mounted) return;
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (_) => false,
-              );
-            },
-            icon: const Icon(Icons.logout_rounded, size: 20),
-            label: const Text(
-              'Cerrar sesión',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
-        ),
-      ),
+    return ProfileScreen(
+      userName: _userName,
+      onLogout: () async {
+        await SessionService.clear();
+        if (!mounted) return;
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      },
     );
   }
 }
