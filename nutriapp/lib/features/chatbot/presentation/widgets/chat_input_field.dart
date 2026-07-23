@@ -43,7 +43,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           borderRadius: BorderRadius.circular(48),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, 2),
             ),
