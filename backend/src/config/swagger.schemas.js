@@ -263,4 +263,15 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/ApiResponse'
+ *
+ *     ForbiddenError:
+ *       description: El rol del usuario no tiene permisos para este recurso
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ApiResponse'
+ *           example:
+ *             success: false
+ *             data: null
+ *             message: Unauthorized role
  */

@@ -9,6 +9,7 @@ import {
   getDefaultRoleAndPlanIds,
 } from './auth.repository.js';
 import { createFridgeService } from '../fridge/fridge.service.js'; // línea nueva
+import { logEventService } from '../events/events.service.js';
 
 
 const JWT_EXPIRES_IN = '1h';
@@ -37,12 +38,24 @@ export const loginUser = async ({ email, password }) => {
     const user = await findUserByEmail(email);
 
     if (!user) {
+      await logEventService({
+        eventType: 'LOGIN_FAILED',
+        category: 'AUTH',
+        userId: null,
+        metadata: { email, reason: 'USER_NOT_FOUND' },
+      });
       throw new AppError('Cuenta no existe', 404, 'USER_NOT_FOUND');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isPasswordValid) {
+      await logEventService({
+        eventType: 'LOGIN_FAILED',
+        category: 'AUTH',
+        userId: user.userId,
+        metadata: { email, reason: 'INVALID_PASSWORD' },
+      });
       throw new AppError('Contraseña incorrecta', 401, 'INVALID_PASSWORD');
     }
 
@@ -64,6 +77,13 @@ export const loginUser = async ({ email, password }) => {
     });
 
     const { passwordHash, ...safeUser } = user;
+
+    await logEventService({
+      eventType: 'LOGIN',
+      category: 'AUTH',
+      userId: user.userId,
+      metadata: { email: user.email, role: user.role },
+    });
 
     return {
       token,
@@ -109,6 +129,13 @@ export const registerUser = async ({ name, email, password, goal }) => {
 
     // Crea automáticamente la nevera del usuario recién registrado
     await createFridgeService(newUser.userId); // 👈 aquí
+
+    await logEventService({
+      eventType: 'REGISTER',
+      category: 'AUTH',
+      userId: newUser.userId,
+      metadata: { email, name },
+    });
 
     return {
       ...newUser,
