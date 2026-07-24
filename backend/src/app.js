@@ -11,7 +11,9 @@ import statsRoutes from './modules/stats/stats.routes.js';
 import mealRoutes from './modules/meal/meal.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
 import chatRoutes from './modules/chat/chat.routes.js';
+import eventsRoutes from './modules/events/events.routes.js';
 import authenticateToken from './middleware/auth.middleware.js';
+import { activityLogger } from './middleware/activityLogger.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 import { errorResponse, successResponse } from './utils/response.js';
 import { sendChatN8n } from './utils/n8n.service.js';
@@ -22,6 +24,9 @@ const app = express();
 // Middlewares globales
 app.use(cors());
 app.use(express.json());
+
+// Captura automática de eventos de actividad (best-effort, no bloqueante)
+app.use(activityLogger);
 
 // Documentación de la API
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -115,6 +120,7 @@ app.use('/api/v1/stats', statsRoutes);
 app.use('/api/v1/meals', mealRoutes);
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/admin/events', eventsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
