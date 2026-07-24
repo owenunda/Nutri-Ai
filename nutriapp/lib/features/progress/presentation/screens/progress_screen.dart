@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -113,7 +112,7 @@ class _ProgressContent extends StatelessWidget {
                   children: [
                     Text(
                       'PROGRESO SEMANAL',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Inter', 
                         color: ProgressScreen._green,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -123,7 +122,7 @@ class _ProgressContent extends StatelessWidget {
                     const SizedBox(height: 7),
                     Text(
                       'Buen progreso,\n${data.firstName}!',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: TextStyle(fontFamily: 'PlusJakartaSans', 
                         color: ProgressScreen._text,
                         fontSize: 28,
                         height: 1.05,
@@ -148,7 +147,7 @@ class _ProgressContent extends StatelessWidget {
           const SizedBox(height: 28),
           Text(
             'Resumen nutricional',
-            style: GoogleFonts.plusJakartaSans(
+            style: TextStyle(fontFamily: 'PlusJakartaSans', 
               color: ProgressScreen._text,
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -220,7 +219,7 @@ class _ProgressErrorView extends StatelessWidget {
                 Text(
                   'No se pudo cargar tu progreso',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: ProgressScreen._text,
                     fontSize: 19,
                     fontWeight: FontWeight.w900,
@@ -230,7 +229,7 @@ class _ProgressErrorView extends StatelessWidget {
                 Text(
                   message.replaceFirst('Exception: ', ''),
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Inter', 
                     color: ProgressScreen._muted.withValues(alpha: 0.9),
                     fontSize: 13,
                     height: 1.35,
@@ -276,7 +275,7 @@ class _ProgressHeader extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           'NutriAI',
-          style: GoogleFonts.plusJakartaSans(
+          style: TextStyle(fontFamily: 'PlusJakartaSans', 
             color: ProgressScreen._green,
             fontSize: 17,
             fontWeight: FontWeight.w800,
@@ -308,7 +307,7 @@ class _GoalPill extends StatelessWidget {
       ),
       child: Text(
         'Meta:\n$goal',
-        style: GoogleFonts.inter(
+        style: TextStyle(fontFamily: 'Inter', 
           color: const Color(0xFF064D31),
           fontSize: 12,
           height: 1.25,
@@ -371,7 +370,7 @@ class _WeightInsightCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     'Resumen de peso',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: TextStyle(fontFamily: 'PlusJakartaSans', 
                       color: ProgressScreen._green,
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
@@ -392,7 +391,7 @@ class _WeightInsightCard extends StatelessWidget {
                       TextSpan(text: mainText.$2),
                     ],
                   ),
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: ProgressScreen._text,
                     fontSize: 22,
                     height: 1.15,
@@ -412,7 +411,7 @@ class _WeightInsightCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: ProgressScreen._text,
                     fontSize: 22,
                     height: 1.15,
@@ -424,7 +423,7 @@ class _WeightInsightCard extends StatelessWidget {
                 hasChange
                     ? 'Comparado con tu registro físico anterior.'
                     : 'Registra otro peso más adelante para ver tu evolución.',
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Inter', 
                   color: ProgressScreen._muted.withValues(alpha: 0.88),
                   fontSize: 13,
                   height: 1.25,
@@ -474,7 +473,7 @@ class _TodayCaloriesCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Calorias de hoy',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: ProgressScreen._text,
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
@@ -490,7 +489,7 @@ class _TodayCaloriesCard extends StatelessWidget {
             children: [
               Text(
                 _formatInt(data.totalConsumed),
-                style: GoogleFonts.plusJakartaSans(
+                style: TextStyle(fontFamily: 'PlusJakartaSans', 
                   color: ProgressScreen._green,
                   fontSize: 44,
                   fontWeight: FontWeight.w900,
@@ -505,7 +504,7 @@ class _TodayCaloriesCard extends StatelessWidget {
                   dailyLimit == null
                       ? 'kcal consumidas'
                       : 'de ${_formatInt(dailyLimit)} kcal',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Inter', 
                     color: ProgressScreen._muted.withValues(alpha: 0.9),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -533,7 +532,7 @@ class _TodayCaloriesCard extends StatelessWidget {
             dailyLimit == null || remaining == null
                 ? 'Completa tus datos físicos y tu meta para calcular tu límite diario.'
                 : 'Meta diaria: ${_formatInt(dailyLimit)} kcal. Te quedan ${_formatInt(remaining)} kcal disponibles hoy.',
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Inter', 
               color: ProgressScreen._muted.withValues(alpha: 0.9),
               fontSize: 13,
               height: 1.35,
@@ -564,7 +563,7 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         status,
-        style: GoogleFonts.inter(
+        style: TextStyle(fontFamily: 'Inter', 
           color: color,
           fontSize: 11,
           fontWeight: FontWeight.w800,
@@ -598,7 +597,7 @@ class _WeightHistoryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Historial de peso',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: ProgressScreen._text,
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
@@ -618,7 +617,7 @@ class _WeightHistoryCard extends StatelessWidget {
                 currentWeight == null
                     ? 'Sin peso actual'
                     : '${_formatDouble(currentWeight!)}kg Actual',
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Inter', 
                   color: ProgressScreen._muted,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -660,7 +659,7 @@ class _EmptyHistoryState extends StatelessWidget {
       child: Text(
         'Aún no tienes historial físico.',
         textAlign: TextAlign.center,
-        style: GoogleFonts.inter(
+        style: TextStyle(fontFamily: 'Inter', 
           color: ProgressScreen._muted.withValues(alpha: 0.85),
           fontSize: 13,
           fontWeight: FontWeight.w700,
@@ -786,7 +785,7 @@ class _AverageTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Inter', 
                     color: ProgressScreen._muted,
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
@@ -798,7 +797,7 @@ class _AverageTile extends StatelessWidget {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: ProgressScreen._text,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -809,7 +808,7 @@ class _AverageTile extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     detail!,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(fontFamily: 'Inter', 
                       color: ProgressScreen._green,
                       fontSize: 9,
                       fontWeight: FontWeight.w800,
@@ -865,7 +864,7 @@ class _AxisLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: GoogleFonts.inter(
+      style: TextStyle(fontFamily: 'Inter', 
         color: const Color(0xFF9AA4AF),
         fontSize: 9,
         fontWeight: FontWeight.w800,
