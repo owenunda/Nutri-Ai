@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/primary_button.dart';
 import '../../data/profile_repository.dart';
 import 'edit_profile_screen.dart';
 
@@ -89,7 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   profile.name.isEmpty ? widget.userName : profile.name,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: GoogleFonts.plusJakartaSans(
                     color: _ProfileColors.text,
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
@@ -101,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   profile.membershipText,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     color: _ProfileColors.text.withValues(alpha: 0.72),
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -138,10 +141,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 42),
                 Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Objetivo nutricional',
-                        style: TextStyle(
+                        style: GoogleFonts.plusJakartaSans(
                           color: _ProfileColors.text,
                           fontSize: 24,
                           fontWeight: FontWeight.w900,
@@ -155,12 +158,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD5F6E5),
+                        color: AppTheme.primaryContainer,
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Text(
+                      child: Text(
                         'ACTIVO',
-                        style: TextStyle(
+                        style: GoogleFonts.inter(
                           color: _ProfileColors.green,
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
@@ -173,9 +176,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 18),
                 _NutritionGoalSelector(goal: profile.goal),
                 const SizedBox(height: 42),
-                const Text(
+                Text(
                   'Ajustes y recordatorios',
-                  style: TextStyle(
+                  style: GoogleFonts.plusJakartaSans(
                     color: _ProfileColors.text,
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -231,9 +234,9 @@ class _ProfileErrorView extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: _profileShadow,
+            color: AppTheme.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            boxShadow: AppTheme.ambientShadow,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -252,10 +255,10 @@ class _ProfileErrorView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'No pudimos cargar tu perfil',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: GoogleFonts.plusJakartaSans(
                   color: _ProfileColors.text,
                   fontSize: 19,
                   fontWeight: FontWeight.w900,
@@ -265,7 +268,7 @@ class _ProfileErrorView extends StatelessWidget {
               Text(
                 message.replaceFirst('Exception: ', ''),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: GoogleFonts.inter(
                   color: _ProfileColors.muted.withValues(alpha: 0.9),
                   fontSize: 13,
                   height: 1.35,
@@ -273,17 +276,11 @@ class _ProfileErrorView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 18),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: _ProfileColors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 12,
-                  ),
-                ),
+              PrimaryButton(
+                textButton: 'Intentar de nuevo',
+                icon: Icons.refresh_rounded,
+                height: 48,
                 onPressed: onRetry,
-                child: const Text('Intentar de nuevo'),
               ),
             ],
           ),
@@ -323,9 +320,9 @@ class _ProfileTopBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
-        const Text(
+        Text(
           'NutriAI',
-          style: TextStyle(
+          style: GoogleFonts.plusJakartaSans(
             color: _ProfileColors.green,
             fontSize: 24,
             fontWeight: FontWeight.w900,
@@ -360,9 +357,9 @@ class _ProfileStatCard extends StatelessWidget {
       height: 128,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: _profileShadow,
+        color: AppTheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: AppTheme.ambientShadow,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -374,7 +371,7 @@ class _ProfileStatCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: GoogleFonts.plusJakartaSans(
                     color: _ProfileColors.green,
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
@@ -387,7 +384,7 @@ class _ProfileStatCard extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 3),
                     child: Text(
                       unit,
-                      style: const TextStyle(
+                      style: GoogleFonts.inter(
                         color: _ProfileColors.green,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -401,8 +398,8 @@ class _ProfileStatCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFFABB0B6),
+            style: GoogleFonts.inter(
+              color: const Color(0xFFABB0B6),
               fontSize: 12,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.2,
@@ -477,8 +474,8 @@ class _GoalPill extends StatelessWidget {
       height: 136,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
-        color: isActive ? Colors.white : Colors.transparent,
-        borderRadius: BorderRadius.circular(32),
+        color: isActive ? AppTheme.surfaceContainerLowest : Colors.transparent,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         boxShadow: isActive
             ? [
                 BoxShadow(
@@ -501,7 +498,7 @@ class _GoalPill extends StatelessWidget {
           Text(
             option.label,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: GoogleFonts.inter(
               color: isActive ? _ProfileColors.green : _ProfileColors.muted,
               fontSize: 16,
               fontWeight: FontWeight.w900,
@@ -542,9 +539,9 @@ class _SettingsCard extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(34),
-        boxShadow: _profileShadow,
+        color: AppTheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: AppTheme.ambientShadow,
       ),
       child: Column(
         children: [
@@ -561,7 +558,6 @@ class _SettingsCard extends StatelessWidget {
               onChanged: onMealReminderChanged,
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFE9EEF2)),
           const _SettingsRow(
             icon: Icons.notifications_active_rounded,
             iconColor: Color(0xFF1D4ED8),
@@ -574,7 +570,6 @@ class _SettingsCard extends StatelessWidget {
               size: 30,
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFE9EEF2)),
           _SettingsRow(
             icon: Icons.tune_rounded,
             iconColor: _ProfileColors.green,
@@ -620,7 +615,7 @@ class _SettingsRow extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 26),
           child: Row(
             children: [
               Container(
@@ -639,7 +634,7 @@ class _SettingsRow extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: GoogleFonts.plusJakartaSans(
                         color: _ProfileColors.text,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
@@ -649,7 +644,7 @@ class _SettingsRow extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text(
                       subtitle,
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         color: _ProfileColors.text.withValues(alpha: 0.72),
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -681,13 +676,16 @@ class _LogoutButton extends StatelessWidget {
       child: OutlinedButton.icon(
         onPressed: onPressed,
         icon: const Icon(Icons.logout_rounded, size: 24),
-        label: const Text(
+        label: Text(
           'Cerrar sesión',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w800),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: _ProfileColors.muted,
-          side: const BorderSide(color: Color(0xFFE0E5EA), width: 2),
+          side: BorderSide(
+            color: AppTheme.onSurface.withValues(alpha: 0.15),
+            width: 1,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(999),
           ),
@@ -700,9 +698,9 @@ class _LogoutButton extends StatelessWidget {
 class _ProfileColors {
   const _ProfileColors._();
 
-  static const Color green = Color(0xFF0A6B3F);
-  static const Color text = Color(0xFF20252B);
-  static const Color muted = Color(0xFF5B626B);
+  static const Color green = AppTheme.primaryStart;
+  static const Color text = AppTheme.onSurface;
+  static const Color muted = AppTheme.onSurfaceVariant;
 }
 
 String _formatProfileNumber(double? value) {
@@ -743,14 +741,4 @@ String _normalizeGoal(String? goal) {
   }
 
   return 'maintain';
-}
-
-List<BoxShadow> get _profileShadow {
-  return [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: 0.05),
-      blurRadius: 22,
-      offset: const Offset(0, 12),
-    ),
-  ];
 }
