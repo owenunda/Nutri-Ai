@@ -13,7 +13,6 @@ dependencies:
   http: ^1.6.0
   shared_preferences: ^2.3.0
   url_launcher: ^6.3.0
-  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -24,3 +23,32 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
+          weight: 400
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
+          weight: 700
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
+          weight: 800
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
+          weight: 900
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 700
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 800
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 900

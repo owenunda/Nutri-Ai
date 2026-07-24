@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Paleta de colores principales (Nutri-Ai verde)
@@ -40,7 +39,7 @@ class AppTheme {
         onPrimary: onPrimary,
         surface: surface,
       ),
-      textTheme: GoogleFonts.interTextTheme(),
+      fontFamily: 'Inter',
       // Definición personalizada para los botones elevados e interactivos
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

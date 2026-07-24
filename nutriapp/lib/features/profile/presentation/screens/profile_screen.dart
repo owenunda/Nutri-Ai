@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -92,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   profile.name.isEmpty ? widget.userName : profile.name,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: _ProfileColors.text,
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
@@ -104,7 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   profile.membershipText,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Inter', 
                     color: _ProfileColors.text.withValues(alpha: 0.72),
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -144,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Expanded(
                       child: Text(
                         'Objetivo nutricional',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: TextStyle(fontFamily: 'PlusJakartaSans', 
                           color: _ProfileColors.text,
                           fontSize: 24,
                           fontWeight: FontWeight.w900,
@@ -163,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: Text(
                         'ACTIVO',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Inter', 
                           color: _ProfileColors.green,
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
@@ -178,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 42),
                 Text(
                   'Ajustes y recordatorios',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: _ProfileColors.text,
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -258,7 +257,7 @@ class _ProfileErrorView extends StatelessWidget {
               Text(
                 'No pudimos cargar tu perfil',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
+                style: TextStyle(fontFamily: 'PlusJakartaSans', 
                   color: _ProfileColors.text,
                   fontSize: 19,
                   fontWeight: FontWeight.w900,
@@ -268,7 +267,7 @@ class _ProfileErrorView extends StatelessWidget {
               Text(
                 message.replaceFirst('Exception: ', ''),
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Inter', 
                   color: _ProfileColors.muted.withValues(alpha: 0.9),
                   fontSize: 13,
                   height: 1.35,
@@ -322,7 +321,7 @@ class _ProfileTopBar extends StatelessWidget {
         const SizedBox(width: 16),
         Text(
           'NutriAI',
-          style: GoogleFonts.plusJakartaSans(
+          style: TextStyle(fontFamily: 'PlusJakartaSans', 
             color: _ProfileColors.green,
             fontSize: 24,
             fontWeight: FontWeight.w900,
@@ -371,7 +370,7 @@ class _ProfileStatCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: _ProfileColors.green,
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
@@ -384,7 +383,7 @@ class _ProfileStatCard extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 3),
                     child: Text(
                       unit,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Inter', 
                         color: _ProfileColors.green,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -398,7 +397,7 @@ class _ProfileStatCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Inter', 
               color: const Color(0xFFABB0B6),
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -498,7 +497,7 @@ class _GoalPill extends StatelessWidget {
           Text(
             option.label,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Inter', 
               color: isActive ? _ProfileColors.green : _ProfileColors.muted,
               fontSize: 16,
               fontWeight: FontWeight.w900,
@@ -634,7 +633,7 @@ class _SettingsRow extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: TextStyle(fontFamily: 'PlusJakartaSans', 
                         color: _ProfileColors.text,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
@@ -644,7 +643,7 @@ class _SettingsRow extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text(
                       subtitle,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Inter', 
                         color: _ProfileColors.text.withValues(alpha: 0.72),
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -678,7 +677,7 @@ class _LogoutButton extends StatelessWidget {
         icon: const Icon(Icons.logout_rounded, size: 24),
         label: Text(
           'Cerrar sesión',
-          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w800),
+          style: TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w800),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: _ProfileColors.muted,
