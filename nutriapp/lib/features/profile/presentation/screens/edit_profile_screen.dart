@@ -18,13 +18,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final ProfileRepository _profileRepository = ProfileRepository();
   late final TextEditingController _ageController;
   late final TextEditingController _heightController;
+  late final TextEditingController _weightController;
   late final TextEditingController _sexController;
   late final TextEditingController _goalController;
+  late final String _initialWeightText;
 
   final List<String> _ageOptions = List.generate(85, (index) => '${index + 16}');
   final List<String> _heightOptions = List.generate(
     101,
     (index) => (1.50 + (index / 100)).toStringAsFixed(2),
+  );
+  final List<String> _weightOptions = List.generate(
+    441,
+    (index) => (30 + (index * 0.5)).toStringAsFixed(1),
   );
   final List<String> _sexOptions = const ['Hombre', 'Mujer'];
   final List<String> _goalOptions = const [
@@ -44,6 +50,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _heightController = TextEditingController(
       text: _initialHeight(widget.profile.height),
     );
+    _initialWeightText = _initialWeight(widget.profile.weight);
+    _weightController = TextEditingController(text: _initialWeightText);
     _sexController = TextEditingController(
       text: widget.profile.sex?.isNotEmpty == true ? widget.profile.sex! : 'Hombre',
     );
@@ -56,6 +64,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void dispose() {
     _ageController.dispose();
     _heightController.dispose();
+    _weightController.dispose();
     _sexController.dispose();
     _goalController.dispose();
     super.dispose();
@@ -64,10 +73,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _saveChanges() async {
     final age = int.tryParse(_ageController.text);
     final heightInMeters = double.tryParse(_heightController.text);
+    final weight = double.tryParse(_weightController.text);
     final sex = _sexController.text.trim();
     final goal = _goalController.text.trim();
 
-    if (age == null || heightInMeters == null || sex.isEmpty || goal.isEmpty) {
+    if (age == null ||
+        heightInMeters == null ||
+        weight == null ||
+        sex.isEmpty ||
+        goal.isEmpty) {
       _showSnackBar('Selecciona todos los datos para continuar.');
       return;
     }
@@ -75,6 +89,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (heightInMeters < 1.50 || heightInMeters > 2.50) {
       _showSnackBar('Selecciona una altura válida entre 1.50 cm y 2.50 cm.');
       return;
+    }
+
+    final weightChanged = _weightController.text != _initialWeightText;
+    if (weightChanged) {
+      final confirmed = await _confirmWeightChange();
+      if (!confirmed) {
+        return;
+      }
     }
 
     setState(() {
@@ -85,6 +107,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       await _profileRepository.updateProfile(
         age: age,
         height: heightInMeters * 100,
+        weight: weight,
         goal: _backendGoal(goal),
         sex: sex,
         email: widget.profile.email,
@@ -107,6 +130,109 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         });
       }
     }
+  }
+
+  Future<bool> _confirmWeightChange() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Container(
+            padding: const EdgeInsets.all(26),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: _editProfileShadow,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF4E5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Color(0xFFB45309),
+                    size: 30,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  'Vas a actualizar tu peso',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _EditProfileColors.text,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Este cambio puede afectar tus ajustes actuales, como tu meta calórica diaria y tu plan nutricional. NutriAI recalculará tus objetivos con el nuevo valor.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _EditProfileColors.muted.withValues(alpha: 0.9),
+                    fontSize: 14,
+                    height: 1.4,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _EditProfileColors.muted,
+                          side: BorderSide(
+                            color: _EditProfileColors.text.withValues(alpha: 0.15),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: _EditProfileColors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                        child: const Text(
+                          'Continuar',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    return confirmed ?? false;
   }
 
   void _showSnackBar(String message) {
@@ -235,6 +361,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     options: _heightOptions,
                     unit: 'cm',
                     icon: Icons.height_rounded,
+                  ),
+                  const _ConfigDivider(),
+                  _PickerRow(
+                    label: 'Peso',
+                    controller: _weightController,
+                    options: _weightOptions,
+                    unit: 'kg',
+                    icon: Icons.monitor_weight_outlined,
                   ),
                   const _ConfigDivider(),
                   _PickerRow(
@@ -585,6 +719,16 @@ String _initialHeight(double? height) {
   final value = height <= 3 ? height : height / 100;
   final safeValue = value.clamp(1.50, 2.50);
   return safeValue.toStringAsFixed(2);
+}
+
+String _initialWeight(double? weight) {
+  if (weight == null) {
+    return '70.0';
+  }
+
+  final safeValue = weight.clamp(30.0, 250.0);
+  final rounded = (safeValue * 2).round() / 2;
+  return rounded.toStringAsFixed(1);
 }
 
 String _goalLabel(String? goal) {

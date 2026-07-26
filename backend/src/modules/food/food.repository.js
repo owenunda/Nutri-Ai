@@ -164,21 +164,88 @@ export const deactivateFood = async (id) => {
   return rows[0];
 };
 
-export const findFoodByName = async (name, userId) => {
+/**
+ * Normaliza el nombre en SQL igual que normalizeFoodName() lo hace en JS:
+ * minúsculas y sin acentos. Se usa translate() en vez de unaccent() para no
+ * depender de una extensión de Postgres.
+ *
+ * Los plurales NO se tocan aquí: quitar la "s" a ciegas convierte "limones"
+ * en "limone". El singular se resuelve en JS con singularCandidates(), que
+ * propone varias formas y deja que la base diga cuál existe.
+ *
+ * Si esta expresión cambia hay que actualizar también el índice funcional de
+ * update_26_07_2026.sql, o dejará de usarse.
+ */
+const NORMALIZED_NAME_SQL = `
+    translate(
+        lower(name),
+        'áàäâãéèëêíìïîóòöôõúùüûñç',
+        'aaaaaeeeeiiiiooooouuuunc'
+    )
+`;
+
+const VISIBLE_FOODS_SQL = `
+    SELECT
+        food_id AS "foodId",
+        name,
+        calories_per_unit AS "caloriesPerUnit",
+        base_unit AS "baseUnit",
+        is_global AS "isGlobal",
+        created_by_user_id AS "createdByUserId",
+        ${NORMALIZED_NAME_SQL} AS normalized_name
+    FROM foods
+    WHERE is_active = true
+        AND (is_global = true OR created_by_user_id = $2)
+`;
+
+const RETURNED_COLUMNS = `"foodId", name, "caloriesPerUnit", "baseUnit", "isGlobal", "createdByUserId"`;
+
+/**
+ * Igualdad estricta sobre el nombre normalizado. Para verificar duplicados:
+ * crear "Pollo" no debe rechazarse porque exista "Pechuga de pollo".
+ *
+ * @param {string} normalizedName ya pasado por normalizeFoodName()
+ */
+export const findFoodByExactName = async (normalizedName, userId) => {
   const query = `
-        SELECT
-            food_id AS "foodId",
-            name,
-            calories_per_unit AS "caloriesPerUnit",
-            base_unit AS "baseUnit",
-            is_global AS "isGlobal",
-            created_by_user_id AS "createdByUserId"
-        FROM foods
-        WHERE name = $1
-            AND is_active = true
-            AND (is_global = true OR created_by_user_id = $2)
+        WITH visibles AS (${VISIBLE_FOODS_SQL})
+        SELECT ${RETURNED_COLUMNS}
+        FROM visibles
+        WHERE normalized_name = $1
         LIMIT 1
     `;
-  const { rows } = await pool.query(query, [name, userId]);
+  const { rows } = await pool.query(query, [normalizedName, userId]);
+  return rows[0];
+};
+
+/**
+ * Búsqueda tolerante para mapear lo que escribe el usuario. Primero intenta
+ * igualdad con cualquiera de las formas propuestas; si ninguna existe, acepta
+ * que el término aparezca como palabra completa dentro del nombre, de modo que
+ * "pollo" encuentre "Pechuga de pollo". Entre varias parciales gana la de
+ * nombre más corto, que es la más genérica.
+ *
+ * @param {string[]} terms formas candidatas de singularCandidates()
+ */
+export const matchFoodByTerms = async (terms, userId) => {
+  const query = `
+        WITH visibles AS (${VISIBLE_FOODS_SQL})
+        SELECT ${RETURNED_COLUMNS}
+        FROM visibles
+        WHERE normalized_name = ANY($1::text[])
+            OR EXISTS (
+                SELECT 1
+                FROM unnest($1::text[]) AS t(term)
+                WHERE normalized_name LIKE t.term || ' %'
+                    OR normalized_name LIKE '% ' || t.term
+                    OR normalized_name LIKE '% ' || t.term || ' %'
+            )
+        ORDER BY
+            CASE WHEN normalized_name = ANY($1::text[]) THEN 0 ELSE 1 END,
+            length(normalized_name),
+            "foodId"
+        LIMIT 1
+    `;
+  const { rows } = await pool.query(query, [terms, userId]);
   return rows[0];
 };

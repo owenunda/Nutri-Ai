@@ -4,9 +4,9 @@ class RecipeStep {
 
   const RecipeStep({required this.step, required this.description});
 
-  factory RecipeStep.fromMap(Map map) => RecipeStep(
-        step: (map['step'] as num).toInt(),
-        description: map['description'] as String,
+  factory RecipeStep.fromMap(Map map, {int fallbackStep = 0}) => RecipeStep(
+        step: (map['step'] as num?)?.toInt() ?? fallbackStep,
+        description: map['description'] as String? ?? '',
       );
 }
 
@@ -75,12 +75,6 @@ class RecipeModel {
     this.youtubeVideo,
   });
 
-  // Old flat format: data itself is the recipe
-  static bool isRecipeMap(Map map) => map.containsKey('recipe_title');
-
-  // New nested format: data has 'recipe' key
-  static bool isNestedRecipeMap(Map map) => map.containsKey('recipe');
-
   factory RecipeModel.fromMap(Map map, {YoutubeVideoModel? youtube}) =>
       RecipeModel(
         title: map['recipe_title'] as String? ?? map['title'] as String? ?? '',
@@ -94,11 +88,16 @@ class RecipeModel {
         estimatedCalories: (map['estimated_calories'] as num?)?.toInt() ?? 0,
         tips: (map['tips'] as List?)?.map((e) => e.toString()).toList() ?? [],
         steps: (map['steps'] as List?)
-                ?.map((e) => RecipeStep.fromMap(e as Map))
+                ?.whereType<Map>()
+                .toList()
+                .asMap()
+                .entries
+                .map((e) => RecipeStep.fromMap(e.value, fallbackStep: e.key + 1))
                 .toList() ??
             [],
         ingredients: (map['ingredients_used'] as List?)
-                ?.map((e) => RecipeIngredient.fromMap(e as Map))
+                ?.whereType<Map>()
+                .map(RecipeIngredient.fromMap)
                 .toList() ??
             [],
         youtubeVideo: youtube,

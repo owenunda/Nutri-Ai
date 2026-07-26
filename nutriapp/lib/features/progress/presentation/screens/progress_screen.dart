@@ -101,8 +101,6 @@ class _ProgressContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ProgressHeader(),
-          const SizedBox(height: 38),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -171,7 +169,6 @@ class _ProgressLoadingView extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(20, 8, 20, 96),
       child: Column(
         children: [
-          _ProgressHeader(),
           SizedBox(height: 160),
           Center(
             child: CircularProgressIndicator(color: ProgressScreen._green),
@@ -197,7 +194,6 @@ class _ProgressErrorView extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
       child: Column(
         children: [
-          const _ProgressHeader(),
           const SizedBox(height: 80),
           _ProgressCard(
             child: Column(
@@ -252,45 +248,6 @@ class _ProgressErrorView extends StatelessWidget {
   }
 }
 
-class _ProgressHeader extends StatelessWidget {
-  const _ProgressHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8EEF2),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: const Icon(
-            Icons.person_rounded,
-            color: Color(0xFF25313B),
-            size: 24,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          'NutriAI',
-          style: TextStyle(fontFamily: 'PlusJakartaSans', 
-            color: ProgressScreen._green,
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const Spacer(),
-        const Icon(
-          Icons.notifications_rounded,
-          color: Color(0xFF94A3B8),
-          size: 23,
-        ),
-      ],
-    );
-  }
-}
 
 class _GoalPill extends StatelessWidget {
   const _GoalPill({required this.goal});

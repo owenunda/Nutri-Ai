@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/services/session_service.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/custom_bottom_nav_bar.dart';
 import '../../../../features/chatbot/presentation/screens/ai_chat_view.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
@@ -48,7 +49,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            if (_currentTab != 3 && _currentTab != 4) const HomeHeader(),
+            const HomeHeader(),
             Expanded(
               child: IndexedStack(
                 index: _currentTab,
@@ -84,9 +85,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const Text(
             'RESUMEN',
             style: TextStyle(
-              color: Color(0xFF64748B),
+              color: AppTheme.onSurfaceVariant,
               fontSize: 12,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w800,
               letterSpacing: 1.2,
             ),
           ),
@@ -94,9 +95,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text(
             'Hola $_userName',
             style: const TextStyle(
-              color: Color(0xFF2C2F31),
+              fontFamily: 'PlusJakartaSans',
+              color: AppTheme.onSurface,
               fontSize: 28,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w900,
               letterSpacing: -0.5,
             ),
           ),
@@ -111,17 +113,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 'Comidas de hoy',
                 style: TextStyle(
-                  color: Color(0xFF2C2F31),
+                  fontFamily: 'PlusJakartaSans',
+                  color: AppTheme.onSurface,
                   fontSize: 20,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
               Text(
                 'Ver historial',
                 style: TextStyle(
-                  color: Color(0xFF0A6B3F),
+                  color: AppTheme.primaryStart,
                   fontSize: 13,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ],
