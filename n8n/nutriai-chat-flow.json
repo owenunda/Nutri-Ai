@@ -1,0 +1,1494 @@
+{
+  "name": "NutriAI - Chat de Recetas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ce62552f-3888-4987-8e21-0386984abda1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "313b8b18-4b40-44dd-9d7c-12606d54ffb3",
+      "name": "Webhook: Mensaje de Chat",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1680,
+        0
+      ],
+      "webhookId": "ce62552f-3888-4987-8e21-0386984abda1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1a0c7d2-0001-4a11-9f01-0a1b2c3d4e01",
+              "name": "userId",
+              "value": "={{ $json.body.userId }}",
+              "type": "string"
+            },
+            {
+              "id": "f1a0c7d2-0002-4a11-9f01-0a1b2c3d4e02",
+              "name": "message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "f1a0c7d2-0003-4a11-9f01-0a1b2c3d4e03",
+              "name": "userName",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "f1a0c7d2-0004-4a11-9f01-0a1b2c3d4e04",
+              "name": "authToken",
+              "value": "={{ $json.body.token }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f864ab8a-1413-4a26-962e-75ef5fcc48b4",
+      "name": "Extraer Datos del Request",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.nutri.oween.software/api/v1/chat/session",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.authToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9a50b249-4dee-40bb-aeca-e2fec2af0c49",
+      "name": "Obtener Sesión Activa",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1a0c7d2-1001-4a11-9f01-0a1b2c3d4e11",
+              "leftValue": "={{ $json.data.hasActiveSession }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "b2c1d0e9-1002-4a11-9f01-0a1b2c3d4e12",
+      "name": "¿Tiene Sesión Activa?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.nutri.oween.software/api/v1/chat/session",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Extraer Datos del Request').first().json.authToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "501519a8-af9c-471c-ad57-e86b96da4cf8",
+      "name": "Crear Sesión de Chat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -900,
+        140
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normaliza las dos formas posibles de llegar aquí:\n//   GET  /chat/session -> { data: { hasActiveSession, session } }\n//   POST /chat/session -> { data: <la sesión directamente> }\nconst input = $input.first().json;\nconst payload = input.data ?? {};\n\nconst session = payload.session ?? (payload.sessionId ? payload : null);\nconst state = session?.conversationState ?? {};\nconst recipe = state.recipe ?? null;\n\nreturn [{\n  json: {\n    sessionId: session?.sessionId ?? null,\n    hasActiveSession: Boolean(session),\n    previousRecipe: recipe,\n    previousMedia: state.media ?? null,\n    previousIntent: state.last_intent ?? null,\n    previousMealType: state.metadata?.meal_type ?? null,\n    previousGeneratedAt: state.metadata?.generated_at ?? null,\n    version: Number(state.metadata?.version) || 1,\n    // El pool de alimentos matcheados viaja dentro de recipe porque el\n    // validador del backend descarta cualquier campo raíz desconocido.\n    availableFoods: Array.isArray(recipe?.available_foods) ? recipe.available_foods : []\n  }\n}];"
+      },
+      "id": "0f4f2d51-1ec4-4113-abeb-3860d1bf831c",
+      "name": "Unificar Datos de Sesión",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.nutri.oween.software/api/v1/chat/session/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Extraer Datos del Request').first().json.authToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { role: 'USER', content: $('Extraer Datos del Request').first().json.message } }}",
+        "options": {}
+      },
+      "id": "d4e5f6a7-2001-4a11-9f01-0a1b2c3d4e21",
+      "name": "Guardar Mensaje del Usuario",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -500,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "MiniMax-M3",
+          "mode": "list",
+          "cachedResultName": "MINIMAX-M3"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Eres un sistema que interpreta mensajes de usuarios en una aplicación de nutrición.\n\nTu única tarea es analizar el mensaje del usuario y convertirlo en un JSON estructurado.\n\nDebes detectar la intención del usuario y extraer la información relevante.\n\n## Contexto de la conversación\n\n{{ $('Unificar Datos de Sesión').first().json.previousRecipe ? 'SÍ hay una receta activa en la conversación, titulada: ' + $('Unificar Datos de Sesión').first().json.previousRecipe.title : 'NO hay ninguna receta activa. El usuario todavía no puede modificar ni preguntar por una receta.' }}\n\nUsa este contexto para decidir: si NO hay receta activa, no elijas MODIFY_RECIPE, ASK_RECIPE ni NEW_RECIPE.\n\n## Intenciones\n\n### GENERATE_RECIPE_WITH_INPUT\n\nEl usuario quiere generar una receta y menciona uno o más alimentos.\n\nEjemplos:\n\n* Tengo 3 huevos y una cebolla, hazme un desayuno.\n* Quiero cocinar con pollo y arroz.\n* Tengo tomate, queso y pan.\n\n---\n\n### GENERATE_RECIPE_FROM_FRIDGE\n\nEl usuario quiere una receta pero NO menciona ingredientes.\n\nLa aplicación deberá utilizar los alimentos almacenados en su nevera.\n\nEjemplos:\n\n* Quiero un desayuno.\n* Necesito una cena saludable.\n* Hazme un almuerzo.\n\n---\n\n### MODIFY_RECIPE\n\nEl usuario quiere modificar la receta activa.\n\nEjemplos:\n\n* Hazla para 4 personas.\n* No tengo cebolla.\n* Cambia el pollo por atún.\n* Hazla vegetariana.\n* Quiero más proteína.\n* Hazla más saludable.\n* Quiero menos calorías.\n* Hazla más rápida.\n* Agrégale queso.\n\nEn este caso también debes detectar un \"modification_type\".\n\nValores posibles:\n\n* CHANGE_SERVINGS\n* REMOVE_INGREDIENT\n* REPLACE_INGREDIENT\n* ADD_INGREDIENT\n* MAKE_VEGETARIAN\n* MORE_PROTEIN\n* LESS_CALORIES\n* MAKE_HEALTHIER\n* FASTER\n* OTHER\n\n---\n\n### ASK_RECIPE\n\nEl usuario hace una pregunta sobre la receta activa, sin pedir cambiarla.\n\nEjemplos:\n\n* Explícame el paso 3.\n* ¿Con qué bebida la puedo acompañar?\n* ¿Qué significa dorar la cebolla?\n* ¿Cuántas calorías tiene?\n* ¿Qué puedo usar en lugar de huevos?\n\nEn este caso debes detectar \"question_type\".\n\nValores posibles:\n\n* STEP_EXPLANATION\n* INGREDIENT_SUBSTITUTION\n* NUTRITION\n* PAIRING\n* COOKING_TECHNIQUE\n* GENERAL\n\n---\n\n### NEW_RECIPE\n\nEl usuario quiere abandonar la receta activa y generar otra distinta.\n\nEjemplos:\n\n* Dame otra receta.\n* Quiero otra opción.\n* No me gustó.\n* Haz una diferente.\n* Empecemos otra receta.\n\n---\n\n### GENERAL_CHAT\n\nMensajes conversacionales que no generan ni modifican recetas.\n\nEjemplos:\n\n* Hola.\n* Gracias.\n* Buenos días.\n* ¿Cómo estás?\n\n---\n\n### UNKNOWN\n\nCuando no sea posible determinar la intención.\n\n---\n\n## Extraer ingredientes\n\nSi el usuario menciona alimentos, extrae:\n\n* name\n* quantity\n\nSi no indica cantidad, usa null.\n\n---\n\n## meal_type\n\nSi el usuario menciona una comida específica, detecta exactamente uno de:\n\n* desayuno\n* almuerzo\n* cena\n\nEn caso contrario usa null.\n\n---\n\nMensaje del usuario:\n\n\"{{ $('Extraer Datos del Request').first().json.message }}\"\n\nResponde ÚNICAMENTE con un JSON válido usando esta estructura:\n\n{\n\"intent\": \"\",\n\"modification_type\": null,\n\"question_type\": null,\n\"ingredients\": [],\n\"meal_type\": null,\n\"user_request\": \"\"\n}\n\nReglas importantes:\n\n* Siempre responde únicamente JSON válido.\n* Nunca respondas texto adicional.\n* No uses markdown.\n* No uses bloques de código.\n* Si un campo no aplica utiliza null.\n* \"user_request\" debe contener exactamente el mensaje original del usuario.\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "dae9db02-0692-48e1-a441-beb040a205bc",
+      "name": "Agente: Interpretar Intención",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -300,
+        0
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zTZIZrhnkbZJEQSS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function extractJson(res, label) {\n  const raw = res?.output?.[0]?.content?.[0]?.text\n    ?? res?.message?.content\n    ?? res?.text\n    ?? res?.content;\n\n  if (typeof raw !== 'string' || !raw.trim()) {\n    throw new Error(`[${label}] El modelo no devolvió texto. Recibido: ${JSON.stringify(res).slice(0, 400)}`);\n  }\n\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start === -1 || end <= start) {\n    throw new Error(`[${label}] No se encontró JSON en la respuesta: ${raw.slice(0, 400)}`);\n  }\n\n  try {\n    return JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    throw new Error(`[${label}] JSON inválido (${e.message}): ${raw.slice(0, 400)}`);\n  }\n}\n\nconst VALID_INTENTS = [\n  'GENERATE_RECIPE_WITH_INPUT',\n  'GENERATE_RECIPE_FROM_FRIDGE',\n  'MODIFY_RECIPE',\n  'ASK_RECIPE',\n  'NEW_RECIPE',\n  'GENERAL_CHAT',\n  'UNKNOWN'\n];\nconst VALID_MEAL_TYPES = ['desayuno', 'almuerzo', 'cena'];\n\nconst parsed = extractJson($input.first().json, 'Interpretar Intención');\nconst session = $('Unificar Datos de Sesión').first().json;\nconst originalMessage = $('Extraer Datos del Request').first().json.message;\n\nconst ingredients = (Array.isArray(parsed.ingredients) ? parsed.ingredients : [])\n  .filter(i => i && i.name)\n  .map(i => ({\n    name: String(i.name).toLowerCase().trim(),\n    quantity: i.quantity === null || i.quantity === undefined || i.quantity === ''\n      ? null\n      : Number(i.quantity)\n  }));\n\nreturn [{\n  json: {\n    // Los datos de sesión siguen viajando: sin esto los guards de la ruta\n    // no tienen con qué decidir.\n    ...session,\n    intent: VALID_INTENTS.includes(parsed.intent) ? parsed.intent : 'UNKNOWN',\n    modificationType: parsed.modification_type ?? null,\n    questionType: parsed.question_type ?? null,\n    ingredients,\n    mealType: VALID_MEAL_TYPES.includes(parsed.meal_type) ? parsed.meal_type : null,\n    userRequest: parsed.user_request || originalMessage\n  }\n}];"
+      },
+      "id": "ea81e461-bbac-481d-a8c6-e857fe4b3aca",
+      "name": "Parsear Intención",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const j = $input.first().json;\n\nconst hasRecipe = Boolean(j.previousRecipe && j.previousRecipe.title);\nconst hasIngredients = Array.isArray(j.ingredients) && j.ingredients.length > 0;\nconst hasPool = Array.isArray(j.availableFoods) && j.availableFoods.length > 0;\n\n// Cada guard degrada a una ruta que sí puede responder, en vez de romper.\nlet route;\nswitch (j.intent) {\n  case 'GENERATE_RECIPE_WITH_INPUT':\n    route = hasIngredients ? 'RECIPE_FROM_INPUT' : 'RECIPE_FROM_FRIDGE';\n    break;\n\n  case 'GENERATE_RECIPE_FROM_FRIDGE':\n    route = 'RECIPE_FROM_FRIDGE';\n    break;\n\n  case 'MODIFY_RECIPE':\n    route = hasRecipe ? 'MODIFY_RECIPE' : 'RECIPE_FROM_FRIDGE';\n    break;\n\n  case 'ASK_RECIPE':\n    route = hasRecipe ? 'ANSWER_QUESTION' : 'GENERAL_CHAT';\n    break;\n\n  case 'NEW_RECIPE':\n    route = (hasRecipe && hasPool) ? 'NEW_RECIPE_SAME_POOL' : 'RECIPE_FROM_FRIDGE';\n    break;\n\n  default:\n    route = 'GENERAL_CHAT';\n}\n\nreturn [{\n  json: {\n    ...j,\n    route,\n    // Si el usuario no repite el tipo de comida, se hereda del turno anterior.\n    mealType: j.mealType ?? j.previousMealType ?? null\n  }\n}];"
+      },
+      "id": "91552603-2c30-4d78-8cd3-b5e2d8f063d8",
+      "name": "Resolver Ruta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s0a0c7d2-3001-4a11-9f01-0a1b2c3d4e31",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "RECIPE_FROM_INPUT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Receta con Ingredientes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s1a0c7d2-3002-4a11-9f01-0a1b2c3d4e32",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "RECIPE_FROM_FRIDGE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Receta desde la Nevera"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s2a0c7d2-3003-4a11-9f01-0a1b2c3d4e33",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "MODIFY_RECIPE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Modificar Receta"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s3a0c7d2-3004-4a11-9f01-0a1b2c3d4e34",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "ANSWER_QUESTION",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Responder Pregunta"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s4a0c7d2-3005-4a11-9f01-0a1b2c3d4e35",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "NEW_RECIPE_SAME_POOL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Otra Receta"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Chat General"
+        }
+      },
+      "id": "8c19ad01-1f4d-4d1e-9b94-c0d69421654f",
+      "name": "Enrutar por Intención",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.nutri.oween.software/api/v1/fridge",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Extraer Datos del Request').first().json.authToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-4001-4a11-9f01-0a1b2c3d4e41",
+      "name": "Obtener Nevera del Usuario",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        540,
+        -420
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// GET /fridge devuelve items con name/quantity/unit pero SIN foodId,\n// así que igual hay que pasarlos por /food/match para obtener los IDs.\nconst items = $input.first().json?.data?.items ?? [];\n\nconst ingredients = items\n  .filter(i => i && i.name)\n  .map(i => ({\n    name: String(i.name).toLowerCase().trim(),\n    quantity: Number(i.quantity) > 0 ? Number(i.quantity) : null\n  }));\n\nreturn [{\n  json: {\n    ingredients,\n    fridgeItemCount: ingredients.length\n  }\n}];"
+      },
+      "id": "a1b2c3d4-4002-4a11-9f01-0a1b2c3d4e42",
+      "name": "Extraer Ingredientes de la Nevera",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        -420
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a1b2c3d4-4003-4a11-9f01-0a1b2c3d4e43",
+              "leftValue": "={{ $json.fridgeItemCount }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-4004-4a11-9f01-0a1b2c3d4e44",
+      "name": "¿Nevera con Alimentos?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        940,
+        -420
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1b2c3d4-4005-4a11-9f01-0a1b2c3d4e45",
+              "name": "responseType",
+              "value": "CHAT",
+              "type": "string"
+            },
+            {
+              "id": "a1b2c3d4-4006-4a11-9f01-0a1b2c3d4e46",
+              "name": "message",
+              "value": "Tu nevera está vacía 🥲 Agrega alimentos desde la app, o dime qué tienes a mano y te armo algo con eso.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-4007-4a11-9f01-0a1b2c3d4e47",
+      "name": "Respuesta: Nevera Vacía",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1160,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.nutri.oween.software/api/v1/food/match",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Extraer Datos del Request').first().json.authToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { ingredients: $json.ingredients } }}",
+        "options": {}
+      },
+      "id": "d1b76e41-6e6d-4c9f-9b85-73e4eff2bb59",
+      "name": "Mapear Ingredientes a Alimentos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1160,
+        -560
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// \"Dame otra receta\": se conserva el mismo pool de alimentos del turno\n// anterior y se le dice al chef qué título NO repetir.\nconst j = $input.first().json;\n\nreturn [{\n  json: {\n    availableFoods: j.availableFoods ?? [],\n    avoidTitle: j.previousRecipe?.title ?? null\n  }\n}];"
+      },
+      "id": "b5c6d7e8-5001-4a11-9f01-0a1b2c3d4e51",
+      "name": "Reusar Alimentos de Receta Previa",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        -700
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Punto de convergencia de las tres rutas de generación.\n// Deja siempre la misma forma para que el chef tenga un solo prompt.\nconst ctx = $('Resolver Ruta').first().json;\nconst input = $input.first().json;\n\n// \"Mapear Ingredientes a Alimentos\"    -> { success, data: [...] }\n// \"Reusar Alimentos de Receta Previa\"  -> { availableFoods: [...] }\nconst pool = Array.isArray(input.data)\n  ? input.data\n  : (Array.isArray(input.availableFoods) ? input.availableFoods : []);\n\n// Un pool vacío no es un error del flujo: significa que ningún ingrediente\n// coincidió con el catálogo. El IF siguiente lo desvía a una explicación.\nconst requested = (Array.isArray(ctx.ingredients) ? ctx.ingredients : [])\n  .map(i => i.name)\n  .filter(Boolean);\n\nreturn [{\n  json: {\n    availableFoods: pool,\n    foodCount: pool.length,\n    requestedIngredients: requested,\n    mealType: ctx.mealType ?? null,\n    userRequest: ctx.userRequest ?? '',\n    avoidTitle: input.avoidTitle ?? null\n  }\n}];"
+      },
+      "id": "b5c6d7e8-5002-4a11-9f01-0a1b2c3d4e52",
+      "name": "Preparar Contexto del Chef",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        -640
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "MiniMax-M3",
+          "mode": "list",
+          "cachedResultName": "MINIMAX-M3"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Eres el Chef Oficial de NutriAI, una aplicación de nutrición inteligente.\n\nTu función es crear recetas fáciles, saludables y prácticas utilizando ÚNICAMENTE los alimentos disponibles.\n\n## Alimentos disponibles\n\nCada alimento trae su foodId, su nombre y la cantidad que tiene el usuario:\n\n{{ JSON.stringify($json.availableFoods) }}\n\n## Tipo de comida solicitado\n\n{{ $json.mealType || 'no especificado, elige el más razonable' }}\n\n## Lo que pidió el usuario\n\n\"{{ $json.userRequest }}\"\n\n{{ $json.avoidTitle ? 'IMPORTANTE: el usuario rechazó la receta anterior titulada \"' + $json.avoidTitle + '\". Propón algo claramente distinto, no una variación del mismo plato.' : '' }}\n\n## Reglas\n\n- Utiliza únicamente los alimentos recibidos.\n- Nunca inventes alimentos que no estén en la lista.\n- En ingredients_used, food_id debe ser exactamente un foodId de la lista de alimentos disponibles.\n- Puedes utilizar una cantidad menor a la disponible, pero nunca una cantidad mayor.\n- Si falta un alimento importante, adapta la receta con los que existen.\n- La receta debe ser sencilla y fácil de seguir.\n- Los pasos deben estar ordenados cronológicamente.\n- Cada paso debe ser corto, claro y fácil de entender.\n- El título debe ser atractivo.\n- La introducción debe invitar al usuario a preparar la receta.\n- La dificultad debe ser coherente con la preparación.\n- El tiempo de preparación debe ser una estimación realista.\n- El número de porciones debe ser razonable según los alimentos disponibles.\n- Las calorías deben ser una estimación aproximada.\n- Los consejos deben ser útiles, cortos y opcionales.\n- meal_type debe ser exactamente uno de: desayuno, almuerzo, cena.\n\n## IMPORTANTE\n\nResponde ÚNICAMENTE con un JSON válido.\n\nNO escribas texto antes del JSON.\n\nNO escribas texto después del JSON.\n\nNO utilices Markdown ni bloques de código.\n\nLa respuesta debe seguir EXACTAMENTE esta estructura:\n\n{\n  \"recipe_title\": \"string\",\n  \"recipe_summary\": \"string\",\n  \"chef_reason\": \"Una frase explicando por qué elegiste esta receta.\",\n  \"meal_type\": \"desayuno\",\n  \"difficulty\": \"Fácil\",\n  \"preparation_time_minutes\": 0,\n  \"servings\": 0,\n  \"estimated_calories\": 0,\n  \"tips\": [\n    \"string\"\n  ],\n  \"steps\": [\n    { \"step\": 1, \"description\": \"string\" },\n    { \"step\": 2, \"description\": \"string\" }\n  ],\n  \"ingredients_used\": [\n    { \"food_id\": 0, \"quantity\": 0 }\n  ]\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "b8ec579b-954f-468e-ba0c-d789389dd47d",
+      "name": "Agente: Chef de Cocina",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        -640
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zTZIZrhnkbZJEQSS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function extractJson(res, label) {\n  const raw = res?.output?.[0]?.content?.[0]?.text\n    ?? res?.message?.content\n    ?? res?.text\n    ?? res?.content;\n\n  if (typeof raw !== 'string' || !raw.trim()) {\n    throw new Error(`[${label}] El modelo no devolvió texto. Recibido: ${JSON.stringify(res).slice(0, 400)}`);\n  }\n\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start === -1 || end <= start) {\n    throw new Error(`[${label}] No se encontró JSON en la respuesta: ${raw.slice(0, 400)}`);\n  }\n\n  try {\n    return JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    throw new Error(`[${label}] JSON inválido (${e.message}): ${raw.slice(0, 400)}`);\n  }\n}\n\nconst parsed = extractJson($input.first().json, 'Chef de Cocina');\nconst chefContext = $('Preparar Contexto del Chef').first().json;\nconst pool = chefContext.availableFoods ?? [];\n\n// El modelo no puede inventar foodId: se descarta lo que no esté en el pool.\nconst validIds = new Set(pool.map(f => Number(f.foodId)));\nconst ingredientsUsed = (Array.isArray(parsed.ingredients_used) ? parsed.ingredients_used : [])\n  .map(i => ({\n    food_id: Number(i.food_id),\n    quantity: Number(i.quantity) > 0 ? Number(i.quantity) : 1\n  }))\n  .filter(i => validIds.has(i.food_id));\n\n// Los pasos se normalizan aquí: la app hace un cast directo sobre step y\n// description, así que no pueden llegar con otra forma.\nconst steps = (Array.isArray(parsed.steps) ? parsed.steps : [])\n  .filter(s => s && typeof s === 'object')\n  .map((s, idx) => ({\n    step: Number(s.step) > 0 ? Number(s.step) : idx + 1,\n    description: String(s.description ?? '').trim()\n  }))\n  .filter(s => s.description.length > 0);\n\nconst tips = (Array.isArray(parsed.tips) ? parsed.tips : [])\n  .map(t => String(t).trim())\n  .filter(t => t.length > 0);\n\nreturn [{\n  json: {\n    responseType: 'RECIPE',\n    recipe: {\n      title: parsed.recipe_title ?? null,\n      summary: parsed.recipe_summary ?? null,\n      chef_reason: parsed.chef_reason ?? null,\n      meal_type: parsed.meal_type ?? chefContext.mealType ?? null,\n      difficulty: parsed.difficulty ?? null,\n      preparation_time_minutes: Number(parsed.preparation_time_minutes) || null,\n      servings: Number(parsed.servings) || null,\n      estimated_calories: Number(parsed.estimated_calories) || null,\n      tips,\n      steps,\n      ingredients_used: ingredientsUsed,\n      // Se persiste para que MODIFY_RECIPE y NEW_RECIPE reutilicen los foodId\n      // sin volver a llamar a /food/match.\n      available_foods: pool\n    }\n  }\n}];"
+      },
+      "id": "9af64648-d31d-408c-bdb0-95a1661990f1",
+      "name": "Parsear Receta del Chef",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        -640
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "MiniMax-M3",
+          "mode": "list",
+          "cachedResultName": "MINIMAX-M3"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Eres el Agente Media de NutriAI.\n\nTu trabajo NO es generar recetas.\n\nTu trabajo es construir la búsqueda de YouTube que probablemente encuentre un video enseñando una receta muy similar.\n\nInformación de la receta:\n\nTítulo:\n{{ $json.recipe.title }}\n\nResumen:\n{{ $json.recipe.summary }}\n\nTipo:\n{{ $json.recipe.meal_type }}\n\nReglas:\n\n- La búsqueda debe estar en español.\n- Debe ser corta y precisa.\n- No agregues palabras innecesarias.\n- No inventes enlaces.\n- No inventes videos.\n\nResponde ÚNICAMENTE en JSON, sin markdown:\n\n{\n  \"youtube_query\": \"\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "11c585de-4fd2-4aaa-b83f-6454d90b2a0c",
+      "name": "Agente: Búsqueda de Video",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        -800
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zTZIZrhnkbZJEQSS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function extractJson(res, label) {\n  const raw = res?.output?.[0]?.content?.[0]?.text\n    ?? res?.message?.content\n    ?? res?.text\n    ?? res?.content;\n\n  if (typeof raw !== 'string' || !raw.trim()) {\n    throw new Error(`[${label}] El modelo no devolvió texto. Recibido: ${JSON.stringify(res).slice(0, 400)}`);\n  }\n\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start === -1 || end <= start) {\n    throw new Error(`[${label}] No se encontró JSON en la respuesta: ${raw.slice(0, 400)}`);\n  }\n\n  try {\n    return JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    throw new Error(`[${label}] JSON inválido (${e.message}): ${raw.slice(0, 400)}`);\n  }\n}\n\nconst parsed = extractJson($input.first().json, 'Búsqueda de Video');\nconst recipe = $('Parsear Receta del Chef').first().json.recipe;\n\nconst query = String(parsed.youtube_query ?? '').trim() || `receta ${recipe.title}`;\n\nreturn [{ json: { youtubeQuery: query } }];"
+      },
+      "id": "e26cba4b-cb69-4b06-bf22-125a13585468",
+      "name": "Parsear Consulta de YouTube",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        -800
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            },
+            {
+              "name": "maxResults",
+              "value": "1"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.youtubeQuery }}"
+            },
+            {
+              "name": "type",
+              "value": "video"
+            },
+            {
+              "name": "key",
+              "value": "AIzaSyAAWKYptWqYM9LxDkFmphphRWcpeRAumcM"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "be40dfa2-e24e-4b57-8665-6235019054da",
+      "name": "Buscar Video en YouTube",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2600,
+        -800
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Un fallo de YouTube (cuota agotada, sin resultados) no puede tumbar la receta.\nconst res = $input.first().json;\nconst item = Array.isArray(res?.items) ? res.items[0] : null;\nconst videoId = item?.id?.videoId;\n\nif (!videoId) {\n  return [{ json: { media: null } }];\n}\n\nconst thumbnails = item.snippet?.thumbnails ?? {};\n\nreturn [{\n  json: {\n    media: {\n      youtube: {\n        video_id: videoId,\n        title: item.snippet?.title ?? null,\n        channel: item.snippet?.channelTitle ?? null,\n        thumbnail: thumbnails.high?.url ?? thumbnails.medium?.url ?? thumbnails.default?.url ?? null,\n        url: `https://www.youtube.com/watch?v=${videoId}`\n      }\n    }\n  }\n}];"
+      },
+      "id": "837b835d-157f-4446-b117-96c6ebabfb96",
+      "name": "Extraer Datos del Video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        -800
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "id": "1a02483e-245b-4175-bf24-0adccb7e0932",
+      "name": "Combinar Receta y Video",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3020,
+        -660
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "MiniMax-M3",
+          "mode": "list",
+          "cachedResultName": "MINIMAX-M3"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Eres el Chef Oficial de NutriAI.\n\nEl usuario YA tiene una receta y quiere modificarla. NO generes una receta desde cero.\n\n## Receta actual\n\n{{ JSON.stringify($json.previousRecipe) }}\n\n## Alimentos disponibles\n\nSolo puedes usar estos foodId:\n\n{{ JSON.stringify($json.availableFoods) }}\n\n## Lo que pide el usuario\n\n\"{{ $json.userRequest }}\"\n\nTipo de modificación detectada: {{ $json.modificationType || 'OTHER' }}\n\n## Reglas\n\n- Devuelve la receta COMPLETA ya modificada, no solo el cambio.\n- Conserva todo lo que el usuario no pidió cambiar: título, pasos y tips que sigan teniendo sentido.\n- En ingredients_used, food_id debe ser exactamente un foodId de la lista de alimentos disponibles.\n- Si el usuario pide quitar un ingrediente, quítalo también de ingredients_used y de los pasos.\n- Si el usuario cambia las porciones, ajusta las cantidades y las calorías proporcionalmente.\n- Si el usuario pide reemplazar un ingrediente por otro que no está disponible, usa el más parecido de la lista y dilo en chef_reason.\n- chef_reason debe explicar en una sola frase QUÉ cambiaste.\n- meal_type debe ser exactamente uno de: desayuno, almuerzo, cena.\n\n## IMPORTANTE\n\nResponde ÚNICAMENTE con un JSON válido, sin markdown ni bloques de código, con esta estructura exacta:\n\n{\n  \"recipe_title\": \"string\",\n  \"recipe_summary\": \"string\",\n  \"chef_reason\": \"Qué cambiaste y por qué.\",\n  \"meal_type\": \"desayuno\",\n  \"difficulty\": \"Fácil\",\n  \"preparation_time_minutes\": 0,\n  \"servings\": 0,\n  \"estimated_calories\": 0,\n  \"tips\": [\n    \"string\"\n  ],\n  \"steps\": [\n    { \"step\": 1, \"description\": \"string\" },\n    { \"step\": 2, \"description\": \"string\" }\n  ],\n  \"ingredients_used\": [\n    { \"food_id\": 0, \"quantity\": 0 }\n  ]\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "c7d8e9f0-6001-4a11-9f01-0a1b2c3d4e61",
+      "name": "Agente: Modificar Receta",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        540,
+        220
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zTZIZrhnkbZJEQSS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function extractJson(res, label) {\n  const raw = res?.output?.[0]?.content?.[0]?.text\n    ?? res?.message?.content\n    ?? res?.text\n    ?? res?.content;\n\n  if (typeof raw !== 'string' || !raw.trim()) {\n    throw new Error(`[${label}] El modelo no devolvió texto. Recibido: ${JSON.stringify(res).slice(0, 400)}`);\n  }\n\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start === -1 || end <= start) {\n    throw new Error(`[${label}] No se encontró JSON en la respuesta: ${raw.slice(0, 400)}`);\n  }\n\n  try {\n    return JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    throw new Error(`[${label}] JSON inválido (${e.message}): ${raw.slice(0, 400)}`);\n  }\n}\n\nconst parsed = extractJson($input.first().json, 'Modificar Receta');\nconst ctx = $('Resolver Ruta').first().json;\nconst pool = ctx.availableFoods ?? [];\nconst previous = ctx.previousRecipe ?? {};\n\nconst validIds = new Set(pool.map(f => Number(f.foodId)));\nconst ingredientsUsed = (Array.isArray(parsed.ingredients_used) ? parsed.ingredients_used : [])\n  .map(i => ({\n    food_id: Number(i.food_id),\n    quantity: Number(i.quantity) > 0 ? Number(i.quantity) : 1\n  }))\n  .filter(i => validIds.has(i.food_id));\n\n// Misma normalización que en la ruta de generación: la app castea\n// step y description sin red.\nconst normalizeSteps = (list) => (Array.isArray(list) ? list : [])\n  .filter(s => s && typeof s === 'object')\n  .map((s, idx) => ({\n    step: Number(s.step) > 0 ? Number(s.step) : idx + 1,\n    description: String(s.description ?? '').trim()\n  }))\n  .filter(s => s.description.length > 0);\n\nconst steps = normalizeSteps(parsed.steps);\nconst tips = (Array.isArray(parsed.tips) ? parsed.tips : [])\n  .map(t => String(t).trim())\n  .filter(t => t.length > 0);\n\nreturn [{\n  json: {\n    responseType: 'RECIPE_MODIFIED',\n    recipe: {\n      title: parsed.recipe_title ?? previous.title ?? null,\n      summary: parsed.recipe_summary ?? previous.summary ?? null,\n      chef_reason: parsed.chef_reason ?? null,\n      meal_type: parsed.meal_type ?? previous.meal_type ?? null,\n      difficulty: parsed.difficulty ?? previous.difficulty ?? null,\n      preparation_time_minutes: Number(parsed.preparation_time_minutes) || previous.preparation_time_minutes || null,\n      servings: Number(parsed.servings) || previous.servings || null,\n      estimated_calories: Number(parsed.estimated_calories) || previous.estimated_calories || null,\n      tips: tips.length > 0 ? tips : (previous.tips ?? []),\n      steps: steps.length > 0 ? steps : normalizeSteps(previous.steps),\n      ingredients_used: ingredientsUsed.length > 0 ? ingredientsUsed : (previous.ingredients_used ?? []),\n      available_foods: pool\n    },\n    // Se conserva el video del turno anterior: modificar porciones no cambia\n    // el tutorial y así no se gasta cuota de YouTube.\n    media: ctx.previousMedia ?? null\n  }\n}];"
+      },
+      "id": "c7d8e9f0-6002-4a11-9f01-0a1b2c3d4e62",
+      "name": "Parsear Receta Modificada",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "MiniMax-M3",
+          "mode": "list",
+          "cachedResultName": "MINIMAX-M3"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Eres el Chef Oficial de NutriAI.\n\nEl usuario tiene una pregunta sobre la receta que ya le diste.\n\nNO generes una receta nueva. NO modifiques la receta. Solo responde.\n\n## Receta actual\n\n{{ JSON.stringify($json.previousRecipe) }}\n\n## Pregunta del usuario\n\n\"{{ $json.userRequest }}\"\n\nTipo de pregunta detectada: {{ $json.questionType || 'GENERAL' }}\n\n## Reglas\n\n- Responde en español, tono cercano y directo.\n- Máximo 4 frases.\n- Si la pregunta es sobre un paso concreto, cita ese paso.\n- Si es sobre un sustituto, propón alguno realista aunque no esté en la receta, aclarando que cambiaría el resultado.\n- Si la receta no tiene la información para responder, dilo con honestidad en vez de inventar.\n- No uses markdown ni listas con viñetas.\n\nResponde ÚNICAMENTE en JSON, sin markdown:\n\n{\n  \"answer\": \"\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "e9f0a1b2-7001-4a11-9f01-0a1b2c3d4e71",
+      "name": "Agente: Responder Pregunta",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        540,
+        440
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zTZIZrhnkbZJEQSS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function extractJson(res, label) {\n  const raw = res?.output?.[0]?.content?.[0]?.text\n    ?? res?.message?.content\n    ?? res?.text\n    ?? res?.content;\n\n  if (typeof raw !== 'string' || !raw.trim()) {\n    throw new Error(`[${label}] El modelo no devolvió texto. Recibido: ${JSON.stringify(res).slice(0, 400)}`);\n  }\n\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start === -1 || end <= start) {\n    throw new Error(`[${label}] No se encontró JSON en la respuesta: ${raw.slice(0, 400)}`);\n  }\n\n  try {\n    return JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    throw new Error(`[${label}] JSON inválido (${e.message}): ${raw.slice(0, 400)}`);\n  }\n}\n\nconst parsed = extractJson($input.first().json, 'Responder Pregunta');\n\nreturn [{\n  json: {\n    responseType: 'ANSWER',\n    message: String(parsed.answer ?? '').trim() || 'No pude responder eso con la información de la receta.'\n  }\n}];"
+      },
+      "id": "e9f0a1b2-7002-4a11-9f01-0a1b2c3d4e72",
+      "name": "Parsear Respuesta de Consulta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "MiniMax-M3",
+          "mode": "list",
+          "cachedResultName": "MINIMAX-M3"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Eres NutriAI, un asistente de cocina y nutrición.\n\nEl usuario escribió algo que no es una petición de receta ni una pregunta sobre una receta.\n\n## Mensaje del usuario\n\n\"{{ $json.userRequest }}\"\n\n{{ $json.previousRecipe ? 'Contexto: el usuario tiene activa la receta \"' + $json.previousRecipe.title + '\".' : 'Contexto: el usuario todavía no tiene ninguna receta activa.' }}\n\n## Reglas\n\n- Responde breve y cálido, máximo 2 frases.\n- En español, tono cercano. Puedes usar un emoji.\n- Cierra invitando a cocinar: ofrécele generar una receta con lo que tenga en la nevera.\n- No inventes recetas aquí, solo conversa.\n- Si el mensaje no se entiende, dilo con amabilidad y pídele que lo reformule.\n\nResponde ÚNICAMENTE en JSON, sin markdown:\n\n{\n  \"reply\": \"\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "a1b2c3d4-8001-4a11-9f01-0a1b2c3d4e81",
+      "name": "Agente: Chat General",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        540,
+        660
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zTZIZrhnkbZJEQSS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function extractJson(res, label) {\n  const raw = res?.output?.[0]?.content?.[0]?.text\n    ?? res?.message?.content\n    ?? res?.text\n    ?? res?.content;\n\n  if (typeof raw !== 'string' || !raw.trim()) {\n    throw new Error(`[${label}] El modelo no devolvió texto. Recibido: ${JSON.stringify(res).slice(0, 400)}`);\n  }\n\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start === -1 || end <= start) {\n    throw new Error(`[${label}] No se encontró JSON en la respuesta: ${raw.slice(0, 400)}`);\n  }\n\n  try {\n    return JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    throw new Error(`[${label}] JSON inválido (${e.message}): ${raw.slice(0, 400)}`);\n  }\n}\n\nconst parsed = extractJson($input.first().json, 'Chat General');\n\nreturn [{\n  json: {\n    responseType: 'CHAT',\n    message: String(parsed.reply ?? '').trim() || '¡Hola! Dime qué tienes en la nevera y te armo una receta 🍳'\n  }\n}];"
+      },
+      "id": "a1b2c3d4-8002-4a11-9f01-0a1b2c3d4e82",
+      "name": "Parsear Respuesta de Chat",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Punto único de salida: todas las ramas producen el mismo envelope.\n// El tipo lo declara cada rama en responseType, no se vuelve a mirar la ruta.\nconst j = $input.first().json;\nconst session = $('Unificar Datos de Sesión').first().json;\nconst route = $('Resolver Ruta').first().json;\n\n// El backend rechaza cualquier otro valor.\nconst VALID_INTENTS = [\n  'GENERATE_RECIPE_WITH_INPUT',\n  'GENERATE_RECIPE_FROM_FRIDGE',\n  'MODIFY_RECIPE',\n  'ASK_RECIPE',\n  'NEW_RECIPE'\n];\nconst VALID_MEAL_TYPES = ['desayuno', 'almuerzo', 'cena'];\n\nconst type = j.responseType ?? 'CHAT';\nconst isRecipe = type === 'RECIPE' || type === 'RECIPE_MODIFIED';\n\nconst recipe = isRecipe ? (j.recipe ?? null) : null;\nconst media = isRecipe ? (j.media ?? null) : null;\n\nconst message = isRecipe\n  ? (recipe?.chef_reason || recipe?.summary || `Te preparé: ${recipe?.title}`)\n  : (j.message || 'Listo.');\n\nconst now = new Date().toISOString();\nconst servings = Number(recipe?.servings);\nconst nextVersion = isRecipe ? session.version + 1 : session.version;\n\nreturn [{\n  json: {\n    response: {\n      type,\n      message,\n      recipe,\n      media,\n      session: {\n        sessionId: session.sessionId,\n        version: nextVersion\n      }\n    },\n    shouldPersistRecipe: isRecipe,\n    persist: {\n      last_intent: VALID_INTENTS.includes(route.intent) ? route.intent : null,\n      meal_type: VALID_MEAL_TYPES.includes(recipe?.meal_type) ? recipe.meal_type : null,\n      servings: Number.isInteger(servings) && servings > 0 ? servings : null,\n      generated_at: type === 'RECIPE_MODIFIED' ? (session.previousGeneratedAt || now) : now,\n      last_modified_at: now,\n      version: nextVersion\n    }\n  }\n}];"
+      },
+      "id": "469f2193-7dc7-4185-bbd6-f5db98ad8315",
+      "name": "Construir Respuesta Final",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1c2d3e4-9001-4a11-9f01-0a1b2c3d4e91",
+              "leftValue": "={{ $json.shouldPersistRecipe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "b1c2d3e4-9002-4a11-9f01-0a1b2c3d4e92",
+      "name": "¿Requiere Guardar Receta?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3460,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.nutri.oween.software/api/v1/chat/session",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Extraer Datos del Request').first().json.authToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  recipe: $json.response.recipe,\n  media: $json.response.media,\n  last_intent: $json.persist.last_intent,\n  metadata: {\n    meal_type: $json.persist.meal_type,\n    servings: $json.persist.servings,\n    generated_at: $json.persist.generated_at,\n    last_modified_at: $json.persist.last_modified_at,\n    version: $json.persist.version\n  }\n}\n}}",
+        "options": {}
+      },
+      "id": "67cee1ec-473b-46cc-9747-6adcf874030e",
+      "name": "Actualizar Estado de Conversación",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3660,
+        -120
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.nutri.oween.software/api/v1/chat/session/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Extraer Datos del Request').first().json.authToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { role: 'ASSISTANT', content: $('Construir Respuesta Final').first().json.response.message } }}",
+        "options": {}
+      },
+      "id": "c3d4e5f6-9003-4a11-9f01-0a1b2c3d4e93",
+      "name": "Guardar Respuesta del Bot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3880,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($('Construir Respuesta Final').first().json.response) }}",
+        "options": {}
+      },
+      "id": "eb9a3ad3-e2c6-49dc-a9ad-c14b8cdc8d50",
+      "name": "Responder al Usuario",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        4080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f0e1d2c3-a001-4a11-9f01-0a1b2c3d4ea1",
+              "leftValue": "={{ $json.foodCount }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f0e1d2c3-a002-4a11-9f01-0a1b2c3d4ea2",
+      "name": "¿Se Reconoció Algún Alimento?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        -640
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const chef = $('Preparar Contexto del Chef').first().json;\nconst names = Array.isArray(chef.requestedIngredients) ? chef.requestedIngredients : [];\n\nconst message = names.length > 0\n  ? `No encontré ${names.join(', ')} en el catálogo de alimentos 😕 Agrégalos desde la sección Alimentos y lo volvemos a intentar, o dime otros que tengas.`\n  : 'No pude reconocer los alimentos de tu nevera en el catálogo 😕 Revisa que estén bien registrados en la sección Alimentos.';\n\nreturn [{ json: { responseType: 'CHAT', message } }];"
+      },
+      "id": "f0e1d2c3-a003-4a11-9f01-0a1b2c3d4ea3",
+      "name": "Respuesta: Alimentos No Reconocidos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        -420
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook: Mensaje de Chat": {
+      "main": [
+        [
+          {
+            "node": "Extraer Datos del Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer Datos del Request": {
+      "main": [
+        [
+          {
+            "node": "Obtener Sesión Activa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Sesión Activa": {
+      "main": [
+        [
+          {
+            "node": "¿Tiene Sesión Activa?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Tiene Sesión Activa?": {
+      "main": [
+        [
+          {
+            "node": "Unificar Datos de Sesión",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Crear Sesión de Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear Sesión de Chat": {
+      "main": [
+        [
+          {
+            "node": "Unificar Datos de Sesión",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unificar Datos de Sesión": {
+      "main": [
+        [
+          {
+            "node": "Guardar Mensaje del Usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Mensaje del Usuario": {
+      "main": [
+        [
+          {
+            "node": "Agente: Interpretar Intención",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente: Interpretar Intención": {
+      "main": [
+        [
+          {
+            "node": "Parsear Intención",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Intención": {
+      "main": [
+        [
+          {
+            "node": "Resolver Ruta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolver Ruta": {
+      "main": [
+        [
+          {
+            "node": "Enrutar por Intención",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrutar por Intención": {
+      "main": [
+        [
+          {
+            "node": "Mapear Ingredientes a Alimentos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Obtener Nevera del Usuario",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente: Modificar Receta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente: Responder Pregunta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reusar Alimentos de Receta Previa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente: Chat General",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Nevera del Usuario": {
+      "main": [
+        [
+          {
+            "node": "Extraer Ingredientes de la Nevera",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer Ingredientes de la Nevera": {
+      "main": [
+        [
+          {
+            "node": "¿Nevera con Alimentos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Nevera con Alimentos?": {
+      "main": [
+        [
+          {
+            "node": "Mapear Ingredientes a Alimentos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respuesta: Nevera Vacía",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta: Nevera Vacía": {
+      "main": [
+        [
+          {
+            "node": "Construir Respuesta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapear Ingredientes a Alimentos": {
+      "main": [
+        [
+          {
+            "node": "Preparar Contexto del Chef",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reusar Alimentos de Receta Previa": {
+      "main": [
+        [
+          {
+            "node": "Preparar Contexto del Chef",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Contexto del Chef": {
+      "main": [
+        [
+          {
+            "node": "¿Se Reconoció Algún Alimento?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente: Chef de Cocina": {
+      "main": [
+        [
+          {
+            "node": "Parsear Receta del Chef",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Receta del Chef": {
+      "main": [
+        [
+          {
+            "node": "Agente: Búsqueda de Video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combinar Receta y Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente: Búsqueda de Video": {
+      "main": [
+        [
+          {
+            "node": "Parsear Consulta de YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Consulta de YouTube": {
+      "main": [
+        [
+          {
+            "node": "Buscar Video en YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Video en YouTube": {
+      "main": [
+        [
+          {
+            "node": "Extraer Datos del Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer Datos del Video": {
+      "main": [
+        [
+          {
+            "node": "Combinar Receta y Video",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Combinar Receta y Video": {
+      "main": [
+        [
+          {
+            "node": "Construir Respuesta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente: Modificar Receta": {
+      "main": [
+        [
+          {
+            "node": "Parsear Receta Modificada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Receta Modificada": {
+      "main": [
+        [
+          {
+            "node": "Construir Respuesta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente: Responder Pregunta": {
+      "main": [
+        [
+          {
+            "node": "Parsear Respuesta de Consulta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Respuesta de Consulta": {
+      "main": [
+        [
+          {
+            "node": "Construir Respuesta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente: Chat General": {
+      "main": [
+        [
+          {
+            "node": "Parsear Respuesta de Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Respuesta de Chat": {
+      "main": [
+        [
+          {
+            "node": "Construir Respuesta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir Respuesta Final": {
+      "main": [
+        [
+          {
+            "node": "¿Requiere Guardar Receta?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Requiere Guardar Receta?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar Estado de Conversación",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Guardar Respuesta del Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar Estado de Conversación": {
+      "main": [
+        [
+          {
+            "node": "Guardar Respuesta del Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Respuesta del Bot": {
+      "main": [
+        [
+          {
+            "node": "Responder al Usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Se Reconoció Algún Alimento?": {
+      "main": [
+        [
+          {
+            "node": "Agente: Chef de Cocina",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respuesta: Alimentos No Reconocidos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta: Alimentos No Reconocidos": {
+      "main": [
+        [
+          {
+            "node": "Construir Respuesta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timezone": "America/Bogota"
+  },
+  "versionId": "5fcd7401-1d98-4e2f-89a9-fba7bf180a22",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de32647077c022e89d332f0bec630ea2ed84b5734a5e5c13b092fe4a296a9787"
+  },
+  "id": "20FwF6ocZ7M5fTcf",
+  "tags": []
+}

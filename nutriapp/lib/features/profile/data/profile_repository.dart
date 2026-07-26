@@ -129,6 +129,7 @@ class ProfileRepository {
     required String goal,
     required String sex,
     required String email,
+    double? weight,
   }) async {
     try {
       final response = await _dio.put<Map<String, dynamic>>(
@@ -137,6 +138,7 @@ class ProfileRepository {
           'age': age,
           'height': height,
           'goal': goal,
+          'weight': ?weight,
         },
       );
 

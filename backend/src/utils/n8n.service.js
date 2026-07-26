@@ -3,6 +3,9 @@ import axios from 'axios';
 import { AppError } from './AppError.js';
 
 const URL_WEBHOOK = config.node_env === "development" ? config.n8n.url_dev : config.n8n.url_pro;
+if (!URL_WEBHOOK) {
+  throw new AppError("URL del webhook de n8n no está configurada", 500, "N8N_CONFIG_ERROR");
+}
 
 export const sendChatN8n = async (message, userId, userName, token) => {
   try {

@@ -31,8 +31,13 @@ export const createFood = async (foodData) => {
     try {
         validateCreateFood(foodData);
 
-        // Verificar si el alimento ya existe (global o creado por el usuario)
-        const existingFood = await foodRepository.findFoodByName(foodData.name, foodData.userId);
+        // Verificar si el alimento ya existe (global o creado por el usuario).
+        // Igualdad estricta a propósito: crear "Pollo" no debe rechazarse
+        // porque ya exista "Pechuga de pollo".
+        const existingFood = await foodRepository.findFoodByExactName(
+            normalizeFoodName(foodData.name),
+            foodData.userId
+        );
         if (existingFood) {
             throw new AppError('Food item with this name already exists', 409, 'DUPLICATE_FOOD');
         }
@@ -60,7 +65,10 @@ export const updateFoodItem = async (foodId, userId, updateData) => {
 
         // Si se está actualizando el nombre, verificar duplicados
         if (updateData.name) {
-            const existingFood = await foodRepository.findFoodByName(updateData.name, userId);
+            const existingFood = await foodRepository.findFoodByExactName(
+                normalizeFoodName(updateData.name),
+                userId
+            );
             if (existingFood && existingFood.foodId !== foodId) {
                 throw new AppError('Food item with this name already exists', 409, 'DUPLICATE_FOOD');
             }
@@ -125,18 +133,57 @@ export const deactivateFoodItem = async (foodId, userId) => {
     }
 };
 
+/**
+ * Deja el nombre en el mismo espacio que NORMALIZED_NAME_SQL del repositorio:
+ * minúsculas, sin acentos y sin espacios repetidos. Los comodines de LIKE se
+ * eliminan para que no ensanchen la búsqueda.
+ *
+ * No toca los plurales: de eso se encarga singularCandidates().
+ */
+export const normalizeFoodName = (value) => String(value ?? '')
+    .toLowerCase()
+    .normalize('NFD')                  // separa las tildes de la letra
+    .replace(/[\u0300-\u036f]/g, '')   // y las descarta: plátano → platano
+    .replace(/[%_]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+
+/**
+ * El español pluraliza de varias formas y quitar la "s" a ciegas es lossy:
+ * "tomates" → "tomate" sale bien, pero "limones" → "limone" y
+ * "champiñones" → "champiñone" no existen en ninguna base.
+ *
+ * En vez de adivinar qué regla aplica, se proponen todas las formas plausibles
+ * y la consulta se queda con la que exista.
+ */
+export const singularCandidates = (normalizedName) => {
+    const forms = [normalizedName];
+
+    if (normalizedName.endsWith('ces')) {
+        forms.push(`${normalizedName.slice(0, -3)}z`);   // peces → pez
+    }
+    if (normalizedName.endsWith('es')) {
+        forms.push(normalizedName.slice(0, -2));         // limones → limon
+    }
+    if (normalizedName.endsWith('s')) {
+        forms.push(normalizedName.slice(0, -1));         // tomates → tomate
+    }
+
+    return [...new Set(forms)].filter(Boolean);
+};
+
 export const matchFoods = async (ingredients, userId) => {
     try {
         const matchedFoods = [];
         
         for (const ingredient of ingredients) {
-            // Normalizar el nombre (minúsculas, sin espacios extras, y quitar 's' final para plurales básicos)
-            const normalizedName = ingredient.name
-                .toLowerCase()
-                .trim()
-                .replace(/s$/, ""); // tomates → tomate
-                
-            const food = await foodRepository.findFoodByName(normalizedName, userId);
+            const normalizedName = normalizeFoodName(ingredient.name);
+            if (!normalizedName) continue;
+
+            const food = await foodRepository.matchFoodByTerms(
+                singularCandidates(normalizedName),
+                userId
+            );
             
             if (food) {
                 matchedFoods.push({

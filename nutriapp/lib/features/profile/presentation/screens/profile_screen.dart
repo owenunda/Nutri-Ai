@@ -86,8 +86,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const _ProfileTopBar(),
-                const SizedBox(height: 52),
                 Text(
                   profile.name.isEmpty ? widget.userName : profile.name,
                   textAlign: TextAlign.center,
@@ -285,56 +283,6 @@ class _ProfileErrorView extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ProfileTopBar extends StatelessWidget {
-  const _ProfileTopBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 54,
-          height: 54,
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: _ProfileColors.green,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: _ProfileColors.green.withValues(alpha: 0.18),
-                blurRadius: 14,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFFEFF3F5),
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Text(
-          'NutriAI',
-          style: TextStyle(fontFamily: 'PlusJakartaSans', 
-            color: _ProfileColors.green,
-            fontSize: 24,
-            fontWeight: FontWeight.w900,
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-        const Spacer(),
-        const Icon(
-          Icons.notifications_rounded,
-          color: Color(0xFF94A3B8),
-          size: 27,
-        ),
-      ],
     );
   }
 }

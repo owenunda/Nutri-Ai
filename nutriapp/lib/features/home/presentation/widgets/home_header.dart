@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme.dart';
+
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
 
@@ -10,24 +12,20 @@ class HomeHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-
-              const Text(
-                'NutriAI',
-                style: TextStyle(
-                  color: Color(0xFF0A6B3F),
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.6,
-                ),
-              ),
-            ],
+          const Text(
+            'NutriAI',
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              color: AppTheme.primaryStart,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.6,
+            ),
           ),
           const Icon(
-            Icons.notifications_none_rounded,
-            color: Color(0xFF64748B),
-            size: 28,
+            Icons.notifications_rounded,
+            color: AppTheme.onSurfaceVariant,
+            size: 26,
           ),
         ],
       ),

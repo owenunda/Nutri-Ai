@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
 
@@ -68,9 +68,17 @@ class ChatViewModel extends ChangeNotifier {
       } else {
         _startTypewriter(reply.text);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      _startTypewriter('Lo siento, ocurrió un error. Intenta de nuevo.');
+      // Sin esto el error real queda invisible: el usuario solo ve el texto
+      // genérico y no hay rastro de qué falló.
+      debugPrint('ChatViewModel.sendMessage falló: $_errorMessage');
+      debugPrintStack(stackTrace: stackTrace);
+      _startTypewriter(
+        kDebugMode
+            ? 'Error: $_errorMessage'
+            : 'Lo siento, ocurrió un error. Intenta de nuevo.',
+      );
     } finally {
       _isLoading = false;
       notifyListeners();
