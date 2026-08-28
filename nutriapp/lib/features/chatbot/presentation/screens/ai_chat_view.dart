@@ -7,6 +7,7 @@ import '../controllers/chat_view_model.dart';
 import '../widgets/chat_history_drawer.dart';
 import '../widgets/chat_input_field.dart';
 import '../widgets/chat_welcome_header.dart';
+import '../widgets/rate_limit_chip.dart';
 import '../widgets/recipe_card_widget.dart';
 
 class AiChatView extends StatefulWidget {
@@ -160,6 +161,7 @@ class _AiChatViewState extends State<AiChatView> {
             ],
           ),
         ),
+        const RateLimitChip(),
         Expanded(
           child: ListenableBuilder(
             listenable: _viewModel,

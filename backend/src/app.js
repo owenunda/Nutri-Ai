@@ -13,6 +13,7 @@ import aiRoutes from './modules/ai/ai.routes.js';
 import chatRoutes from './modules/chat/chat.routes.js';
 import eventsRoutes from './modules/events/events.routes.js';
 import authenticateToken from './middleware/auth.middleware.js';
+import { chatRateLimit } from './middleware/rateLimit.middleware.js';
 import { activityLogger } from './middleware/activityLogger.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 import { errorResponse, successResponse } from './utils/response.js';
@@ -96,7 +97,7 @@ app.get('/api/v1/health', (_req, res) => {
  *       500:
  *         description: Error al comunicarse con n8n
  */
-app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), async (req, res) => {
+app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), chatRateLimit, async (req, res) => {
   try {
     const { message } = req.body;
     const { userId, name } = req.user;
