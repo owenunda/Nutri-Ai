@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
+import '../../../core/network/rate_limit_state.dart';
 import 'models/recipe_model.dart';
 import 'models/chat_session_model.dart';
 
@@ -56,6 +57,13 @@ class ChatRepository {
         ),
       );
     } on DioException catch (e) {
+      if (e.error is RateLimitException) {
+        final r = e.error as RateLimitException;
+        throw RateLimitException(
+          retryAfterSeconds: r.retryAfterSeconds,
+          limit: r.limit,
+        );
+      }
       if (e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.connectionTimeout) {
         throw Exception('El chef se está tomando su tiempo. Intenta de nuevo.');

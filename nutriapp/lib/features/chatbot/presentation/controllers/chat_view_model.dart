@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../../../../core/network/rate_limit_state.dart';
 import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
 
@@ -69,6 +70,14 @@ class ChatViewModel extends ChangeNotifier {
         _startTypewriter(reply.text);
       }
     } catch (e, stackTrace) {
+      if (e is RateLimitException) {
+        final mins = (e.retryAfterSeconds / 60).ceil();
+        final friendly = mins <= 1
+            ? 'Espera un momento, alcanzaste el límite de mensajes por minuto'
+            : 'Espera unos $mins minutos, alcanzaste el límite de mensajes';
+        _startTypewriter(friendly);
+        return;
+      }
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
       // Sin esto el error real queda invisible: el usuario solo ve el texto
       // genérico y no hay rastro de qué falló.

@@ -28,4 +28,13 @@ export const config = {
     url_dev: trim(env.N8N_URL_DEV),
     url_pro: trim(env.N8N_URL_PRO),
   },
+  redis: {
+    url: trim(env.REDIS_URL),
+  },
+  rateLimit: {
+    chatPerMinute: Number(trim(env.RATE_LIMIT_CHAT_PER_MINUTE)) || 10,
+    aiWebhookPerMinute: Number(trim(env.RATE_LIMIT_AI_WEBHOOK_PER_MINUTE)) || 60,
+    authStrictPerMinute: Number(trim(env.RATE_LIMIT_AUTH_PER_MINUTE)) || 5,
+    globalPerMinute: Number(trim(env.RATE_LIMIT_GLOBAL_PER_MINUTE)) || 60,
+  },
 };

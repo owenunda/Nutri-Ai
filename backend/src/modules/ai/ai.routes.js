@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authenticateToken from '../../middleware/auth.middleware.js';
+import { aiWebhookRateLimit } from '../../middleware/rateLimit.middleware.js';
 import { receiveGeneratedRecipe } from './ai.controller.js';
 
 const router = Router();
@@ -46,6 +47,6 @@ const router = Router();
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post('/recipe', authenticateToken(['USER', 'ADMIN']), receiveGeneratedRecipe);
+router.post('/recipe', authenticateToken(['USER', 'ADMIN']), aiWebhookRateLimit, receiveGeneratedRecipe);
 
 export default router;
