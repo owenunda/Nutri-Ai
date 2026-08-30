@@ -246,67 +246,114 @@ class _FoodsScreenState extends State<FoodsScreen> {
         return RefreshIndicator(
           color: AppTheme.primaryStart,
           onRefresh: _viewModel.fetchFoods,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 8),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(48),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(48),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        style: const TextStyle(
+                          color: Color(0xFF2C2F31),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
                         ),
-                        child: TextField(
-                          controller: _searchController,
-                          focusNode: _searchFocusNode,
-                          style: const TextStyle(
-                            color: Color(0xFF2C2F31),
+                        decoration: const InputDecoration(
+                          hintText: 'Busca más de 100,000 alimentos...',
+                          hintStyle: TextStyle(
+                            color: Color(0xFF94A3B8),
                             fontSize: 15,
-                            fontWeight: FontWeight.w500,
                           ),
-                          decoration: const InputDecoration(
-                            hintText: 'Busca más de 100,000 alimentos...',
-                            hintStyle: TextStyle(
-                              color: Color(0xFF94A3B8),
-                              fontSize: 15,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: Color(0xFF64748B),
-                              size: 20,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Color(0xFF64748B),
+                            size: 20,
                           ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                    ),
+                    const SizedBox(height: 24),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Agregar personalizado',
+                            style: TextStyle(
+                              color: Color(0xFF2C2F31),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
                             ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            '¿No encuentras tu alimento? Agrega tus propios detalles nutricionales manualmente.',
+                            style: TextStyle(
+                              color: Color(0xFF64748B),
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF2C2F31),
+                              side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                            ),
+                            onPressed: _showAddCustomFoodSheet,
+                            icon: const Icon(Icons.edit_note, size: 18, color: Color(0xFF0A6B3F)),
+                            label: const Text(
+                              'ENTRADA MANUAL',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Agregar personalizado',
+                          children: const [
+                            Text(
+                              'Alimentos comunes',
                               style: TextStyle(
                                 color: Color(0xFF2C2F31),
                                 fontSize: 20,
@@ -314,118 +361,70 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                 letterSpacing: -0.5,
                               ),
                             ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              '¿No encuentras tu alimento? Agrega tus propios detalles nutricionales manualmente.',
+                            SizedBox(height: 2),
+                            Text(
+                              'Basado en tu actividad reciente',
                               style: TextStyle(
                                 color: Color(0xFF64748B),
                                 fontSize: 13,
-                                height: 1.4,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            OutlinedButton.icon(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: const Color(0xFF2C2F31),
-                                side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                              ),
-                              onPressed: _showAddCustomFoodSheet,
-                              icon: const Icon(Icons.edit_note, size: 18, color: Color(0xFF0A6B3F)),
-                              label: const Text(
-                                'ENTRADA MANUAL',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 32),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                'Alimentos comunes',
-                                style: TextStyle(
-                                  color: Color(0xFF2C2F31),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Basado en tu actividad reciente',
-                                style: TextStyle(
-                                  color: Color(0xFF64748B),
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              'Ver todo',
-                              style: TextStyle(
-                                color: Color(0xFF0A6B3F),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-                _buildFoodsContent(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 48.0),
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0F2FE),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: const Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.lightbulb_outline_rounded,
-                          color: Color(0xFF0284C7),
-                          size: 24,
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Consejo: Registrar tu proteína primero te ayuda a alcanzar tus objetivos de saciedad un 20% más rápido.',
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text(
+                            'Ver todo',
                             style: TextStyle(
-                              color: Color(0xFF0369A1),
+                              color: Color(0xFF0A6B3F),
+                              fontWeight: FontWeight.bold,
                               fontSize: 13,
-                              height: 1.4,
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: _buildFoodsContent(),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 16.0),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0F2FE),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.lightbulb_outline_rounded,
+                        color: Color(0xFF0284C7),
+                        size: 24,
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Consejo: Registrar tu proteína primero te ayuda a alcanzar tus objetivos de saciedad un 20% más rápido.',
+                          style: TextStyle(
+                            color: Color(0xFF0369A1),
+                            fontSize: 13,
+                            height: 1.4,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -509,9 +508,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
     }
 
     return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
       itemCount: _viewModel.foods.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
