@@ -219,24 +219,49 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    item.name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2C2F31),
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.name,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2C2F31),
+                        ),
+                      ),
+                      if (item.hasCalories) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          '${item.caloriesPerUnit.toInt()} kcal · ${item.baseUnit}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF94A3B8),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                if (item.quantity > 0)
-                  Text(
-                    '${formatFridgeQuantity(item.quantity)} ${item.unit}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF94A3B8),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                const SizedBox(width: 8),
+                item.quantity > 0
+                    ? Text(
+                        '${formatFridgeQuantity(item.quantity)} ${item.unit}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF2C2F31),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      )
+                    : const Text(
+                        'Sin cantidad',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFFCBD5E1),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ],
             ),
           ),

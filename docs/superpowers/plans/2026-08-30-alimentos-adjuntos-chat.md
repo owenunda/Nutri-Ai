@@ -411,13 +411,19 @@ assert 'Usar Alimentos Adjuntos' in nodes
 salidas=d['connections']['Enrutar por Intención']['main']
 assert salidas[-1][0]['node']=='Usar Alimentos Adjuntos', salidas[-1]
 assert d['connections']['Usar Alimentos Adjuntos']['main'][0][0]['node']=='Preparar Contexto del Chef'
-reglas=nodes['Enrutar por Intención']['parameters']['rules']['values']
-assert len(reglas)==len(salidas), (len(reglas),len(salidas))
-print('flujo OK:',len(reglas),'rutas')
+sw=nodes['Enrutar por Intención']
+reglas=sw['parameters']['rules']['values']
+tiene_fallback = sw['parameters'].get('options',{}).get('fallbackOutput')=='extra'
+assert len(salidas)==len(reglas)+(1 if tiene_fallback else 0), (len(reglas),len(salidas))
+for regla,salida in zip(reglas,salidas):
+    print(' ',regla['outputKey'],'->',salida[0]['node'])
+print('  (fallback) ->',salidas[-1][0]['node'])
 "
 ```
 
-Expected: `flujo OK: 7 rutas`. El número de reglas del switch y el de salidas conectadas **tienen que coincidir**: si no, alguna ruta quedó sin cablear.
+Expected: 6 reglas, cada una apuntando a su nodo, y `(fallback) -> Agente: Chat General`.
+
+**El switch tiene `fallbackOutput: "extra"`**: una salida de más al final, sin regla asociada, que va a Chat General. Por eso hay una salida más que reglas, y por eso la ruta nueva se **inserta** antes de la última en vez de escribirse sobre ella — escribir sobre el último índice pisa el fallback y deja el chat general muerto.
 
 - [ ] **Step 4: Commit**
 

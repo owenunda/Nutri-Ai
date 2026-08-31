@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutriapp/features/chatbot/presentation/widgets/chat_input_field.dart';
 import 'package:nutriapp/features/nutrition/data/fridge_repository.dart';
+import 'package:nutriapp/features/nutrition/data/models/fridge_item_model.dart';
 
 /// Devuelve siempre la misma nevera canned, sin tocar la red.
 class _FakeAdapter implements HttpClientAdapter {
@@ -51,12 +52,16 @@ void main() {
     'unit': 'g',
   };
 
-  testWidgets('adjunta al mensaje los alimentos elegidos en la nevera',
+  testWidgets('manda el texto limpio y los alimentos elegidos por separado',
       (tester) async {
-    String? sent;
+    String? sentMessage;
+    List<FridgeItemModel>? sentFoods;
 
     await tester.pumpWidget(wrap(ChatInputField(
-      onSend: (message) async => sent = message,
+      onSend: (message, foods) async {
+        sentMessage = message;
+        sentFoods = foods;
+      },
       fridgeRepository: fridgeWith([arroz]),
     )));
 
@@ -72,12 +77,13 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
     await tester.pumpAndSettle();
 
-    expect(sent, 'Hazme una cena\n\nTengo estos alimentos: 200 g de arroz.');
+    expect(sentMessage, 'Hazme una cena');
+    expect(sentFoods!.single.name, 'arroz');
   });
 
   testWidgets('muestra un chip por cada alimento adjunto', (tester) async {
     await tester.pumpWidget(wrap(ChatInputField(
-      onSend: (_) async {},
+      onSend: (_, _) async {},
       fridgeRepository: fridgeWith([arroz]),
     )));
 
@@ -96,7 +102,7 @@ void main() {
   testWidgets('limpia los alimentos adjuntos después de enviar',
       (tester) async {
     await tester.pumpWidget(wrap(ChatInputField(
-      onSend: (_) async {},
+      onSend: (_, _) async {},
       fridgeRepository: fridgeWith([arroz]),
     )));
 
@@ -116,10 +122,14 @@ void main() {
 
   testWidgets('envía solo los alimentos cuando no se escribe texto',
       (tester) async {
-    String? sent;
+    String? sentMessage;
+    List<FridgeItemModel>? sentFoods;
 
     await tester.pumpWidget(wrap(ChatInputField(
-      onSend: (message) async => sent = message,
+      onSend: (message, foods) async {
+        sentMessage = message;
+        sentFoods = foods;
+      },
       fridgeRepository: fridgeWith([arroz]),
     )));
 
@@ -133,7 +143,8 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
     await tester.pumpAndSettle();
 
-    expect(sent, 'Tengo estos alimentos: 200 g de arroz.');
+    expect(sentMessage, '');
+    expect(sentFoods!.single.name, 'arroz');
   });
 
   testWidgets('no envía nada cuando no hay texto ni alimentos',
@@ -141,7 +152,7 @@ void main() {
     var calls = 0;
 
     await tester.pumpWidget(wrap(ChatInputField(
-      onSend: (_) async => calls++,
+      onSend: (_, _) async => calls++,
       fridgeRepository: fridgeWith([arroz]),
     )));
 
@@ -153,7 +164,7 @@ void main() {
 
   testWidgets('quita un alimento adjunto al tocar su chip', (tester) async {
     await tester.pumpWidget(wrap(ChatInputField(
-      onSend: (_) async {},
+      onSend: (_, _) async {},
       fridgeRepository: fridgeWith([arroz]),
     )));
 

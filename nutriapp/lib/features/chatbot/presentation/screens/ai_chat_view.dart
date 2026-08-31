@@ -1,9 +1,11 @@
 import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
+import '../../../nutrition/data/models/fridge_item_model.dart';
 import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
 import '../../data/models/chat_session_model.dart';
 import '../controllers/chat_view_model.dart';
+import '../widgets/attached_food_chips.dart';
 import '../widgets/chat_history_drawer.dart';
 import '../widgets/chat_input_field.dart';
 import '../widgets/chat_welcome_header.dart';
@@ -94,8 +96,8 @@ class _AiChatViewState extends State<AiChatView> {
     }
   }
 
-  Future<void> _handleSend(String message) async {
-    await _viewModel.sendMessage(message);
+  Future<void> _handleSend(String message, List<FridgeItemModel> foods) async {
+    await _viewModel.sendMessage(message, foods: foods);
     _scrollToBottom();
   }
 
@@ -260,13 +262,24 @@ class _ChatBubble extends StatelessWidget {
                 bottomRight: Radius.circular(4),
               ),
             ),
-            child: Text(
-              message.text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                height: 1.4,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (message.text.isNotEmpty)
+                  Text(
+                    message.text,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      height: 1.4,
+                    ),
+                  ),
+                if (message.attachedFoods.isNotEmpty) ...[
+                  if (message.text.isNotEmpty) const SizedBox(height: 10),
+                  AttachedFoodChips(foods: message.attachedFoods),
+                ],
+              ],
             ),
           ),
         ),

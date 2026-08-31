@@ -44,13 +44,20 @@ class ChatRepository {
 
   ChatRepository({Dio? dio}) : _dio = dio ?? DioClient.instance;
 
-  Future<ChatResponse> sendMessage(String message) async {
+  Future<ChatResponse> sendMessage(
+    String message, {
+    List<int> fridgeItemIds = const [],
+  }) async {
     final Response<Map<String, dynamic>> response;
 
     try {
       response = await _dio.post<Map<String, dynamic>>(
         ApiRoutes.n8nChat,
-        data: {'message': message},
+        data: {
+          'message': message,
+          // El backend los relee de la nevera; aquí solo viajan los ids.
+          if (fridgeItemIds.isNotEmpty) 'fridgeItemIds': fridgeItemIds,
+        },
         options: Options(
           receiveTimeout: _chatTimeout,
           sendTimeout: _chatTimeout,
