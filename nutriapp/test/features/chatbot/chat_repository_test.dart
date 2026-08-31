@@ -243,4 +243,61 @@ void main() {
       );
     });
   });
+
+  group('sendMessage con alimentos adjuntos', () {
+    late _CapturingAdapter adapter;
+    late ChatRepository repo;
+
+    setUp(() {
+      adapter = _CapturingAdapter();
+      final dio = Dio(BaseOptions(baseUrl: 'https://test.local'))
+        ..httpClientAdapter = adapter;
+      repo = ChatRepository(dio: dio);
+    });
+
+    test('manda los ids de los alimentos adjuntos', () async {
+      await repo.sendMessage('necesito un desayuno', fridgeItemIds: [4, 7]);
+
+      expect((adapter.capturedBody as Map)['fridgeItemIds'], [4, 7]);
+    });
+
+    test('omite el campo cuando no hay adjuntos', () async {
+      await repo.sendMessage('hola');
+
+      expect((adapter.capturedBody as Map).containsKey('fridgeItemIds'), isFalse);
+    });
+
+    test('sigue mandando el mensaje tal cual', () async {
+      await repo.sendMessage('necesito un desayuno', fridgeItemIds: [4]);
+
+      expect((adapter.capturedBody as Map)['message'], 'necesito un desayuno');
+    });
+  });
+}
+
+/// Captura el body de la peticion para poder afirmar sobre lo que se envia.
+class _CapturingAdapter implements HttpClientAdapter {
+  Object? capturedBody;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    capturedBody = options.data;
+    return ResponseBody.fromString(
+      jsonEncode({
+        'success': true,
+        'data': {'type': 'CHAT', 'message': 'hola', 'recipe': null},
+      }),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
 }
