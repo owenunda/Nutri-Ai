@@ -10,10 +10,13 @@ export const getFridgeByUserIdRepository = async (userId) => {
             COALESCE(
                 json_agg(
                     json_build_object(
-                        'fridgeItemId', fi.fridge_item_id,
-                        'name',         f.name,
-                        'quantity',     fi.quantity,
-                        'unit',         fi.unit
+                        'fridgeItemId',     fi.fridge_item_id,
+                        'foodId',           f.food_id,
+                        'name',             f.name,
+                        'quantity',         fi.quantity,
+                        'unit',             fi.unit,
+                        'caloriesPerUnit',  f.calories_per_unit,
+                        'baseUnit',         f.base_unit
                     )
                     ORDER BY fi.fridge_item_id
                 ) FILTER (WHERE fi.fridge_item_id IS NOT NULL),
@@ -155,4 +158,31 @@ export const deleteFridgeItemRepository = async (itemId, userId) => {
 
     const { rows } = await pool.query(query, [itemId, userId]);
     return rows[0] || null;
+};
+
+// Solo los items de la nevera del propio usuario: un id ajeno simplemente no
+// aparece en el resultado. Esa es la garantía que sostiene todo el adjunto,
+// porque el foodId que devuelva el chef termina escrito en recipe_ingredients.
+export const findFridgeItemsByIdsRepository = async (userId, fridgeItemIds) => {
+    const query = `
+        SELECT
+            fi.fridge_item_id   AS "fridgeItemId",
+            f.food_id           AS "foodId",
+            f.name              AS "name",
+            fi.quantity         AS "quantity",
+            fi.unit             AS "unit",
+            f.calories_per_unit AS "caloriesPerUnit",
+            f.base_unit         AS "baseUnit"
+        FROM fridge_items fi
+        JOIN fridges fr ON fr.fridge_id = fi.fridge_id
+        JOIN foods f ON f.food_id = fi.food_id
+            AND f.is_active = true
+            AND (f.is_global = true OR f.created_by_user_id = $1)
+        WHERE fr.user_id = $1
+            AND fi.fridge_item_id = ANY($2::int[])
+        ORDER BY fi.fridge_item_id
+    `;
+
+    const { rows } = await pool.query(query, [userId, fridgeItemIds]);
+    return rows;
 };
