@@ -85,7 +85,10 @@ class BotEngine {
 
   // --- Poses ---------------------------------------------------------------
 
-  /// 1 = ojo abierto, 0 = cerrado.
+  /// 1 = ojo abierto, 0 = cerrado. Abierto -> cerrado -> abierto dentro de la
+  /// ventana de parpadeo, igual que `blinkLid` en face.ts:133-144 (alli con
+  /// tramos asimetricos de cierre/apertura; aqui con una unica curva coseno
+  /// simetrica, suficiente para esta feature).
   ///
   /// Bloub sortea los instantes de parpadeo con un RNG sembrado; aqui basta un
   /// horario deterministico de periodo 3.25s (el centro del rango 1.9-4.6 de
@@ -94,15 +97,28 @@ class BotEngine {
     const periodo = 3.25;
     final fase = t % periodo;
     if (fase > _blinkDur) return 1;
-    return (1 - math.cos((fase / _blinkDur) * tau)) / 2;
+    // fase=0 -> 1 (abierto), fase=blinkDur/2 -> 0 (cerrado), fase=blinkDur -> 1
+    // (abierto), y empalma sin salto con el `return 1` de fuera de la ventana.
+    return (1 + math.cos((fase / _blinkDur) * tau)) / 2;
   }
+
+  /// Ecrasement vertical del ojo en funcion de cuanto esta abierto (`open` en
+  /// [0,1]; 1 = totalmente abierto). Port de `blinkScale` (face.ts:177): sin
+  /// este suelo, en el instante de cierre total `ry` cae a 0 y el ojo
+  /// degenera (ancho > 0, alto = 0).
+  double _blinkScale(double open) => 0.06 + 0.94 * clamp01(open);
 
   List<EyeSpec> _eyes({double lid = 1, double scale = 1, double wink = 1}) {
     final l = kRestEyes[0], r = kRestEyes[1];
+    // Como en engine.ts:521, el cierre efectivo de cada ojo es el minimo
+    // entre el parpadeo global (`lid`) y su propia apertura (`wink`, que solo
+    // el ojo exterior usa para el guino de `pleased`).
+    final abiertoIzq = _blinkScale(math.min(lid, 1));
+    final abiertoDer = _blinkScale(math.min(lid, wink));
     return [
-      EyeSpec(cx: l.cx, cy: l.cy, rx: l.rx * scale, ry: l.ry * lid * scale,
+      EyeSpec(cx: l.cx, cy: l.cy, rx: l.rx * scale, ry: l.ry * abiertoIzq * scale,
           a: l.a, b: l.b, c: l.c, d: l.d),
-      EyeSpec(cx: r.cx, cy: r.cy, rx: r.rx * scale, ry: r.ry * lid * wink * scale,
+      EyeSpec(cx: r.cx, cy: r.cy, rx: r.rx * scale, ry: r.ry * abiertoDer * scale,
           a: r.a, b: r.b, c: r.c, d: r.d),
     ];
   }
@@ -130,13 +146,15 @@ class BotEngine {
     );
   }
 
-  /// Respiracion suave sobre la bola en reposo.
+  /// Respiracion suave sobre la bola en reposo. Port de `breath` (face.ts:167):
+  /// el ancho no varia, solo la altura respira, con periodo 3.4s y amplitud
+  /// 0.005 (medidos del video; no tienen relacion con la `duration` de 2.4s
+  /// del estado idle en states.ts, que es otra magnitud).
   BotFrame _idle(double t) {
-    final respira = math.sin(t * tau / 2.4) * 0.02; // duracion idle de Bloub
+    final respira = math.sin(t * tau / 3.4) * 0.005;
     return _body(
       t: t,
-      sx: 1 + respira,
-      sy: 1 - respira,
+      sy: 1 + respira,
       eyes: _eyes(lid: _lid(t)),
     );
   }
