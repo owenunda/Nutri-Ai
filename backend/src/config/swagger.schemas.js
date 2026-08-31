@@ -45,16 +45,22 @@
  *     FridgeItem:
  *       type: object
  *       properties:
- *         id:
+ *         fridgeItemId:
  *           type: integer
  *         foodId:
  *           type: integer
+ *         name:
+ *           type: string
  *         quantity:
  *           type: number
  *         unit:
  *           type: string
- *         food:
- *           type: object
+ *         caloriesPerUnit:
+ *           type: number
+ *           description: Calorías por cada baseUnit del alimento
+ *         baseUnit:
+ *           type: string
+ *           description: Unidad sobre la que se miden las calorías (ej. 100 g)
  *
  *     PhysicalRecord:
  *       type: object

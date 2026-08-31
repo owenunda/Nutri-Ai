@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../../../../core/network/rate_limit_state.dart';
+import '../../../nutrition/data/models/fridge_item_model.dart';
 import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
 
@@ -42,22 +43,31 @@ class ChatViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<void> sendMessage(String text) async {
-    if (text.trim().isEmpty) return;
+  Future<void> sendMessage(
+    String text, {
+    List<FridgeItemModel> foods = const [],
+  }) async {
+    final message = text.trim();
+    // Adjuntar alimentos sin escribir nada es una petición válida.
+    if (message.isEmpty && foods.isEmpty) return;
 
     _typingTimer?.cancel();
 
     _messages.add(ChatMessageModel(
-      text: text.trim(),
+      text: message,
       isUser: true,
       timestamp: DateTime.now(),
+      attachedFoods: foods,
     ));
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final reply = await _repository.sendMessage(text.trim());
+      final reply = await _repository.sendMessage(
+        message,
+        fridgeItemIds: foods.map((f) => f.fridgeItemId).toList(),
+      );
       if (reply.recipe != null) {
         _messages.add(ChatMessageModel(
           text: reply.text,

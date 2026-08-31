@@ -1,5 +1,5 @@
 import { AppError } from '../../utils/AppError.js';
-import { addFridgeItemRepository, addOrUpdateFridgeItemRepository, checkFoodExistsRepository, createFridgeRepository, getFridgeByUserIdRepository, updateFridgeItemRepository, deleteFridgeItemRepository } from './fridge.repository.js';
+import { addFridgeItemRepository, findFridgeItemsByIdsRepository, addOrUpdateFridgeItemRepository, checkFoodExistsRepository, createFridgeRepository, getFridgeByUserIdRepository, updateFridgeItemRepository, deleteFridgeItemRepository } from './fridge.repository.js';
 
 export const getFridge = async (userId) => {
     try {
@@ -120,6 +120,44 @@ export const deleteFridgeItemService = async (userId, itemId) => {
         return deletedItem;
     } catch (error) {
         if (error instanceof AppError) throw error;
+        throw new AppError(error.message, 500, 'FRIDGE_SERVICE_ERROR');
+    }
+};
+
+const MAX_ATTACHED_FOODS = 20;
+
+// El prompt del chef trata la cantidad como techo ("nunca una cantidad mayor a
+// la disponible"), así que un 0 le prohibiría usar el alimento — justo lo
+// contrario de lo que pidió el usuario al adjuntarlo. matchFoods ya resuelve
+// esto igual, con `quantity ?? 1`.
+const normalizeQuantity = (quantity) => {
+    const value = Number(quantity);
+    return Number.isFinite(value) && value > 0 ? value : 1;
+};
+
+export const getFridgeItemsByIdsService = async (userId, fridgeItemIds) => {
+    try {
+        const ids = (Array.isArray(fridgeItemIds) ? fridgeItemIds : [])
+            .map(Number)
+            .filter(Number.isInteger)
+            .slice(0, MAX_ATTACHED_FOODS);
+
+        if (ids.length === 0) {
+            return [];
+        }
+
+        const items = await findFridgeItemsByIdsRepository(userId, ids);
+
+        return items.map((item) => ({
+            ...item,
+            quantity: normalizeQuantity(item.quantity),
+            caloriesPerUnit: Number(item.caloriesPerUnit),
+        }));
+    } catch (error) {
+        if (error instanceof AppError) {
+            throw error;
+        }
+
         throw new AppError(error.message, 500, 'FRIDGE_SERVICE_ERROR');
     }
 };
