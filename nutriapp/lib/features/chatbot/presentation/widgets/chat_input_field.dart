@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../nutrition/data/fridge_repository.dart';
 import '../../../nutrition/data/models/fridge_item_model.dart';
-import '../../data/message_composer.dart';
 import 'fridge_picker_sheet.dart';
 
 class ChatInputField extends StatefulWidget {
-  final Future<void> Function(String message) onSend;
+  final Future<void> Function(String message, List<FridgeItemModel> foods)
+      onSend;
   final bool isLoading;
   final FridgeRepository? fridgeRepository;
 
@@ -56,12 +56,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
   void _handleSend() {
     if (widget.isLoading) return;
 
-    final message = buildMessageWithFoods(_controller.text, _attachedFoods);
-    if (message.isEmpty) return;
+    final message = _controller.text.trim();
+    final foods = _attachedFoods;
+    // Adjuntar alimentos sin escribir nada es una petición válida.
+    if (message.isEmpty && foods.isEmpty) return;
 
     _controller.clear();
     setState(() => _attachedFoods = []);
-    widget.onSend(message);
+    widget.onSend(message, foods);
   }
 
   @override
