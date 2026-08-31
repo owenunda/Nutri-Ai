@@ -45,6 +45,12 @@
               "name": "authToken",
               "value": "={{ $json.body.token }}",
               "type": "string"
+            },
+            {
+              "id": "f1a0c7d2-0005-4a11-9f01-0a1b2c3d4e05",
+              "name": "attachedFoods",
+              "value": "={{ $json.body.attachedFoods ?? [] }}",
+              "type": "array"
             }
           ]
         },
@@ -194,7 +200,7 @@
         "responses": {
           "values": [
             {
-              "content": "=Eres un sistema que interpreta mensajes de usuarios en una aplicación de nutrición.\n\nTu única tarea es analizar el mensaje del usuario y convertirlo en un JSON estructurado.\n\nDebes detectar la intención del usuario y extraer la información relevante.\n\n## Contexto de la conversación\n\n{{ $('Unificar Datos de Sesión').first().json.previousRecipe ? 'SÍ hay una receta activa en la conversación, titulada: ' + $('Unificar Datos de Sesión').first().json.previousRecipe.title : 'NO hay ninguna receta activa. El usuario todavía no puede modificar ni preguntar por una receta.' }}\n\nUsa este contexto para decidir: si NO hay receta activa, no elijas MODIFY_RECIPE, ASK_RECIPE ni NEW_RECIPE.\n\n## Intenciones\n\n### GENERATE_RECIPE_WITH_INPUT\n\nEl usuario quiere generar una receta y menciona uno o más alimentos.\n\nEjemplos:\n\n* Tengo 3 huevos y una cebolla, hazme un desayuno.\n* Quiero cocinar con pollo y arroz.\n* Tengo tomate, queso y pan.\n\n---\n\n### GENERATE_RECIPE_FROM_FRIDGE\n\nEl usuario quiere una receta pero NO menciona ingredientes.\n\nLa aplicación deberá utilizar los alimentos almacenados en su nevera.\n\nEjemplos:\n\n* Quiero un desayuno.\n* Necesito una cena saludable.\n* Hazme un almuerzo.\n\n---\n\n### MODIFY_RECIPE\n\nEl usuario quiere modificar la receta activa.\n\nEjemplos:\n\n* Hazla para 4 personas.\n* No tengo cebolla.\n* Cambia el pollo por atún.\n* Hazla vegetariana.\n* Quiero más proteína.\n* Hazla más saludable.\n* Quiero menos calorías.\n* Hazla más rápida.\n* Agrégale queso.\n\nEn este caso también debes detectar un \"modification_type\".\n\nValores posibles:\n\n* CHANGE_SERVINGS\n* REMOVE_INGREDIENT\n* REPLACE_INGREDIENT\n* ADD_INGREDIENT\n* MAKE_VEGETARIAN\n* MORE_PROTEIN\n* LESS_CALORIES\n* MAKE_HEALTHIER\n* FASTER\n* OTHER\n\n---\n\n### ASK_RECIPE\n\nEl usuario hace una pregunta sobre la receta activa, sin pedir cambiarla.\n\nEjemplos:\n\n* Explícame el paso 3.\n* ¿Con qué bebida la puedo acompañar?\n* ¿Qué significa dorar la cebolla?\n* ¿Cuántas calorías tiene?\n* ¿Qué puedo usar en lugar de huevos?\n\nEn este caso debes detectar \"question_type\".\n\nValores posibles:\n\n* STEP_EXPLANATION\n* INGREDIENT_SUBSTITUTION\n* NUTRITION\n* PAIRING\n* COOKING_TECHNIQUE\n* GENERAL\n\n---\n\n### NEW_RECIPE\n\nEl usuario quiere abandonar la receta activa y generar otra distinta.\n\nEjemplos:\n\n* Dame otra receta.\n* Quiero otra opción.\n* No me gustó.\n* Haz una diferente.\n* Empecemos otra receta.\n\n---\n\n### GENERAL_CHAT\n\nMensajes conversacionales que no generan ni modifican recetas.\n\nEjemplos:\n\n* Hola.\n* Gracias.\n* Buenos días.\n* ¿Cómo estás?\n\n---\n\n### UNKNOWN\n\nCuando no sea posible determinar la intención.\n\n---\n\n## Extraer ingredientes\n\nSi el usuario menciona alimentos, extrae:\n\n* name\n* quantity\n\nSi no indica cantidad, usa null.\n\n---\n\n## meal_type\n\nSi el usuario menciona una comida específica, detecta exactamente uno de:\n\n* desayuno\n* almuerzo\n* cena\n\nEn caso contrario usa null.\n\n---\n\nMensaje del usuario:\n\n\"{{ $('Extraer Datos del Request').first().json.message }}\"\n\nResponde ÚNICAMENTE con un JSON válido usando esta estructura:\n\n{\n\"intent\": \"\",\n\"modification_type\": null,\n\"question_type\": null,\n\"ingredients\": [],\n\"meal_type\": null,\n\"user_request\": \"\"\n}\n\nReglas importantes:\n\n* Siempre responde únicamente JSON válido.\n* Nunca respondas texto adicional.\n* No uses markdown.\n* No uses bloques de código.\n* Si un campo no aplica utiliza null.\n* \"user_request\" debe contener exactamente el mensaje original del usuario.\n"
+              "content": "=Eres un sistema que interpreta mensajes de usuarios en una aplicación de nutrición.\n\nTu única tarea es analizar el mensaje del usuario y convertirlo en un JSON estructurado.\n\nDebes detectar la intención del usuario y extraer la información relevante.\n\n## Contexto de la conversación\n\n{{ $('Unificar Datos de Sesión').first().json.previousRecipe ? 'SÍ hay una receta activa en la conversación, titulada: ' + $('Unificar Datos de Sesión').first().json.previousRecipe.title : 'NO hay ninguna receta activa. El usuario todavía no puede modificar ni preguntar por una receta.' }}\n\nUsa este contexto para decidir: si NO hay receta activa, no elijas MODIFY_RECIPE, ASK_RECIPE ni NEW_RECIPE.\n\n\n## Alimentos adjuntos\n\n{{ $('Extraer Datos del Request').first().json.attachedFoods.length ? 'El usuario adjuntó estos alimentos de su nevera: ' + $('Extraer Datos del Request').first().json.attachedFoods.map(f => f.name).join(', ') + '. Trátalos como los alimentos que el usuario menciona.' : 'El usuario no adjuntó alimentos.' }}\n\n## Intenciones\n\n### GENERATE_RECIPE_WITH_INPUT\n\nEl usuario quiere generar una receta y menciona uno o más alimentos.\n\nEjemplos:\n\n* Tengo 3 huevos y una cebolla, hazme un desayuno.\n* Quiero cocinar con pollo y arroz.\n* Tengo tomate, queso y pan.\n\n---\n\n### GENERATE_RECIPE_FROM_FRIDGE\n\nEl usuario quiere una receta pero NO menciona ingredientes.\n\nLa aplicación deberá utilizar los alimentos almacenados en su nevera.\n\nEjemplos:\n\n* Quiero un desayuno.\n* Necesito una cena saludable.\n* Hazme un almuerzo.\n\n---\n\n### MODIFY_RECIPE\n\nEl usuario quiere modificar la receta activa.\n\nEjemplos:\n\n* Hazla para 4 personas.\n* No tengo cebolla.\n* Cambia el pollo por atún.\n* Hazla vegetariana.\n* Quiero más proteína.\n* Hazla más saludable.\n* Quiero menos calorías.\n* Hazla más rápida.\n* Agrégale queso.\n\nEn este caso también debes detectar un \"modification_type\".\n\nValores posibles:\n\n* CHANGE_SERVINGS\n* REMOVE_INGREDIENT\n* REPLACE_INGREDIENT\n* ADD_INGREDIENT\n* MAKE_VEGETARIAN\n* MORE_PROTEIN\n* LESS_CALORIES\n* MAKE_HEALTHIER\n* FASTER\n* OTHER\n\n---\n\n### ASK_RECIPE\n\nEl usuario hace una pregunta sobre la receta activa, sin pedir cambiarla.\n\nEjemplos:\n\n* Explícame el paso 3.\n* ¿Con qué bebida la puedo acompañar?\n* ¿Qué significa dorar la cebolla?\n* ¿Cuántas calorías tiene?\n* ¿Qué puedo usar en lugar de huevos?\n\nEn este caso debes detectar \"question_type\".\n\nValores posibles:\n\n* STEP_EXPLANATION\n* INGREDIENT_SUBSTITUTION\n* NUTRITION\n* PAIRING\n* COOKING_TECHNIQUE\n* GENERAL\n\n---\n\n### NEW_RECIPE\n\nEl usuario quiere abandonar la receta activa y generar otra distinta.\n\nEjemplos:\n\n* Dame otra receta.\n* Quiero otra opción.\n* No me gustó.\n* Haz una diferente.\n* Empecemos otra receta.\n\n---\n\n### GENERAL_CHAT\n\nMensajes conversacionales que no generan ni modifican recetas.\n\nEjemplos:\n\n* Hola.\n* Gracias.\n* Buenos días.\n* ¿Cómo estás?\n\n---\n\n### UNKNOWN\n\nCuando no sea posible determinar la intención.\n\n---\n\n## Extraer ingredientes\n\nSi el usuario menciona alimentos, extrae:\n\n* name\n* quantity\n\nSi no indica cantidad, usa null.\n\n---\n\n## meal_type\n\nSi el usuario menciona una comida específica, detecta exactamente uno de:\n\n* desayuno\n* almuerzo\n* cena\n\nEn caso contrario usa null.\n\n---\n\nMensaje del usuario:\n\n\"{{ $('Extraer Datos del Request').first().json.message }}\"\n\nResponde ÚNICAMENTE con un JSON válido usando esta estructura:\n\n{\n\"intent\": \"\",\n\"modification_type\": null,\n\"question_type\": null,\n\"ingredients\": [],\n\"meal_type\": null,\n\"user_request\": \"\"\n}\n\nReglas importantes:\n\n* Siempre responde únicamente JSON válido.\n* Nunca respondas texto adicional.\n* No uses markdown.\n* No uses bloques de código.\n* Si un campo no aplica utiliza null.\n* \"user_request\" debe contener exactamente el mensaje original del usuario.\n"
             }
           ]
         },
@@ -231,7 +237,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const j = $input.first().json;\n\nconst hasRecipe = Boolean(j.previousRecipe && j.previousRecipe.title);\nconst hasIngredients = Array.isArray(j.ingredients) && j.ingredients.length > 0;\nconst hasPool = Array.isArray(j.availableFoods) && j.availableFoods.length > 0;\n\n// Cada guard degrada a una ruta que sí puede responder, en vez de romper.\nlet route;\nswitch (j.intent) {\n  case 'GENERATE_RECIPE_WITH_INPUT':\n    route = hasIngredients ? 'RECIPE_FROM_INPUT' : 'RECIPE_FROM_FRIDGE';\n    break;\n\n  case 'GENERATE_RECIPE_FROM_FRIDGE':\n    route = 'RECIPE_FROM_FRIDGE';\n    break;\n\n  case 'MODIFY_RECIPE':\n    route = hasRecipe ? 'MODIFY_RECIPE' : 'RECIPE_FROM_FRIDGE';\n    break;\n\n  case 'ASK_RECIPE':\n    route = hasRecipe ? 'ANSWER_QUESTION' : 'GENERAL_CHAT';\n    break;\n\n  case 'NEW_RECIPE':\n    route = (hasRecipe && hasPool) ? 'NEW_RECIPE_SAME_POOL' : 'RECIPE_FROM_FRIDGE';\n    break;\n\n  default:\n    route = 'GENERAL_CHAT';\n}\n\nreturn [{\n  json: {\n    ...j,\n    route,\n    // Si el usuario no repite el tipo de comida, se hereda del turno anterior.\n    mealType: j.mealType ?? j.previousMealType ?? null\n  }\n}];"
+        "jsCode": "const j = $input.first().json;\nconst attached = $('Extraer Datos del Request').first().json.attachedFoods ?? [];\n\nconst hasRecipe = Boolean(j.previousRecipe && j.previousRecipe.title);\nconst hasIngredients = Array.isArray(j.ingredients) && j.ingredients.length > 0;\nconst hasPool = Array.isArray(j.availableFoods) && j.availableFoods.length > 0;\nconst hasAttached = Array.isArray(attached) && attached.length > 0;\n\n// Adjuntar un alimento no debe tumbar la receta en curso: si el usuario pidio\n// modificarla o pregunto por ella, esa intencion gana sobre los adjuntos.\nconst INTENCIONES_DE_GENERACION = [\n  'GENERATE_RECIPE_WITH_INPUT',\n  'GENERATE_RECIPE_FROM_FRIDGE',\n  'NEW_RECIPE',\n  'UNKNOWN'\n];\n\nlet route;\nif (hasAttached && INTENCIONES_DE_GENERACION.includes(j.intent)) {\n  route = 'RECIPE_FROM_ATTACHED';\n} else {\n  // Cada guard degrada a una ruta que si puede responder, en vez de romper.\n  switch (j.intent) {\n    case 'GENERATE_RECIPE_WITH_INPUT':\n      route = hasIngredients ? 'RECIPE_FROM_INPUT' : 'RECIPE_FROM_FRIDGE';\n      break;\n\n    case 'GENERATE_RECIPE_FROM_FRIDGE':\n      route = 'RECIPE_FROM_FRIDGE';\n      break;\n\n    case 'MODIFY_RECIPE':\n      route = hasRecipe ? 'MODIFY_RECIPE' : 'RECIPE_FROM_FRIDGE';\n      break;\n\n    case 'ASK_RECIPE':\n      route = hasRecipe ? 'ANSWER_QUESTION' : 'GENERAL_CHAT';\n      break;\n\n    case 'NEW_RECIPE':\n      route = (hasRecipe && hasPool) ? 'NEW_RECIPE_SAME_POOL' : 'RECIPE_FROM_FRIDGE';\n      break;\n\n    default:\n      route = 'GENERAL_CHAT';\n  }\n}\n\nreturn [{\n  json: {\n    ...j,\n    route,\n    attachedFoods: attached,\n    // El chef nombra lo pedido a partir de ingredients; con adjuntos sale de ahi.\n    ingredients: route === 'RECIPE_FROM_ATTACHED'\n      ? attached.map(f => ({\n          name: String(f.name).toLowerCase().trim(),\n          quantity: f.quantity ?? null\n        }))\n      : j.ingredients,\n    // Si el usuario no repite el tipo de comida, se hereda del turno anterior.\n    mealType: j.mealType ?? j.previousMealType ?? null\n  }\n}];"
       },
       "id": "d85c4750-570c-4d97-b138-e9652bf7ecd4",
       "name": "Resolver Ruta",
@@ -365,6 +371,30 @@
               },
               "renameOutput": true,
               "outputKey": "Otra Receta"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s6a0c7d2-3007-4a11-9f01-0a1b2c3d4e37",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "RECIPE_FROM_ATTACHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Receta con Adjuntos"
             }
           ]
         },
@@ -997,6 +1027,19 @@
         -1232,
         368
       ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Los adjuntos ya vienen con foodId y cantidad resueltos por el backend,\n// asi que el pool del chef se arma sin pasar por /food/match.\nconst attached = $json.attachedFoods ?? [];\n\nreturn [{\n  json: {\n    availableFoods: attached.map(f => ({\n      foodId: f.foodId,\n      name: f.name,\n      caloriesPerUnit: f.caloriesPerUnit,\n      baseUnit: f.baseUnit,\n      quantity: f.quantity\n    }))\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2496,
+        316
+      ],
+      "id": "a7c15e90-0007-4a11-9f01-0a1b2c3d4e07",
+      "name": "Usar Alimentos Adjuntos"
     }
   ],
   "pinData": {},
@@ -1151,6 +1194,13 @@
         [
           {
             "node": "Reusar Alimentos de Receta Previa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Usar Alimentos Adjuntos",
             "type": "main",
             "index": 0
           }
@@ -1470,6 +1520,17 @@
         [
           {
             "node": "Construir Respuesta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usar Alimentos Adjuntos": {
+      "main": [
+        [
+          {
+            "node": "Preparar Contexto del Chef",
             "type": "main",
             "index": 0
           }
