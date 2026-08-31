@@ -17,11 +17,11 @@ y `nutriapp/lib/features/bot/domain/bot_eyes.dart`, y los datos de
   duracion y tiempo de transicion ("morph") de `idle` y `thinking`, y la
   formula de rebote de `sleep`.
 
-No se copio codigo TypeScript de Bloub tal cual: las formulas anteriores se
-reescribieron en Dart puro (sin `dart:ui` ni `package:flutter`) a partir de la
-logica y las constantes medidas del fuente original. No se extrajeron los
-perfiles radiales `egg`, `hexagon` ni `triangle` de Bloub: quedan fuera del
-alcance de esta funcionalidad.
+Las formulas anteriores (incluidas `spin`, el calculo de las poses de ojo en
+reposo y `dotPulse`) son transliteraciones linea a linea del TypeScript
+original, portadas a Dart puro (sin `dart:ui` ni `package:flutter`). No se
+extrajeron los perfiles radiales `egg`, `hexagon` ni `triangle` de Bloub:
+quedan fuera del alcance de esta funcionalidad.
 
 Bloub se distribuye bajo la siguiente licencia:
 

@@ -28,17 +28,24 @@ void main() {
     expect(f.dots, isEmpty);
   });
 
-  test('idle parpadea en algun momento de los primeros 10 segundos', () {
+  test('el parpadeo abre-cierra-abre dentro de la ventana, y fuera esta abierto', () {
     final e = BotEngine();
-    var vioCerrado = false;
-    for (var i = 0; i < 1000; i++) {
-      final f = e.sample(i * 0.01);
-      if (f.eyes.isNotEmpty && f.eyes[0].ry < kRestEyes[0].ry * 0.5) {
-        vioCerrado = true;
-        break;
-      }
-    }
-    expect(vioCerrado, isTrue, reason: 'no parpadeo nunca');
+    // Espejo de las constantes privadas de BotEngine._lid: periodo 3.25s y
+    // ventana de parpadeo BLINK_DUR=0.18s (face.ts:121,131).
+    const blinkDur = 0.18;
+    const periodo = 3.25;
+
+    final abiertoInicio = e.sample(0.0).eyes[0].ry;
+    final cerrado = e.sample(blinkDur / 2).eyes[0].ry;
+    final abiertoFin = e.sample(blinkDur * 0.999).eyes[0].ry;
+    final fueraDeLaVentana = e.sample(periodo / 2).eyes[0].ry;
+
+    expect(cerrado, lessThan(abiertoInicio),
+        reason: 'el ojo deberia cerrarse hacia el centro de la ventana de parpadeo');
+    expect(cerrado, lessThan(abiertoFin),
+        reason: 'el ojo deberia reabrirse hacia el final de la ventana de parpadeo');
+    expect(fueraDeLaVentana, closeTo(kRestEyes[0].ry, 1e-9),
+        reason: 'fuera de la ventana de parpadeo el ojo tiene que estar totalmente abierto');
   });
 
   test('thinking oculta el cuerpo y muestra tres puntos', () {
@@ -57,11 +64,19 @@ void main() {
     expect(f.dots[2].cx, closeTo(0.532, 1e-9));
   });
 
-  test('los puntos pulsan desfasados: no todos tienen el mismo radio', () {
+  test('los puntos pulsan desfasados 0.5s entre si (formula dotPulse, states.ts:200)', () {
     final e = BotEngine()..hold(BotMood.thinking);
-    final f = e.sample(2.0);
-    final radios = f.dots.map((d) => d.r).toSet();
-    expect(radios.length, greaterThan(1));
+    final f = e.sample(0.15);
+    // Valores calculados independientemente de dotPulse(0.15, i) con
+    // r = DOT_R * (1 + (DOT_PEAK - 1) * pulso) y alpha = lerp(0.55, 1.0, pulso).
+    // Un desfase equivocado (p.ej. index*0.25 en vez de index*0.5) daria
+    // otros numeros aqui, no solo "menos radios distintos".
+    expect(f.dots[0].r, closeTo(0.172878, 1e-6));
+    expect(f.dots[0].alpha, closeTo(0.635942, 1e-6));
+    expect(f.dots[1].r, closeTo(0.165, 1e-6));
+    expect(f.dots[1].alpha, closeTo(0.55, 1e-6));
+    expect(f.dots[2].r, closeTo(0.20625, 1e-6));
+    expect(f.dots[2].alpha, closeTo(1.0, 1e-6));
   });
 
   test('sleeping encoge la bola y la hace rebotar', () {
