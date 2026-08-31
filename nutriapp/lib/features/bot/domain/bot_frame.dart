@@ -4,22 +4,33 @@
 
 class EyeSpec {
   final double cx, cy, rx, ry, alpha;
+
+  /// Matriz tangente 2x2 de la orientacion del ojo sobre la esfera:
+  /// pantalla = u*(a,b) + v*(c,d). Default identidad (ojo plano, sin
+  /// inclinacion) para no romper a quien construya un EyeSpec sin orientacion.
+  final double a, b, c, d;
+
   const EyeSpec({
     required this.cx,
     required this.cy,
     required this.rx,
     required this.ry,
     this.alpha = 1,
+    this.a = 1,
+    this.b = 0,
+    this.c = 0,
+    this.d = 1,
   });
 
   @override
   bool operator ==(Object other) =>
       other is EyeSpec &&
       other.cx == cx && other.cy == cy &&
-      other.rx == rx && other.ry == ry && other.alpha == alpha;
+      other.rx == rx && other.ry == ry && other.alpha == alpha &&
+      other.a == a && other.b == b && other.c == c && other.d == d;
 
   @override
-  int get hashCode => Object.hash(cx, cy, rx, ry, alpha);
+  int get hashCode => Object.hash(cx, cy, rx, ry, alpha, a, b, c, d);
 }
 
 class DotSpec {
