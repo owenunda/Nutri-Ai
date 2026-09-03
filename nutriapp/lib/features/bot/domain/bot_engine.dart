@@ -198,7 +198,13 @@ class BotEngine {
     );
   }
 
-  /// Bolita rebotando, ojos cerrados. Constantes de states.ts:370.
+  /// Bolita rebotando, sin ojos. states.ts:372 fija `eyeAlpha: 0` para este
+  /// estado: en Bloub no hay ojos que dibujar, no unos ojos casi cerrados.
+  /// Motivo real (no solo fidelidad): `EyeSpec.cx/cy` son posiciones sobre la
+  /// esfera de radio 1 (`kRestEyes`), y el painter las coloca en `cx * r0`
+  /// sin aplicar `sx`/`sy`. Como aqui el cuerpo se encoge a `_sleepR`, unos
+  /// ojos con esa posicion quedarian flotando fuera de la bolita — por eso
+  /// Bloub los oculta en vez de reescalarlos, y hacemos lo mismo.
   BotFrame _sleeping(double t) {
     final rebote = math.sin(t * tau / _sleepPeriod) * _sleepAmp;
     return _body(
@@ -206,7 +212,6 @@ class BotEngine {
       sx: _sleepR,
       sy: _sleepR,
       cy: _sleepCy + rebote,
-      eyes: _eyes(lid: 0.08),
     );
   }
 }
