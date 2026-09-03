@@ -87,6 +87,11 @@ void main() {
     expect(a.cy, isNot(closeTo(b.cy, 1e-6)), reason: 'no rebota');
   });
 
+  test('sleeping no dibuja ojos (states.ts:372, eyeAlpha 0)', () {
+    final e = BotEngine()..hold(BotMood.sleeping);
+    expect(e.sample(2.0).eyes, isEmpty);
+  });
+
   test('PRECEDENCIA: sleeping gana sobre thinking', () {
     final e = BotEngine()
       ..hold(BotMood.thinking)
