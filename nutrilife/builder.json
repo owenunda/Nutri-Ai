@@ -3,7 +3,7 @@
   "platform": "ios",
   "github": {
     "owner": "owenunda",
-    "repo": "NutruLife"
+    "repo": "NutriLife"
   },
   "ios": {
     "path": "nutrilife/ios"

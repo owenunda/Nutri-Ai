@@ -1,11 +1,11 @@
 {
-    "name": "NutruLife",
-    "short_name": "NutruLife",
+    "name": "NutriLife",
+    "short_name": "NutriLife",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "NutruLife - Tu asistente nutricional inteligente.",
+    "description": "NutriLife - Tu asistente nutricional inteligente.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

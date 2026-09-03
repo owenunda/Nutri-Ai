@@ -36,7 +36,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      title: "Nutri AI",
+      title: "Nutri life",
       theme: AppTheme.lightTheme,
       home: home,
     );

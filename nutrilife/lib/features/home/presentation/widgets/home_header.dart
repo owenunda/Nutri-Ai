@@ -13,7 +13,7 @@ class HomeHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            'NutruLife',
+            'NutriLife',
             style: TextStyle(
               fontFamily: 'PlusJakartaSans',
               color: AppTheme.primaryStart,

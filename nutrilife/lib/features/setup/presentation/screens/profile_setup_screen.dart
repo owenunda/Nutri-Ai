@@ -348,7 +348,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     children: [
                       const SizedBox(height: 6),
                       const Text(
-                        'NutruLife',
+                        'NutriLife',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppTheme.primaryStart,
@@ -477,7 +477,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         const Text(
-                                          'Precisión NutruLife',
+                                          'Precisión NutriLife',
                                           style: TextStyle(
                                             color: AppTheme.primaryStart,
                                             fontSize: 15,

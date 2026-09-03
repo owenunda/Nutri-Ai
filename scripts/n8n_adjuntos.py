@@ -4,7 +4,7 @@
 import io
 import json
 
-PATH = 'n8n/NutruLife - Chat de Recetas.json'
+PATH = 'n8n/NutriLife - Chat de Recetas.json'
 flow = json.load(io.open(PATH, encoding='utf-8'))
 nodes = {n['name']: n for n in flow['nodes']}
 

@@ -1,6 +1,6 @@
-# NutruLife - Estructura de Archivos
+# NutriLife - Estructura de Archivos
 
-NutruLife es una aplicación móvil desarrollada en Flutter para el control nutricional inteligente. La arquitectura propuesta busca que el proyecto sea escalable, modular, fácil de mantener y preparado para crecer sin convertirse en un monolito difícil de manejar.
+NutriLife es una aplicación móvil desarrollada en Flutter para el control nutricional inteligente. La arquitectura propuesta busca que el proyecto sea escalable, modular, fácil de mantener y preparado para crecer sin convertirse en un monolito difícil de manejar.
 
 ## Objetivo de la app
 
@@ -388,7 +388,7 @@ Preparar desde el inicio:
 Ejemplo:
 
 ```env
-API_URL=https://api.nutrulife.com
+API_URL=https://api.NutriLife.com
 ```
 
 ## MVP inicial recomendado
@@ -420,7 +420,7 @@ API_URL=https://api.nutrulife.com
 
 ## Recomendación final
 
-NutruLife ya parte con una base funcional amplia: IA, nutrición, calorías, recetas, historial, progreso y recordatorios. Por eso conviene mantener una arquitectura escalable desde el inicio.
+NutriLife ya parte con una base funcional amplia: IA, nutrición, calorías, recetas, historial, progreso y recordatorios. Por eso conviene mantener una arquitectura escalable desde el inicio.
 
 La combinación recomendada es:
 

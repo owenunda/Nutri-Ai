@@ -5,11 +5,11 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'NutruLife API',
+      title: 'NutriLife API',
       version: '1.0.0',
-      description: 'NutruLife API',
+      description: 'NutriLife API',
       contact: {
-        name: 'SENA NutruLife Team',
+        name: 'SENA NutriLife Team',
       },
     },
     servers: [

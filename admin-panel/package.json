@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Panel administrativo de NutruLife: visualización y análisis de eventos de actividad.",
+  "description": "Panel administrativo de NutriLife: visualización y análisis de eventos de actividad.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
