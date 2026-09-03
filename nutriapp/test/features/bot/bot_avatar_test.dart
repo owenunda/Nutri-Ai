@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutriapp/features/bot/domain/bot_frame.dart';
 import 'package:nutriapp/features/bot/domain/bot_mood.dart';
 import 'package:nutriapp/features/bot/presentation/bot_avatar.dart';
 import 'package:nutriapp/features/bot/presentation/bot_painter.dart';
@@ -11,6 +12,31 @@ BotPainter _painterActual(WidgetTester tester) {
     find.descendant(of: find.byType(BotAvatar), matching: find.byType(CustomPaint)).last,
   );
   return cp.painter! as BotPainter;
+}
+
+/// Bombea en pasos pequeños durante ~1s de tiempo simulado y cuenta cuantas
+/// veces el `BotFrame` pintado cambia respecto al paso anterior. Sirve para
+/// medir la cadencia real (fps efectivos) que `_onTick` deja pasar para cada
+/// mood, no solo que el frame avance en algun momento.
+///
+/// El paso es de 5ms (no 16ms) a proposito: con pasos de 16ms el intervalo de
+/// 60fps (16.667ms) entra casi en fase con el paso del pump y casi la mitad
+/// de los ticks quedan descartados por "doble paso" (aliasing), lo que hunde
+/// el conteo de `thinking` muy por debajo de lo que 60fps deberia dar. Con
+/// 5ms el paso queda bien por debajo de cualquier intervalo de fps en juego
+/// (66.7ms para 15fps, 16.7ms para 60fps) y el conteo deja de depender de
+/// como caiga el redondeo.
+Future<int> _contarFramesDistintos(WidgetTester tester, BotMood mood) async {
+  await tester.pumpWidget(_app(BotAvatar(mood: mood)));
+  BotFrame? anterior;
+  var cambios = 0;
+  for (var i = 0; i < 200; i++) {
+    await tester.pump(const Duration(milliseconds: 5));
+    final f = _painterActual(tester).frame;
+    if (anterior != null && f != anterior) cambios++;
+    anterior = f;
+  }
+  return cambios;
 }
 
 void main() {
@@ -42,6 +68,20 @@ void main() {
     final box = tester.getSize(find.byType(BotAvatar));
     expect(box.width, equals(32));
     expect(box.height, equals(32));
+  });
+
+  testWidgets('la cadencia descarta frames segun el mood (idle 15fps vs thinking 60fps)',
+      (tester) async {
+    final cambiosIdle = await _contarFramesDistintos(tester, BotMood.idle);
+    final cambiosThinking = await _contarFramesDistintos(tester, BotMood.thinking);
+
+    // Umbrales con holgura: el reparto exacto depende de como caiga el
+    // redondeo del intervalo, pero la diferencia entre 15fps y 60fps sobre
+    // ~1s de tiempo simulado (200 pasos de 5ms) tiene que ser clara. Medido:
+    // idle ~12-14 cambios, thinking ~37-39 cambios.
+    expect(cambiosIdle, lessThan(20));
+    expect(cambiosThinking, greaterThan(30));
+    expect(cambiosIdle, lessThan(cambiosThinking));
   });
 
   testWidgets('se desmonta sin dejar el ticker vivo', (tester) async {
