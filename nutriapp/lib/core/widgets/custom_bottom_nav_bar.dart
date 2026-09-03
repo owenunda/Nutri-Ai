@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../features/bot/domain/bot_mood.dart';
+import '../../features/bot/presentation/bot_avatar.dart';
+import '../state/bot_mood_state.dart';
+
 class CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onTabSelected;
@@ -31,7 +35,7 @@ class CustomBottomNavBar extends StatelessWidget {
         children: [
           _buildNavItem(0, Icons.home_rounded, 'Inicio'),
           _buildNavItem(1, Icons.restaurant_menu_rounded, 'Alimentos'),
-          _buildCenterItem(2, Icons.auto_awesome_rounded, 'IA'),
+          _buildCenterItem(2, 'IA'),
           _buildNavItem(3, Icons.bar_chart_rounded, 'Progreso'),
           _buildNavItem(4, Icons.person_rounded, 'Perfil'),
         ],
@@ -76,10 +80,13 @@ class CustomBottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildCenterItem(int index, IconData icon, String label) {
+  Widget _buildCenterItem(int index, String label) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
-      onTap: () => onTabSelected(index),
+      onTap: () {
+        BotMoodState.instance.pulse(BotMood.surprised);
+        onTabSelected(index);
+      },
       behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -97,10 +104,25 @@ class CustomBottomNavBar extends StatelessWidget {
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 24,
+              // El blob va metido dentro del circulo, no a ras: a 50px llenaria
+              // el boton entero de blanco y taparia el gradiente de marca.
+              child: Center(
+                child: ListenableBuilder(
+                  listenable: BotMoodState.instance,
+                  builder: (context, _) {
+                    final s = BotMoodState.instance;
+                    return BotAvatar(
+                      mood: s.mood,
+                      pulseToken: s.pulseToken,
+                      pulseMood: s.pulseMood,
+                      // 39, no 34: el blob deja un margen de 1/1.15 dentro de
+                      // su lienzo (ver kRestBallFraction), asi que la bola
+                      // visible mide 39 * 0.8696 = 33.9px. Ese margen es lo que
+                      // evita que `surprised` (escala 1.06) se recorte.
+                      size: 39,
+                    );
+                  },
+                ),
               ),
             ),
           ),
