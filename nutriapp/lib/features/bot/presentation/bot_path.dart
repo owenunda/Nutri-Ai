@@ -6,10 +6,27 @@ import 'dart:ui';
 
 import '../domain/bot_frame.dart';
 
+/// Radio de la bola en reposo, como fraccion del medio-lienzo (no 1.0).
+///
+/// Bloub (`bot/repere.ts`) usa `RAYON=100` sobre `DEMI_VIEWBOX=158`: deja
+/// ~58% de margen porque tiene estados como `orbit`/`comet` que llegan a
+/// 1.4x el radio de reposo. No portamos esos estados, asi que copiar ese
+/// margen encogeria el blob a un 63% sin necesidad. Seguimos el mismo
+/// principio (inscribir la bola con margen, no a ras del lienzo) pero
+/// ajustado a nuestro alcance real: la unica excursion por encima de 1.0
+/// es `surprised` a 1.06, asi que basta con medio-lienzo = 1.15 radios.
+const double kRestBallFraction = 1 / 1.15;
+
+/// Radio en pixeles de la bola en reposo para un lienzo dado. El painter y
+/// `profilePoints` DEBEN usar esta misma funcion — si uno calcula su propio
+/// `shortestSide / 2`, el cuerpo y los ojos/puntos quedan a escalas
+/// distintas y se despegan entre si.
+double ballRadius(Size size) => size.shortestSide / 2 * kRestBallFraction;
+
 /// Convierte los radios normalizados del frame en puntos de pantalla.
 List<Offset> profilePoints(BotFrame f, Size size) {
   final n = f.radii.length;
-  final r0 = size.shortestSide / 2;
+  final r0 = ballRadius(size);
   final ox = size.width / 2 + f.cx * r0;
   final oy = size.height / 2 + f.cy * r0;
   return List<Offset>.generate(n, (i) {
