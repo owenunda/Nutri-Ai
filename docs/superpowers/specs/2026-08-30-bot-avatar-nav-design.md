@@ -113,9 +113,13 @@ dentro sin romper a la otra.
 
 - `BotEngine.sample(double t) -> BotFrame` — función pura del tiempo. Mismo `t`, mismo frame.
   No guarda reloj propio; el widget le pasa el tiempo transcurrido.
-- `BotEngine.setMood(BotMood)` — encola la transición. El motor decide morph y duración.
-- `BotEngine.isSettled -> bool` — true cuando no hay transición ni animación en curso.
-  Es la señal que usa el widget para dormir el ticker.
+- `BotEngine.hold(BotMood)` — fija el mood sostenido; ignora los transitorios.
+- `BotEngine.pulse(BotMood)` — dispara un transitorio; solo se aplica sobre `idle`.
+- `BotEngine.effectiveMood` — el mood resultante tras aplicar la precedencia.
+- `BotEngine.isSettled -> bool` — true cuando no hay transición de mood en vuelo y ningún
+  pulse pendiente. No controla el ticker (ver §Rendimiento); sirve para que los tests sepan
+  cuándo una transición terminó, y para que `pulse()` no se pise a sí mismo.
+- `BotEngine.fpsFor(BotMood) -> int` — cadencia declarada por mood, que el widget respeta.
 - `BotPainter(BotFrame frame, Color body, Color eyes)` — sin estado, sin lógica temporal.
 
 ## Extracción de datos
@@ -163,14 +167,25 @@ sobre `idle`. Esa precedencia vive en `BotEngine`, no repartida entre los llamad
 
 La nav bar está siempre montada, así que un `Ticker` a 60fps permanente es inaceptable.
 
-- El ticker corre **solo** mientras `!engine.isSettled`. Al asentarse, se para.
-- El parpadeo no mantiene el ticker vivo: un `Timer` cada 3–5s lo despierta ~200ms y lo
-  vuelve a dormir.
+`idle` respira, así que "cero frames en reposo" no es alcanzable sin matar la animación. En
+vez de dormir el ticker, se regula su **cadencia por mood**:
+
+| Mood | Cadencia | Motivo |
+|---|---|---|
+| `idle` | 15 fps | La respiración tiene periodo ~4s; 15fps es indistinguible de 60 |
+| `thinking` | 60 fps | Los puntos pulsan rápido y es el estado que más se mira |
+| `pleased`, `surprised` | 60 fps | Transitorios y cortos; la fluidez importa |
+| `sleeping` | 30 fps | Rebote lento |
+
+- El widget lleva un único `Ticker`; descarta los frames que caen dentro del intervalo de la
+  cadencia activa. `BotEngine.fpsFor(mood)` es quien la declara.
 - `Ticker` se silencia solo cuando `TickerMode.of(context)` es false (app en background,
   ruta tapada). Gratis, sin código.
 - `BotPainter.shouldRepaint` compara el `BotFrame`, no la identidad del painter.
 
-Objetivo en reposo: sin frames, solo un timer dormido.
+Coste en reposo: 15 interpolaciones de 64 flotantes y 15 construcciones de path por segundo,
+sobre un canvas de 50×50. No hay `Timer` de parpadeo separado; el parpadeo es parte de la
+pose de `idle`.
 
 ## Testing
 
@@ -188,8 +203,11 @@ TDD. El motor puro permite tests rápidos sin binding de Flutter.
 **Painter** (`test/features/bot/bot_painter_test.dart`):
 - Golden tests a 50×50 para cada uno de los cinco estados.
 
-**Port**: se portan las aserciones relevantes de `shape.test.ts` como red de seguridad de que
-la traducción de la matemática es fiel.
+**Dato portado** (`test/features/bot/bot_profiles_test.dart`): invariantes, no valores
+concretos, para que sigan valiendo si se reextrae. Cada perfil tiene exactamente 64 radios,
+todos positivos y normalizados a ≤1, y el contorno es continuo (sin saltos bruscos entre
+muestras vecinas). Esto cubre lo que `shape.test.ts` afirma sobre los perfiles; un perfil mal
+extraído falla aquí en vez de aparecer como un blob deforme en pantalla.
 
 ## Licencia y atribución
 
