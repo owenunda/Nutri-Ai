@@ -21,14 +21,30 @@ List<Offset> profilePoints(BotFrame f, Size size) {
   }, growable: false);
 }
 
-/// Spline Catmull-Rom cerrada, convertida a Bezier cubica.
+/// Puntos de control Bezier de un segmento Catmull-Rom p1->p2.
 ///
-/// Para cada segmento P1->P2, los puntos de control salen de los vecinos:
+/// La tension 1/6 es la de Bloub (shape.ts:103).
 ///   c1 = P1 + (P2 - P0) / 6
 ///   c2 = P2 - (P3 - P1) / 6
+({Offset c1, Offset c2}) catmullRomControls(
+  Offset p0,
+  Offset p1,
+  Offset p2,
+  Offset p3,
+) {
+  return (c1: p1 + (p2 - p0) / 6, c2: p2 - (p3 - p1) / 6);
+}
+
+/// Spline Catmull-Rom cerrada, convertida a Bezier cubica.
+///
+/// Para cada segmento P1->P2, los puntos de control salen de los vecinos
+/// (ver [catmullRomControls]).
 Path closedCatmullRomPath(List<Offset> pts) {
   final n = pts.length;
   final path = Path();
+  // Bloub exige n >= 3 (shape.ts:103); aqui pedimos n >= 4 porque con 4
+  // puntos la ventana de vecinos p0..p3 ya esta bien definida sin
+  // duplicados. En la practica `radii` siempre trae 64 muestras.
   if (n < 4) return path;
 
   path.moveTo(pts[0].dx, pts[0].dy);
@@ -37,9 +53,15 @@ Path closedCatmullRomPath(List<Offset> pts) {
     final p1 = pts[i];
     final p2 = pts[(i + 1) % n];
     final p3 = pts[(i + 2) % n];
-    final c1 = p1 + (p2 - p0) / 6;
-    final c2 = p2 - (p3 - p1) / 6;
-    path.cubicTo(c1.dx, c1.dy, c2.dx, c2.dy, p2.dx, p2.dy);
+    final controls = catmullRomControls(p0, p1, p2, p3);
+    path.cubicTo(
+      controls.c1.dx,
+      controls.c1.dy,
+      controls.c2.dx,
+      controls.c2.dy,
+      p2.dx,
+      p2.dy,
+    );
   }
   path.close();
   return path;
