@@ -53,4 +53,22 @@ void main() {
     expect(path.contains(const Offset(50, 50)), isTrue);
     expect(path.contains(const Offset(2, 2)), isFalse);
   });
+
+  test('catmullRomControls da los valores exactos para un segmento asimetrico', () {
+    // p0=(0,0), p1=(1,0), p2=(2,1), p3=(3,0)
+    // c1 = p1 + (p2-p0)/6 = (1,0) + (2,1)/6      = (1.3333333, 0.1666667)
+    // c2 = p2 - (p3-p1)/6 = (2,1) - (2,0)/6      = (1.6666667, 1.0)
+    // Valores calculados a mano desde la formula, no desde el codigo.
+    const p0 = Offset(0, 0);
+    const p1 = Offset(1, 0);
+    const p2 = Offset(2, 1);
+    const p3 = Offset(3, 0);
+
+    final controls = catmullRomControls(p0, p1, p2, p3);
+
+    expect(controls.c1.dx, closeTo(1.3333333, 1e-6));
+    expect(controls.c1.dy, closeTo(0.1666667, 1e-6));
+    expect(controls.c2.dx, closeTo(1.6666667, 1e-6));
+    expect(controls.c2.dy, closeTo(1.0, 1e-6));
+  });
 }
