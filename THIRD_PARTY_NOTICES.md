@@ -2,9 +2,9 @@
 
 ## Bloub
 
-El motor de animacion del bot en `nutriapp/lib/features/bot/domain/bot_engine.dart`
-y `nutriapp/lib/features/bot/domain/bot_eyes.dart`, y los datos de
-`nutriapp/lib/features/bot/data/bot_profiles.dart`, portan lo siguiente desde
+El motor de animacion del bot en `nutrilife/lib/features/bot/domain/bot_engine.dart`
+y `nutrilife/lib/features/bot/domain/bot_eyes.dart`, y los datos de
+`nutrilife/lib/features/bot/data/bot_profiles.dart`, portan lo siguiente desde
 [Bloub](https://github.com/jeremy-prt/bloub):
 
 - **La tecnica**: perfiles radiales muestreados (un array de radios alrededor

@@ -1,0 +1,17 @@
+{
+  "project": "nutrilife",
+  "platform": "ios",
+  "github": {
+    "owner": "owenunda",
+    "repo": "NutruLife"
+  },
+  "ios": {
+    "path": "nutrilife/ios"
+  },
+  "flutter": {
+    "version": "",
+    "watch": {}
+  },
+  "reactNative": {},
+  "mobai": {}
+}

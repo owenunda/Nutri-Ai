@@ -1,6 +1,6 @@
-# Flujo de Trabajo con Git - NutriAI Backend
+# Flujo de Trabajo con Git - NutruLife Backend
 
-Este documento define el flujo de trabajo con Git para el backend de NutriAI.
+Este documento define el flujo de trabajo con Git para el backend de NutruLife.
 El objetivo es mantener un código limpio, evitar conflictos y facilitar el trabajo en equipo.
 
 ---

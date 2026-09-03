@@ -1,6 +1,6 @@
 # Middleware de Autenticación y Autorización
 
-Este documento describe cómo funciona el middleware `authenticateToken` y cómo aplicarlo en las rutas del sistema NutriAI.
+Este documento describe cómo funciona el middleware `authenticateToken` y cómo aplicarlo en las rutas del sistema NutruLife.
 
 ## ¿Qué hace `authenticateToken`?
 

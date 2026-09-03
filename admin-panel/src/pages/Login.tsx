@@ -41,7 +41,7 @@ export default function Login() {
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/15">
             <Salad className="h-6 w-6 text-primary" />
           </div>
-          <CardTitle>NutriAI · Panel Admin</CardTitle>
+          <CardTitle>NutruLife · Panel Admin</CardTitle>
           <CardDescription>Inicia sesión con tu cuenta de administrador</CardDescription>
         </CardHeader>
         <CardContent>
@@ -51,7 +51,7 @@ export default function Login() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@nutriai.com"
+                placeholder="admin@nutrulife.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

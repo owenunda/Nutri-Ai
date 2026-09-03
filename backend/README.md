@@ -1,6 +1,6 @@
-# NutriAI - Backend
+# NutruLife - Backend
 
-NutriAI es una potente y escalable aplicación de nutrición diseñada para ayudar a los usuarios a gestionar su dieta, realizar un seguimiento de calorías y generar recetas personalizadas de forma inteligente. El núcleo de la aplicación se basa en el concepto de "nevera virtual", permitiendo a los usuarios obtener sugerencias de comidas basadas específicamente en los ingredientes que ya tienen a su disposición.
+NutruLife es una potente y escalable aplicación de nutrición diseñada para ayudar a los usuarios a gestionar su dieta, realizar un seguimiento de calorías y generar recetas personalizadas de forma inteligente. El núcleo de la aplicación se basa en el concepto de "nevera virtual", permitiendo a los usuarios obtener sugerencias de comidas basadas específicamente en los ingredientes que ya tienen a su disposición.
 
 ##  Características
 
@@ -86,7 +86,7 @@ Debes configurar las siguientes variables en tu archivo `.env`:
 
 ```env
 PORT=3000
-DB_URL=postgresql://usuario:password@localhost:5432/nutriai
+DB_URL=postgresql://usuario:password@localhost:5432/NutruLife
 JWT_SECRET=tu_clave_secreta_super_segura
 N8N_WEBHOOK_URL=https://tu-instancia-n8n.com/webhook/recetas
 ```
@@ -104,7 +104,7 @@ N8N_WEBHOOK_URL=https://tu-instancia-n8n.com/webhook/recetas
 
 ## Seguridad
 
-NutriAI implementa las mejores prácticas de seguridad para proteger los datos de los usuarios:
+NutruLife implementa las mejores prácticas de seguridad para proteger los datos de los usuarios:
 - **Hashing de contraseñas:** Uso de `bcrypt` para asegurar que las contraseñas nunca se almacenen en texto plano.
 - **Autenticación Robusta:** JWT para la protección de rutas privadas y gestión de sesiones.
 - **Protección Básica:** Implementación de CORS, validación de datos de entrada y manejo controlado de errores.

@@ -12,7 +12,7 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
-/** Envoltorio estándar de respuestas del backend NutriAI. */
+/** Envoltorio estándar de respuestas del backend NutruLife. */
 export interface ApiResponse<T> {
   success: boolean;
   message: string;

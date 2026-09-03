@@ -2,7 +2,7 @@
 
 ## Contexto
 
-Un audit contra `nutriapp/lib/docs/DESIGN.md` encontró que `progress_screen.dart` y
+Un audit contra `nutrilife/lib/docs/DESIGN.md` encontró que `progress_screen.dart` y
 `profile_screen.dart` no comparten tokens de color/tipografía/sombra/radio con el resto
 de la app (p. ej. `dashboard_screen.dart`), y violan reglas explícitas del sistema:
 
@@ -43,7 +43,7 @@ Explícitamente fuera de alcance:
   `AppTheme.background`/`AppTheme.surface` (no se renombran ni alteran esos valores).
 - Cambiar lógica de datos, repositorios o navegación.
 
-## 1. Tokens compartidos — `nutriapp/lib/core/theme/app_theme.dart`
+## 1. Tokens compartidos — `nutrilife/lib/core/theme/app_theme.dart`
 
 Se agregan campos nuevos a `AppTheme` (no se modifican `background`, `surface`,
 `primaryStart`, `primaryEnd`, `onPrimary`, que ya son usados por otras pantallas):

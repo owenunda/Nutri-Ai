@@ -24,7 +24,7 @@ export function Layout() {
       <aside className="hidden w-64 flex-col border-r bg-card md:flex">
         <div className="flex h-16 items-center gap-2 border-b px-6">
           <Salad className="h-6 w-6 text-primary" />
-          <span className="font-semibold">NutriAI Admin</span>
+          <span className="font-semibold">NutruLife Admin</span>
         </div>
         <nav className="flex-1 space-y-1 p-4">
           {NAV.map(({ to, label, icon: Icon, end }) => (
@@ -64,7 +64,7 @@ export function Layout() {
         <header className="flex h-16 items-center justify-between border-b px-4 md:hidden">
           <div className="flex items-center gap-2">
             <Salad className="h-5 w-5 text-primary" />
-            <span className="font-semibold">NutriAI Admin</span>
+            <span className="font-semibold">NutruLife Admin</span>
           </div>
           <Button variant="ghost" size="icon" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />

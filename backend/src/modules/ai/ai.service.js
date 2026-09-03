@@ -18,7 +18,7 @@ export const saveGeneratedRecipeService = async (userId, recipeData) => {
       VALUES ($1, $2)
       RETURNING recipe_id
     `;
-    const recipeResult = await client.query(recipeQuery, [name, description || 'Generada por NutriAI']);
+    const recipeResult = await client.query(recipeQuery, [name, description || 'Generada por NutruLife']);
     const recipeId = recipeResult.rows[0].recipe_id;
 
     const userRecipeQuery = `

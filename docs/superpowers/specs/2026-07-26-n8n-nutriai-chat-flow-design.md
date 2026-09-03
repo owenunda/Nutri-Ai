@@ -1,11 +1,11 @@
-# Diseño: Flujo de chat NutriAI en n8n
+# Diseño: Flujo de chat NutruLife en n8n
 
 Fecha: 2026-07-26
 Estado: aprobado
 
 ## Problema
 
-El workflow `NutriAI - Recetas IA MVP` solo atiende un caso: generar una receta cuando el
+El workflow `NutruLife - Recetas IA MVP` solo atiende un caso: generar una receta cuando el
 usuario nombra ingredientes. El nodo interpretador de intención reconoce siete intents, pero
 la rama de conversación del router está vacía y el resto cae por defecto en "generar receta".
 Además el flujo falla en el segundo mensaje de cualquier usuario.
