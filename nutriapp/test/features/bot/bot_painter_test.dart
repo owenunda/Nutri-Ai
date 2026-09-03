@@ -15,12 +15,18 @@ Widget _caja(BotEngine e, double t) => MaterialApp(
           child: SizedBox(
             width: 50,
             height: 50,
-            child: CustomPaint(
+            // La key va en el RepaintBoundary, no en el CustomPaint: sin un
+            // RenderRepaintBoundary propio aqui, matchesGoldenFile sube por
+            // el arbol de render hasta encontrar uno (el de la superficie de
+            // test, 800x600) y captura eso en vez del blob de 50x50.
+            child: RepaintBoundary(
               key: kBlobKey,
-              painter: BotPainter(
-                frame: e.sample(t),
-                bodyColor: const Color(0xFFFFFFFF),
-                eyeColor: const Color(0xFF134E32),
+              child: CustomPaint(
+                painter: BotPainter(
+                  frame: e.sample(t),
+                  bodyColor: const Color(0xFFFFFFFF),
+                  eyeColor: const Color(0xFF134E32),
+                ),
               ),
             ),
           ),
