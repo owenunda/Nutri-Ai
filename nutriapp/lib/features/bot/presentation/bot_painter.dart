@@ -22,7 +22,9 @@ class BotPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final r0 = size.shortestSide / 2;
+    // Mismo radio que profilePoints (bot_path.dart): si cuerpo y ojos usaran
+    // radios distintos, los ojos se despegarian del cuerpo.
+    final r0 = ballRadius(size);
     final ox = size.width / 2;
     final oy = size.height / 2;
 
