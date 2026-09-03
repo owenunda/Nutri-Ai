@@ -4,7 +4,7 @@
 
 **Goal:** Make `progress_screen.dart` and `profile_screen.dart` consume the same design
 tokens, typography, and shared components as the rest of the Nutri-Ai Flutter app,
-per `nutriapp/lib/docs/DESIGN.md` and the approved spec at
+per `nutrilife/lib/docs/DESIGN.md` and the approved spec at
 `docs/superpowers/specs/2026-07-23-progress-profile-redesign-design.md`.
 
 **Architecture:** Add missing design tokens (color/radius/shadow) and a global Inter
@@ -37,7 +37,7 @@ navigation, or data logic changes.
 ### Task 1: Add the `google_fonts` dependency
 
 **Files:**
-- Modify: `nutriapp/pubspec.yaml`
+- Modify: `nutrilife/pubspec.yaml`
 
 **Interfaces:**
 - Produces: the `google_fonts` package available for import as
@@ -45,7 +45,7 @@ navigation, or data logic changes.
 
 - [ ] **Step 1: Add the dependency**
 
-Edit `nutriapp/pubspec.yaml`:
+Edit `nutrilife/pubspec.yaml`:
 
 ```yaml
 dependencies:
@@ -60,14 +60,14 @@ dependencies:
 
 - [ ] **Step 2: Fetch the dependency**
 
-Run (from `nutriapp/`): `flutter pub get`
+Run (from `nutrilife/`): `flutter pub get`
 Expected: exits 0, output ends with `Got dependencies!` (or similar success line),
 `pubspec.lock` is updated with a `google_fonts` entry.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add nutriapp/pubspec.yaml nutriapp/pubspec.lock
+git add nutrilife/pubspec.yaml nutrilife/pubspec.lock
 git commit -m "Add google_fonts dependency for Plus Jakarta Sans + Inter"
 ```
 
@@ -76,7 +76,7 @@ git commit -m "Add google_fonts dependency for Plus Jakarta Sans + Inter"
 ### Task 2: Add design tokens and global typography to `AppTheme`
 
 **Files:**
-- Modify: `nutriapp/lib/core/theme/app_theme.dart`
+- Modify: `nutrilife/lib/core/theme/app_theme.dart`
 
 **Interfaces:**
 - Consumes: nothing new (only `flutter/material.dart`, plus `google_fonts` from Task 1).
@@ -186,13 +186,13 @@ class AppTheme {
 
 - [ ] **Step 2: Verify with static analysis**
 
-Run (from `nutriapp/`): `flutter analyze lib/core/theme/app_theme.dart`
+Run (from `nutrilife/`): `flutter analyze lib/core/theme/app_theme.dart`
 Expected: `No issues found!`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add nutriapp/lib/core/theme/app_theme.dart
+git add nutrilife/lib/core/theme/app_theme.dart
 git commit -m "Add shared design tokens and Inter text theme to AppTheme"
 ```
 
@@ -201,13 +201,13 @@ git commit -m "Add shared design tokens and Inter text theme to AppTheme"
 ### Task 3: Migrate `progress_screen.dart` to shared tokens, typography, and `PrimaryButton`
 
 **Files:**
-- Modify: `nutriapp/lib/features/progress/presentation/screens/progress_screen.dart`
+- Modify: `nutrilife/lib/features/progress/presentation/screens/progress_screen.dart`
 
 **Interfaces:**
 - Consumes: `AppTheme.onSurface`, `AppTheme.onSurfaceVariant`, `AppTheme.tertiary`,
   `AppTheme.surfaceContainerLow`, `AppTheme.surfaceContainerLowest`,
   `AppTheme.radiusMd`, `AppTheme.ambientShadow` (Task 2); `PrimaryButton` from
-  `nutriapp/lib/core/widgets/primary_button.dart` (constructor params used:
+  `nutrilife/lib/core/widgets/primary_button.dart` (constructor params used:
   `textButton`, `icon`, `height`, `onPressed`).
 - Produces: no new public API — internal restyle only.
 
@@ -396,7 +396,7 @@ Old:
 
 ```dart
         const Text(
-          'NutriAI',
+          'NutruLife',
           style: TextStyle(
             color: ProgressScreen._green,
             fontSize: 17,
@@ -409,7 +409,7 @@ New:
 
 ```dart
         Text(
-          'NutriAI',
+          'NutruLife',
           style: GoogleFonts.plusJakartaSans(
             color: ProgressScreen._green,
             fontSize: 17,
@@ -1093,7 +1093,7 @@ is used directly at both former call sites, from Steps 5 and 9).
 
 - [ ] **Step 10: Verify with static analysis**
 
-Run (from `nutriapp/`):
+Run (from `nutrilife/`):
 `flutter analyze lib/features/progress/presentation/screens/progress_screen.dart`
 Expected: `No issues found!` (confirms no leftover references to the deleted
 `_softShadow` getter or unused imports).
@@ -1101,7 +1101,7 @@ Expected: `No issues found!` (confirms no leftover references to the deleted
 - [ ] **Step 11: Commit**
 
 ```bash
-git add nutriapp/lib/features/progress/presentation/screens/progress_screen.dart
+git add nutrilife/lib/features/progress/presentation/screens/progress_screen.dart
 git commit -m "Migrate ProgressScreen to shared design tokens, typography, and PrimaryButton"
 ```
 
@@ -1110,11 +1110,11 @@ git commit -m "Migrate ProgressScreen to shared design tokens, typography, and P
 ### Task 4: Migrate `profile_screen.dart` to shared tokens, typography, and `PrimaryButton`
 
 **Files:**
-- Modify: `nutriapp/lib/features/profile/presentation/screens/profile_screen.dart`
+- Modify: `nutrilife/lib/features/profile/presentation/screens/profile_screen.dart`
 
 **Interfaces:**
 - Consumes: same `AppTheme` tokens as Task 3, plus `AppTheme.radiusLg`; `PrimaryButton`
-  from `nutriapp/lib/core/widgets/primary_button.dart`.
+  from `nutrilife/lib/core/widgets/primary_button.dart`.
 - Produces: no new public API — internal restyle only.
 
 - [ ] **Step 1: Imports and `_ProfileColors` aliases**
@@ -1302,7 +1302,7 @@ Old:
 
 ```dart
         const Text(
-          'NutriAI',
+          'NutruLife',
           style: TextStyle(
             color: _ProfileColors.green,
             fontSize: 24,
@@ -1316,7 +1316,7 @@ New:
 
 ```dart
         Text(
-          'NutriAI',
+          'NutruLife',
           style: GoogleFonts.plusJakartaSans(
             color: _ProfileColors.green,
             fontSize: 24,
@@ -1977,7 +1977,7 @@ three former call sites, from Steps 2, 4, and 6).
 
 - [ ] **Step 9: Verify with static analysis**
 
-Run (from `nutriapp/`):
+Run (from `nutrilife/`):
 `flutter analyze lib/features/profile/presentation/screens/profile_screen.dart`
 Expected: `No issues found!` (confirms no leftover references to the deleted
 `_profileShadow` getter, no unused imports, and the `const` removals above didn't
@@ -1986,7 +1986,7 @@ leave any stray `const` keywords on now-non-const `GoogleFonts.*` expressions).
 - [ ] **Step 10: Commit**
 
 ```bash
-git add nutriapp/lib/features/profile/presentation/screens/profile_screen.dart
+git add nutrilife/lib/features/profile/presentation/screens/profile_screen.dart
 git commit -m "Migrate ProfileScreen to shared design tokens, typography, and PrimaryButton"
 ```
 
@@ -1998,7 +1998,7 @@ git commit -m "Migrate ProfileScreen to shared design tokens, typography, and Pr
 
 - [ ] **Step 1: Analyze the whole project**
 
-Run (from `nutriapp/`): `flutter analyze`
+Run (from `nutrilife/`): `flutter analyze`
 Expected: `No issues found!` across the whole `lib/` tree (confirms Tasks 2-4 didn't
 regress any other file, e.g. `dashboard_screen.dart` still compiles against the
 unmodified `AppTheme` fields it uses).
@@ -2007,7 +2007,7 @@ unmodified `AppTheme` fields it uses).
 
 Use the `run` skill (or `flutter run`) to launch the app, log in, and open the
 **Progreso** and **Perfil** tabs from the bottom nav in `dashboard_screen.dart`.
-Confirm against `nutriapp/lib/docs/DESIGN.md`:
+Confirm against `nutrilife/lib/docs/DESIGN.md`:
 - No blue accents remain in the weight-history chart or status labels (teal instead).
 - No 1px divider lines are visible between the three settings rows in Perfil.
 - The logout button shows a faint (not solid-gray) 1px border.

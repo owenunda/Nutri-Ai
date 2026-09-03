@@ -14,7 +14,7 @@
 
 - **No añadir dependencias a `pubspec.yaml`.** Nada de `path_drawing`, `provider`, `rive`, `lottie`.
 - **`bot_engine.dart`, `bot_frame.dart`, `bot_mood.dart` y `bot_math.dart` NO pueden importar `dart:ui` ni `package:flutter/*`.** Solo `dart:math`. Esto es lo que mantiene el motor testeable como Dart plano.
-- Todas las rutas son relativas a `nutriapp/`. Los comandos se ejecutan desde `nutriapp/`.
+- Todas las rutas son relativas a `nutrilife/`. Los comandos se ejecutan desde `nutrilife/`.
 - Los radios se guardan **normalizados** (0..1, donde 1 = radio del círculo que encaja en el canvas). El painter los escala.
 - `PROFILE_SAMPLES = 64` en todas las formas, sin excepción.
 - Colores del blob: cuerpo `#FFFFFF`, ojos `#134E32`. El círculo con gradiente `#0A6B3F → #1E56F5` del botón no se toca.
@@ -58,8 +58,8 @@
 ```dart
 // test/features/bot/bot_frame_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/features/bot/domain/bot_frame.dart';
-import 'package:nutriapp/features/bot/domain/bot_mood.dart';
+import 'package:nutrilife/features/bot/domain/bot_frame.dart';
+import 'package:nutrilife/features/bot/domain/bot_mood.dart';
 
 void main() {
   test('pleased y surprised son transitorios; el resto sostenidos', () {
@@ -97,7 +97,7 @@ void main() {
 - [ ] **Step 2: Ejecutar el test y verificar que falla**
 
 Run: `flutter test test/features/bot/bot_frame_test.dart`
-Expected: FAIL — "Target of URI doesn't exist: 'package:nutriapp/features/bot/domain/bot_frame.dart'"
+Expected: FAIL — "Target of URI doesn't exist: 'package:nutrilife/features/bot/domain/bot_frame.dart'"
 
 - [ ] **Step 3: Implementar los tipos**
 
@@ -230,7 +230,7 @@ El caso que importa de verdad es el ángulo: de 350° a 10° debe pasar por 0°,
 // test/features/bot/bot_math_test.dart
 import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/features/bot/domain/bot_math.dart';
+import 'package:nutrilife/features/bot/domain/bot_math.dart';
 
 const tau = 2 * math.pi;
 double deg(double d) => d * math.pi / 180;
@@ -351,7 +351,7 @@ Esta task funde la antigua Task 3 (extracción de perfiles) con la Task 4 (motor
 - Create: `lib/features/bot/domain/bot_eyes.dart`
 - Create: `lib/features/bot/domain/bot_engine.dart`
 - Modify: `lib/features/bot/domain/bot_frame.dart` (añadir la matriz a `EyeSpec`)
-- Create: `THIRD_PARTY_NOTICES.md` (raíz del repo, fuera de `nutriapp/`)
+- Create: `THIRD_PARTY_NOTICES.md` (raíz del repo, fuera de `nutrilife/`)
 - Test: `test/features/bot/bot_engine_test.dart`
 - Test: `test/features/bot/bot_eyes_test.dart`
 
@@ -410,7 +410,7 @@ final List<double> kSphereProfile = List<double>.unmodifiable(
 );
 ```
 
-Y crea `THIRD_PARTY_NOTICES.md` en la **raíz del repo** (un nivel por encima de `nutriapp/`). Copia el texto de la licencia literalmente desde el `LICENSE` del clon de Bloub que se te indica en el dispatch; no lo escribas de memoria. El fichero debe decir qué se portó: la técnica (perfiles radiales muestreados + Catmull-Rom con tensión 1/6) y las constantes de pose y timing medidas, no arrays de datos.
+Y crea `THIRD_PARTY_NOTICES.md` en la **raíz del repo** (un nivel por encima de `nutrilife/`). Copia el texto de la licencia literalmente desde el `LICENSE` del clon de Bloub que se te indica en el dispatch; no lo escribas de memoria. El fichero debe decir qué se portó: la técnica (perfiles radiales muestreados + Catmull-Rom con tensión 1/6) y las constantes de pose y timing medidas, no arrays de datos.
 
 - [ ] **Step 2: Escribir el test de los ojos**
 
@@ -419,7 +419,7 @@ Como en nuestros cinco estados la mirada nunca cambia (todos usan `REST_GAZE`), 
 ```dart
 // test/features/bot/bot_eyes_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/features/bot/domain/bot_eyes.dart';
+import 'package:nutrilife/features/bot/domain/bot_eyes.dart';
 
 void main() {
   test('hay exactamente dos ojos', () {
@@ -549,8 +549,8 @@ Expected: PASS. Si el test "los dos ojos estan dentro de la bola" falla, revisa 
 ```dart
 // test/features/bot/bot_engine_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/features/bot/domain/bot_engine.dart';
-import 'package:nutriapp/features/bot/domain/bot_mood.dart';
+import 'package:nutrilife/features/bot/domain/bot_engine.dart';
+import 'package:nutrilife/features/bot/domain/bot_mood.dart';
 
 void main() {
   test('arranca en idle y asentado', () {
@@ -925,8 +925,8 @@ git commit -m "feat(bot): motor de animacion con las constantes medidas de Bloub
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/features/bot/domain/bot_frame.dart';
-import 'package:nutriapp/features/bot/presentation/bot_path.dart';
+import 'package:nutrilife/features/bot/domain/bot_frame.dart';
+import 'package:nutrilife/features/bot/presentation/bot_path.dart';
 
 BotFrame circulo({double sx = 1, double sy = 1, double cx = 0, double cy = 0}) => BotFrame(
       radii: List<double>.filled(64, 1.0),
@@ -1069,9 +1069,9 @@ git commit -m "feat(bot): convertir perfiles radiales a Path con Catmull-Rom"
 // test/features/bot/bot_painter_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/features/bot/domain/bot_engine.dart';
-import 'package:nutriapp/features/bot/domain/bot_mood.dart';
-import 'package:nutriapp/features/bot/presentation/bot_painter.dart';
+import 'package:nutrilife/features/bot/domain/bot_engine.dart';
+import 'package:nutrilife/features/bot/domain/bot_mood.dart';
+import 'package:nutrilife/features/bot/presentation/bot_painter.dart';
 
 // Key propia: MaterialApp y Scaffold montan sus propios CustomPaint, asi que
 // find.byType(CustomPaint).last no garantiza ser el nuestro.
@@ -1291,9 +1291,9 @@ El widget recibe el mood sostenido por parámetro y **repropaga** los cambios al
 // test/features/bot/bot_avatar_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/features/bot/domain/bot_mood.dart';
-import 'package:nutriapp/features/bot/presentation/bot_avatar.dart';
-import 'package:nutriapp/features/bot/presentation/bot_painter.dart';
+import 'package:nutrilife/features/bot/domain/bot_mood.dart';
+import 'package:nutrilife/features/bot/presentation/bot_avatar.dart';
+import 'package:nutrilife/features/bot/presentation/bot_painter.dart';
 
 Widget _app(Widget child) => MaterialApp(home: Scaffold(body: Center(child: child)));
 
@@ -1479,8 +1479,8 @@ git commit -m "feat(bot): widget BotAvatar con ticker y cadencia por mood"
 ```dart
 // test/core/state/bot_mood_state_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/core/state/bot_mood_state.dart';
-import 'package:nutriapp/features/bot/domain/bot_mood.dart';
+import 'package:nutrilife/core/state/bot_mood_state.dart';
+import 'package:nutrilife/features/bot/domain/bot_mood.dart';
 
 void main() {
   test('arranca en idle', () {
@@ -1607,10 +1607,10 @@ El círculo con gradiente y el `Transform.translate` **no se tocan**. Solo se su
 // test/core/widgets/custom_bottom_nav_bar_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/core/state/bot_mood_state.dart';
-import 'package:nutriapp/core/widgets/custom_bottom_nav_bar.dart';
-import 'package:nutriapp/features/bot/domain/bot_mood.dart';
-import 'package:nutriapp/features/bot/presentation/bot_avatar.dart';
+import 'package:nutrilife/core/state/bot_mood_state.dart';
+import 'package:nutrilife/core/widgets/custom_bottom_nav_bar.dart';
+import 'package:nutrilife/features/bot/domain/bot_mood.dart';
+import 'package:nutrilife/features/bot/presentation/bot_avatar.dart';
 
 Widget _app({required void Function(int) onTab}) => MaterialApp(
       home: Scaffold(
@@ -1797,10 +1797,10 @@ Localiza las líneas exactas donde `_isLoading` pasa a `true` (≈55) y vuelve a
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/core/state/bot_mood_state.dart';
-import 'package:nutriapp/features/bot/domain/bot_mood.dart';
-import 'package:nutriapp/features/chatbot/data/chat_repository.dart';
-import 'package:nutriapp/features/chatbot/presentation/controllers/chat_view_model.dart';
+import 'package:nutrilife/core/state/bot_mood_state.dart';
+import 'package:nutrilife/features/bot/domain/bot_mood.dart';
+import 'package:nutrilife/features/chatbot/data/chat_repository.dart';
+import 'package:nutrilife/features/chatbot/presentation/controllers/chat_view_model.dart';
 
 /// Doble que nos deja controlar cuando "responde" la IA.
 class _RepoFalso extends ChatRepository {

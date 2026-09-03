@@ -17,7 +17,7 @@
 - Los comentarios explican el **porqué**, nunca el qué; en español, como el resto del repo.
 - El backend no tiene runner de tests (`npm test` sin configurar). Las tareas de backend se verifican ejecutando código real, no con tests automatizados.
 - La app sí va con TDD: test que falla primero, y se verifica que falle antes de implementar.
-- El workflow de n8n se entrega como archivo modificado en `n8n/NutriAI - Chat de Recetas.json`. **Nadie toca la instancia de n8n**; el usuario reemplaza el flujo él mismo.
+- El workflow de n8n se entrega como archivo modificado en `n8n/NutruLife - Chat de Recetas.json`. **Nadie toca la instancia de n8n**; el usuario reemplaza el flujo él mismo.
 - Cantidad 0 o nula viaja siempre como `1` (el prompt del chef trata la cantidad como límite superior).
 
 ---
@@ -204,7 +204,7 @@ git commit -m "feat(backend): resolver alimentos adjuntos de la nevera para n8n"
 ### Task 2: El workflow de n8n consume los adjuntos
 
 **Files:**
-- Modify: `n8n/NutriAI - Chat de Recetas.json`
+- Modify: `n8n/NutruLife - Chat de Recetas.json`
 
 **Interfaces:**
 - Consumes: el campo `attachedFoods` que Task 1 agrega al payload del webhook.
@@ -222,7 +222,7 @@ Crear `scripts/n8n_adjuntos.py`:
 # y editarlo a mano rompe el flujo con facilidad.
 import io, json
 
-PATH = 'n8n/NutriAI - Chat de Recetas.json'
+PATH = 'n8n/NutruLife - Chat de Recetas.json'
 flow = json.load(io.open(PATH, encoding='utf-8'))
 nodes = {n['name']: n for n in flow['nodes']}
 
@@ -403,7 +403,7 @@ Expected: imprime `workflow actualizado`.
 ```bash
 python -c "
 import json,io
-d=json.load(io.open('n8n/NutriAI - Chat de Recetas.json',encoding='utf-8'))
+d=json.load(io.open('n8n/NutruLife - Chat de Recetas.json',encoding='utf-8'))
 nodes={n['name']:n for n in d['nodes']}
 assert any(a['name']=='attachedFoods' for a in nodes['Extraer Datos del Request']['parameters']['assignments']['assignments'])
 assert 'RECIPE_FROM_ATTACHED' in nodes['Resolver Ruta']['parameters']['jsCode']
@@ -428,7 +428,7 @@ Expected: 6 reglas, cada una apuntando a su nodo, y `(fallback) -> Agente: Chat 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add "n8n/NutriAI - Chat de Recetas.json" scripts/n8n_adjuntos.py
+git add "n8n/NutruLife - Chat de Recetas.json" scripts/n8n_adjuntos.py
 git commit -m "feat(n8n): ruta RECIPE_FROM_ATTACHED para alimentos adjuntos"
 ```
 
@@ -439,8 +439,8 @@ Al terminar, avisar al usuario que el archivo está listo para que lo reemplace 
 ### Task 3: La app manda los ids en el body
 
 **Files:**
-- Modify: `nutriapp/lib/features/chatbot/data/chat_repository.dart:47-58`
-- Test: `nutriapp/test/features/chatbot/chat_repository_test.dart`
+- Modify: `nutrilife/lib/features/chatbot/data/chat_repository.dart:47-58`
+- Test: `nutrilife/test/features/chatbot/chat_repository_test.dart`
 
 **Interfaces:**
 - Consumes: el body `{message, fridgeItemIds}` que acepta Task 1.
@@ -448,7 +448,7 @@ Al terminar, avisar al usuario que el archivo está listo para que lo reemplace 
 
 - [ ] **Step 1: Escribir el test que falla**
 
-En `nutriapp/test/features/chatbot/chat_repository_test.dart`, agregar un adaptador que capture el body y los tests, al final del archivo:
+En `nutrilife/test/features/chatbot/chat_repository_test.dart`, agregar un adaptador que capture el body y los tests, al final del archivo:
 
 ```dart
 /// Captura el body de la petición para poder afirmar sobre lo que se envía.
@@ -515,12 +515,12 @@ Y llamar `_mainAdjuntos();` desde el `main()` existente del archivo.
 
 - [ ] **Step 2: Verificar que falla**
 
-Run: `cd nutriapp && flutter test test/features/chatbot/chat_repository_test.dart`
+Run: `cd nutrilife && flutter test test/features/chatbot/chat_repository_test.dart`
 Expected: FALLA con `No named parameter with the name 'fridgeItemIds'`.
 
 - [ ] **Step 3: Implementar**
 
-En `nutriapp/lib/features/chatbot/data/chat_repository.dart`:
+En `nutrilife/lib/features/chatbot/data/chat_repository.dart`:
 
 ```dart
   Future<ChatResponse> sendMessage(
@@ -548,13 +548,13 @@ El resto del método queda igual.
 
 - [ ] **Step 4: Verificar que pasa**
 
-Run: `cd nutriapp && flutter test test/features/chatbot/chat_repository_test.dart`
+Run: `cd nutrilife && flutter test test/features/chatbot/chat_repository_test.dart`
 Expected: PASA, incluidos los tests que ya existían.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add nutriapp/lib/features/chatbot/data/chat_repository.dart nutriapp/test/features/chatbot/chat_repository_test.dart
+git add nutrilife/lib/features/chatbot/data/chat_repository.dart nutrilife/test/features/chatbot/chat_repository_test.dart
 git commit -m "feat(app): mandar fridgeItemIds al enviar un mensaje"
 ```
 
@@ -563,9 +563,9 @@ git commit -m "feat(app): mandar fridgeItemIds al enviar un mensaje"
 ### Task 4: El mensaje recuerda sus alimentos
 
 **Files:**
-- Modify: `nutriapp/lib/features/chatbot/data/models/chat_message_model.dart`
-- Modify: `nutriapp/lib/features/chatbot/presentation/controllers/chat_view_model.dart:45-60`
-- Test: `nutriapp/test/features/chatbot/chat_view_model_test.dart` (crear)
+- Modify: `nutrilife/lib/features/chatbot/data/models/chat_message_model.dart`
+- Modify: `nutrilife/lib/features/chatbot/presentation/controllers/chat_view_model.dart:45-60`
+- Test: `nutrilife/test/features/chatbot/chat_view_model_test.dart` (crear)
 
 **Interfaces:**
 - Consumes: `ChatRepository.sendMessage(message, {fridgeItemIds})` de Task 3; `FridgeItemModel` de `features/nutrition/data/models/fridge_item_model.dart`.
@@ -575,7 +575,7 @@ git commit -m "feat(app): mandar fridgeItemIds al enviar un mensaje"
 
 - [ ] **Step 1: Escribir el test que falla**
 
-Crear `nutriapp/test/features/chatbot/chat_view_model_test.dart`:
+Crear `nutrilife/test/features/chatbot/chat_view_model_test.dart`:
 
 ```dart
 import 'dart:convert';
@@ -583,9 +583,9 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/features/chatbot/data/chat_repository.dart';
-import 'package:nutriapp/features/chatbot/presentation/controllers/chat_view_model.dart';
-import 'package:nutriapp/features/nutrition/data/models/fridge_item_model.dart';
+import 'package:nutrilife/features/chatbot/data/chat_repository.dart';
+import 'package:nutrilife/features/chatbot/presentation/controllers/chat_view_model.dart';
+import 'package:nutrilife/features/nutrition/data/models/fridge_item_model.dart';
 
 /// Responde siempre un CHAT vacío y recuerda el body recibido.
 class _CapturingAdapter implements HttpClientAdapter {
@@ -671,12 +671,12 @@ void main() {
 
 - [ ] **Step 2: Verificar que falla**
 
-Run: `cd nutriapp && flutter test test/features/chatbot/chat_view_model_test.dart`
+Run: `cd nutrilife && flutter test test/features/chatbot/chat_view_model_test.dart`
 Expected: FALLA con `No named parameter with the name 'foods'`.
 
 - [ ] **Step 3: Implementar el modelo**
 
-En `nutriapp/lib/features/chatbot/data/models/chat_message_model.dart`, agregar el import de `FridgeItemModel` y el campo:
+En `nutrilife/lib/features/chatbot/data/models/chat_message_model.dart`, agregar el import de `FridgeItemModel` y el campo:
 
 ```dart
 import '../../../nutrition/data/models/fridge_item_model.dart';
@@ -718,7 +718,7 @@ class ChatMessageModel {
 
 - [ ] **Step 4: Implementar el view model**
 
-En `nutriapp/lib/features/chatbot/presentation/controllers/chat_view_model.dart`, agregar el import de `FridgeItemModel` y reemplazar el arranque de `sendMessage`:
+En `nutrilife/lib/features/chatbot/presentation/controllers/chat_view_model.dart`, agregar el import de `FridgeItemModel` y reemplazar el arranque de `sendMessage`:
 
 ```dart
   Future<void> sendMessage(
@@ -752,13 +752,13 @@ El resto del método (manejo de `reply`, errores y `finally`) queda igual.
 
 - [ ] **Step 5: Verificar que pasa**
 
-Run: `cd nutriapp && flutter test test/features/chatbot/chat_view_model_test.dart`
+Run: `cd nutrilife && flutter test test/features/chatbot/chat_view_model_test.dart`
 Expected: PASA los 5 tests.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add nutriapp/lib/features/chatbot/data/models/chat_message_model.dart nutriapp/lib/features/chatbot/presentation/controllers/chat_view_model.dart nutriapp/test/features/chatbot/chat_view_model_test.dart
+git add nutrilife/lib/features/chatbot/data/models/chat_message_model.dart nutrilife/lib/features/chatbot/presentation/controllers/chat_view_model.dart nutrilife/test/features/chatbot/chat_view_model_test.dart
 git commit -m "feat(app): el mensaje guarda sus alimentos adjuntos"
 ```
 
@@ -767,13 +767,13 @@ git commit -m "feat(app): el mensaje guarda sus alimentos adjuntos"
 ### Task 5: Las etiquetas en la burbuja
 
 **Files:**
-- Create: `nutriapp/lib/features/chatbot/presentation/widgets/attached_food_chips.dart`
-- Delete: `nutriapp/lib/features/chatbot/data/message_composer.dart`
-- Delete: `nutriapp/test/features/chatbot/message_composer_test.dart`
-- Modify: `nutriapp/lib/features/chatbot/presentation/widgets/chat_input_field.dart`
-- Modify: `nutriapp/lib/features/chatbot/presentation/screens/ai_chat_view.dart:96-98` y `:236-273`
-- Test: `nutriapp/test/features/chatbot/attached_food_chips_test.dart` (crear)
-- Test: `nutriapp/test/features/chatbot/chat_input_field_test.dart` (actualizar)
+- Create: `nutrilife/lib/features/chatbot/presentation/widgets/attached_food_chips.dart`
+- Delete: `nutrilife/lib/features/chatbot/data/message_composer.dart`
+- Delete: `nutrilife/test/features/chatbot/message_composer_test.dart`
+- Modify: `nutrilife/lib/features/chatbot/presentation/widgets/chat_input_field.dart`
+- Modify: `nutrilife/lib/features/chatbot/presentation/screens/ai_chat_view.dart:96-98` y `:236-273`
+- Test: `nutrilife/test/features/chatbot/attached_food_chips_test.dart` (crear)
+- Test: `nutrilife/test/features/chatbot/chat_input_field_test.dart` (actualizar)
 
 **Interfaces:**
 - Consumes: `ChatMessageModel.attachedFoods` de Task 4.
@@ -781,13 +781,13 @@ git commit -m "feat(app): el mensaje guarda sus alimentos adjuntos"
 
 - [ ] **Step 1: Escribir el test que falla**
 
-Crear `nutriapp/test/features/chatbot/attached_food_chips_test.dart`:
+Crear `nutrilife/test/features/chatbot/attached_food_chips_test.dart`:
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nutriapp/features/chatbot/presentation/widgets/attached_food_chips.dart';
-import 'package:nutriapp/features/nutrition/data/models/fridge_item_model.dart';
+import 'package:nutrilife/features/chatbot/presentation/widgets/attached_food_chips.dart';
+import 'package:nutrilife/features/nutrition/data/models/fridge_item_model.dart';
 
 const _banana = FridgeItemModel(
   fridgeItemId: 4,
@@ -839,12 +839,12 @@ void main() {
 
 - [ ] **Step 2: Verificar que falla**
 
-Run: `cd nutriapp && flutter test test/features/chatbot/attached_food_chips_test.dart`
+Run: `cd nutrilife && flutter test test/features/chatbot/attached_food_chips_test.dart`
 Expected: FALLA al no existir `attached_food_chips.dart`.
 
 - [ ] **Step 3: Implementar el widget**
 
-Crear `nutriapp/lib/features/chatbot/presentation/widgets/attached_food_chips.dart`:
+Crear `nutrilife/lib/features/chatbot/presentation/widgets/attached_food_chips.dart`:
 
 ```dart
 import 'package:flutter/material.dart';
@@ -908,12 +908,12 @@ String _label(FridgeItemModel food) {
 
 - [ ] **Step 4: Verificar que pasa**
 
-Run: `cd nutriapp && flutter test test/features/chatbot/attached_food_chips_test.dart`
+Run: `cd nutrilife && flutter test test/features/chatbot/attached_food_chips_test.dart`
 Expected: PASA los 3 tests.
 
 - [ ] **Step 5: Actualizar el test del input**
 
-En `nutriapp/test/features/chatbot/chat_input_field_test.dart`, cambiar las expectativas: `onSend` ahora recibe dos argumentos y el texto viaja limpio.
+En `nutrilife/test/features/chatbot/chat_input_field_test.dart`, cambiar las expectativas: `onSend` ahora recibe dos argumentos y el texto viaja limpio.
 
 Reemplazar el primer test por:
 
@@ -982,12 +982,12 @@ En los demás tests del archivo, cambiar las lambdas `onSend: (_) async {}` por 
 
 - [ ] **Step 6: Verificar que falla**
 
-Run: `cd nutriapp && flutter test test/features/chatbot/chat_input_field_test.dart`
+Run: `cd nutrilife && flutter test test/features/chatbot/chat_input_field_test.dart`
 Expected: FALLA al compilar, porque `onSend` todavía recibe un solo argumento.
 
 - [ ] **Step 7: Actualizar el input y borrar el compositor**
 
-En `nutriapp/lib/features/chatbot/presentation/widgets/chat_input_field.dart`: quitar el import de `message_composer.dart`, cambiar la firma y el envío.
+En `nutrilife/lib/features/chatbot/presentation/widgets/chat_input_field.dart`: quitar el import de `message_composer.dart`, cambiar la firma y el envío.
 
 ```dart
   final Future<void> Function(String message, List<FridgeItemModel> foods) onSend;
@@ -1011,12 +1011,12 @@ En `nutriapp/lib/features/chatbot/presentation/widgets/chat_input_field.dart`: q
 Borrar los archivos del compositor:
 
 ```bash
-git rm nutriapp/lib/features/chatbot/data/message_composer.dart nutriapp/test/features/chatbot/message_composer_test.dart
+git rm nutrilife/lib/features/chatbot/data/message_composer.dart nutrilife/test/features/chatbot/message_composer_test.dart
 ```
 
 - [ ] **Step 8: Conectar la pantalla**
 
-En `nutriapp/lib/features/chatbot/presentation/screens/ai_chat_view.dart`, agregar el import de `FridgeItemModel` y de `attached_food_chips.dart`, y cambiar el handler:
+En `nutrilife/lib/features/chatbot/presentation/screens/ai_chat_view.dart`, agregar el import de `FridgeItemModel` y de `attached_food_chips.dart`, y cambiar el handler:
 
 ```dart
   Future<void> _handleSend(String message, List<FridgeItemModel> foods) async {
@@ -1051,16 +1051,16 @@ Y en `_ChatBubble`, reemplazar el `child: Text(...)` de la burbuja del usuario p
 
 - [ ] **Step 9: Verificar toda la suite**
 
-Run: `cd nutriapp && flutter test`
+Run: `cd nutrilife && flutter test`
 Expected: todos los tests pasan. `message_composer_test.dart` ya no existe.
 
-Run: `cd nutriapp && flutter analyze`
+Run: `cd nutrilife && flutter analyze`
 Expected: `No issues found!`
 
 - [ ] **Step 10: Commit**
 
 ```bash
-git add -A nutriapp
+git add -A nutrilife
 git commit -m "feat(app): mostrar los alimentos adjuntos como etiquetas en la burbuja"
 ```
 
@@ -1068,8 +1068,8 @@ git commit -m "feat(app): mostrar los alimentos adjuntos como etiquetas en la bu
 
 ## Verificación final
 
-- [ ] `cd nutriapp && flutter test` pasa completo.
-- [ ] `cd nutriapp && flutter analyze` sin issues.
+- [ ] `cd nutrilife && flutter test` pasa completo.
+- [ ] `cd nutrilife && flutter analyze` sin issues.
 - [ ] `cd backend && node --check src/app.js` sin errores.
 - [ ] El script de validación del Task 2 imprime `flujo OK: 7 rutas`.
-- [ ] Avisar al usuario que `n8n/NutriAI - Chat de Recetas.json` está listo para reemplazar en su instancia, y que hasta que lo haga el flujo viejo ignorará `attachedFoods` y generará recetas con la nevera completa.
+- [ ] Avisar al usuario que `n8n/NutruLife - Chat de Recetas.json` está listo para reemplazar en su instancia, y que hasta que lo haga el flujo viejo ignorará `attachedFoods` y generará recetas con la nevera completa.
