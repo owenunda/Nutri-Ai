@@ -1,6 +1,6 @@
-# API Response Contract - NutruLife
+# API Response Contract - NutriLife
 
-This document defines the standard format for NutruLife backend responses.
+This document defines the standard format for NutriLife backend responses.
 All responses must follow this structure to maintain consistency in the system.
 
 ---

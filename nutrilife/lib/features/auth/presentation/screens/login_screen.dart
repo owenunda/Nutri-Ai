@@ -128,7 +128,7 @@ class _BrandHeader extends StatelessWidget {
         const SizedBox(height: 10),
 
         const Text(
-          'NutruLife',
+          'NutriLife',
           style: TextStyle(
             color: Color(0xFF2C2F31),
             fontSize: 26,

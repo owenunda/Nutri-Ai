@@ -81,7 +81,7 @@ No se portan: `decor.ts` (dots/arcs), `eyefit.ts` (encaje de ojos sub-pixel, inv
 El blob va **en blanco, en negativo**, dentro del círculo con el gradiente de marca existente.
 Los ojos van en verde oscuro (`#134E32`). Razón: a 50px reales el blob ocupa ~34px, y el negro
 original de Bloub sobre el gradiente verde oscuro no contrasta lo suficiente. El botón sigue
-siendo reconociblemente NutruLife.
+siendo reconociblemente NutriLife.
 
 ## Arquitectura
 
@@ -130,7 +130,7 @@ reproducible del origen de cada número, no para ejecutarse en cada build.
 
 El código fuente de Bloub **no se vendoriza** en este repo. El script recibe por argumento la
 ruta a un clon local del repo (`--bloub-src <ruta>`); si no se le pasa, falla con un mensaje
-que explica cómo clonarlo. Así el repo de NutruLife solo contiene los números extraídos, no una
+que explica cómo clonarlo. Así el repo de NutriLife solo contiene los números extraídos, no una
 copia del proyecto ajeno.
 
 Transcribir a mano 64 flotantes por forma es una fuente de errores silenciosos que ningún test
@@ -218,7 +218,7 @@ Bloub es MIT, así que el porte es legal. Requisitos:
 - `THIRD_PARTY_NOTICES.md` en la raíz del repo con el texto completo de la licencia.
 
 Nota de marca: el README de Bloub declara que es una recreación del avatar de x.ai y que no
-está afiliado. Se conserva el gradiente y el encuadre de NutruLife (blob blanco en negativo, no
+está afiliado. Se conserva el gradiente y el encuadre de NutriLife (blob blanco en negativo, no
 el blob negro original), lo que reduce el parecido con el original. Si el proyecto va a
 distribución comercial, conviene revisar si la silueta debe divergir más.
 

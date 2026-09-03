@@ -8,7 +8,7 @@ import {
 import { api, TOKEN_KEY } from './api';
 import type { ApiResponse, AuthUser, LoginResponse } from '../types/auth';
 
-const USER_KEY = 'nutrulife_admin_user';
+const USER_KEY = 'NutriLife_admin_user';
 
 interface AuthContextValue {
   user: AuthUser | null;

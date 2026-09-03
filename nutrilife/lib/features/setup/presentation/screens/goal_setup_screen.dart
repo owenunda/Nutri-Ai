@@ -252,7 +252,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                           ),
                           const Expanded(
                             child: Text(
-                              'NutruLife',
+                              'NutriLife',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppTheme.primaryStart,

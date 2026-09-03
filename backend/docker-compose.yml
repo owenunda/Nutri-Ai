@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nutrulife-backend
+    container_name: NutriLife-backend
     ports:
       - "${PORT:-3000}:3000"
     environment:
@@ -15,7 +15,7 @@ services:
       - PORT_DB=5432
       - USER_DB=${USER_DB:-postgres}
       - PASS_DB=${PASS_DB:-postgres}
-      - NAME_DB=${NAME_DB:-nutrulife}
+      - NAME_DB=${NAME_DB:-NutriLife}
       - JWT_SECRET=${JWT_SECRET:-some-secure-jwt-secret-key-12345}
     depends_on:
       db:
@@ -23,13 +23,13 @@ services:
 
   db:
     image: postgres:15-alpine
-    container_name: nutrulife-postgres
+    container_name: NutriLife-postgres
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: ${USER_DB:-postgres}
       POSTGRES_PASSWORD: ${PASS_DB:-postgres}
-      POSTGRES_DB: ${NAME_DB:-nutrulife}
+      POSTGRES_DB: ${NAME_DB:-NutriLife}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

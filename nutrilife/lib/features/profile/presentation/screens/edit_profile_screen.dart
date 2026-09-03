@@ -174,7 +174,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Este cambio puede afectar tus ajustes actuales, como tu meta calórica diaria y tu plan nutricional. NutruLife recalculará tus objetivos con el nuevo valor.',
+                  'Este cambio puede afectar tus ajustes actuales, como tu meta calórica diaria y tu plan nutricional. NutriLife recalculará tus objetivos con el nuevo valor.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: _EditProfileColors.muted.withValues(alpha: 0.9),
@@ -336,7 +336,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Actualiza tus datos para que NutruLife ajuste mejor tu plan.',
+                'Actualiza tus datos para que NutriLife ajuste mejor tu plan.',
                 style: TextStyle(
                   color: _EditProfileColors.muted.withValues(alpha: 0.86),
                   fontSize: 15,

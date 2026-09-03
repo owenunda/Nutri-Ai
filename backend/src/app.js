@@ -37,7 +37,7 @@ app.get('/api/v1/health', (_req, res) => {
   res.json({
     success: true,
     data: null,
-    message: 'NutruLife API is running'
+    message: 'NutriLife API is running'
   });
 });
 

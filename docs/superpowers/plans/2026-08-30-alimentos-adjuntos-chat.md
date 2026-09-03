@@ -17,7 +17,7 @@
 - Los comentarios explican el **porqué**, nunca el qué; en español, como el resto del repo.
 - El backend no tiene runner de tests (`npm test` sin configurar). Las tareas de backend se verifican ejecutando código real, no con tests automatizados.
 - La app sí va con TDD: test que falla primero, y se verifica que falle antes de implementar.
-- El workflow de n8n se entrega como archivo modificado en `n8n/NutruLife - Chat de Recetas.json`. **Nadie toca la instancia de n8n**; el usuario reemplaza el flujo él mismo.
+- El workflow de n8n se entrega como archivo modificado en `n8n/NutriLife - Chat de Recetas.json`. **Nadie toca la instancia de n8n**; el usuario reemplaza el flujo él mismo.
 - Cantidad 0 o nula viaja siempre como `1` (el prompt del chef trata la cantidad como límite superior).
 
 ---
@@ -204,7 +204,7 @@ git commit -m "feat(backend): resolver alimentos adjuntos de la nevera para n8n"
 ### Task 2: El workflow de n8n consume los adjuntos
 
 **Files:**
-- Modify: `n8n/NutruLife - Chat de Recetas.json`
+- Modify: `n8n/NutriLife - Chat de Recetas.json`
 
 **Interfaces:**
 - Consumes: el campo `attachedFoods` que Task 1 agrega al payload del webhook.
@@ -222,7 +222,7 @@ Crear `scripts/n8n_adjuntos.py`:
 # y editarlo a mano rompe el flujo con facilidad.
 import io, json
 
-PATH = 'n8n/NutruLife - Chat de Recetas.json'
+PATH = 'n8n/NutriLife - Chat de Recetas.json'
 flow = json.load(io.open(PATH, encoding='utf-8'))
 nodes = {n['name']: n for n in flow['nodes']}
 
@@ -403,7 +403,7 @@ Expected: imprime `workflow actualizado`.
 ```bash
 python -c "
 import json,io
-d=json.load(io.open('n8n/NutruLife - Chat de Recetas.json',encoding='utf-8'))
+d=json.load(io.open('n8n/NutriLife - Chat de Recetas.json',encoding='utf-8'))
 nodes={n['name']:n for n in d['nodes']}
 assert any(a['name']=='attachedFoods' for a in nodes['Extraer Datos del Request']['parameters']['assignments']['assignments'])
 assert 'RECIPE_FROM_ATTACHED' in nodes['Resolver Ruta']['parameters']['jsCode']
@@ -428,7 +428,7 @@ Expected: 6 reglas, cada una apuntando a su nodo, y `(fallback) -> Agente: Chat 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add "n8n/NutruLife - Chat de Recetas.json" scripts/n8n_adjuntos.py
+git add "n8n/NutriLife - Chat de Recetas.json" scripts/n8n_adjuntos.py
 git commit -m "feat(n8n): ruta RECIPE_FROM_ATTACHED para alimentos adjuntos"
 ```
 
@@ -1072,4 +1072,4 @@ git commit -m "feat(app): mostrar los alimentos adjuntos como etiquetas en la bu
 - [ ] `cd nutrilife && flutter analyze` sin issues.
 - [ ] `cd backend && node --check src/app.js` sin errores.
 - [ ] El script de validación del Task 2 imprime `flujo OK: 7 rutas`.
-- [ ] Avisar al usuario que `n8n/NutruLife - Chat de Recetas.json` está listo para reemplazar en su instancia, y que hasta que lo haga el flujo viejo ignorará `attachedFoods` y generará recetas con la nevera completa.
+- [ ] Avisar al usuario que `n8n/NutriLife - Chat de Recetas.json` está listo para reemplazar en su instancia, y que hasta que lo haga el flujo viejo ignorará `attachedFoods` y generará recetas con la nevera completa.

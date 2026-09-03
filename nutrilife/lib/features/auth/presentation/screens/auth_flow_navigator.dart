@@ -130,7 +130,7 @@ class _AuthFlowNavigatorState extends State<AuthFlowNavigator> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'NutruLife',
+                    'NutriLife',
                     style: TextStyle(
                       color: Color(0xFF0A6B3F),
                       fontWeight: FontWeight.bold,

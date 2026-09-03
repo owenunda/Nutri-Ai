@@ -79,7 +79,7 @@ class UserProfile {
     final year = createdAt?.year;
 
     if (currentPlan == null || currentPlan.isEmpty) {
-      return year == null ? 'Miembro de NutruLife' : 'Miembro desde $year';
+      return year == null ? 'Miembro de NutriLife' : 'Miembro desde $year';
     }
 
     return year == null

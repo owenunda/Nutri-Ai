@@ -782,7 +782,7 @@ class _BrandFooter extends StatelessWidget {
                 ),
                 SizedBox(width: 8),
                 Text(
-                  'NUTRULIFE',
+                  'NutriLife',
                   style: TextStyle(
                     color: _RegisterPalette.primary,
                     fontSize: 12,

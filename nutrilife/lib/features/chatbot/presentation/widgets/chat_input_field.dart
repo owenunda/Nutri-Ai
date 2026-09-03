@@ -126,7 +126,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                     keyboardType: TextInputType.multiline,
                     textInputAction: TextInputAction.newline,
                     decoration: const InputDecoration(
-                      hintText: 'Mensaje a NutruLife...',
+                      hintText: 'Mensaje a NutriLife...',
                       hintStyle: TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 15,

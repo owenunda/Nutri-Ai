@@ -71,7 +71,7 @@ void main() {
       // "recipe": null entraba a la rama de receta y casteaba null a Map.
       final repo = repoReturning({
         'type': 'CHAT',
-        'message': '¡Hola! Soy NutruLife, tu ayudante de cocina.',
+        'message': '¡Hola! Soy NutriLife, tu ayudante de cocina.',
         'recipe': null,
         'media': null,
         'session': {'sessionId': 13, 'version': 1},
@@ -81,7 +81,7 @@ void main() {
 
       expect(reply.type, ChatResponseType.chat);
       expect(reply.recipe, isNull);
-      expect(reply.text, '¡Hola! Soy NutruLife, tu ayudante de cocina.');
+      expect(reply.text, '¡Hola! Soy NutriLife, tu ayudante de cocina.');
     });
 
     test('ANSWER devuelve el texto sin receta', () async {

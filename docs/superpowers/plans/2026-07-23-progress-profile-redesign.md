@@ -396,7 +396,7 @@ Old:
 
 ```dart
         const Text(
-          'NutruLife',
+          'NutriLife',
           style: TextStyle(
             color: ProgressScreen._green,
             fontSize: 17,
@@ -409,7 +409,7 @@ New:
 
 ```dart
         Text(
-          'NutruLife',
+          'NutriLife',
           style: GoogleFonts.plusJakartaSans(
             color: ProgressScreen._green,
             fontSize: 17,
@@ -1302,7 +1302,7 @@ Old:
 
 ```dart
         const Text(
-          'NutruLife',
+          'NutriLife',
           style: TextStyle(
             color: _ProfileColors.green,
             fontSize: 24,
@@ -1316,7 +1316,7 @@ New:
 
 ```dart
         Text(
-          'NutruLife',
+          'NutriLife',
           style: GoogleFonts.plusJakartaSans(
             color: _ProfileColors.green,
             fontSize: 24,

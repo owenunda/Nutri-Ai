@@ -1,3 +1,3 @@
 # nutrilife
 
-NutruLife - Tu asistente nutricional inteligente.
+NutriLife - Tu asistente nutricional inteligente.

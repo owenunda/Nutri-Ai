@@ -1,6 +1,6 @@
 # Middleware de Autenticación y Autorización
 
-Este documento describe cómo funciona el middleware `authenticateToken` y cómo aplicarlo en las rutas del sistema NutruLife.
+Este documento describe cómo funciona el middleware `authenticateToken` y cómo aplicarlo en las rutas del sistema NutriLife.
 
 ## ¿Qué hace `authenticateToken`?
 
