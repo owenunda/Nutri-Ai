@@ -1,5 +1,8 @@
 import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
+import '../../../../core/network/dio_client.dart';
+import '../../../../core/state/bot_mood_state.dart';
+import '../../../bot/domain/bot_mood.dart';
 import '../../../nutrition/data/models/fridge_item_model.dart';
 import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
@@ -29,10 +32,18 @@ class _AiChatViewState extends State<AiChatView> {
     super.initState();
     _viewModel = ChatViewModel();
     _repository = ChatRepository();
+    DioClient.rateLimit.addListener(_syncBotSleep);
+  }
+
+  void _syncBotSleep() {
+    BotMoodState.instance.hold(
+      DioClient.rateLimit.isExhausted ? BotMood.sleeping : BotMood.idle,
+    );
   }
 
   @override
   void dispose() {
+    DioClient.rateLimit.removeListener(_syncBotSleep);
     _viewModel.dispose();
     _scrollController.dispose();
     super.dispose();

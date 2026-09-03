@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/rate_limit_state.dart';
+import '../../../../core/state/bot_mood_state.dart';
+import '../../../bot/domain/bot_mood.dart';
 import '../../../nutrition/data/models/fridge_item_model.dart';
 import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
@@ -61,6 +64,7 @@ class ChatViewModel extends ChangeNotifier {
     ));
     _isLoading = true;
     _errorMessage = null;
+    BotMoodState.instance.hold(BotMood.thinking);
     notifyListeners();
 
     try {
@@ -100,6 +104,13 @@ class ChatViewModel extends ChangeNotifier {
       );
     } finally {
       _isLoading = false;
+      BotMoodState.instance.hold(BotMood.idle);
+      // hold(idle) va antes del pulse: pulse solo se aplica sobre idle.
+      // Sin el guard del rate limit, agotar el limite haria guinar al bot,
+      // porque esa rama hace return sin poner _errorMessage.
+      if (_errorMessage == null && !DioClient.rateLimit.isExhausted) {
+        BotMoodState.instance.pulse(BotMood.pleased);
+      }
       notifyListeners();
     }
   }
