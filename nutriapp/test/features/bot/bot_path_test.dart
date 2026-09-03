@@ -27,6 +27,15 @@ void main() {
   // el margen aqui tambien.
   final r0 = ballRadius(size);
 
+  test('el radio en reposo es 1/1.15 del medio-lienzo (valor fijo, no derivado)', () {
+    // 25 / 1.15 = 21.739130... calculado a mano: si este test se escribiera
+    // llamando a ballRadius() seria una tautologia y pasaria con cualquier
+    // valor de kRestBallFraction. Este SI fija el numero.
+    final pts = profilePoints(circulo(), const Size(50, 50));
+    final d = (pts[0] - const Offset(25, 25)).distance;
+    expect(d, closeTo(21.739130, 1e-5));
+  });
+
   test('un perfil de radios constantes cae sobre un circulo centrado', () {
     final pts = profilePoints(circulo(), size);
     expect(pts.length, equals(64));
