@@ -43,7 +43,33 @@ void main() {
     expect(s.pulseToken, isNull);
   });
 
-  test('instance devuelve siempre el mismo objeto', () {
-    expect(identical(BotMoodState.instance, BotMoodState.instance), isTrue);
+  test('pulse no altera el mood sostenido', () {
+    final s = BotMoodState()..hold(BotMood.thinking);
+    s.pulse(BotMood.pleased);
+    expect(s.mood, equals(BotMood.thinking));
+  });
+
+  test('hold no borra el token de pulse', () {
+    final s = BotMoodState()..pulse(BotMood.pleased);
+    final token = s.pulseToken;
+    s.hold(BotMood.thinking);
+    expect(s.pulseToken, equals(token));
+    expect(s.pulseMood, equals(BotMood.pleased));
+  });
+
+  test('instance comparte estado entre referencias', () {
+    // El singleton debería compartir estado
+    BotMoodState.instance.hold(BotMood.thinking);
+
+    // Obtener una referencia nueva al mismo singleton
+    final ref2 = BotMoodState.instance;
+    expect(ref2.mood, equals(BotMood.thinking));
+
+    // Una instancia suelta NO se ve afectada
+    final suelto = BotMoodState();
+    expect(suelto.mood, equals(BotMood.idle));
+
+    // Limpiar para no afectar otros tests
+    BotMoodState.instance.hold(BotMood.idle);
   });
 }
