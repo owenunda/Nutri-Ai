@@ -55,4 +55,12 @@ void main() {
     await tester.pump();
     expect(tester.widget<BotAvatar>(find.byType(BotAvatar)).mood, equals(BotMood.thinking));
   });
+
+  testWidgets('el avatar mide 39 para dejar el margen del blob dentro del circulo', (tester) async {
+    await tester.pumpWidget(_app(onTab: (_) {}));
+    // 39, no 50: el blob deja un margen de kRestBallFraction (1/1.15) dentro
+    // de su lienzo, asi que la bola visible mide 39 * 0.8696 = 33.9px dentro
+    // del circulo de 50. Con 50 el blob taparia el gradiente entero.
+    expect(tester.widget<BotAvatar>(find.byType(BotAvatar)).size, equals(39));
+  });
 }
