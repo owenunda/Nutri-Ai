@@ -1,5 +1,6 @@
-import { getUserNutritionalData, getTodayConsumptionCalories } from './stats.repository.js';
+import { getUserNutritionalData, getConsumptionCaloriesByDate, getWeekConsumptionRepository } from './stats.repository.js';
 import { AppError } from '../../utils/AppError.js';
+import { resolveDateParam, addDays } from '../../utils/date.js';
 
 const ACTIVITY_FACTOR = 1.2;
 const MAX_WEIGHT_LOSS_DEFICIT = 500;
@@ -7,8 +8,41 @@ const WEIGHT_LOSS_DEFICIT_RATIO = 0.15;
 const MIN_WEIGHT_LOSS_CALORIES = 1200;
 const MIN_SAFE_DAILY_CALORIES = 1200;
 
-export const validateConsumptionService = async (userId) => {
+/** Meta diaria en kcal, o null si faltan edad, altura o peso. */
+export const calculateDailyLimit = ({ age, goal, height, weight }) => {
+  if (!age || !height || !weight) return null;
+  const parsedHeight = parseFloat(height);
+  const heightInCentimeters = parsedHeight <= 3 ? parsedHeight * 100 : parsedHeight;
+  const bmr = (10 * parseFloat(weight)) + (6.25 * heightInCentimeters) - (5 * parseInt(age)) - 80;
+  const maintenanceCalories = bmr * ACTIVITY_FACTOR;
+
+  let dailyLimit = maintenanceCalories;
+  const normalizedGoal = goal?.toLowerCase() || '';
+
+  if (
+    normalizedGoal.includes('perder') ||
+    normalizedGoal.includes('bajar') ||
+    normalizedGoal.includes('lose')
+  ) {
+    const deficit = Math.min(
+      MAX_WEIGHT_LOSS_DEFICIT,
+      maintenanceCalories * WEIGHT_LOSS_DEFICIT_RATIO
+    );
+    dailyLimit = Math.max(MIN_WEIGHT_LOSS_CALORIES, maintenanceCalories - deficit);
+  } else if (
+    normalizedGoal.includes('ganar') ||
+    normalizedGoal.includes('subir') ||
+    normalizedGoal.includes('gain')
+  ) {
+    dailyLimit += Math.min(MAX_WEIGHT_LOSS_DEFICIT, maintenanceCalories * 0.15);
+  }
+
+  return Math.round(Math.max(MIN_SAFE_DAILY_CALORIES, dailyLimit));
+};
+
+export const validateConsumptionService = async (userId, date) => {
   try {
+    const day = resolveDateParam(date);
     const userData = await getUserNutritionalData(userId);
 
     if (!userData) {
@@ -21,42 +55,16 @@ export const validateConsumptionService = async (userId) => {
       throw new AppError('Faltan datos físicos (edad, altura o peso) para calcular el objetivo', 400, 'MISSING_PHYSICAL_DATA');
     }
 
-    const parsedHeight = parseFloat(height);
-    const heightInCentimeters = parsedHeight <= 3 ? parsedHeight * 100 : parsedHeight;
-    const bmr = (10 * parseFloat(weight)) + (6.25 * heightInCentimeters) - (5 * parseInt(age)) - 80;
-    const maintenanceCalories = bmr * ACTIVITY_FACTOR;
+    const dailyLimit = calculateDailyLimit(userData);
 
-    let dailyLimit = maintenanceCalories;
-    const normalizedGoal = goal?.toLowerCase() || '';
-
-    if (
-      normalizedGoal.includes('perder') ||
-      normalizedGoal.includes('bajar') ||
-      normalizedGoal.includes('lose')
-    ) {
-      const deficit = Math.min(
-        MAX_WEIGHT_LOSS_DEFICIT,
-        maintenanceCalories * WEIGHT_LOSS_DEFICIT_RATIO
-      );
-      dailyLimit = Math.max(MIN_WEIGHT_LOSS_CALORIES, maintenanceCalories - deficit);
-    } else if (
-      normalizedGoal.includes('ganar') ||
-      normalizedGoal.includes('subir') ||
-      normalizedGoal.includes('gain')
-    ) {
-      dailyLimit += Math.min(MAX_WEIGHT_LOSS_DEFICIT, maintenanceCalories * 0.15);
-    }
-
-    dailyLimit = Math.max(MIN_SAFE_DAILY_CALORIES, dailyLimit);
-
-    const totalConsumed = await getTodayConsumptionCalories(userId);
+    const totalConsumed = await getConsumptionCaloriesByDate(userId, day);
 
     const status = totalConsumed > dailyLimit ? 'EXCEDIDO' : 'OK';
 
     return {
       userId,
       goal: goal || 'No especificado',
-      dailyLimit: Math.round(dailyLimit),
+      dailyLimit,
       totalConsumed: Math.round(totalConsumed),
       status,
       remaining: Math.max(0, Math.round(dailyLimit - totalConsumed))
@@ -69,15 +77,49 @@ export const validateConsumptionService = async (userId) => {
   }
 };
 
-export const getTodayCaloriesService = async (userId) => {
+export const getTodayCaloriesService = async (userId, date) => {
   try {
-    const totalConsumed = await getTodayConsumptionCalories(userId);
+    const day = resolveDateParam(date);
+    const totalConsumed = await getConsumptionCaloriesByDate(userId, day);
     return {
       totalConsumed: Math.round(totalConsumed) || 0,
       unit: 'kcal',
-      date: new Date().toISOString().split('T')[0]
+      date: day
     };
   } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(error.message, 500, 'STATS_SERVICE_ERROR');
+  }
+};
+
+export const getWeekStatsService = async (userId, end) => {
+  try {
+    const endDay = resolveDateParam(end);
+    const startDay = addDays(endDay, -6);
+    const [userData, days] = await Promise.all([
+      getUserNutritionalData(userId),
+      getWeekConsumptionRepository(userId, startDay, endDay),
+    ]);
+    if (!userData) {
+      throw new AppError('Usuario no encontrado', 404, 'USER_NOT_FOUND');
+    }
+    const dailyLimit = calculateDailyLimit(userData);
+    const total = days.reduce((sum, d) => sum + d.totalConsumed, 0);
+    const daysOnTarget = dailyLimit === null
+      ? 0
+      : days.filter((d) => d.totalConsumed > 0 && d.totalConsumed <= dailyLimit).length;
+    return {
+      start: startDay,
+      end: endDay,
+      dailyLimit,
+      days,
+      average: Math.round(total / days.length),
+      daysOnTarget,
+    };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
     throw new AppError(error.message, 500, 'STATS_SERVICE_ERROR');
   }
 };

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import authenticateToken from '../../middleware/auth.middleware.js';
-import { getConsumptionValidation, getTodayCalories } from './stats.controller.js';
+import { getConsumptionValidation, getTodayCalories, getWeekStats } from './stats.controller.js';
 
 const router = Router();
 
@@ -12,6 +12,14 @@ const router = Router();
  *     summary: Validar si el consumo calórico del usuario está dentro de su meta
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         required: false
+ *         description: Día local del usuario (YYYY-MM-DD). Si se omite se usa el día UTC del servidor.
+ *         schema:
+ *           type: string
+ *           format: date
  *     responses:
  *       200:
  *         description: Resultado de la validación de consumo
@@ -47,6 +55,14 @@ router.get('/consumption-validation',
  *     summary: Obtener calorías totales consumidas hoy
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         required: false
+ *         description: Día local del usuario (YYYY-MM-DD). Si se omite se usa el día UTC del servidor.
+ *         schema:
+ *           type: string
+ *           format: date
  *     responses:
  *       200:
  *         description: Calorías consumidas en el día actual
@@ -72,6 +88,74 @@ router.get('/consumption-validation',
 router.get('/today-calories',
   authenticateToken(['USER', 'ADMIN']),
   getTodayCalories
+);
+
+/**
+ * @openapi
+ * /api/v1/stats/week:
+ *   get:
+ *     tags: [Stats]
+ *     summary: Resumen de calorías de los últimos 7 días
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: end
+ *         required: false
+ *         description: Último día del rango (YYYY-MM-DD), normalmente el día local del usuario. Si se omite se usa el día UTC del servidor.
+ *         schema:
+ *           type: string
+ *           format: date
+ *     responses:
+ *       200:
+ *         description: Calorías por día de los 7 días que terminan en `end`
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         start:
+ *                           type: string
+ *                           format: date
+ *                         end:
+ *                           type: string
+ *                           format: date
+ *                         dailyLimit:
+ *                           type: number
+ *                           nullable: true
+ *                           description: Meta diaria en kcal, null si faltan edad, altura o peso
+ *                         days:
+ *                           type: array
+ *                           description: 7 días en orden ascendente
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               date:
+ *                                 type: string
+ *                                 format: date
+ *                               totalConsumed:
+ *                                 type: number
+ *                         average:
+ *                           type: number
+ *                           description: Promedio diario de kcal de los 7 días
+ *                         daysOnTarget:
+ *                           type: integer
+ *                           description: Días con consumo mayor a 0 y dentro de la meta
+ *       400:
+ *         description: Fecha inválida (INVALID_DATE)
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: Usuario no encontrado
+ */
+router.get('/week',
+  authenticateToken(['USER', 'ADMIN']),
+  getWeekStats
 );
 
 export default router;
