@@ -16,4 +16,10 @@ class ApiRoutes {
   static String chatSessionActivate(int sessionId) =>
       '/chat/sessions/$sessionId/activate';
   static const String fridge = '/fridge';
+  static const String meals = '/meals';
+  static String mealItems(int mealRecordId) => '/meals/$mealRecordId/items';
+  static const String mealsDay = '/meals/day';
+  static String mealItem(int detailId) => '/meals/items/$detailId';
+  static const String statsWeek = '/stats/week';
+  static const String userPhysical = '/user/physical';
 }
