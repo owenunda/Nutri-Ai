@@ -6,7 +6,7 @@ import {
   getDayMealsRepository,
   deleteMealItemRepository,
 } from './meal.repository.js';
-import { checkFoodsExist } from '../food/food.repository.js';
+import { checkFoodsVisible } from '../food/food.repository.js';
 import { checkRecipesExist } from '../recipe/recipe.repository.js';
 import { AppError } from '../../utils/AppError.js';
 import { resolveDateParam } from '../../utils/date.js';
@@ -22,8 +22,15 @@ export const createMealService = async (userId, date) => {
       return existing;
     }
 
-    const mealRecord = await createMealRecordRepository(userId, mealDate);
-    return mealRecord;
+    try {
+      return await createMealRecordRepository(userId, mealDate);
+    } catch (insertError) {
+      // Carrera: otra petición creó el registro del día entre la búsqueda y el insert.
+      if (insertError.code === '23505') {
+        return await findMealRecordByUserAndDate(userId, mealDate);
+      }
+      throw insertError;
+    }
   } catch (error) {
     if (error instanceof AppError) throw error;
     throw new AppError(error.message, 500, 'MEAL_SERVICE_ERROR');
@@ -36,7 +43,12 @@ export const addItemsToMealService = async (userId, mealRecordId, items) => {
       throw new AppError('Se requiere una lista de ítems', 400, 'ITEMS_REQUIRED');
     }
 
-    const ownerId = await findMealRecordOwnerRepository(mealRecordId);
+    const recordId = Number(mealRecordId);
+    if (!Number.isInteger(recordId) || recordId <= 0) {
+      throw new AppError('Registro de comida no encontrado', 404, 'MEAL_RECORD_NOT_FOUND');
+    }
+
+    const ownerId = await findMealRecordOwnerRepository(recordId);
     if (ownerId === null || Number(ownerId) !== Number(userId)) {
       throw new AppError('Registro de comida no encontrado', 404, 'MEAL_RECORD_NOT_FOUND');
     }
@@ -45,7 +57,7 @@ export const addItemsToMealService = async (userId, mealRecordId, items) => {
     const recipeIds = items.filter(i => i.recipe_id).map(i => i.recipe_id);
 
     if (foodIds.length > 0) {
-      const existingFoodIds = await checkFoodsExist(foodIds);
+      const existingFoodIds = await checkFoodsVisible(userId, foodIds);
       const missingFoods = foodIds.filter(id => !existingFoodIds.includes(id));
       if (missingFoods.length > 0) {
         throw new AppError(`Alimentos no encontrados: ${missingFoods.join(', ')}`, 404, 'FOOD_NOT_FOUND');
@@ -73,7 +85,7 @@ export const addItemsToMealService = async (userId, mealRecordId, items) => {
       }
     }
 
-    const results = await addItemsToMealRepository(mealRecordId, items);
+    const results = await addItemsToMealRepository(recordId, items);
     return results;
   } catch (error) {
     if (error instanceof AppError) throw error;

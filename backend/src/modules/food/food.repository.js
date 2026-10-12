@@ -75,6 +75,22 @@ export const checkFoodsExist = async (foodIds) => {
 };
 
 /**
+ * Devuelve los IDs de alimentos activos visibles para el usuario
+ * (globales o creados por él).
+ */
+export const checkFoodsVisible = async (userId, foodIds) => {
+  const query = `
+        SELECT food_id
+        FROM foods
+        WHERE food_id = ANY($1)
+          AND is_active = TRUE
+          AND (is_global = TRUE OR created_by_user_id = $2)
+    `;
+  const { rows } = await pool.query(query, [foodIds, userId]);
+  return rows.map(row => row.food_id);
+};
+
+/**
  * Inserta un nuevo alimento personalizado.
  */
 export const create = async (foodData) => {
