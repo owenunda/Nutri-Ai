@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
+import '../../../meals/data/meal_repository.dart';
+import '../../../meals/domain/meal_type.dart';
+import '../../../meals/presentation/widgets/add_food_sheet.dart';
 import '../../data/models/food_model.dart';
 
 /// Tarjeta de un alimento con sus calorías y el botón para registrarlo.
 class FoodListTile extends StatelessWidget {
   final FoodModel food;
 
-  const FoodListTile({super.key, required this.food});
+  /// Comida en la que se abre la hoja (al venir desde "Comidas de hoy").
+  final MealType? mealType;
+
+  @visibleForTesting
+  final MealRepository? repository;
+
+  const FoodListTile({super.key, required this.food, this.mealType, this.repository});
 
   String _getFoodEmoji(String name) {
     final lowerName = name.toLowerCase();
@@ -101,14 +109,12 @@ class FoodListTile extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           GestureDetector(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('¡${food.name} registrada! Se agregaron ${food.caloriesPerUnit.toInt()} KCAL a tu registro diario.'),
-                  backgroundColor: AppTheme.primaryStart,
-                ),
-              );
-            },
+            onTap: () => showAddFoodSheet(
+              context,
+              food,
+              initialType: mealType,
+              repository: repository,
+            ),
             child: Container(
               width: 36,
               height: 36,
