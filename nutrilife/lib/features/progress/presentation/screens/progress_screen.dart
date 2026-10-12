@@ -1010,18 +1010,4 @@ String _formatDouble(double value) {
   return value.toStringAsFixed(1);
 }
 
-String _formatInt(int value) {
-  final text = value.toString();
-  final buffer = StringBuffer();
-
-  for (var index = 0; index < text.length; index++) {
-    final remaining = text.length - index;
-    buffer.write(text[index]);
-
-    if (remaining > 1 && remaining % 3 == 1) {
-      buffer.write(',');
-    }
-  }
-
-  return buffer.toString();
-}
+String _formatInt(int value) => formatKcal(value);
