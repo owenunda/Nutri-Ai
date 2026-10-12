@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../premium/presentation/screens/premium_screen.dart';
 import '../../data/profile_repository.dart';
 import 'edit_profile_screen.dart';
 
@@ -492,6 +493,17 @@ class _SettingsCard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          _SettingsRow(
+            icon: Icons.workspace_premium_rounded,
+            iconColor: _ProfileColors.green,
+            iconBackground: const Color(0xFFDCFCE7),
+            title: 'NutriLife Premium',
+            subtitle: 'Planes y beneficios',
+            trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFFADB4BC), size: 30),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const PremiumScreen()),
+            ),
+          ),
           _SettingsRow(
             icon: Icons.access_time_filled_rounded,
             iconColor: const Color(0xFF066D82),

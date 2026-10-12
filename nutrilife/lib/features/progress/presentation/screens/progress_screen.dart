@@ -4,6 +4,7 @@ import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../profile/data/profile_repository.dart';
+import '../../../premium/presentation/widgets/premium_promo_card.dart';
 import '../../../profile/presentation/screens/edit_profile_screen.dart';
 import '../../data/progress_repository.dart';
 import '../widgets/register_weight_sheet.dart';
@@ -194,6 +195,8 @@ class _ProgressContent extends StatelessWidget {
           data.week == null
               ? _NutritionAveragesGrid(data: data)
               : WeeklySummaryGrid(week: data.week!),
+          const SizedBox(height: 24),
+          const PremiumPromoCard(),
         ],
       ),
     );
