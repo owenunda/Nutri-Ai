@@ -6,6 +6,7 @@ import 'features/auth/presentation/screens/auth_flow_navigator.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/home/presentation/screens/dashboard_screen.dart';
 import 'core/services/session_service.dart';
+import 'core/widgets/dismiss_keyboard_on_tap.dart';
 
 
 
@@ -38,6 +39,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Nutri life",
       theme: AppTheme.lightTheme,
+      builder: (context, child) => DismissKeyboardOnTap(child: child!),
       home: home,
     );
   }
