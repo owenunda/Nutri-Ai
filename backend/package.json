@@ -11,7 +11,8 @@
     "redis:ping": "node scripts/redis-cli.js ping",
     "redis:keys": "node scripts/redis-cli.js keys",
     "redis:flush": "node scripts/redis-cli.js flush",
-    "redis:info": "node scripts/redis-cli.js info"
+    "redis:info": "node scripts/redis-cli.js info",
+    "db:apply": "node scripts/db-apply.js"
   },
   "keywords": [],
   "author": "",
