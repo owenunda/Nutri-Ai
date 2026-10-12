@@ -574,7 +574,7 @@
         "responses": {
           "values": [
             {
-              "content": "=Eres el Chef Oficial de NutriLife, una aplicación de nutrición inteligente.\n\nTu función es crear recetas fáciles, saludables y prácticas utilizando ÚNICAMENTE los alimentos disponibles.\n\n## Alimentos disponibles\n\nCada alimento trae su foodId, su nombre y la cantidad que tiene el usuario:\n\n{{ JSON.stringify($json.availableFoods) }}\n\n## Tipo de comida solicitado\n\n{{ $json.mealType || 'no especificado, elige el más razonable' }}\n\n## Lo que pidió el usuario\n\n\"{{ $json.userRequest }}\"\n\n{{ $json.avoidTitle ? 'IMPORTANTE: el usuario rechazó la receta anterior titulada \"' + $json.avoidTitle + '\". Propón algo claramente distinto, no una variación del mismo plato.' : '' }}\n\n## Reglas\n\n- Utiliza únicamente los alimentos recibidos.\n- Nunca inventes alimentos que no estén en la lista.\n- En ingredients_used, food_id debe ser exactamente un foodId de la lista de alimentos disponibles.\n- Puedes utilizar una cantidad menor a la disponible, pero nunca una cantidad mayor.\n- Si falta un alimento importante, adapta la receta con los que existen.\n- La receta debe ser sencilla y fácil de seguir.\n- Los pasos deben estar ordenados cronológicamente.\n- Cada paso debe ser corto, claro y fácil de entender.\n- El título debe ser atractivo.\n- La introducción debe invitar al usuario a preparar la receta.\n- La dificultad debe ser coherente con la preparación.\n- El tiempo de preparación debe ser una estimación realista.\n- El número de porciones debe ser razonable según los alimentos disponibles.\n- Las calorías deben ser una estimación aproximada.\n- Los consejos deben ser útiles, cortos y opcionales.\n- meal_type debe ser exactamente uno de: desayuno, almuerzo, cena.\n\n## IMPORTANTE\n\nResponde ÚNICAMENTE con un JSON válido.\n\nNO escribas texto antes del JSON.\n\nNO escribas texto después del JSON.\n\nNO utilices Markdown ni bloques de código.\n\nLa respuesta debe seguir EXACTAMENTE esta estructura:\n\n{\n  \"recipe_title\": \"string\",\n  \"recipe_summary\": \"string\",\n  \"chef_reason\": \"Una frase explicando por qué elegiste esta receta.\",\n  \"meal_type\": \"desayuno\",\n  \"difficulty\": \"Fácil\",\n  \"preparation_time_minutes\": 0,\n  \"servings\": 0,\n  \"estimated_calories\": 0,\n  \"tips\": [\n    \"string\"\n  ],\n  \"steps\": [\n    { \"step\": 1, \"description\": \"string\" },\n    { \"step\": 2, \"description\": \"string\" }\n  ],\n  \"ingredients_used\": [\n    { \"food_id\": 0, \"quantity\": 0 }\n  ]\n}"
+              "content": "=Eres el Chef Oficial de NutriLife, una aplicación de nutrición inteligente.\n\nTu función es crear recetas fáciles, saludables y prácticas utilizando ÚNICAMENTE los alimentos disponibles.\n\n## Alimentos disponibles\n\nCada alimento trae su foodId, su nombre y la cantidad que tiene el usuario:\n\n{{ JSON.stringify($json.availableFoods) }}\n\n## Tipo de comida solicitado\n\n{{ $json.mealType || 'no especificado, elige el más razonable' }}\n\n## Lo que pidió el usuario\n\n\"{{ $json.userRequest }}\"\n\n{{ $json.avoidTitle ? 'IMPORTANTE: el usuario rechazó la receta anterior titulada \"' + $json.avoidTitle + '\". Propón algo claramente distinto, no una variación del mismo plato.' : '' }}\n\n## Reglas\n\n- Utiliza únicamente los alimentos recibidos.\n- Nunca inventes alimentos que no estén en la lista.\n- En ingredients_used, food_id debe ser exactamente un foodId de la lista de alimentos disponibles.\n- Puedes utilizar una cantidad menor a la disponible, pero nunca una cantidad mayor.\n- Si falta un alimento importante, adapta la receta con los que existen.\n- La receta debe ser sencilla y fácil de seguir.\n- Los pasos deben estar ordenados cronológicamente.\n- Cada paso debe ser corto, claro y fácil de entender.\n- El título debe ser atractivo.\n- La introducción debe invitar al usuario a preparar la receta.\n- chef_reason es el mensaje que el usuario verá en el chat: 1 o 2 frases, hablándole directo (segunda persona) y con tono cercano, recomendándole la receta y por qué le encaja. Ejemplo: \"Te recomiendo esta ensalada fresca: con tu banana y tu pera la tienes lista en 5 minutos y es perfecta para un almuerzo ligero.\" Nunca digas \"el usuario\" ni hables de él en tercera persona.\n- La dificultad debe ser coherente con la preparación.\n- El tiempo de preparación debe ser una estimación realista.\n- El número de porciones debe ser razonable según los alimentos disponibles.\n- Las calorías deben ser una estimación aproximada.\n- Los consejos deben ser útiles, cortos y opcionales.\n- meal_type debe ser exactamente uno de: desayuno, almuerzo, cena.\n\n## IMPORTANTE\n\nResponde ÚNICAMENTE con un JSON válido.\n\nNO escribas texto antes del JSON.\n\nNO escribas texto después del JSON.\n\nNO utilices Markdown ni bloques de código.\n\nLa respuesta debe seguir EXACTAMENTE esta estructura:\n\n{\n  \"recipe_title\": \"string\",\n  \"recipe_summary\": \"string\",\n  \"chef_reason\": \"Mensaje corto para el usuario recomendándole la receta.\",\n  \"meal_type\": \"desayuno\",\n  \"difficulty\": \"Fácil\",\n  \"preparation_time_minutes\": 0,\n  \"servings\": 0,\n  \"estimated_calories\": 0,\n  \"tips\": [\n    \"string\"\n  ],\n  \"steps\": [\n    { \"step\": 1, \"description\": \"string\" },\n    { \"step\": 2, \"description\": \"string\" }\n  ],\n  \"ingredients_used\": [\n    { \"food_id\": 0, \"quantity\": 0 }\n  ]\n}"
             }
           ]
         },
@@ -667,7 +667,7 @@
             },
             {
               "name": "maxResults",
-              "value": "1"
+              "value": "5"
             },
             {
               "name": "q",
@@ -697,14 +697,48 @@
     },
     {
       "parameters": {
-        "jsCode": "// Un fallo de YouTube (cuota agotada, sin resultados) no puede tumbar la receta.\nconst res = $input.first().json;\nconst item = Array.isArray(res?.items) ? res.items[0] : null;\nconst videoId = item?.id?.videoId;\n\nif (!videoId) {\n  return [{ json: { media: null } }];\n}\n\nconst thumbnails = item.snippet?.thumbnails ?? {};\n\nreturn [{\n  json: {\n    media: {\n      youtube: {\n        video_id: videoId,\n        title: item.snippet?.title ?? null,\n        channel: item.snippet?.channelTitle ?? null,\n        thumbnail: thumbnails.high?.url ?? thumbnails.medium?.url ?? thumbnails.default?.url ?? null,\n        url: `https://www.youtube.com/watch?v=${videoId}`\n      }\n    }\n  }\n}];"
+        "modelId": {
+          "__rl": true,
+          "value": "MiniMax-M3",
+          "mode": "list",
+          "cachedResultName": "MINIMAX-M3"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Eres el Agente Media de NutriLife.\n\nTienes una receta y varios videos encontrados en YouTube. Elige el video que enseña a preparar ESA receta, o ninguno.\n\n## Receta\n\nTítulo: {{ $('Parsear Receta del Chef').first().json.recipe.title }}\n\nResumen: {{ $('Parsear Receta del Chef').first().json.recipe.summary }}\n\n## Videos candidatos\n\n{{ JSON.stringify((Array.isArray($json.items) ? $json.items : []).map((it, i) => ({ index: i, title: it.snippet?.title, channel: it.snippet?.channelTitle, description: String(it.snippet?.description ?? '').slice(0, 200) }))) }}\n\n## Reglas\n\n- El video debe enseñar el mismo plato: el mismo tipo de preparación (ensalada, batido, tortilla, sopa...) con los ingredientes principales.\n- Compartir ingredientes NO basta: un batido de banana no sirve para una ensalada de banana.\n- Si ningún video encaja claramente, o no hay candidatos, responde null. Es mejor no recomendar nada que recomendar algo distinto.\n- No inventes videos ni índices: index debe ser uno de los de la lista.\n\nResponde ÚNICAMENTE en JSON, sin markdown:\n\n{\n  \"index\": null\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "ec6dbc3e-d08c-4dd3-ad29-2b5f506abfca",
+      "name": "Agente: Validar Video",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        -16
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "zTZIZrhnkbZJEQSS",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Un fallo de YouTube o del validador no puede tumbar la receta. Y sin un\n// video que enseñe el mismo plato es mejor no recomendar ninguno.\nconst search = $('Buscar Video en YouTube').first().json;\nconst items = Array.isArray(search?.items) ? search.items : [];\n\nfunction chosenIndex(res) {\n  const raw = res?.output?.[0]?.content?.[0]?.text\n    ?? res?.message?.content\n    ?? res?.text\n    ?? res?.content;\n  if (typeof raw !== 'string') return null;\n\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start === -1 || end <= start) return null;\n\n  try {\n    const index = JSON.parse(raw.slice(start, end + 1)).index;\n    return Number.isInteger(index) ? index : null;\n  } catch (e) {\n    return null;\n  }\n}\n\nconst index = chosenIndex($input.first().json);\nconst item = index !== null ? items[index] : null;\nconst videoId = item?.id?.videoId;\n\nif (!videoId) {\n  return [{ json: { media: null } }];\n}\n\nconst thumbnails = item.snippet?.thumbnails ?? {};\n\nreturn [{\n  json: {\n    media: {\n      youtube: {\n        video_id: videoId,\n        title: item.snippet?.title ?? null,\n        channel: item.snippet?.channelTitle ?? null,\n        thumbnail: thumbnails.high?.url ?? thumbnails.medium?.url ?? thumbnails.default?.url ?? null,\n        url: `https://www.youtube.com/watch?v=${videoId}`\n      }\n    }\n  }\n}];"
       },
       "id": "bc84e52b-ed08-4e98-bf70-c989af46c628",
       "name": "Extraer Datos del Video",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -224,
+        -16,
         -16
       ]
     },
@@ -736,7 +770,7 @@
         "responses": {
           "values": [
             {
-              "content": "=Eres el Chef Oficial de NutriLife.\n\nEl usuario YA tiene una receta y quiere modificarla. NO generes una receta desde cero.\n\n## Receta actual\n\n{{ JSON.stringify($json.previousRecipe) }}\n\n## Alimentos disponibles\n\nSolo puedes usar estos foodId:\n\n{{ JSON.stringify($json.availableFoods) }}\n\n## Lo que pide el usuario\n\n\"{{ $json.userRequest }}\"\n\nTipo de modificación detectada: {{ $json.modificationType || 'OTHER' }}\n\n## Reglas\n\n- Devuelve la receta COMPLETA ya modificada, no solo el cambio.\n- Conserva todo lo que el usuario no pidió cambiar: título, pasos y tips que sigan teniendo sentido.\n- En ingredients_used, food_id debe ser exactamente un foodId de la lista de alimentos disponibles.\n- Si el usuario pide quitar un ingrediente, quítalo también de ingredients_used y de los pasos.\n- Si el usuario cambia las porciones, ajusta las cantidades y las calorías proporcionalmente.\n- Si el usuario pide reemplazar un ingrediente por otro que no está disponible, usa el más parecido de la lista y dilo en chef_reason.\n- chef_reason debe explicar en una sola frase QUÉ cambiaste.\n- meal_type debe ser exactamente uno de: desayuno, almuerzo, cena.\n\n## IMPORTANTE\n\nResponde ÚNICAMENTE con un JSON válido, sin markdown ni bloques de código, con esta estructura exacta:\n\n{\n  \"recipe_title\": \"string\",\n  \"recipe_summary\": \"string\",\n  \"chef_reason\": \"Qué cambiaste y por qué.\",\n  \"meal_type\": \"desayuno\",\n  \"difficulty\": \"Fácil\",\n  \"preparation_time_minutes\": 0,\n  \"servings\": 0,\n  \"estimated_calories\": 0,\n  \"tips\": [\n    \"string\"\n  ],\n  \"steps\": [\n    { \"step\": 1, \"description\": \"string\" },\n    { \"step\": 2, \"description\": \"string\" }\n  ],\n  \"ingredients_used\": [\n    { \"food_id\": 0, \"quantity\": 0 }\n  ]\n}"
+              "content": "=Eres el Chef Oficial de NutriLife.\n\nEl usuario YA tiene una receta y quiere modificarla. NO generes una receta desde cero.\n\n## Receta actual\n\n{{ JSON.stringify($json.previousRecipe) }}\n\n## Alimentos disponibles\n\nSolo puedes usar estos foodId:\n\n{{ JSON.stringify($json.availableFoods) }}\n\n## Lo que pide el usuario\n\n\"{{ $json.userRequest }}\"\n\nTipo de modificación detectada: {{ $json.modificationType || 'OTHER' }}\n\n## Reglas\n\n- Devuelve la receta COMPLETA ya modificada, no solo el cambio.\n- Conserva todo lo que el usuario no pidió cambiar: título, pasos y tips que sigan teniendo sentido.\n- En ingredients_used, food_id debe ser exactamente un foodId de la lista de alimentos disponibles.\n- Si el usuario pide quitar un ingrediente, quítalo también de ingredients_used y de los pasos.\n- Si el usuario cambia las porciones, ajusta las cantidades y las calorías proporcionalmente.\n- Si el usuario pide reemplazar un ingrediente por otro que no está disponible, usa el más parecido de la lista y dilo en chef_reason.\n- chef_reason es el mensaje que el usuario verá en el chat: una frase hablándole directo y con tono cercano, contando qué cambiaste. Ejemplo: \"Listo, la dejé para 4 personas y dupliqué las cantidades.\" Nunca digas \"el usuario\".\n- meal_type debe ser exactamente uno de: desayuno, almuerzo, cena.\n\n## IMPORTANTE\n\nResponde ÚNICAMENTE con un JSON válido, sin markdown ni bloques de código, con esta estructura exacta:\n\n{\n  \"recipe_title\": \"string\",\n  \"recipe_summary\": \"string\",\n  \"chef_reason\": \"Mensaje corto para el usuario contando qué cambiaste.\",\n  \"meal_type\": \"desayuno\",\n  \"difficulty\": \"Fácil\",\n  \"preparation_time_minutes\": 0,\n  \"servings\": 0,\n  \"estimated_calories\": 0,\n  \"tips\": [\n    \"string\"\n  ],\n  \"steps\": [\n    { \"step\": 1, \"description\": \"string\" },\n    { \"step\": 2, \"description\": \"string\" }\n  ],\n  \"ingredients_used\": [\n    { \"food_id\": 0, \"quantity\": 0 }\n  ]\n}"
             }
           ]
         },
@@ -782,7 +816,7 @@
         "responses": {
           "values": [
             {
-              "content": "=Eres el Chef Oficial de NutriLife.\n\nEl usuario tiene una pregunta sobre la receta que ya le diste.\n\nNO generes una receta nueva. NO modifiques la receta. Solo responde.\n\n## Receta actual\n\n{{ JSON.stringify($json.previousRecipe) }}\n\n## Pregunta del usuario\n\n\"{{ $json.userRequest }}\"\n\nTipo de pregunta detectada: {{ $json.questionType || 'GENERAL' }}\n\n## Reglas\n\n- Responde en español, tono cercano y directo.\n- Máximo 4 frases.\n- Si la pregunta es sobre un paso concreto, cita ese paso.\n- Si es sobre un sustituto, propón alguno realista aunque no esté en la receta, aclarando que cambiaría el resultado.\n- Si la receta no tiene la información para responder, dilo con honestidad en vez de inventar.\n- No uses markdown ni listas con viñetas.\n\nResponde ÚNICAMENTE en JSON, sin markdown:\n\n{\n  \"answer\": \"\"\n}"
+              "content": "=Eres el Chef Oficial de NutriLife.\n\nEl usuario tiene una pregunta sobre la receta que ya le diste.\n\nNO generes una receta nueva. NO modifiques la receta. Solo responde.\n\n## Receta actual\n\n{{ JSON.stringify($json.previousRecipe) }}\n\n## Pregunta del usuario\n\n\"{{ $json.userRequest }}\"\n\nTipo de pregunta detectada: {{ $json.questionType || 'GENERAL' }}\n\n## Cómo responder\n\nLe hablas directo al usuario, en español, con tono cercano y natural, como un chef amigo que le recomienda cosas (\"te recomiendo...\", \"yo le pondría...\"). Nunca digas \"el usuario\".\n\nJunto a tu mensaje la app puede mostrar tarjetas interactivas, así que NO repitas en el texto lo que ellas ya muestran:\n\n- show_steps: true muestra el paso a paso interactivo de la receta. Úsalo cuando pida que le expliques la receta, cómo se prepara o los pasos. En ese caso answer es solo 1 o 2 frases presentando la receta e invitándole a seguir el paso a paso; NO listes los pasos. Ejemplo: \"¡Claro! Es una ensalada dulce y fresca que tienes lista en 5 minutos. Sigue el paso a paso aquí abajo 👇\"\n- focus_step: si pregunta por un paso concreto, pon su número (el paso a paso se abrirá ahí) y explica ese paso en answer con tus palabras, en 2 o 3 frases. Si no, null.\n- tip: un consejo corto y útil relacionado con la pregunta (puede salir de los tips de la receta). Solo uno y solo si aporta; si no, null.\n\nPara el resto de preguntas (sustitutos, nutrición, técnicas, acompañamientos) responde en answer:\n\n- Sé breve: una frase de introducción y luego lo justo.\n- Si enumeras opciones o sustitutos, usa una lista con guiones (- ), una por línea.\n- Resalta con **negritas** solo lo clave (ingredientes, tiempos, cantidades).\n- Párrafos cortos separados por una línea en blanco. Nada de títulos (#), tablas ni bloques de código.\n- Si es sobre un sustituto, propón alguno realista aunque no esté en la receta, aclarando que cambiaría el resultado.\n- Si la receta no tiene la información para responder, dilo con honestidad en vez de inventar.\n\nanswer NUNCA va vacío: aunque muestres el paso a paso o un tip, siempre escribe al menos una frase para el usuario.\n\nEl campo answer es un string en markdown; usa \\n para los saltos de línea.\n\nResponde ÚNICAMENTE con el JSON, sin texto alrededor ni bloques de código:\n\n{\n  \"answer\": \"\",\n  \"show_steps\": false,\n  \"focus_step\": null,\n  \"tip\": null\n}"
             }
           ]
         },
@@ -806,7 +840,7 @@
     },
     {
       "parameters": {
-        "jsCode": "function extractJson(res, label) {\n  const raw = res?.output?.[0]?.content?.[0]?.text\n    ?? res?.message?.content\n    ?? res?.text\n    ?? res?.content;\n\n  if (typeof raw !== 'string' || !raw.trim()) {\n    throw new Error(`[${label}] El modelo no devolvió texto. Recibido: ${JSON.stringify(res).slice(0, 400)}`);\n  }\n\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start === -1 || end <= start) {\n    throw new Error(`[${label}] No se encontró JSON en la respuesta: ${raw.slice(0, 400)}`);\n  }\n\n  try {\n    return JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    throw new Error(`[${label}] JSON inválido (${e.message}): ${raw.slice(0, 400)}`);\n  }\n}\n\nconst parsed = extractJson($input.first().json, 'Responder Pregunta');\n\nreturn [{\n  json: {\n    responseType: 'ANSWER',\n    message: String(parsed.answer ?? '').trim() || 'No pude responder eso con la información de la receta.'\n  }\n}];"
+        "jsCode": "function extractJson(res, label) {\n  const raw = res?.output?.[0]?.content?.[0]?.text\n    ?? res?.message?.content\n    ?? res?.text\n    ?? res?.content;\n\n  if (typeof raw !== 'string' || !raw.trim()) {\n    throw new Error(`[${label}] El modelo no devolvió texto. Recibido: ${JSON.stringify(res).slice(0, 400)}`);\n  }\n\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start === -1 || end <= start) {\n    throw new Error(`[${label}] No se encontró JSON en la respuesta: ${raw.slice(0, 400)}`);\n  }\n\n  try {\n    return JSON.parse(raw.slice(start, end + 1));\n  } catch (e) {\n    throw new Error(`[${label}] JSON inválido (${e.message}): ${raw.slice(0, 400)}`);\n  }\n}\n\nconst parsed = extractJson($input.first().json, 'Responder Pregunta');\nconst recipe = $('Resolver Ruta').first().json.previousRecipe ?? null;\nconst stepCount = Array.isArray(recipe?.steps) ? recipe.steps.length : 0;\n\n// El modelo puede inventar un paso que no existe: solo vale si está en la receta.\nconst focus = Number(parsed.focus_step);\nconst focusStep = Number.isInteger(focus) && focus >= 1 && focus <= stepCount ? focus : null;\n// Sin pasos en la receta no hay paso a paso que abrir.\nconst showSteps = stepCount > 0 && (parsed.show_steps === true || focusStep !== null);\nconst tip = typeof parsed.tip === 'string' && parsed.tip.trim()\n  ? parsed.tip.trim().slice(0, 300)\n  : null;\n\n// A veces el modelo deja answer vacío confiando en las tarjetas: el chat\n// igual necesita una frase, y no el mensaje de error.\nfunction fallbackMessage() {\n  if (showSteps) {\n    return recipe?.title\n      ? `¡Claro! Aquí tienes el paso a paso de ${recipe.title} 👇`\n      : '¡Claro! Aquí tienes el paso a paso 👇';\n  }\n  if (tip) return 'Te dejo un tip 👇';\n  return 'No pude responder eso con la información de la receta.';\n}\n\nconst actions = showSteps || tip\n  ? { steps: showSteps ? { focus_step: focusStep } : null, tip }\n  : null;\n\nreturn [{\n  json: {\n    responseType: 'ANSWER',\n    message: String(parsed.answer ?? '').trim() || fallbackMessage(),\n    actions\n  }\n}];"
       },
       "id": "88816517-46e6-4c85-a77f-f5459f82698e",
       "name": "Parsear Respuesta de Consulta",
@@ -865,7 +899,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Punto único de salida: todas las ramas producen el mismo envelope.\n// El tipo lo declara cada rama en responseType, no se vuelve a mirar la ruta.\nconst j = $input.first().json;\nconst session = $('Unificar Datos de Sesión').first().json;\nconst route = $('Resolver Ruta').first().json;\n\n// El backend rechaza cualquier otro valor.\nconst VALID_INTENTS = [\n  'GENERATE_RECIPE_WITH_INPUT',\n  'GENERATE_RECIPE_FROM_FRIDGE',\n  'MODIFY_RECIPE',\n  'ASK_RECIPE',\n  'NEW_RECIPE'\n];\nconst VALID_MEAL_TYPES = ['desayuno', 'almuerzo', 'cena'];\n\nconst type = j.responseType ?? 'CHAT';\nconst isRecipe = type === 'RECIPE' || type === 'RECIPE_MODIFIED';\n\nconst recipe = isRecipe ? (j.recipe ?? null) : null;\nconst media = isRecipe ? (j.media ?? null) : null;\n\nconst message = isRecipe\n  ? (recipe?.chef_reason || recipe?.summary || `Te preparé: ${recipe?.title}`)\n  : (j.message || 'Listo.');\n\nconst now = new Date().toISOString();\nconst servings = Number(recipe?.servings);\nconst nextVersion = isRecipe ? session.version + 1 : session.version;\n\nreturn [{\n  json: {\n    response: {\n      type,\n      message,\n      recipe,\n      media,\n      session: {\n        sessionId: session.sessionId,\n        version: nextVersion\n      }\n    },\n    shouldPersistRecipe: isRecipe,\n    persist: {\n      last_intent: VALID_INTENTS.includes(route.intent) ? route.intent : null,\n      meal_type: VALID_MEAL_TYPES.includes(recipe?.meal_type) ? recipe.meal_type : null,\n      servings: Number.isInteger(servings) && servings > 0 ? servings : null,\n      generated_at: type === 'RECIPE_MODIFIED' ? (session.previousGeneratedAt || now) : now,\n      last_modified_at: now,\n      version: nextVersion\n    }\n  }\n}];"
+        "jsCode": "// Punto único de salida: todas las ramas producen el mismo envelope.\n// El tipo lo declara cada rama en responseType, no se vuelve a mirar la ruta.\nconst j = $input.first().json;\nconst session = $('Unificar Datos de Sesión').first().json;\nconst route = $('Resolver Ruta').first().json;\n\n// El backend rechaza cualquier otro valor.\nconst VALID_INTENTS = [\n  'GENERATE_RECIPE_WITH_INPUT',\n  'GENERATE_RECIPE_FROM_FRIDGE',\n  'MODIFY_RECIPE',\n  'ASK_RECIPE',\n  'NEW_RECIPE'\n];\nconst VALID_MEAL_TYPES = ['desayuno', 'almuerzo', 'cena'];\n\nconst type = j.responseType ?? 'CHAT';\nconst isRecipe = type === 'RECIPE' || type === 'RECIPE_MODIFIED';\n\nconst recipe = isRecipe ? (j.recipe ?? null) : null;\nconst media = isRecipe ? (j.media ?? null) : null;\n// Solo ANSWER trae tarjetas interactivas (paso a paso, tip).\nconst actions = type === 'ANSWER' ? (j.actions ?? null) : null;\n\nconst message = isRecipe\n  ? (recipe?.chef_reason || recipe?.summary || `Te preparé: ${recipe?.title}`)\n  : (j.message || 'Listo.');\n\nconst now = new Date().toISOString();\nconst servings = Number(recipe?.servings);\nconst nextVersion = isRecipe ? session.version + 1 : session.version;\n\nreturn [{\n  json: {\n    response: {\n      type,\n      message,\n      recipe,\n      media,\n      actions,\n      session: {\n        sessionId: session.sessionId,\n        version: nextVersion\n      }\n    },\n    shouldPersistRecipe: isRecipe,\n    // Lo que el historial necesita para repintar el mensaje al reabrir el chat.\n    messageMetadata: actions ? { type, actions } : { type },\n    persist: {\n      last_intent: VALID_INTENTS.includes(route.intent) ? route.intent : null,\n      meal_type: VALID_MEAL_TYPES.includes(recipe?.meal_type) ? recipe.meal_type : null,\n      servings: Number.isInteger(servings) && servings > 0 ? servings : null,\n      generated_at: type === 'RECIPE_MODIFIED' ? (session.previousGeneratedAt || now) : now,\n      last_modified_at: now,\n      version: nextVersion\n    }\n  }\n}];"
       },
       "id": "440c9b54-43fb-4163-bb0f-a62f94d8a9c3",
       "name": "Construir Respuesta Final",
@@ -954,7 +988,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { role: 'ASSISTANT', content: $('Construir Respuesta Final').first().json.response.message } }}",
+        "jsonBody": "={{ { role: 'ASSISTANT', content: $('Construir Respuesta Final').first().json.response.message, metadata: $('Construir Respuesta Final').first().json.messageMetadata } }}",
         "options": {}
       },
       "id": "2d38f7a1-7a66-436a-b744-bd6af4fc7af2",
@@ -1351,7 +1385,7 @@
       "main": [
         [
           {
-            "node": "Extraer Datos del Video",
+            "node": "Agente: Validar Video",
             "type": "main",
             "index": 0
           }
@@ -1531,6 +1565,17 @@
         [
           {
             "node": "Preparar Contexto del Chef",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente: Validar Video": {
+      "main": [
+        [
+          {
+            "node": "Extraer Datos del Video",
             "type": "main",
             "index": 0
           }
