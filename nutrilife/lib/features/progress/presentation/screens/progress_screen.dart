@@ -6,8 +6,10 @@ import '../../../../core/widgets/primary_button.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../../profile/presentation/screens/edit_profile_screen.dart';
 import '../../data/progress_repository.dart';
+import '../widgets/register_weight_sheet.dart';
 import '../widgets/week_calories_card.dart';
 import '../widgets/weekly_summary_grid.dart';
+import '../widgets/weight_sparkline.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({
@@ -354,7 +356,17 @@ class _WeightInsightCard extends StatelessWidget {
             child: SizedBox(
               width: 120,
               height: 90,
-              child: CustomPaint(painter: _InsightChartPainter()),
+              child: WeightSparkline(
+                weights: data.orderedHistory
+                    .map((r) => r.weight)
+                    .whereType<double>()
+                    .toList()
+                    .reversed
+                    .take(7)
+                    .toList()
+                    .reversed
+                    .toList(),
+              ),
             ),
           ),
           Column(
@@ -419,11 +431,26 @@ class _WeightInsightCard extends StatelessWidget {
                 hasChange
                     ? 'Comparado con tu registro físico anterior.'
                     : 'Registra otro peso más adelante para ver tu evolución.',
-                style: TextStyle(fontFamily: 'Inter', 
+                style: TextStyle(fontFamily: 'Inter',
                   color: ProgressScreen._muted.withValues(alpha: 0.88),
                   fontSize: 13,
                   height: 1.25,
                   fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => showRegisterWeightSheet(
+                  context,
+                  lastWeight: data.currentWeight,
+                  height: data.currentHeight,
+                ),
+                icon: const Icon(Icons.monitor_weight_outlined, size: 18),
+                label: const Text('Registrar peso'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: ProgressScreen._green,
+                  side: const BorderSide(color: Color(0xFFD1E7DA)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                 ),
               ),
             ],
@@ -868,37 +895,6 @@ class _AxisLabel extends StatelessWidget {
       ),
     );
   }
-}
-
-class _InsightChartPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final barPaint = Paint()
-      ..color = const Color(0xFFE5E7EB)
-      ..strokeWidth = 8
-      ..strokeCap = StrokeCap.square;
-    final linePaint = Paint()
-      ..color = const Color(0xFFE5E7EB)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 8;
-
-    for (var i = 0; i < 4; i++) {
-      final x = 14.0 + (i * 26);
-      final top = size.height - (24.0 + i * 11);
-      canvas.drawLine(Offset(x, size.height), Offset(x, top), barPaint);
-    }
-
-    final path = Path()
-      ..moveTo(0, size.height * 0.55)
-      ..lineTo(size.width * 0.28, size.height * 0.72)
-      ..lineTo(size.width * 0.52, size.height * 0.35)
-      ..lineTo(size.width * 0.72, size.height * 0.58)
-      ..lineTo(size.width, size.height * 0.18);
-    canvas.drawPath(path, linePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _WeightHistoryPainter extends CustomPainter {

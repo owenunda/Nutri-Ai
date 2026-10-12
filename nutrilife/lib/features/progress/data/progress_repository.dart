@@ -273,6 +273,19 @@ class ProgressRepository {
     }
   }
 
+  Future<void> addWeight({required double weight, required double height}) async {
+    try {
+      await _dio.post<Map<String, dynamic>>(
+        ApiRoutes.userPhysical,
+        data: {'weight': weight, 'height': height},
+      );
+    } on DioException catch (error) {
+      throw ProgressException(
+        error.response?.data?['message']?.toString() ?? 'No se pudo guardar tu peso.',
+      );
+    }
+  }
+
   Future<Map<String, dynamic>> _getMap(String route) async {
     final data = await _getData(route);
     if (data is Map<String, dynamic>) {
