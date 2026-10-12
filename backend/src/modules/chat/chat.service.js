@@ -50,13 +50,13 @@ export const updateConversationState = async (userId, conversationState) => {
     }
 };
 
-export const addMessage = async (userId, role, content) => {
+export const addMessage = async (userId, role, content, metadata = null) => {
     try {
         const session = await findActiveSessionByUserIdRepository(userId);
         if (!session) {
             throw new AppError('No se encontró una sesión activa', 404, 'SESSION_NOT_FOUND');
         }
-        return await addMessageRepository(session.sessionId, role, content);
+        return await addMessageRepository(session.sessionId, role, content, metadata);
     } catch (error) {
         if (error instanceof AppError) throw error;
         throw new AppError(error.message, 500, 'CHAT_SERVICE_ERROR');

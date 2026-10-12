@@ -78,18 +78,20 @@ export const closeSessionRepository = async (sessionId) => {
     return rows[0] ?? null;
 };
 
-export const addMessageRepository = async (sessionId, role, content) => {
+export const addMessageRepository = async (sessionId, role, content, metadata = null) => {
     const query = `
-        INSERT INTO chat_messages (session_id, role, content)
-        VALUES ($1, $2, $3)
+        INSERT INTO chat_messages (session_id, role, content, metadata)
+        VALUES ($1, $2, $3, $4::jsonb)
         RETURNING
             message_id  AS "messageId",
             session_id  AS "sessionId",
             role,
             content,
+            metadata,
             created_at  AS "createdAt"
     `;
-    const { rows } = await pool.query(query, [sessionId, role, content]);
+    const params = [sessionId, role, content, metadata === null ? null : JSON.stringify(metadata)];
+    const { rows } = await pool.query(query, params);
     return rows[0];
 };
 
@@ -174,6 +176,7 @@ export const findMessagesBySessionIdRepository = async (sessionId) => {
             session_id  AS "sessionId",
             role,
             content,
+            metadata,
             created_at  AS "createdAt"
         FROM chat_messages
         WHERE session_id = $1

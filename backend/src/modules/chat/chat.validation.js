@@ -22,8 +22,12 @@ export const validateSessionIdParam = (req, res, next) => {
     next();
 };
 
+// Lo justo para el tipo de respuesta y unas pocas acciones; un mensaje no
+// es lugar para guardar recetas completas.
+const MAX_METADATA_BYTES = 4096;
+
 export const validateAddMessageRequest = (req, res, next) => {
-    const { role, content } = req.body ?? {};
+    const { role, content, metadata } = req.body ?? {};
     const details = [];
 
     if (!role) {
@@ -38,13 +42,22 @@ export const validateAddMessageRequest = (req, res, next) => {
         details.push({ field: 'content', message: 'El contenido no puede estar vacío' });
     }
 
+    if (metadata !== undefined && metadata !== null) {
+        if (typeof metadata !== 'object' || Array.isArray(metadata)) {
+            details.push({ field: 'metadata', message: 'metadata debe ser un objeto' });
+        } else if (JSON.stringify(metadata).length > MAX_METADATA_BYTES) {
+            details.push({ field: 'metadata', message: `metadata no puede superar ${MAX_METADATA_BYTES} bytes` });
+        }
+    }
+
     if (details.length > 0) {
         return next(new AppError('Error de validación', 400, 'VALIDATION_ERROR', details));
     }
 
     req.messageData = {
         role,
-        content: content.trim()
+        content: content.trim(),
+        metadata: metadata ?? null
     };
 
     next();

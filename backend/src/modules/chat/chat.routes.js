@@ -216,6 +216,11 @@ router.put('/session', authenticateToken(['ADMIN', 'USER']), validateUpdateConve
  *               content:
  *                 type: string
  *                 example: Hazla para 4 personas
+ *               metadata:
+ *                 type: object
+ *                 nullable: true
+ *                 description: Datos para repintar el mensaje en el historial (tipo de respuesta, acciones). Máximo 4 KB.
+ *                 example: { type: ANSWER, actions: { steps: { focus_step: 3 }, tip: Agrega limón } }
  *     responses:
  *       201:
  *         description: Mensaje agregado correctamente

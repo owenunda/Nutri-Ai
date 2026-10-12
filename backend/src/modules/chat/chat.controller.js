@@ -69,7 +69,12 @@ export const updateConversationStateController = async (req, res, next) => {
 
 export const addMessageController = async (req, res, next) => {
     try {
-        const message = await addMessage(req.user.userId, req.messageData.role, req.messageData.content);
+        const message = await addMessage(
+            req.user.userId,
+            req.messageData.role,
+            req.messageData.content,
+            req.messageData.metadata
+        );
         return successResponse(res, message, 'Mensaje agregado correctamente', 201);
     } catch (error) {
         next(error);
