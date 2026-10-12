@@ -1,0 +1,44 @@
+# Compila un .ipa SIN firmar en un runner macOS para instalarlo con
+# Sideloadly / xtool desde Windows (no hace falta tener un Mac).
+name: iOS unsigned IPA
+
+on:
+  workflow_dispatch:
+  # Solo se dispara solo al cambiar este workflow; para compilar de nuevo
+  # usa "Run workflow" en la pestaña Actions (macOS gasta minutos x10).
+  push:
+    branches: [main]
+    paths: [.github/workflows/ios-unsigned-ipa.yml]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: nutrilife
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Build iOS (release, sin firma)
+        run: flutter build ios --release --no-codesign
+
+      - name: Empaquetar .ipa
+        run: |
+          mkdir -p build/ipa/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ipa/Payload/
+          cd build/ipa
+          zip -qr nutrilife-unsigned.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nutrilife-unsigned-ipa
+          path: nutrilife/build/ipa/nutrilife-unsigned.ipa
+          retention-days: 7
