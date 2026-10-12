@@ -43,14 +43,16 @@ class FoodsViewModel extends ChangeNotifier {
   }
 
   void _applyFilter() {
-    if (_searchQuery.trim().isEmpty) {
-      _filteredFoods = List.from(_allFoods);
-    } else {
-      final lowercaseQuery = _searchQuery.toLowerCase();
-      _filteredFoods = _allFoods.where((food) {
-        return food.name.toLowerCase().contains(lowercaseQuery);
-      }).toList();
-    }
+    _filteredFoods = filterFoods(_allFoods, _searchQuery);
+  }
+
+  /// Alimentos cuyo nombre contiene [query]. Lo usa también la lista completa.
+  static List<FoodModel> filterFoods(List<FoodModel> foods, String query) {
+    if (query.trim().isEmpty) return List.from(foods);
+    final lowercaseQuery = query.toLowerCase();
+    return foods.where((food) {
+      return food.name.toLowerCase().contains(lowercaseQuery);
+    }).toList();
   }
 
   Future<bool> addCustomFood({

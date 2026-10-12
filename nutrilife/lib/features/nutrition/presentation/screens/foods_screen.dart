@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../data/models/food_model.dart';
+import '../../data/food_repository.dart';
 import '../controllers/foods_view_model.dart';
+import '../widgets/food_list_tile.dart';
+import '../widgets/food_search_field.dart';
+import 'all_foods_screen.dart';
 
 class FoodsScreen extends StatefulWidget {
   final Map<String, dynamic>? user;
 
-  const FoodsScreen({super.key, this.user});
+  @visibleForTesting
+  final FoodRepository? foodRepository;
+
+  const FoodsScreen({super.key, this.user, this.foodRepository});
 
   @override
   State<FoodsScreen> createState() => _FoodsScreenState();
@@ -18,10 +24,19 @@ class _FoodsScreenState extends State<FoodsScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
+  /// En la vista normal solo se ven unos pocos; el resto está en "Ver todo".
+  static const _previewCount = 5;
+
+  /// Buscando, la tarjeta y el consejo se esconden para que el teclado no
+  /// tape los resultados.
+  bool get _isSearching =>
+      _searchFocusNode.hasFocus || _searchController.text.isNotEmpty;
+
   @override
   void initState() {
     super.initState();
-    _viewModel = FoodsViewModel();
+    _viewModel = FoodsViewModel(foodRepository: widget.foodRepository);
+    _searchFocusNode.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _viewModel.fetchFoods();
     });
@@ -222,20 +237,77 @@ class _FoodsScreenState extends State<FoodsScreen> {
     );
   }
 
-  String _getFoodEmoji(String name) {
-    final lowerName = name.toLowerCase();
-    if (lowerName.contains('apple') || lowerName.contains('manzana')) return '🍎';
-    if (lowerName.contains('chicken') || lowerName.contains('pollo')) return '🍗';
-    if (lowerName.contains('rice') || lowerName.contains('arroz')) return '🍚';
-    if (lowerName.contains('avocado') || lowerName.contains('aguacate')) return '🥑';
-    if (lowerName.contains('banana') || lowerName.contains('plátano') || lowerName.contains('platano')) return '🍌';
-    if (lowerName.contains('meat') || lowerName.contains('carne')) return '🥩';
-    if (lowerName.contains('egg') || lowerName.contains('huevo')) return '🥚';
-    if (lowerName.contains('milk') || lowerName.contains('leche')) return '🥛';
-    if (lowerName.contains('bread') || lowerName.contains('pan')) return '🍞';
-    if (lowerName.contains('fish') || lowerName.contains('pescado')) return '🐟';
-    if (lowerName.contains('salad') || lowerName.contains('ensalada')) return '🥗';
-    return '🍲';
+  Widget _buildCustomFoodCard() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 32),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Agregar personalizado',
+              style: TextStyle(
+                color: Color(0xFF2C2F31),
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              '¿No encuentras tu alimento? Agrega tus propios detalles nutricionales manualmente.',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 13,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 20),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF2C2F31),
+                side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              onPressed: _showAddCustomFoodSheet,
+              icon: const Icon(Icons.edit_note, size: 18, color: Color(0xFF0A6B3F)),
+              label: const Text(
+                'ENTRADA MANUAL',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openAllFoods() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AllFoodsScreen(foods: _viewModel.foods),
+      ),
+    );
   }
 
   @override
@@ -255,124 +327,51 @@ class _FoodsScreenState extends State<FoodsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 8),
-                    AnimatedContainer(
+                    FoodSearchField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                    ),
+                    AnimatedSize(
                       duration: const Duration(milliseconds: 200),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(48),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        style: const TextStyle(
-                          color: Color(0xFF2C2F31),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        decoration: const InputDecoration(
-                          hintText: 'Busca más de 100,000 alimentos...',
-                          hintStyle: TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 15,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Color(0xFF64748B),
-                            size: 20,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                        ),
-                      ),
+                      curve: Curves.easeOut,
+                      child: _isSearching
+                          ? const SizedBox(height: 20, width: double.infinity)
+                          : _buildCustomFoodCard(),
                     ),
-                    const SizedBox(height: 24),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.02),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Agregar personalizado',
-                            style: TextStyle(
-                              color: Color(0xFF2C2F31),
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            '¿No encuentras tu alimento? Agrega tus propios detalles nutricionales manualmente.',
-                            style: TextStyle(
-                              color: Color(0xFF64748B),
-                              fontSize: 13,
-                              height: 1.4,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF2C2F31),
-                              side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                            ),
-                            onPressed: _showAddCustomFoodSheet,
-                            icon: const Icon(Icons.edit_note, size: 18, color: Color(0xFF0A6B3F)),
-                            label: const Text(
-                              'ENTRADA MANUAL',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              'Alimentos comunes',
-                              style: TextStyle(
-                                color: Color(0xFF2C2F31),
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.5,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _isSearching
+                                    ? 'Resultados (${_viewModel.foods.length})'
+                                    : 'Alimentos comunes',
+                                style: const TextStyle(
+                                  color: Color(0xFF2C2F31),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.5,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              'Basado en tu actividad reciente',
-                              style: TextStyle(
-                                color: Color(0xFF64748B),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
+                              if (!_isSearching) ...[
+                                const SizedBox(height: 2),
+                                const Text(
+                                  'Basado en tu actividad reciente',
+                                  style: TextStyle(
+                                    color: Color(0xFF64748B),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
+                        if (!_isSearching)
                         TextButton(
-                          onPressed: () {},
+                          onPressed: _openAllFoods,
                           child: const Text(
                             'Ver todo',
                             style: TextStyle(
@@ -391,6 +390,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
               Expanded(
                 child: _buildFoodsContent(),
               ),
+              if (!_isSearching)
               Padding(
                 padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 16.0),
                 child: Container(
@@ -467,6 +467,21 @@ class _FoodsScreenState extends State<FoodsScreen> {
       );
     }
 
+    if (_viewModel.foods.isEmpty && _viewModel.searchQuery.trim().isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+        child: Text(
+          'No encontramos "${_viewModel.searchQuery.trim()}". Prueba con otro nombre o agrégalo con Entrada manual.',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Color(0xFF64748B),
+            fontSize: 14,
+            height: 1.4,
+          ),
+        ),
+      );
+    }
+
     if (_viewModel.foods.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
@@ -507,113 +522,16 @@ class _FoodsScreenState extends State<FoodsScreen> {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-      itemCount: _viewModel.foods.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final food = _viewModel.foods[index];
-        return _buildFoodItemCard(food);
-      },
-    );
-  }
+    final foods = _isSearching
+        ? _viewModel.foods
+        : _viewModel.foods.take(_previewCount).toList();
 
-  Widget _buildFoodItemCard(FoodModel food) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF1F5F9),
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(_getFoodEmoji(food.name), style: const TextStyle(fontSize: 24)),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  food.name,
-                  style: const TextStyle(
-                    color: Color(0xFF2C2F31),
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  food.baseUnit.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFF94A3B8),
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '${food.caloriesPerUnit.toInt()}',
-                style: const TextStyle(
-                  color: Color(0xFF2C2F31),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const Text(
-                'KCAL',
-                style: TextStyle(
-                  color: Color(0xFF94A3B8),
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          GestureDetector(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('¡${food.name} registrada! Se agregaron ${food.caloriesPerUnit.toInt()} KCAL a tu registro diario.'),
-                  backgroundColor: AppTheme.primaryStart,
-                ),
-              );
-            },
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.add_rounded, color: Color(0xFF0A6B3F), size: 20),
-            ),
-          ),
-        ],
-      ),
+    return ListView.separated(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+      itemCount: foods.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) => FoodListTile(food: foods[index]),
     );
   }
 }
