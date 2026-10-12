@@ -33,7 +33,6 @@ Future<void> showAddFoodSheet(
   );
   if (result == null) return;
 
-  MealLogState.instance.bump();
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
@@ -105,6 +104,8 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
         type: _type,
         now: widget.now,
       );
+      // Se avisa aquí (no en quien abre la hoja) para sincronizar aunque ya no esté montada.
+      MealLogState.instance.bump();
       if (!mounted) return;
       Navigator.of(context).pop((detailId: id, type: _type, calories: _calories));
     } catch (e) {
@@ -118,7 +119,9 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return PopScope(
+      canPop: !_saving,
+      child: Padding(
       padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
       child: SafeArea(
         top: false,
@@ -221,6 +224,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

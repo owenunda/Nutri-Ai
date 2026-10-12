@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/core/state/meal_log_state.dart';
@@ -7,11 +9,15 @@ import 'package:nutrilife/features/meals/presentation/widgets/add_food_sheet.dar
 import 'package:nutrilife/features/nutrition/data/models/food_model.dart';
 
 class _RepoFalso extends MealRepository {
+  Object? fallo;
+  Completer<void>? espera;
   final added = <(int, double, MealType)>[];
   final deleted = <int>[];
 
   @override
   Future<int> addFood({required int foodId, required double portions, required MealType type, DateTime? now}) async {
+    if (espera != null) await espera!.future;
+    if (fallo != null) throw fallo!;
     added.add((foodId, portions, type));
     return 77;
   }
@@ -24,8 +30,10 @@ final _tilapia = FoodModel(
   foodId: 3, name: 'Tilapia', caloriesPerUnit: 96, baseUnit: '100 G', isGlobal: true, isActive: true,
 );
 
-Future<_RepoFalso> _open(WidgetTester tester, {DateTime? at, MealType? initial}) async {
-  final repo = _RepoFalso();
+Future<_RepoFalso> _open(WidgetTester tester, {DateTime? at, MealType? initial, Object? fallo, Completer<void>? espera}) async {
+  final repo = _RepoFalso()
+    ..fallo = fallo
+    ..espera = espera;
   await tester.pumpWidget(MaterialApp(
     home: Scaffold(
       body: Builder(
@@ -99,5 +107,39 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.deleted.single, 77);
+  });
+
+  testWidgets('si falla al guardar la hoja sigue abierta, muestra el error y no avisa', (tester) async {
+    final revision = MealLogState.instance.revision;
+    await _open(tester, fallo: Exception('Sin conexión'));
+
+    await tester.tap(find.text('Agregar a Almuerzo'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sin conexión'), findsOneWidget);
+    expect(find.text('Agregar a Almuerzo'), findsOneWidget);
+    expect(MealLogState.instance.revision, revision);
+    final boton = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(boton.onPressed, isNotNull);
+  });
+
+  testWidgets('no se puede cerrar mientras guarda y avisa una sola vez', (tester) async {
+    final revision = MealLogState.instance.revision;
+    final espera = Completer<void>();
+    await _open(tester, espera: espera);
+
+    await tester.tap(find.text('Agregar a Almuerzo'));
+    await tester.pump();
+
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+    await navigator.maybePop();
+    await tester.pumpAndSettle();
+    expect(find.text('Tilapia'), findsOneWidget);
+
+    espera.complete();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tilapia'), findsNothing);
+    expect(MealLogState.instance.revision, revision + 1);
   });
 }
