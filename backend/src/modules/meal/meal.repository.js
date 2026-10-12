@@ -21,13 +21,18 @@ export const addItemsToMealRepository = async (mealRecordId, items) => {
     
     const results = [];
     for (const item of items) {
-      const { food_id, recipe_id, quantity } = item;
+      const { food_id, recipe_id, quantity, meal_type } = item;
       const query = `
-        INSERT INTO meal_record_details (meal_record_id, food_id, recipe_id, quantity)
-        VALUES ($1, $2, $3, $4)
-        RETURNING *
+        INSERT INTO meal_record_details (meal_record_id, food_id, recipe_id, quantity, meal_type)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING
+          meal_record_detail_id AS "detailId",
+          food_id AS "foodId",
+          recipe_id AS "recipeId",
+          quantity,
+          meal_type AS "mealType"
       `;
-      const { rows } = await client.query(query, [mealRecordId, food_id || null, recipe_id || null, quantity]);
+      const { rows } = await client.query(query, [mealRecordId, food_id || null, recipe_id || null, quantity, meal_type]);
       results.push(rows[0]);
     }
 
@@ -50,4 +55,50 @@ export const findMealRecordByUserAndDate = async (userId, date) => {
   `;
   const { rows } = await pool.query(query, [userId, date]);
   return rows[0] || null;
+};
+
+export const findMealRecordOwnerRepository = async (mealRecordId) => {
+  const { rows } = await pool.query(
+    'SELECT user_id AS "userId" FROM meal_records WHERE meal_record_id = $1',
+    [mealRecordId]
+  );
+  return rows[0]?.userId ?? null;
+};
+
+// Solo líneas de alimentos: las de receta las crea un flujo que la app no usa.
+export const getDayMealsRepository = async (userId, date) => {
+  const query = `
+    SELECT
+      mrd.meal_record_detail_id AS "detailId",
+      mrd.food_id AS "foodId",
+      f.name,
+      f.base_unit AS "baseUnit",
+      mrd.quantity::float AS quantity,
+      mrd.meal_type AS "mealType",
+      ROUND(mrd.quantity * f.calories_per_unit)::int AS calories
+    FROM meal_records mr
+    JOIN meal_record_details mrd ON mrd.meal_record_id = mr.meal_record_id
+    JOIN foods f ON f.food_id = mrd.food_id
+    WHERE mr.user_id = $1 AND mr.record_date = $2
+    ORDER BY mrd.meal_record_detail_id
+  `;
+  const { rows } = await pool.query(query, [userId, date]);
+  return rows;
+};
+
+export const deleteMealItemRepository = async (userId, detailId) => {
+  const query = `
+    DELETE FROM meal_record_details mrd
+    USING meal_records mr
+    WHERE mrd.meal_record_detail_id = $1
+      AND mr.meal_record_id = mrd.meal_record_id
+      AND mr.user_id = $2
+    RETURNING
+      mrd.meal_record_detail_id AS "detailId",
+      mrd.food_id AS "foodId",
+      mrd.quantity::float AS quantity,
+      mrd.meal_type AS "mealType"
+  `;
+  const { rows } = await pool.query(query, [detailId, userId]);
+  return rows[0] ?? null;
 };

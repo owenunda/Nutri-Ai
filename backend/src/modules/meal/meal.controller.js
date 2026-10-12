@@ -1,4 +1,10 @@
-import { createMealService, addItemsToMealService, addRecipesToMealService } from './meal.service.js';
+import {
+  createMealService,
+  addItemsToMealService,
+  addRecipesToMealService,
+  getDayMealsService,
+  deleteMealItemService,
+} from './meal.service.js';
 import { successResponse } from '../../utils/response.js';
 
 export const createMeal = async (req, res, next) => {
@@ -31,6 +37,24 @@ export const addMealRecipes = async (req, res, next) => {
     const recipes = req.body;
     const details = await addRecipesToMealService(userId, mealRecordId, recipes);
     return successResponse(res, details, 'Recetas añadidas al registro de comida con éxito', 201);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDayMeals = async (req, res, next) => {
+  try {
+    const result = await getDayMealsService(req.user.userId, req.query.date);
+    return successResponse(res, result, 'Comidas del día obtenidas con éxito');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteMealItem = async (req, res, next) => {
+  try {
+    const deleted = await deleteMealItemService(req.user.userId, req.params.detailId);
+    return successResponse(res, deleted, 'Ítem eliminado con éxito');
   } catch (error) {
     next(error);
   }
