@@ -53,7 +53,10 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
   }
 
   String get _title {
-    final diff = _today.difference(_day).inDays;
+    // Diferencia en fechas de calendario (en UTC) para no depender del horario de verano.
+    final diff = DateTime.utc(_today.year, _today.month, _today.day)
+        .difference(DateTime.utc(_day.year, _day.month, _day.day))
+        .inDays;
     if (diff == 0) return 'Hoy';
     if (diff == 1) return 'Ayer';
     return '${_weekdays[_day.weekday - 1]} ${_day.day} ${_months[_day.month - 1]}';
