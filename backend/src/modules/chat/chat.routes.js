@@ -6,9 +6,12 @@ import {
     createSessionController,
     updateConversationStateController,
     addMessageController,
-    closeSessionController
+    closeSessionController,
+    getSessionMessagesController,
+    activateSessionController
 } from './chat.controller.js';
 import {
+    validateSessionIdParam,
     validateAddMessageRequest,
     validateUpdateConversationStateRequest
 } from './chat.validation.js';
@@ -45,6 +48,84 @@ const router = Router();
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get('/sessions', authenticateToken(['ADMIN', 'USER']), getSessionsController);
+
+/**
+ * @openapi
+ * /api/v1/chat/sessions/{sessionId}/messages:
+ *   get:
+ *     tags: [Chat]
+ *     summary: Obtener una sesión del usuario con todos sus mensajes
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: sessionId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Sesión y mensajes en orden cronológico
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         session:
+ *                           $ref: '#/components/schemas/ChatSession'
+ *                         messages:
+ *                           type: array
+ *                           items:
+ *                             $ref: '#/components/schemas/ChatMessage'
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: La sesión no existe o no pertenece al usuario
+ */
+router.get('/sessions/:sessionId/messages', authenticateToken(['ADMIN', 'USER']), validateSessionIdParam, getSessionMessagesController);
+
+/**
+ * @openapi
+ * /api/v1/chat/sessions/{sessionId}/activate:
+ *   put:
+ *     tags: [Chat]
+ *     summary: Retomar una sesión anterior
+ *     description: Cierra la sesión activa actual y deja activa la indicada, para que el chat continúe sobre ella.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: sessionId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Sesión activada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/ChatSession'
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: La sesión no existe o no pertenece al usuario
+ */
+router.put('/sessions/:sessionId/activate', authenticateToken(['ADMIN', 'USER']), validateSessionIdParam, activateSessionController);
 
 router.get('/session', authenticateToken(['ADMIN', 'USER']), getActiveSessionController);
 

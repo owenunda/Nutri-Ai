@@ -5,7 +5,10 @@ import {
     createSessionRepository,
     updateConversationStateRepository,
     closeSessionRepository,
-    addMessageRepository
+    addMessageRepository,
+    findSessionByIdAndUserIdRepository,
+    findMessagesBySessionIdRepository,
+    activateSessionRepository
 } from './chat.repository.js';
 
 export const getActiveSession = async (userId) => {
@@ -63,6 +66,38 @@ export const addMessage = async (userId, role, content) => {
 export const getSessionsByUser = async (userId) => {
     try {
         return await findSessionsByUserIdRepository(userId);
+    } catch (error) {
+        if (error instanceof AppError) throw error;
+        throw new AppError(error.message, 500, 'CHAT_SERVICE_ERROR');
+    }
+};
+
+export const getSessionWithMessages = async (userId, sessionId) => {
+    try {
+        const session = await findSessionByIdAndUserIdRepository(sessionId, userId);
+        if (!session) {
+            throw new AppError('No se encontró la sesión', 404, 'SESSION_NOT_FOUND');
+        }
+        const messages = await findMessagesBySessionIdRepository(sessionId);
+        return { session, messages };
+    } catch (error) {
+        if (error instanceof AppError) throw error;
+        throw new AppError(error.message, 500, 'CHAT_SERVICE_ERROR');
+    }
+};
+
+export const activateSession = async (userId, sessionId) => {
+    try {
+        const session = await findSessionByIdAndUserIdRepository(sessionId, userId);
+        if (!session) {
+            throw new AppError('No se encontró la sesión', 404, 'SESSION_NOT_FOUND');
+        }
+        if (session.active) return session;
+        const activated = await activateSessionRepository(sessionId, userId);
+        if (!activated) {
+            throw new AppError('No se pudo activar la sesión', 500, 'SESSION_ACTIVATE_ERROR');
+        }
+        return activated;
     } catch (error) {
         if (error instanceof AppError) throw error;
         throw new AppError(error.message, 500, 'CHAT_SERVICE_ERROR');

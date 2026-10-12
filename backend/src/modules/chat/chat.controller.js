@@ -5,7 +5,9 @@ import {
     createSession,
     updateConversationState,
     addMessage,
-    closeSession
+    closeSession,
+    getSessionWithMessages,
+    activateSession
 } from './chat.service.js';
 
 export const getActiveSessionController = async (req, res, next) => {
@@ -24,6 +26,24 @@ export const getSessionsController = async (req, res, next) => {
     try {
         const sessions = await getSessionsByUser(req.user.userId);
         return successResponse(res, sessions, 'Sesiones obtenidas correctamente', 200);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getSessionMessagesController = async (req, res, next) => {
+    try {
+        const result = await getSessionWithMessages(req.user.userId, req.sessionId);
+        return successResponse(res, result, 'Mensajes de la sesión obtenidos correctamente', 200);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const activateSessionController = async (req, res, next) => {
+    try {
+        const session = await activateSession(req.user.userId, req.sessionId);
+        return successResponse(res, session, 'Sesión activada correctamente', 200);
     } catch (error) {
         next(error);
     }

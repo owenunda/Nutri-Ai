@@ -94,15 +94,77 @@ export const addMessageRepository = async (sessionId, role, content) => {
 };
 
 export const findSessionsByUserIdRepository = async (userId, limit = 30) => {
+    // Las sesiones sin mensajes no aportan nada al historial. El preview da
+    // título a los chats que nunca llegaron a generar receta.
     const query = `
-        SELECT ${SESSION_SELECT_FIELDS}
-        FROM chat_sessions
-        WHERE user_id = $1
-        ORDER BY created_at DESC
+        SELECT
+            ${SESSION_SELECT_FIELDS},
+            first_msg.content   AS "preview",
+            last_msg.last_at    AS "lastMessageAt"
+        FROM chat_sessions s
+        CROSS JOIN LATERAL (
+            SELECT content
+            FROM chat_messages
+            WHERE session_id = s.session_id AND role = 'USER'
+            ORDER BY created_at ASC
+            LIMIT 1
+        ) first_msg
+        CROSS JOIN LATERAL (
+            SELECT created_at AS last_at
+            FROM chat_messages
+            WHERE session_id = s.session_id
+            ORDER BY created_at DESC
+            LIMIT 1
+        ) last_msg
+        WHERE s.user_id = $1
+        ORDER BY last_msg.last_at DESC
         LIMIT $2
     `;
     const { rows } = await pool.query(query, [userId, limit]);
     return rows;
+};
+
+export const findSessionByIdAndUserIdRepository = async (sessionId, userId) => {
+    const query = `
+        SELECT ${SESSION_SELECT_FIELDS}
+        FROM chat_sessions
+        WHERE session_id = $1 AND user_id = $2
+        LIMIT 1
+    `;
+    const { rows } = await pool.query(query, [sessionId, userId]);
+    return rows[0] ?? null;
+};
+
+/**
+ * Deja `sessionId` como la única sesión activa del usuario. Va en una
+ * transacción porque el índice único uq_chat_sessions_active_user no admite
+ * dos sesiones activas ni por un instante.
+ */
+export const activateSessionRepository = async (sessionId, userId) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        await client.query(
+            `UPDATE chat_sessions
+             SET active = FALSE, updated_at = NOW()
+             WHERE user_id = $1 AND active = TRUE AND session_id <> $2`,
+            [userId, sessionId]
+        );
+        const { rows } = await client.query(
+            `UPDATE chat_sessions
+             SET active = TRUE, updated_at = NOW()
+             WHERE session_id = $1 AND user_id = $2
+             RETURNING ${SESSION_SELECT_FIELDS}`,
+            [sessionId, userId]
+        );
+        await client.query('COMMIT');
+        return rows[0] ?? null;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
 };
 
 export const findMessagesBySessionIdRepository = async (sessionId) => {

@@ -10,6 +10,18 @@ const VALID_INTENTS = [
 ];
 const VALID_MEAL_TYPES = ['desayuno', 'almuerzo', 'cena'];
 
+export const validateSessionIdParam = (req, res, next) => {
+    const sessionId = Number(req.params.sessionId);
+    if (!Number.isInteger(sessionId) || sessionId <= 0) {
+        return next(new AppError('Error de validación', 400, 'VALIDATION_ERROR', [
+            { field: 'sessionId', message: 'El sessionId debe ser un entero positivo' }
+        ]));
+    }
+
+    req.sessionId = sessionId;
+    next();
+};
+
 export const validateAddMessageRequest = (req, res, next) => {
     const { role, content } = req.body ?? {};
     const details = [];
