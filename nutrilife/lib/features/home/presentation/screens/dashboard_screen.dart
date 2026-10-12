@@ -8,6 +8,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/custom_bottom_nav_bar.dart';
 import '../../../../features/chatbot/presentation/screens/ai_chat_view.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
+import '../../../meals/presentation/screens/meal_history_screen.dart';
 import '../../../nutrition/presentation/screens/foods_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../progress/presentation/screens/progress_screen.dart';
@@ -152,8 +153,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onTap: () => _onTabSelected(2),
           ),
           const SizedBox(height: 32),
-          // TODO(Task 7): conectar onOpenHistory a MealHistoryScreen.
-          const TodayMealsSection(),
+          TodayMealsSection(
+            onOpenHistory: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MealHistoryScreen()),
+            ),
+          ),
           const SizedBox(height: 32),
         ],
       ),
