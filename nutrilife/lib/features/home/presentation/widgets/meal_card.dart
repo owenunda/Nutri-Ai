@@ -5,6 +5,8 @@ class MealCard extends StatelessWidget {
   final String title;
   final String description;
   final bool isLogged;
+  final VoidCallback? onTap;
+  final VoidCallback? onAdd;
 
   const MealCard({
     super.key,
@@ -12,11 +14,18 @@ class MealCard extends StatelessWidget {
     required this.title,
     required this.description,
     required this.isLogged,
+    this.onTap,
+    this.onAdd,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isLogged ? Colors.white : const Color(0xFFF1F5F9), // surface_container_lowest vs surface_container_low
@@ -80,7 +89,14 @@ class MealCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Container(
+          if (onAdd != null)
+            Semantics(
+              label: 'Agregar a $title',
+              button: true,
+              child: InkWell(
+                onTap: onAdd,
+                customBorder: const CircleBorder(),
+                child: Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
@@ -100,7 +116,11 @@ class MealCard extends StatelessWidget {
               color: isLogged ? const Color(0xFF0A6B3F) : Colors.white,
             ),
           ),
+              ),
+            ),
         ],
+      ),
+        ),
       ),
     );
   }

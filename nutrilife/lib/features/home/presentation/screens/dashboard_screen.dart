@@ -13,7 +13,7 @@ import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../progress/presentation/screens/progress_screen.dart';
 import '../widgets/ai_suggestion_card.dart';
 import '../widgets/home_header.dart';
-import '../widgets/meal_card.dart';
+import '../widgets/today_meals_section.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key, this.user});
@@ -152,49 +152,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onTap: () => _onTabSelected(2),
           ),
           const SizedBox(height: 32),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Comidas de hoy',
-                style: TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  color: AppTheme.onSurface,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              Text(
-                'Ver historial',
-                style: TextStyle(
-                  color: AppTheme.primaryStart,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const MealCard(
-            emoji: '🥑',
-            title: 'Desayuno',
-            description: 'Tostada de aguacate • 420 kcal',
-            isLogged: true,
-          ),
-          const SizedBox(height: 12),
-          const MealCard(
-            emoji: '🥗',
-            title: 'Almuerzo',
-            description: 'Ensalada de pollo asado • 540 kcal',
-            isLogged: true,
-          ),
-          const SizedBox(height: 12),
-          const MealCard(
-            emoji: '🍽️',
-            title: 'Cena',
-            description: 'Aún no registrada',
-            isLogged: false,
-          ),
+          // TODO(Task 7): conectar onOpenHistory a MealHistoryScreen.
+          const TodayMealsSection(),
           const SizedBox(height: 32),
         ],
       ),
