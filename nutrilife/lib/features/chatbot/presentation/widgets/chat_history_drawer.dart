@@ -5,12 +5,14 @@ class ChatHistoryDrawer extends StatelessWidget {
   final List<ChatSessionModel> sessions;
   final bool isLoading;
   final VoidCallback onClose;
+  final ValueChanged<ChatSessionModel> onSelect;
 
   const ChatHistoryDrawer({
     super.key,
     required this.sessions,
     required this.isLoading,
     required this.onClose,
+    required this.onSelect,
   });
 
   @override
@@ -55,7 +57,10 @@ class ChatHistoryDrawer extends StatelessWidget {
                             indent: 56,
                             color: Color(0xFFF1F5F9),
                           ),
-                          itemBuilder: (_, i) => _SessionTile(session: sessions[i]),
+                          itemBuilder: (_, i) => _SessionTile(
+                            session: sessions[i],
+                            onTap: () => onSelect(sessions[i]),
+                          ),
                         ),
             ),
           ],
@@ -103,80 +108,84 @@ class _DrawerHeader extends StatelessWidget {
 
 class _SessionTile extends StatelessWidget {
   final ChatSessionModel session;
+  final VoidCallback onTap;
 
-  const _SessionTile({required this.session});
+  const _SessionTile({required this.session, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final title = session.recipeTitle ?? 'Sin receta';
+    final title = session.recipeTitle ?? session.preview ?? 'Conversación';
     final dateStr = _formatDate(session.createdAt);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: session.active
-                  ? const Color(0xFFDCFCE7)
-                  : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              session.recipeTitle != null
-                  ? Icons.restaurant_menu_rounded
-                  : Icons.chat_bubble_outline_rounded,
-              size: 18,
-              color: session.active
-                  ? const Color(0xFF0A6B3F)
-                  : const Color(0xFF94A3B8),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2C2F31),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  dateStr,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF94A3B8),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (session.active)
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
-                color: const Color(0xFFDCFCE7),
-                borderRadius: BorderRadius.circular(20),
+                color: session.active
+                    ? const Color(0xFFDCFCE7)
+                    : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: const Text(
-                'Activa',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF0A6B3F),
-                ),
+              child: Icon(
+                session.recipeTitle != null
+                    ? Icons.restaurant_menu_rounded
+                    : Icons.chat_bubble_outline_rounded,
+                size: 18,
+                color: session.active
+                    ? const Color(0xFF0A6B3F)
+                    : const Color(0xFF94A3B8),
               ),
             ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2C2F31),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    dateStr,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (session.active)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'Activa',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0A6B3F),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

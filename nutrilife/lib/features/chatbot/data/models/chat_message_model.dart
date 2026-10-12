@@ -1,4 +1,5 @@
 import '../../../nutrition/data/models/fridge_item_model.dart';
+import 'chat_actions_model.dart';
 import 'recipe_model.dart';
 
 class ChatMessageModel {
@@ -12,12 +13,16 @@ class ChatMessageModel {
   /// sesión en curso: el historial no repinta mensajes viejos.
   final List<FridgeItemModel> attachedFoods;
 
+  /// Tarjetas interactivas bajo una respuesta del bot (paso a paso, tip).
+  final ChatActions? actions;
+
   ChatMessageModel({
     required String text,
     required this.isUser,
     required this.timestamp,
     this.recipeData,
     this.attachedFoods = const [],
+    this.actions,
   })  : fullText = text,
         displayedText = text;
 
@@ -25,6 +30,7 @@ class ChatMessageModel {
     required String text,
     required this.isUser,
     required this.timestamp,
+    this.actions,
   })  : fullText = text,
         displayedText = '',
         recipeData = null,

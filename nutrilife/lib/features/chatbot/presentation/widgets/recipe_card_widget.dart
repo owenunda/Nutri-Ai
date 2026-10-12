@@ -2,6 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/recipe_model.dart';
 
+/// Abre el paso a paso de [recipe]. [initialStep] empieza en 1.
+void showRecipeStepsSheet(
+  BuildContext context,
+  RecipeModel recipe, {
+  int initialStep = 1,
+}) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => _RecipeStepsModal(
+      recipe: recipe,
+      // Una receta sin pasos solo tiene la página de tips.
+      initialPage: recipe.steps.isEmpty
+          ? 0
+          : (initialStep - 1).clamp(0, recipe.steps.length - 1),
+    ),
+  );
+}
+
 class RecipeCardWidget extends StatefulWidget {
   final RecipeModel recipe;
 
@@ -20,12 +40,7 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
   static const _dark = Color(0xFF1A1A2E);
 
   void _openStepsModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _RecipeStepsModal(recipe: widget.recipe),
-    );
+    showRecipeStepsSheet(context, widget.recipe);
   }
 
   @override
@@ -191,8 +206,9 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
 
 class _RecipeStepsModal extends StatefulWidget {
   final RecipeModel recipe;
+  final int initialPage;
 
-  const _RecipeStepsModal({required this.recipe});
+  const _RecipeStepsModal({required this.recipe, this.initialPage = 0});
 
   @override
   State<_RecipeStepsModal> createState() => _RecipeStepsModalState();
@@ -200,7 +216,7 @@ class _RecipeStepsModal extends StatefulWidget {
 
 class _RecipeStepsModalState extends State<_RecipeStepsModal> {
   late final PageController _pageController;
-  int _currentPage = 0;
+  late int _currentPage;
 
   static const _green = Color(0xFF0A6B3F);
 
@@ -210,7 +226,8 @@ class _RecipeStepsModalState extends State<_RecipeStepsModal> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _currentPage = widget.initialPage;
+    _pageController = PageController(initialPage: widget.initialPage);
     final hasTips = widget.recipe.tips.isNotEmpty;
     _totalPages =
         widget.recipe.steps.length + (hasTips ? 1 : 0);

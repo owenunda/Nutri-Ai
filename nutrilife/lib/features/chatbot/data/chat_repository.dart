@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/network/rate_limit_state.dart';
+import 'models/chat_actions_model.dart';
+import 'models/chat_message_model.dart';
 import 'models/recipe_model.dart';
 import 'models/chat_session_model.dart';
 
@@ -25,11 +27,13 @@ class ChatResponse {
   final ChatResponseType type;
   final String text;
   final RecipeModel? recipe;
+  final ChatActions? actions;
 
   const ChatResponse({
     required this.type,
     required this.text,
     this.recipe,
+    this.actions,
   });
 
   bool get isModification => type == ChatResponseType.recipeModified;
@@ -110,6 +114,85 @@ class ChatRepository {
     }
   }
 
+  /// Id de la sesión activa, o null si el usuario no tiene ninguna abierta.
+  Future<int?> getActiveSessionId() async {
+    try {
+      final response =
+          await _dio.get<Map<String, dynamic>>(ApiRoutes.chatActiveSession);
+      final data = response.data?['data'] as Map?;
+      if (data?['hasActiveSession'] != true) return null;
+      return ((data?['session'] as Map?)?['sessionId'] as num?)?.toInt();
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Error al obtener la sesión';
+      throw Exception(msg);
+    }
+  }
+
+  /// Mensajes de una sesión, listos para pintar.
+  ///
+  /// La receta vive en el conversation_state y solo en su última versión, así
+  /// que la tarjeta se pega al último mensaje que generó receta (según su
+  /// metadata). Los mensajes guardados antes de que existiera metadata no
+  /// dicen su tipo: para esos se usa el último mensaje del bot.
+  Future<List<ChatMessageModel>> getSessionMessages(int sessionId) async {
+    final Map? data;
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        ApiRoutes.chatSessionMessages(sessionId),
+      );
+      data = response.data?['data'] as Map?;
+    } on DioException catch (e) {
+      final msg =
+          e.response?.data?['message'] ?? 'Error al cargar la conversación';
+      throw Exception(msg);
+    }
+
+    final state = (data?['session'] as Map?)?['conversationState'] as Map?;
+    final recipeMap = state?['recipe'];
+    final youtubeMap = (state?['media'] as Map?)?['youtube'];
+    final recipe = recipeMap is Map
+        ? RecipeModel.fromMap(
+            recipeMap,
+            youtube:
+                youtubeMap is Map ? YoutubeVideoModel.fromMap(youtubeMap) : null,
+          )
+        : null;
+
+    final rows = (data?['messages'] as List? ?? []).whereType<Map>().toList();
+    Map? metadataOf(Map row) =>
+        row['metadata'] is Map ? row['metadata'] as Map : null;
+    final lastRecipeIndex = rows.lastIndexWhere((m) {
+      final type = metadataOf(m)?['type'];
+      return type == 'RECIPE' || type == 'RECIPE_MODIFIED';
+    });
+    final recipeIndex = lastRecipeIndex != -1
+        ? lastRecipeIndex
+        : rows.lastIndexWhere((m) => m['role'] == 'ASSISTANT');
+
+    return [
+      for (final (i, row) in rows.indexed)
+        ChatMessageModel(
+          text: row['content'] as String? ?? '',
+          isUser: row['role'] == 'USER',
+          timestamp: DateTime.tryParse(row['createdAt'] as String? ?? '')
+                  ?.toLocal() ??
+              DateTime.now(),
+          recipeData: i == recipeIndex ? recipe : null,
+          actions: ChatActions.fromMap(metadataOf(row)?['actions']),
+        ),
+    ];
+  }
+
+  /// Retoma una sesión anterior: el backend cierra la activa y abre esta.
+  Future<void> activateSession(int sessionId) async {
+    try {
+      await _dio.put<void>(ApiRoutes.chatSessionActivate(sessionId));
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Error al abrir la conversación';
+      throw Exception(msg);
+    }
+  }
+
   Future<void> closeSession() async {
     try {
       await _dio.put<void>(ApiRoutes.chatSessionClose);
@@ -131,6 +214,7 @@ class ChatRepository {
       return ChatResponse(
         type: type,
         text: message.isEmpty ? 'Sin respuesta' : message,
+        actions: ChatActions.fromMap(envelope['actions']),
       );
     }
 

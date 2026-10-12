@@ -8,7 +8,10 @@ import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
 import '../../data/models/chat_session_model.dart';
 import '../controllers/chat_view_model.dart';
+import '../../data/models/recipe_model.dart';
+import '../widgets/answer_actions.dart';
 import '../widgets/attached_food_chips.dart';
+import '../widgets/bot_message_text.dart';
 import '../widgets/chat_history_drawer.dart';
 import '../widgets/chat_input_field.dart';
 import '../widgets/chat_welcome_header.dart';
@@ -33,6 +36,7 @@ class _AiChatViewState extends State<AiChatView> {
     _viewModel = ChatViewModel();
     _repository = ChatRepository();
     DioClient.rateLimit.addListener(_syncBotSleep);
+    unawaited(_viewModel.loadActiveSession().then((_) => _scrollToBottom()));
   }
 
   void _syncBotSleep() {
@@ -92,6 +96,10 @@ class _AiChatViewState extends State<AiChatView> {
                 sessions: value.sessions,
                 isLoading: value.loading,
                 onClose: () => Navigator.of(ctx).pop(),
+                onSelect: (session) {
+                  Navigator.of(ctx).pop();
+                  _handleOpenSession(session.sessionId);
+                },
               ),
             ),
           ),
@@ -105,6 +113,27 @@ class _AiChatViewState extends State<AiChatView> {
     } catch (_) {
       if (mounted) notifier.value = (sessions: [], loading: false);
     }
+  }
+
+  Future<void> _handleOpenSession(int sessionId) async {
+    if (_viewModel.isLoading) {
+      _showSnack('Espera a que el chef termine de responder');
+      return;
+    }
+    await _viewModel.openSession(sessionId);
+    if (!mounted) return;
+    final error = _viewModel.errorMessage;
+    if (error != null) {
+      _showSnack(error);
+      return;
+    }
+    _scrollToBottom();
+  }
+
+  void _showSnack(String text) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
   }
 
   Future<void> _handleSend(String message, List<FridgeItemModel> foods) async {
@@ -181,12 +210,16 @@ class _AiChatViewState extends State<AiChatView> {
             builder: (context, _) {
               if (_viewModel.messages.isEmpty) {
                 return const SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
                   child: ChatWelcomeHeader(),
                 );
               }
               return ListView.builder(
                 controller: _scrollController,
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 itemCount: _viewModel.messages.length +
                     (_viewModel.isLoading ? 1 : 0),
@@ -194,7 +227,13 @@ class _AiChatViewState extends State<AiChatView> {
                   if (index == _viewModel.messages.length) {
                     return const _TypingIndicator();
                   }
-                  return _ChatBubble(message: _viewModel.messages[index]);
+                  return _ChatBubble(
+                    message: _viewModel.messages[index],
+                    recipe: ChatViewModel.recipeBefore(
+                      _viewModel.messages,
+                      index,
+                    ),
+                  );
                 },
               );
             },
@@ -249,7 +288,10 @@ class _TopBarButton extends StatelessWidget {
 class _ChatBubble extends StatelessWidget {
   final ChatMessageModel message;
 
-  const _ChatBubble({required this.message});
+  /// Receta de la conversación, para el paso a paso de las acciones.
+  final RecipeModel? recipe;
+
+  const _ChatBubble({required this.message, this.recipe});
 
   @override
   Widget build(BuildContext context) {
@@ -313,6 +355,23 @@ class _ChatBubble extends StatelessWidget {
       );
     }
 
+    final actions = message.actions;
+    // Las tarjetas aparecen cuando el bot termina de escribir.
+    if (actions != null && message.text.length == message.fullText.length) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _AnimatedAppear(
+            child: _BotTextBubble(message: message),
+          ),
+          _AnimatedAppear(
+            delay: const Duration(milliseconds: 120),
+            child: AnswerActions(actions: actions, recipe: recipe),
+          ),
+        ],
+      );
+    }
+
     return _AnimatedAppear(
       child: _BotTextBubble(message: message),
     );
@@ -355,14 +414,7 @@ class _BotTextBubble extends StatelessWidget {
                   bottomRight: Radius.circular(20),
                 ),
               ),
-              child: Text(
-                message.text,
-                style: const TextStyle(
-                  color: Color(0xFF2C2F31),
-                  fontSize: 15,
-                  height: 1.4,
-                ),
-              ),
+              child: BotMessageText(text: message.text),
             ),
           ),
         ],
