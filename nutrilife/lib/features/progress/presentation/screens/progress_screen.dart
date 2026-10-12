@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../profile/data/profile_repository.dart';
+import '../../../profile/presentation/screens/edit_profile_screen.dart';
 import '../../data/progress_repository.dart';
+import '../widgets/week_calories_card.dart';
+import '../widgets/weekly_summary_grid.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({
     super.key,
     this.user,
     this.refreshToken = 0,
+    this.repository,
   });
 
   final Map<String, dynamic>? user;
   final int refreshToken;
+  @visibleForTesting
+  final ProgressRepository? repository;
 
   static const Color _text = AppTheme.onSurface;
   static const Color _muted = AppTheme.onSurfaceVariant;
@@ -31,8 +39,22 @@ class _ProgressScreenState extends State<ProgressScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = ProgressRepository();
+    _repository = widget.repository ?? ProgressRepository();
     _progressFuture = _repository.fetchProgress();
+    MealLogState.instance.addListener(_onMealLogged);
+  }
+
+  @override
+  void dispose() {
+    MealLogState.instance.removeListener(_onMealLogged);
+    super.dispose();
+  }
+
+  void _onMealLogged() {
+    if (!mounted) return;
+    setState(() {
+      _progressFuture = _repository.fetchProgress();
+    });
   }
 
   @override
@@ -138,13 +160,28 @@ class _ProgressContent extends StatelessWidget {
           const SizedBox(height: 18),
           _TodayCaloriesCard(data: data),
           const SizedBox(height: 22),
+          if (data.week != null) ...[
+            WeekCaloriesCard(
+              week: data.week!,
+              // Sin meta faltan edad, altura o peso: se completan en el perfil.
+              onCompleteProfile: () async {
+                final updated = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute(
+                    builder: (_) => EditProfileScreen(profile: UserProfile.fromJson(data.profile)),
+                  ),
+                );
+                if (updated == true) MealLogState.instance.bump();
+              },
+            ),
+            const SizedBox(height: 22),
+          ],
           _WeightHistoryCard(
             records: data.orderedHistory,
             currentWeight: data.currentWeight,
           ),
           const SizedBox(height: 28),
           Text(
-            'Resumen nutricional',
+            data.week != null ? 'Resumen de la semana' : 'Resumen nutricional',
             style: TextStyle(fontFamily: 'PlusJakartaSans', 
               color: ProgressScreen._text,
               fontSize: 18,
@@ -152,7 +189,9 @@ class _ProgressContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _NutritionAveragesGrid(data: data),
+          data.week == null
+              ? _NutritionAveragesGrid(data: data)
+              : WeeklySummaryGrid(week: data.week!),
         ],
       ),
     );

@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
+import '../../../core/utils/local_date.dart';
+import 'week_stats.dart';
 
 class ProgressException implements Exception {
   const ProgressException(this.message);
@@ -38,12 +40,14 @@ class ProgressData {
     required this.history,
     required this.consumptionValidation,
     required this.todayCalories,
+    this.week,
   });
 
   final Map<String, dynamic> profile;
   final List<PhysicalRecord> history;
   final Map<String, dynamic>? consumptionValidation;
   final Map<String, dynamic>? todayCalories;
+  final WeekStats? week;
 
   static const double _activityFactor = 1.2;
   static const double _maxCalorieAdjustment = 500;
@@ -230,14 +234,23 @@ class ProgressRepository {
 
   final Dio _dio;
 
-  Future<ProgressData> fetchProgress() async {
+  Future<ProgressData> fetchProgress({DateTime? now}) async {
     try {
+      final date = localDateString(now);
       final profile = await _getMap(ApiRoutes.userProfile);
       final historyData = await _getList(ApiRoutes.userPhysicalHistory);
       final consumptionValidation = await _getOptionalMap(
         ApiRoutes.statsConsumptionValidation,
+        query: {'date': date},
       );
-      final todayCalories = await _getOptionalMap(ApiRoutes.statsTodayCalories);
+      final todayCalories = await _getOptionalMap(
+        ApiRoutes.statsTodayCalories,
+        query: {'date': date},
+      );
+      final weekData = await _getOptionalMap(
+        ApiRoutes.statsWeek,
+        query: {'end': date},
+      );
 
       return ProgressData(
         profile: profile,
@@ -247,6 +260,7 @@ class ProgressRepository {
             .toList(),
         consumptionValidation: consumptionValidation,
         todayCalories: todayCalories,
+        week: weekData == null ? null : WeekStats.fromJson(weekData),
       );
     } on ProgressException {
       rethrow;
@@ -277,9 +291,12 @@ class ProgressRepository {
     return const [];
   }
 
-  Future<Map<String, dynamic>?> _getOptionalMap(String route) async {
+  Future<Map<String, dynamic>?> _getOptionalMap(
+    String route, {
+    Map<String, dynamic>? query,
+  }) async {
     try {
-      final data = await _getData(route);
+      final data = await _getData(route, query: query);
       if (data is Map<String, dynamic>) {
         return data;
       }
@@ -290,8 +307,11 @@ class ProgressRepository {
     return null;
   }
 
-  Future<dynamic> _getData(String route) async {
-    final response = await _dio.get<Map<String, dynamic>>(route);
+  Future<dynamic> _getData(String route, {Map<String, dynamic>? query}) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      route,
+      queryParameters: query,
+    );
     final body = response.data;
 
     if (body != null && body['success'] == true) {
