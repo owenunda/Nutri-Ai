@@ -1,6 +1,14 @@
 import { Router } from 'express';
 import authenticateToken from '../../middleware/auth.middleware.js';
-import { createMeal, addMealItems, addMealRecipes, getDayMeals, deleteMealItem } from './meal.controller.js';
+import {
+  createMeal,
+  addMealItems,
+  addMealRecipes,
+  getDayMeals,
+  deleteMealItem,
+  addMealRecipeLog,
+  deleteMealRecipeLog,
+} from './meal.controller.js';
 
 const router = Router();
 
@@ -98,6 +106,28 @@ router.get('/day', authenticateToken(['USER', 'ADMIN']), getDayMeals);
 router.delete('/items/:detailId', authenticateToken(['USER', 'ADMIN']), deleteMealItem);
 
 /**
+ * @swagger
+ * /api/v1/meals/recipe-logs/{recipeLogId}:
+ *   delete:
+ *     summary: Borra una receta registrada con todos sus ingredientes
+ *     tags: [Meals]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeLogId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Receta e ingredientes eliminados
+ *       404:
+ *         description: La receta no existe o no es del usuario
+ */
+router.delete('/recipe-logs/:recipeLogId', authenticateToken(['USER', 'ADMIN']), deleteMealRecipeLog);
+
+/**
  * @openapi
  * /api/v1/meals/{id}/items:
  *   post:
@@ -185,5 +215,55 @@ router.post('/:id/items', authenticateToken(['USER', 'ADMIN']), addMealItems);
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.post('/:id/recipes', authenticateToken(['USER', 'ADMIN']), addMealRecipes);
+
+/**
+ * @swagger
+ * /api/v1/meals/{id}/recipe-log:
+ *   post:
+ *     summary: Registra una receta del chat como comida
+ *     description: >
+ *       Guarda la receta (para verla luego desde el historial) y sus
+ *       ingredientes como alimentos, ya en unidades base, en una sola
+ *       transacción.
+ *     tags: [Meals]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [recipe, portions, meal_type, items]
+ *             properties:
+ *               recipe:
+ *                 type: object
+ *                 description: La receta tal como la devolvió el chat (recipe_title, steps, tips...).
+ *               portions:
+ *                 type: number
+ *                 example: 1
+ *               meal_type:
+ *                 type: string
+ *                 enum: [BREAKFAST, LUNCH, DINNER, SNACK]
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     food_id:
+ *                       type: integer
+ *                     quantity:
+ *                       type: number
+ *     responses:
+ *       201:
+ *         description: "{ recipeLogId, items: [{ detailId, foodId, quantity, mealType }] }"
+ */
+router.post('/:id/recipe-log', authenticateToken(['USER', 'ADMIN']), addMealRecipeLog);
 
 export default router;

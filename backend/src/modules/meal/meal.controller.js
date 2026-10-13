@@ -4,6 +4,8 @@ import {
   addRecipesToMealService,
   getDayMealsService,
   deleteMealItemService,
+  addRecipeToMealService,
+  deleteRecipeLogService,
 } from './meal.service.js';
 import { successResponse } from '../../utils/response.js';
 
@@ -55,6 +57,24 @@ export const deleteMealItem = async (req, res, next) => {
   try {
     const deleted = await deleteMealItemService(req.user.userId, req.params.detailId);
     return successResponse(res, deleted, 'Ítem eliminado con éxito');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addMealRecipeLog = async (req, res, next) => {
+  try {
+    const result = await addRecipeToMealService(req.user.userId, req.params.id, req.body);
+    return successResponse(res, result, 'Receta registrada con éxito', 201);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteMealRecipeLog = async (req, res, next) => {
+  try {
+    const deleted = await deleteRecipeLogService(req.user.userId, req.params.recipeLogId);
+    return successResponse(res, deleted, 'Receta eliminada con éxito');
   } catch (error) {
     next(error);
   }

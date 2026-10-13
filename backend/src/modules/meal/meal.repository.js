@@ -75,6 +75,7 @@ export const getDayMealsRepository = async (userId, date) => {
       f.base_unit AS "baseUnit",
       mrd.quantity::float AS quantity,
       mrd.meal_type AS "mealType",
+      mrd.meal_recipe_log_id AS "recipeLogId",
       ROUND(mrd.quantity * f.calories_per_unit)::int AS calories
     FROM meal_records mr
     JOIN meal_record_details mrd ON mrd.meal_record_id = mr.meal_record_id
@@ -101,4 +102,76 @@ export const deleteMealItemRepository = async (userId, detailId) => {
   `;
   const { rows } = await pool.query(query, [detailId, userId]);
   return rows[0] ?? null;
+};
+
+// Receta del chat registrada como comida: la receta y sus ingredientes en una
+// sola transacción, para no dejar ingredientes sueltos si algo falla.
+export const addRecipeLogToMealRepository = async (userId, mealRecordId, { title, portions, recipe, mealType, items }) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows: [log] } = await client.query(
+      `INSERT INTO meal_recipe_logs (user_id, title, portions, recipe)
+       VALUES ($1, $2, $3, $4)
+       RETURNING meal_recipe_log_id AS "recipeLogId"`,
+      [userId, title, portions, recipe]
+    );
+    const details = [];
+    for (const item of items) {
+      const { rows } = await client.query(
+        `INSERT INTO meal_record_details (meal_record_id, food_id, quantity, meal_type, meal_recipe_log_id)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING meal_record_detail_id AS "detailId", food_id AS "foodId", quantity, meal_type AS "mealType"`,
+        [mealRecordId, item.food_id, item.quantity, mealType, log.recipeLogId]
+      );
+      details.push(rows[0]);
+    }
+    await client.query('COMMIT');
+    return { recipeLogId: log.recipeLogId, items: details };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+export const findRecipeLogsByIdsRepository = async (userId, ids) => {
+  const { rows } = await pool.query(
+    `SELECT meal_recipe_log_id AS "recipeLogId", title, portions::float AS portions, recipe
+     FROM meal_recipe_logs
+     WHERE user_id = $1 AND meal_recipe_log_id = ANY($2::int[])`,
+    [userId, ids]
+  );
+  return rows;
+};
+
+// Borra la receta registrada con todos sus ingredientes, de una vez.
+export const deleteRecipeLogRepository = async (userId, recipeLogId) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows: [log] } = await client.query(
+      `SELECT meal_recipe_log_id FROM meal_recipe_logs
+       WHERE meal_recipe_log_id = $1 AND user_id = $2
+       FOR UPDATE`,
+      [recipeLogId, userId]
+    );
+    if (!log) {
+      await client.query('ROLLBACK');
+      return null;
+    }
+    const { rowCount } = await client.query(
+      'DELETE FROM meal_record_details WHERE meal_recipe_log_id = $1',
+      [recipeLogId]
+    );
+    await client.query('DELETE FROM meal_recipe_logs WHERE meal_recipe_log_id = $1', [recipeLogId]);
+    await client.query('COMMIT');
+    return { recipeLogId, deletedItems: rowCount };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 };
