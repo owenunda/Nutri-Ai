@@ -176,8 +176,8 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Elige de tu nevera o de los alimentos comunes.',
-            style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+            'Mi nevera: lo que tienes en casa. Comunes: catálogo general.',
+            style: TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.35),
           ),
           if (!_isLoading && _errorMessage == null) ...[
             const SizedBox(height: 16),
