@@ -3,10 +3,9 @@
 // Ley 527 de 1999). Si cambian, actualiza también kLegalUpdatedAt.
 
 // Datos del responsable: aparecen en ambos documentos.
-const kLegalOwnerName = '[NOMBRE DEL RESPONSABLE]';
-const kLegalOwnerId = '[CC O NIT]';
-const kLegalOwnerCity = '[CIUDAD]';
-const kLegalContactEmail = '[CORREO DE CONTACTO]';
+const kLegalOwnerName = 'Oween Unda';
+const kLegalOwnerCity = 'Medellín';
+const kLegalContactEmail = 'oweenunda.dev@gmail.com';
 const kLegalUpdatedAt = '12 de octubre de 2026';
 
 sealed class LegalBlock {
@@ -55,9 +54,9 @@ class LegalDocuments {
     intro: [
       LegalParagraph(
         'Estos Términos y Condiciones (los "Términos") regulan el uso de la '
-        'aplicación NutriLife (la "App"), ofrecida por $kLegalOwnerName, '
-        'identificado con $kLegalOwnerId, con domicilio en $kLegalOwnerCity, '
-        'Colombia ("nosotros"). Al crear una cuenta y marcar la casilla de '
+        'aplicación NutriLife (la "App"), ofrecida por $kLegalOwnerName, con '
+        'domicilio en $kLegalOwnerCity, Colombia ("nosotros"). Al crear una '
+        'cuenta y marcar la casilla de '
         'aceptación celebras un acuerdo con nosotros por medios electrónicos, '
         'válido conforme a la Ley 527 de 1999. Si no estás de acuerdo con '
         'estos Términos, no uses la App.',
@@ -234,7 +233,6 @@ class LegalDocuments {
       LegalSection('1. Responsable del tratamiento', [
         LegalNote(
           'Responsable: $kLegalOwnerName\n'
-          'Identificación: $kLegalOwnerId\n'
           'Domicilio: $kLegalOwnerCity, Colombia\n'
           'Correo para peticiones, consultas y reclamos: $kLegalContactEmail',
         ),
