@@ -23,14 +23,14 @@ class MealItem {
   });
 
   factory MealItem.fromJson(Map map) => MealItem(
-        detailId: (map['detailId'] as num).toInt(),
-        foodId: (map['foodId'] as num).toInt(),
-        name: map['name'] as String? ?? '',
-        baseUnit: map['baseUnit'] as String? ?? '',
-        quantity: (map['quantity'] as num?)?.toDouble() ?? 1,
-        calories: (map['calories'] as num?)?.round() ?? 0,
-        recipeLogId: (map['recipeLogId'] as num?)?.toInt(),
-      );
+    detailId: (map['detailId'] as num).toInt(),
+    foodId: (map['foodId'] as num).toInt(),
+    name: map['name'] as String? ?? '',
+    baseUnit: map['baseUnit'] as String? ?? '',
+    quantity: (map['quantity'] as num?)?.toDouble() ?? 1,
+    calories: (map['calories'] as num?)?.round() ?? 0,
+    recipeLogId: (map['recipeLogId'] as num?)?.toInt(),
+  );
 }
 
 /// Una receta del chat registrada como comida (la guarda el backend).
@@ -48,11 +48,11 @@ class LoggedRecipe {
   });
 
   factory LoggedRecipe.fromJson(int id, Map map) => LoggedRecipe(
-        id: id,
-        title: map['title'] as String? ?? '',
-        portions: (map['portions'] as num?)?.toDouble() ?? 1,
-        recipe: RecipeModel.fromMap(map['recipe'] as Map? ?? const {}),
-      );
+    id: id,
+    title: map['title'] as String? ?? '',
+    portions: (map['portions'] as num?)?.toDouble() ?? 1,
+    recipe: RecipeModel.fromMap(map['recipe'] as Map? ?? const {}),
+  );
 }
 
 class MealGroup {
@@ -93,15 +93,19 @@ class MealGroup {
     return '${names.join(', ')} • $totalCalories kcal';
   }
 
-  factory MealGroup.fromJson(MealType type, Map? map, [Map<int, LoggedRecipe> recipes = const {}]) => MealGroup(
-        type: type,
-        totalCalories: (map?['totalCalories'] as num?)?.round() ?? 0,
-        items: (map?['items'] as List? ?? const [])
-            .whereType<Map>()
-            .map(MealItem.fromJson)
-            .toList(),
-        recipes: recipes,
-      );
+  factory MealGroup.fromJson(
+    MealType type,
+    Map? map, [
+    Map<int, LoggedRecipe> recipes = const {},
+  ]) => MealGroup(
+    type: type,
+    totalCalories: (map?['totalCalories'] as num?)?.round() ?? 0,
+    items: (map?['items'] as List? ?? const [])
+        .whereType<Map>()
+        .map(MealItem.fromJson)
+        .toList(),
+    recipes: recipes,
+  );
 }
 
 class DayMeals {
@@ -109,8 +113,11 @@ class DayMeals {
   final int totalCalories;
   final Map<MealType, MealGroup> _groups;
 
-  DayMeals({required this.date, required this.totalCalories, required Map<MealType, MealGroup> groups})
-      : _groups = groups;
+  DayMeals({
+    required this.date,
+    required this.totalCalories,
+    required this._groups,
+  });
 
   MealGroup of(MealType type) =>
       _groups[type] ?? MealGroup(type: type, totalCalories: 0, items: const []);
@@ -120,7 +127,10 @@ class DayMeals {
     final recipes = <int, LoggedRecipe>{
       for (final entry in (map['recipes'] as Map? ?? const {}).entries)
         if (int.tryParse('${entry.key}') != null && entry.value is Map)
-          int.parse('${entry.key}'): LoggedRecipe.fromJson(int.parse('${entry.key}'), entry.value as Map),
+          int.parse('${entry.key}'): LoggedRecipe.fromJson(
+            int.parse('${entry.key}'),
+            entry.value as Map,
+          ),
     };
     return DayMeals(
       date: map['date'] as String? ?? '',
