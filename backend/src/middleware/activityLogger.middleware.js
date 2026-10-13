@@ -8,9 +8,9 @@ const IGNORED_PREFIXES = ['/api/v1/health', '/api-docs', '/favicon', '/api/v1/au
 // FK; el borrado se registra de forma explícita y anónima en user.service.
 const IGNORED_PATHS = ['/api/v1/user/account'];
 
-// No auditamos las lecturas del propio panel admin de eventos para evitar auto-ruido.
-const isAdminEventsRead = (method, path) =>
-  method === 'GET' && path.startsWith('/api/v1/admin/events');
+// No auditamos las lecturas del propio panel admin para evitar auto-ruido.
+const isAdminRead = (method, path) =>
+  method === 'GET' && path.startsWith('/api/v1/admin');
 
 /**
  * Deriva { category, eventType } a partir del método y la ruta.
@@ -40,7 +40,7 @@ export const activityLogger = (req, res, next) => {
 
     if (IGNORED_PREFIXES.some((prefix) => path.startsWith(prefix))) return;
     if (req.method === 'DELETE' && IGNORED_PATHS.includes(path)) return;
-    if (isAdminEventsRead(req.method, path)) return;
+    if (isAdminRead(req.method, path)) return;
 
     // Los errores del servidor (>= 500) se registran como SYSTEM_ERROR en el errorHandler.
     if (res.statusCode >= 500) return;

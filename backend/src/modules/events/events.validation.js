@@ -1,19 +1,33 @@
 import { AppError } from '../../utils/AppError.js';
+import { EVENT_MODULES } from './events.repository.js';
 
 const VALID_CATEGORIES = ['AUTH', 'AI', 'ERROR', 'CRUD', 'SYSTEM'];
 
 const isValidDate = (value) => !Number.isNaN(Date.parse(value));
+
+const BOOLEAN_VALUES = ['true', 'false', '1', '0'];
+const parseBoolean = (value) => value === 'true' || value === '1';
 
 /**
  * Middleware: valida los query params de listado/stats de eventos.
  * Adjunta req.eventFilters.
  */
 export const validateListEventsQuery = (req, res, next) => {
-  const { type, category, userId, from, to, limit, page } = req.query;
+  const { type, category, module, userId, from, to, limit, page, hideReads, hideBots } = req.query;
   const details = [];
 
   if (category !== undefined && !VALID_CATEGORIES.includes(category)) {
     details.push({ field: 'category', message: `category must be one of: ${VALID_CATEGORIES.join(', ')}` });
+  }
+
+  if (module !== undefined && !EVENT_MODULES.includes(module)) {
+    details.push({ field: 'module', message: `module must be one of: ${EVENT_MODULES.join(', ')}` });
+  }
+
+  for (const [field, value] of [['hideReads', hideReads], ['hideBots', hideBots]]) {
+    if (value !== undefined && !BOOLEAN_VALUES.includes(value)) {
+      details.push({ field, message: `${field} must be true or false` });
+    }
   }
 
   const parsedUserId = userId !== undefined ? Number(userId) : null;
@@ -45,6 +59,9 @@ export const validateListEventsQuery = (req, res, next) => {
   req.eventFilters = {
     type: type || undefined,
     category: category || undefined,
+    module: module || undefined,
+    hideReads: hideReads !== undefined && parseBoolean(hideReads),
+    hideBots: hideBots !== undefined && parseBoolean(hideBots),
     userId: userId !== undefined ? parsedUserId : undefined,
     from: from || undefined,
     to: to || undefined,

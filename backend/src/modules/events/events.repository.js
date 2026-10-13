@@ -1,5 +1,78 @@
 import pool from '../../database/connection.js';
 
+// Módulos de la API que se reconocen a partir de la ruta (/api/v1/<módulo>/...).
+export const KNOWN_MODULES = ['food', 'fridge', 'recipe', 'user', 'stats', 'meals', 'ai', 'admin'];
+export const EVENT_MODULES = [...KNOWN_MODULES, 'chat', 'auth', 'bots', 'other'];
+
+/**
+ * Deriva el módulo de un evento a partir de su ruta. Se calcula al leer para
+ * que también aplique a los eventos históricos. Todo lo que no cae bajo una
+ * ruta conocida de la API (/.env, /wp-login.php...) son escaneos de bots.
+ * @param {string} alias Alias de activity_events en la consulta.
+ */
+export const moduleSql = (alias = 'e') => `
+  CASE
+    WHEN ${alias}.path IS NULL THEN
+      CASE WHEN ${alias}.category = 'AUTH' THEN 'auth' ELSE 'other' END
+    WHEN ${alias}.path LIKE '/api/v1/n8n/%' OR ${alias}.path LIKE '/api/v1/chat%' THEN 'chat'
+    WHEN split_part(${alias}.path, '/', 4) IN (${KNOWN_MODULES.map((m) => `'${m}'`).join(', ')})
+      THEN split_part(${alias}.path, '/', 4)
+    ELSE 'bots'
+  END
+`;
+
+/** Una consulta a la IA = un mensaje enviado al agente de n8n. */
+export const aiQuerySql = (alias = 'e') =>
+  `(${alias}.method = 'POST' AND ${alias}.path = '/api/v1/n8n/chat')`;
+
+/**
+ * Construye el WHERE compartido por el listado y las estadísticas.
+ * @returns {{ where: string, values: Array, next: number }}
+ */
+const buildEventWhere = (filters = {}) => {
+  const { type, category, module, userId, from, to, hideReads, hideBots } = filters;
+  const conditions = [];
+  const values = [];
+  let i = 1;
+
+  if (type) {
+    conditions.push(`e.event_type = $${i++}`);
+    values.push(type);
+  }
+  if (category) {
+    conditions.push(`e.category = $${i++}`);
+    values.push(category);
+  }
+  if (module) {
+    conditions.push(`(${moduleSql('e')}) = $${i++}`);
+    values.push(module);
+  }
+  if (userId !== undefined && userId !== null) {
+    conditions.push(`e.user_id = $${i++}`);
+    values.push(userId);
+  }
+  if (from) {
+    conditions.push(`e.created_at >= $${i++}`);
+    values.push(from);
+  }
+  if (to) {
+    conditions.push(`e.created_at <= $${i++}`);
+    values.push(to);
+  }
+  if (hideReads) {
+    conditions.push(`(e.method IS NULL OR e.method NOT IN ('GET', 'HEAD', 'OPTIONS'))`);
+  }
+  if (hideBots && module !== 'bots') {
+    conditions.push(`(${moduleSql('e')}) <> 'bots'`);
+  }
+
+  return {
+    where: conditions.length ? `WHERE ${conditions.join(' AND ')}` : '',
+    values,
+    next: i,
+  };
+};
+
 /**
  * Inserta un evento de actividad.
  * @param {Object} event
@@ -58,62 +131,44 @@ export const insertEvent = async ({
  * @param {Object} filters
  * @param {string} [filters.type]
  * @param {string} [filters.category]
+ * @param {string} [filters.module]   Ver EVENT_MODULES
  * @param {number} [filters.userId]
  * @param {string} [filters.from]  Fecha ISO
  * @param {string} [filters.to]    Fecha ISO
+ * @param {boolean} [filters.hideReads] Oculta las lecturas (GET/HEAD/OPTIONS)
+ * @param {boolean} [filters.hideBots]  Oculta los escaneos de bots
  * @param {number} [filters.limit]
  * @param {number} [filters.offset]
  * @returns {Promise<{items: Array, total: number}>}
  */
 export const findEvents = async (filters = {}) => {
-  const { type, category, userId, from, to, limit = 50, offset = 0 } = filters;
+  const { limit = 50, offset = 0 } = filters;
+  const { where, values, next } = buildEventWhere(filters);
+  let i = next;
 
-  const conditions = [];
-  const values = [];
-  let i = 1;
-
-  if (type) {
-    conditions.push(`event_type = $${i++}`);
-    values.push(type);
-  }
-  if (category) {
-    conditions.push(`category = $${i++}`);
-    values.push(category);
-  }
-  if (userId !== undefined && userId !== null) {
-    conditions.push(`user_id = $${i++}`);
-    values.push(userId);
-  }
-  if (from) {
-    conditions.push(`created_at >= $${i++}`);
-    values.push(from);
-  }
-  if (to) {
-    conditions.push(`created_at <= $${i++}`);
-    values.push(to);
-  }
-
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-
-  const countQuery = `SELECT COUNT(*)::int AS total FROM activity_events ${where}`;
+  const countQuery = `SELECT COUNT(*)::int AS total FROM activity_events e ${where}`;
   const { rows: countRows } = await pool.query(countQuery, values);
   const total = countRows[0]?.total ?? 0;
 
   const listQuery = `
     SELECT
-      event_id    AS "eventId",
-      event_type  AS "eventType",
-      category,
-      user_id     AS "userId",
-      method,
-      path,
-      status_code AS "statusCode",
-      ip_address  AS "ipAddress",
-      metadata,
-      created_at  AS "createdAt"
-    FROM activity_events
+      e.event_id    AS "eventId",
+      e.event_type  AS "eventType",
+      e.category,
+      ${moduleSql('e')} AS module,
+      e.user_id     AS "userId",
+      u.name        AS "userName",
+      u.email       AS "userEmail",
+      e.method,
+      e.path,
+      e.status_code AS "statusCode",
+      e.ip_address  AS "ipAddress",
+      e.metadata,
+      e.created_at  AS "createdAt"
+    FROM activity_events e
+    LEFT JOIN users u ON u.user_id = e.user_id
     ${where}
-    ORDER BY created_at DESC, event_id DESC
+    ORDER BY e.created_at DESC, e.event_id DESC
     LIMIT $${i++} OFFSET $${i++}
   `;
   const { rows } = await pool.query(listQuery, [...values, limit, offset]);
@@ -129,62 +184,59 @@ export const findEvents = async (filters = {}) => {
  * @returns {Promise<Object>}
  */
 export const getEventStats = async (filters = {}) => {
-  const { from, to } = filters;
-
-  const conditions = [];
-  const values = [];
-  let i = 1;
-
-  if (from) {
-    conditions.push(`created_at >= $${i++}`);
-    values.push(from);
-  }
-  if (to) {
-    conditions.push(`created_at <= $${i++}`);
-    values.push(to);
-  }
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const { from, to, hideBots } = filters;
+  const { where, values } = buildEventWhere({ from, to, hideBots });
 
   const byTypeQuery = `
-    SELECT event_type AS "eventType", COUNT(*)::int AS count
-    FROM activity_events
+    SELECT e.event_type AS "eventType", COUNT(*)::int AS count
+    FROM activity_events e
     ${where}
-    GROUP BY event_type
+    GROUP BY e.event_type
     ORDER BY count DESC
   `;
 
   const byCategoryQuery = `
-    SELECT category, COUNT(*)::int AS count
-    FROM activity_events
+    SELECT e.category, COUNT(*)::int AS count
+    FROM activity_events e
     ${where}
-    GROUP BY category
+    GROUP BY e.category
+    ORDER BY count DESC
+  `;
+
+  const byModuleQuery = `
+    SELECT ${moduleSql('e')} AS module, COUNT(*)::int AS count
+    FROM activity_events e
+    ${where}
+    GROUP BY 1
     ORDER BY count DESC
   `;
 
   const byDayQuery = `
     SELECT
-      to_char(date_trunc('day', created_at), 'YYYY-MM-DD') AS day,
+      to_char(date_trunc('day', e.created_at), 'YYYY-MM-DD') AS day,
       COUNT(*)::int AS count
-    FROM activity_events
+    FROM activity_events e
     ${where}
     GROUP BY day
     ORDER BY day ASC
   `;
 
   const topUsersQuery = `
-    SELECT user_id AS "userId", COUNT(*)::int AS count
-    FROM activity_events
-    ${where ? `${where} AND user_id IS NOT NULL` : 'WHERE user_id IS NOT NULL'}
-    GROUP BY user_id
+    SELECT e.user_id AS "userId", u.name AS "userName", COUNT(*)::int AS count
+    FROM activity_events e
+    LEFT JOIN users u ON u.user_id = e.user_id
+    ${where ? `${where} AND e.user_id IS NOT NULL` : 'WHERE e.user_id IS NOT NULL'}
+    GROUP BY e.user_id, u.name
     ORDER BY count DESC
     LIMIT 10
   `;
 
-  const totalQuery = `SELECT COUNT(*)::int AS total FROM activity_events ${where}`;
+  const totalQuery = `SELECT COUNT(*)::int AS total FROM activity_events e ${where}`;
 
-  const [byType, byCategory, byDay, topUsers, totalRes] = await Promise.all([
+  const [byType, byCategory, byModule, byDay, topUsers, totalRes] = await Promise.all([
     pool.query(byTypeQuery, values),
     pool.query(byCategoryQuery, values),
+    pool.query(byModuleQuery, values),
     pool.query(byDayQuery, values),
     pool.query(topUsersQuery, values),
     pool.query(totalQuery, values),
@@ -194,6 +246,7 @@ export const getEventStats = async (filters = {}) => {
     total: totalRes.rows[0]?.total ?? 0,
     byType: byType.rows,
     byCategory: byCategory.rows,
+    byModule: byModule.rows,
     byDay: byDay.rows,
     topUsers: topUsers.rows,
   };

@@ -22,6 +22,10 @@ const router = Router();
  *         name: category
  *         schema: { type: string, enum: [AUTH, AI, ERROR, CRUD, SYSTEM] }
  *       - in: query
+ *         name: module
+ *         schema: { type: string, enum: [food, fridge, recipe, user, stats, meals, ai, admin, chat, auth, bots, other] }
+ *         description: Módulo derivado de la ruta (bots = rutas ajenas a la API)
+ *       - in: query
  *         name: userId
  *         schema: { type: integer }
  *       - in: query
@@ -30,6 +34,14 @@ const router = Router();
  *       - in: query
  *         name: to
  *         schema: { type: string, format: date-time }
+ *       - in: query
+ *         name: hideReads
+ *         schema: { type: boolean }
+ *         description: Oculta las lecturas (GET/HEAD/OPTIONS)
+ *       - in: query
+ *         name: hideBots
+ *         schema: { type: boolean }
+ *         description: Oculta los escaneos de bots
  *       - in: query
  *         name: page
  *         schema: { type: integer, default: 1 }
@@ -79,9 +91,12 @@ router.get('/',
  *       - in: query
  *         name: to
  *         schema: { type: string, format: date-time }
+ *       - in: query
+ *         name: hideBots
+ *         schema: { type: boolean }
  *     responses:
  *       200:
- *         description: Métricas agregadas (por tipo, categoría, día y top usuarios)
+ *         description: Métricas agregadas (por tipo, categoría, módulo, día y top usuarios)
  *         content:
  *           application/json:
  *             schema:
@@ -95,6 +110,7 @@ router.get('/',
  *                         total: { type: integer }
  *                         byType: { type: array, items: { type: object } }
  *                         byCategory: { type: array, items: { type: object } }
+ *                         byModule: { type: array, items: { type: object } }
  *                         byDay: { type: array, items: { type: object } }
  *                         topUsers: { type: array, items: { type: object } }
  *       401:
