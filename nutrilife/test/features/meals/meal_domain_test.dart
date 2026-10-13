@@ -65,4 +65,16 @@ void main() {
       expect(quantityLabel(3, '100 G COCIDO'), '300 g cocido');
     });
   });
+
+  group('mealItemLabel', () {
+    test('medias porciones exactas dicen porciones', () {
+      expect(mealItemLabel(1.5, '100 G'), '1½ porciones · 150 g');
+      expect(mealItemLabel(1, '100 G COCIDO'), '1 porción · 100 g cocido');
+    });
+
+    test('0,75 no se redondea a media porción', () {
+      expect(mealItemLabel(0.75, '100 G'), '75 g');
+      expect(mealItemLabel(0.17, '1 UNIDAD'), '0,17 unidad');
+    });
+  });
 }

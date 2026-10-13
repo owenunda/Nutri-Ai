@@ -96,9 +96,7 @@ class _MealDetail extends StatelessWidget {
         for (final item in loose)
           _ItemTile(
             item: item,
-            subtitle:
-                '${portionsLabel(item.quantity)} ${item.quantity <= 1 ? 'porción' : 'porciones'} · '
-                '${quantityLabel(item.quantity, item.baseUnit)}',
+            subtitle: mealItemLabel(item.quantity, item.baseUnit),
             repository: repository,
           ),
       ],

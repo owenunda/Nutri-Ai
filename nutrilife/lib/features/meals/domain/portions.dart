@@ -54,3 +54,14 @@ String ingredientAmountLabel(double quantity, String baseUnit) {
       : quantity.toStringAsFixed(2).replaceFirst(RegExp(r'0$'), '').replaceAll('.', ',');
   return '$shown $unit';
 }
+
+/// Subtítulo de un alimento registrado. Si son medias porciones exactas (lo
+/// que da la hoja de agregar) se dice "1½ porciones · 150 g"; si no (p. ej.
+/// un ingrediente de receta, 0,75) solo la cantidad: "75 g", para no
+/// redondear 0,75 a "½".
+String mealItemLabel(double quantity, String baseUnit) {
+  final isHalfStep = (quantity * 2 - (quantity * 2).roundToDouble()).abs() < 0.001;
+  if (!isHalfStep) return ingredientAmountLabel(quantity, baseUnit);
+  return '${portionsLabel(quantity)} ${quantity <= 1 ? 'porción' : 'porciones'} · '
+      '${quantityLabel(quantity, baseUnit)}';
+}
