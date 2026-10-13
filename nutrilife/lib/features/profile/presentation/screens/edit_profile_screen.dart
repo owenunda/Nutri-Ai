@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/motion.dart';
 
 import '../../data/profile_repository.dart';
 
@@ -489,6 +490,7 @@ class _PickerRowState extends State<_PickerRow> {
   Future<void> _openPicker() async {
     final selectedValue = await showModalBottomSheet<String>(
       context: context,
+      sheetAnimationStyle: kSheetAnimation,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/motion.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../meals/presentation/widgets/register_recipe_sheet.dart';
 import '../../data/models/recipe_model.dart';
 
 /// Abre el paso a paso de [recipe]. [initialStep] empieza en 1.
@@ -10,6 +12,7 @@ void showRecipeStepsSheet(
 }) {
   showModalBottomSheet(
     context: context,
+    sheetAnimationStyle: kSheetAnimation,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (_) => _RecipeStepsModal(
@@ -22,17 +25,48 @@ void showRecipeStepsSheet(
   );
 }
 
+/// La ficha de [recipe] sola, p. ej. para volver a verla desde el historial.
+void showRecipeInfoSheet(BuildContext context, RecipeModel recipe) {
+  showModalBottomSheet(
+    context: context,
+    sheetAnimationStyle: kSheetAnimation,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (sheetContext) => SafeArea(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.9),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: RecipeCardWidget(
+            recipe: recipe,
+            showRegister: false,
+            margin: EdgeInsets.zero,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 class RecipeCardWidget extends StatefulWidget {
   final RecipeModel recipe;
+  final bool showRegister;
+  final EdgeInsetsGeometry margin;
 
-  const RecipeCardWidget({super.key, required this.recipe});
+  const RecipeCardWidget({
+    super.key,
+    required this.recipe,
+    this.showRegister = true,
+    this.margin = const EdgeInsets.only(left: 38, top: 6, bottom: 8),
+  });
 
   @override
   State<RecipeCardWidget> createState() => _RecipeCardWidgetState();
 }
 
 class _RecipeCardWidgetState extends State<RecipeCardWidget> {
-  bool _expandSummary = false;
+  // Fuera del chat (ficha del historial) la descripción se ve completa.
+  late bool _expandSummary = !widget.showRegister;
 
   static const _green = Color(0xFF0A6B3F);
   static const _lightGreen = Color(0xFF16A34A);
@@ -48,7 +82,7 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
     final recipe = widget.recipe;
 
     return Container(
-      margin: const EdgeInsets.only(left: 38, top: 6, bottom: 8),
+      margin: widget.margin,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -174,25 +208,27 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
                 // Secondary button
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.add_rounded, size: 18),
-                    label: const Text('Agregar al log diario'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: _lightGreen,
-                      side: const BorderSide(color: _lightGreen),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      textStyle: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                if (widget.showRegister) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => showRegisterRecipeSheet(context, recipe),
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('Registrar comida'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _lightGreen,
+                        side: const BorderSide(color: _lightGreen),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

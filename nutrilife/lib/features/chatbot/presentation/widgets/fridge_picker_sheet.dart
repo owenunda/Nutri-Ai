@@ -1,27 +1,38 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/motion.dart';
+import '../../../../core/widgets/segmented_tabs.dart';
+import '../../../nutrition/data/food_repository.dart';
 import '../../../nutrition/data/fridge_repository.dart';
+import '../../../nutrition/data/models/food_model.dart';
 import '../../../nutrition/data/models/fridge_item_model.dart';
 
-/// Hoja para elegir qué alimentos de la nevera se adjuntan al mensaje.
+/// Hoja para elegir qué alimentos se adjuntan al mensaje: los de la nevera o
+/// los alimentos comunes del catálogo, cada grupo en su pestaña.
 ///
-/// Devuelve la selección al cerrarse, o `null` si el usuario cancela.
+/// Devuelve la selección al cerrarse, o `null` si el usuario cancela. Los
+/// comunes vuelven como [FridgeItemModel] sin `fridgeItemId` (ver
+/// [FridgeItemModel.isFromFridge]).
 class FridgePickerSheet extends StatefulWidget {
   final List<FridgeItemModel> initialSelection;
   final FridgeRepository? repository;
+  final FoodRepository? foodRepository;
 
   const FridgePickerSheet({
     super.key,
     this.initialSelection = const [],
     this.repository,
+    this.foodRepository,
   });
 
   static Future<List<FridgeItemModel>?> show(
     BuildContext context, {
     List<FridgeItemModel> initialSelection = const [],
     FridgeRepository? repository,
+    FoodRepository? foodRepository,
   }) {
     return showModalBottomSheet<List<FridgeItemModel>>(
       context: context,
+      sheetAnimationStyle: kSheetAnimation,
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -30,6 +41,7 @@ class FridgePickerSheet extends StatefulWidget {
       builder: (_) => FridgePickerSheet(
         initialSelection: initialSelection,
         repository: repository,
+        foodRepository: foodRepository,
       ),
     );
   }
@@ -40,18 +52,36 @@ class FridgePickerSheet extends StatefulWidget {
 
 class _FridgePickerSheetState extends State<FridgePickerSheet> {
   late final FridgeRepository _repository;
-  final Set<int> _selectedIds = {};
+  late final FoodRepository _foodRepository;
+  final TextEditingController _searchController = TextEditingController();
+  final Set<String> _selectedKeys = {};
 
   List<FridgeItemModel> _items = [];
+  List<FridgeItemModel> _common = [];
   bool _isLoading = true;
   String? _errorMessage;
+
+  /// Nevera y comunes van en pestañas para que la lista no se haga eterna.
+  bool _showCommon = false;
+
+  /// La nevera y el catálogo pueden traer el mismo id numérico.
+  static String _key(FridgeItemModel item) =>
+      item.isFromFridge ? 'n${item.fridgeItemId}' : 'c${item.foodId}';
 
   @override
   void initState() {
     super.initState();
     _repository = widget.repository ?? FridgeRepository();
-    _selectedIds.addAll(widget.initialSelection.map((i) => i.fridgeItemId));
+    _foodRepository = widget.foodRepository ?? FoodRepository();
+    _selectedKeys.addAll(widget.initialSelection.map(_key));
+    _searchController.addListener(() => setState(() {}));
     _load();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -60,12 +90,32 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
       _errorMessage = null;
     });
 
+    // Sin catálogo la hoja sigue sirviendo con la nevera.
+    final commonFuture =
+        _foodRepository.getFoods().catchError((_) => <FoodModel>[]);
     try {
       final items = await _repository.getFridgeItems();
+      final inFridge = items.map((i) => i.foodId).toSet();
+      final common = (await commonFuture)
+          .where((f) => f.isGlobal && !inFridge.contains(f.foodId))
+          .map((f) => FridgeItemModel(
+                fridgeItemId: 0,
+                foodId: f.foodId,
+                name: f.name,
+                quantity: 0,
+                unit: '',
+                caloriesPerUnit: f.caloriesPerUnit,
+                baseUnit: f.baseUnit,
+              ))
+          .toList()
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
       if (!mounted) return;
       setState(() {
         _items = items;
+        _common = common;
         _isLoading = false;
+        // Con la nevera vacía no tiene sentido abrir en ella.
+        _showCommon = items.isEmpty && common.isNotEmpty;
       });
     } catch (e) {
       if (!mounted) return;
@@ -78,22 +128,29 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
 
   void _toggle(FridgeItemModel item) {
     setState(() {
-      if (!_selectedIds.remove(item.fridgeItemId)) {
-        _selectedIds.add(item.fridgeItemId);
-      }
+      final key = _key(item);
+      if (!_selectedKeys.remove(key)) _selectedKeys.add(key);
     });
   }
 
   void _confirm() {
-    final selection =
-        _items.where((i) => _selectedIds.contains(i.fridgeItemId)).toList();
+    final selection = [..._items, ..._common]
+        .where((i) => _selectedKeys.contains(_key(i)))
+        .toList();
     Navigator.of(context).pop(selection);
+  }
+
+  List<FridgeItemModel> _filter(List<FridgeItemModel> items) {
+    final query = _searchController.text.trim().toLowerCase();
+    if (query.isEmpty) return items;
+    return items.where((i) => i.name.toLowerCase().contains(query)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      padding: EdgeInsets.fromLTRB(
+          24, 16, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +167,7 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
           ),
           const SizedBox(height: 20),
           const Text(
-            'Alimentos de tu nevera',
+            'Agregar alimentos',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -119,15 +176,53 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Elige los que quieres incluir en tu mensaje.',
+            'Elige de tu nevera o de los alimentos comunes.',
             style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
           ),
-          const SizedBox(height: 16),
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.sizeOf(context).height * 0.45,
+          if (!_isLoading && _errorMessage == null) ...[
+            const SizedBox(height: 16),
+            SegmentedTabs(
+              labels: const ['Mi nevera', 'Comunes'],
+              badges: [
+                _items.where((i) => _selectedKeys.contains(_key(i))).length,
+                _common.where((i) => _selectedKeys.contains(_key(i))).length,
+              ],
+              selected: _showCommon ? 1 : 0,
+              onChanged: (index) => setState(() => _showCommon = index == 1),
             ),
-            child: _buildBody(),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: _showCommon ? 'Buscar en comunes' : 'Buscar en tu nevera',
+                prefixIcon: const Icon(Icons.search_rounded,
+                    color: Color(0xFF94A3B8)),
+                isDense: true,
+                filled: true,
+                fillColor: const Color(0xFFF1F5F9),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
+          // Flexible: en pantallas bajas (o con teclado) la lista cede espacio
+          // y hace scroll, en vez de desbordar la hoja.
+          Flexible(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.45,
+              ),
+              // Al cambiar de pestaña o buscar, el alto se acomoda sin saltos.
+              child: AnimatedSize(
+                duration: kResizeDuration,
+                curve: kResizeCurve,
+                alignment: Alignment.topCenter,
+                child: _buildBody(),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -144,9 +239,9 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
                 ),
               ),
               child: Text(
-                _selectedIds.isEmpty
+                _selectedKeys.isEmpty
                     ? 'Listo'
-                    : 'Agregar ${_selectedIds.length} al mensaje',
+                    : 'Agregar ${_selectedKeys.length} al mensaje',
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -187,86 +282,139 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
       );
     }
 
-    if (_items.isEmpty) {
-      return const _Message(
-        icon: Icons.kitchen_outlined,
-        title: 'Tu nevera está vacía',
-        detail: 'Agrega alimentos desde la pestaña Alimentos y aparecerán aquí.',
-      );
-    }
+    final query = _searchController.text.trim();
+    final visible = _filter(_showCommon ? _common : _items);
 
-    return ListView.separated(
-      shrinkWrap: true,
-      itemCount: _items.length,
-      separatorBuilder: (_, _) =>
-          const Divider(height: 1, color: Color(0xFFF1F5F9)),
-      itemBuilder: (context, index) {
-        final item = _items[index];
-        final selected = _selectedIds.contains(item.fridgeItemId);
-
-        return InkWell(
-          onTap: () => _toggle(item),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              children: [
-                Icon(
-                  selected ? Icons.check_circle_rounded : Icons.circle_outlined,
-                  color: selected
-                      ? const Color(0xFF0A6B3F)
-                      : const Color(0xFFCBD5E1),
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.name,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF2C2F31),
-                        ),
-                      ),
-                      if (item.hasCalories) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          '${item.caloriesPerUnit.toInt()} kcal · ${item.baseUnit}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF94A3B8),
-                          ),
-                        ),
-                      ],
-                    ],
+    if (visible.isEmpty) {
+      final elsewhere = _filter(_showCommon ? _items : _common).length;
+      if (query.isNotEmpty) {
+        return _Message(
+          icon: Icons.search_off_rounded,
+          title: 'Sin resultados',
+          detail: _showCommon
+              ? 'No encontramos "$query" en los alimentos comunes.'
+              : 'No encontramos "$query" en tu nevera.',
+          action: elsewhere == 0
+              ? null
+              : TextButton(
+                  onPressed: () => setState(() => _showCommon = !_showCommon),
+                  child: Text(
+                    _showCommon
+                        ? 'Ver en Mi nevera ($elsewhere)'
+                        : 'Ver en Comunes ($elsewhere)',
+                    style: const TextStyle(
+                      color: Color(0xFF0A6B3F),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                item.quantity > 0
-                    ? Text(
-                        '${formatFridgeQuantity(item.quantity)} ${item.unit}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF2C2F31),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      )
-                    : const Text(
-                        'Sin cantidad',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFFCBD5E1),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ],
-            ),
-          ),
         );
-      },
+      }
+      return _showCommon
+          ? const _Message(
+              icon: Icons.cloud_off_rounded,
+              title: 'Sin alimentos comunes',
+              detail: 'No pudimos cargar el catálogo. Intenta de nuevo más tarde.',
+            )
+          : const _Message(
+              icon: Icons.kitchen_outlined,
+              title: 'Tu nevera está vacía',
+              detail:
+                  'Agrega alimentos desde la pestaña Alimentos o elige de Comunes.',
+            );
+    }
+
+    return ListView(
+      shrinkWrap: true,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      children: [for (final item in visible) _row(item)],
+    );
+  }
+
+  Widget _row(FridgeItemModel item) => Column(
+        children: [
+          _FoodRow(
+            item: item,
+            selected: _selectedKeys.contains(_key(item)),
+            onTap: () => _toggle(item),
+          ),
+          const Divider(height: 1, color: Color(0xFFF1F5F9)),
+        ],
+      );
+}
+
+class _FoodRow extends StatelessWidget {
+  final FridgeItemModel item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _FoodRow(
+      {required this.item, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Icon(
+              selected ? Icons.check_circle_rounded : Icons.circle_outlined,
+              color:
+                  selected ? const Color(0xFF0A6B3F) : const Color(0xFFCBD5E1),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2C2F31),
+                    ),
+                  ),
+                  if (item.hasCalories) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '${item.caloriesPerUnit.toInt()} kcal · ${item.baseUnit}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Los comunes no están en la nevera: no hay cantidad que mostrar.
+            if (item.isFromFridge)
+              item.quantity > 0
+                  ? Text(
+                      '${formatFridgeQuantity(item.quantity)} ${item.unit}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF2C2F31),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    )
+                  : const Text(
+                      'Sin cantidad',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFFCBD5E1),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+          ],
+        ),
+      ),
     );
   }
 }

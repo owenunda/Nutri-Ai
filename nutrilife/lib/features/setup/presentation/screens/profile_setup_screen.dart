@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/motion.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -625,6 +626,7 @@ class _PickerField extends StatelessWidget {
   ) async {
     final selectedValue = await showModalBottomSheet<String>(
       context: context,
+      sheetAnimationStyle: kSheetAnimation,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(

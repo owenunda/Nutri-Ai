@@ -14,7 +14,7 @@ class _RepoFalso extends ChatRepository {
 
   @override
   Future<ChatResponse> sendMessage(String message,
-      {List<int> fridgeItemIds = const []}) {
+      {List<int> fridgeItemIds = const [], List<int> foodIds = const []}) {
     return completer.future;
   }
 

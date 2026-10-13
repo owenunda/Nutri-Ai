@@ -59,6 +59,28 @@ void main() {
     ]);
   });
 
+  test('addFoods registra varios alimentos en una sola llamada', () async {
+    final (repo, adapter) = _repo({
+      'POST /meals': {'mealRecordId': 9},
+      'POST /meals/9/items': [
+        {'detailId': 50, 'foodId': 3, 'quantity': 0.5, 'mealType': 'DINNER'},
+        {'detailId': 51, 'foodId': 4, 'quantity': 0.25, 'mealType': 'DINNER'},
+      ],
+    });
+
+    final ids = await repo.addFoods(
+      items: [(foodId: 3, quantity: 0.5), (foodId: 4, quantity: 0.25)],
+      type: MealType.dinner,
+      now: DateTime(2026, 10, 12, 20),
+    );
+
+    expect(ids, [50, 51]);
+    expect(adapter.requests[1].data, [
+      {'food_id': 3, 'quantity': 0.5, 'meal_type': 'DINNER'},
+      {'food_id': 4, 'quantity': 0.25, 'meal_type': 'DINNER'},
+    ]);
+  });
+
   test('getDay arma los grupos y el resumen', () async {
     final (repo, adapter) = _repo({
       'GET /meals/day': {

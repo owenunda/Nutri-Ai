@@ -4,12 +4,12 @@ import 'package:nutrilife/features/nutrition/data/food_repository.dart';
 import 'package:nutrilife/features/nutrition/data/models/food_model.dart';
 import 'package:nutrilife/features/nutrition/presentation/screens/foods_screen.dart';
 
-FoodModel _food(int id, String name) => FoodModel(
+FoodModel _food(int id, String name, {bool global = true}) => FoodModel(
       foodId: id,
       name: name,
       caloriesPerUnit: 100,
       baseUnit: '100 G',
-      isGlobal: true,
+      isGlobal: global,
       isActive: true,
     );
 
@@ -24,20 +24,37 @@ final _foods = [
 ];
 
 class _RepoFalso extends FoodRepository {
+  _RepoFalso([this.foods]);
+  final List<FoodModel>? foods;
+
+  final created = <(String, double, String)>[];
+
   @override
-  Future<List<FoodModel>> getFoods() async => _foods;
+  Future<List<FoodModel>> getFoods() async => [...(foods ?? _foods)];
+
+  @override
+  Future<FoodModel> createFood({
+    required String name,
+    required double caloriesPerUnit,
+    required String baseUnit,
+  }) async {
+    created.add((name, caloriesPerUnit, baseUnit));
+    return _food(99, name, global: false);
+  }
 }
 
-Future<void> _pump(WidgetTester tester) async {
+Future<_RepoFalso> _pump(WidgetTester tester, [List<FoodModel>? foods]) async {
+  final repo = _RepoFalso(foods);
   // Alto suficiente para que la lista no dependa del scroll.
   tester.view.physicalSize = const Size(1080, 3200);
   tester.view.devicePixelRatio = 2.5;
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(MaterialApp(
-    home: Scaffold(body: FoodsScreen(foodRepository: _RepoFalso())),
+    home: Scaffold(body: FoodsScreen(foodRepository: repo)),
   ));
   await tester.pumpAndSettle();
+  return repo;
 }
 
 Finder get _search => find.byType(TextField);
@@ -85,6 +102,69 @@ void main() {
     });
   });
 
+  testWidgets('la unidad base se elige de una lista y por defecto es 100 g',
+      (tester) async {
+    final repo = await _pump(tester);
+    await tester.tap(find.text('ENTRADA MANUAL'));
+    await tester.pumpAndSettle();
+
+    final unitField = find.byKey(const ValueKey('unit-field'));
+    expect(find.descendant(of: unitField, matching: find.text('100 g')), findsOneWidget);
+
+    await tester.tap(unitField);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('1 unidad').last);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Nombre del alimento'), 'Arepa');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Calorías (Kcal)'), '180');
+    await tester.tap(find.text('Guardar Alimento'));
+    await tester.pumpAndSettle();
+
+    expect(repo.created.single, ('Arepa', 180.0, '1 UNIDAD'));
+  });
+
+  group('pestañas', () {
+    final mixed = [
+      _food(1, 'Tilapia'),
+      _food(2, 'Mi batido', global: false),
+      _food(3, 'Arroz'),
+    ];
+
+    testWidgets('abre en mis alimentos y separa los comunes', (tester) async {
+      await _pump(tester, mixed);
+
+      expect(find.text('Mi batido'), findsOneWidget);
+      expect(find.text('Tilapia'), findsNothing);
+
+      await tester.tap(find.text('Comunes'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tilapia'), findsOneWidget);
+      expect(find.text('Arroz'), findsOneWidget);
+      expect(find.text('Mi batido'), findsNothing);
+    });
+
+    testWidgets('sin alimentos propios abre en comunes', (tester) async {
+      await _pump(tester);
+      expect(find.text('Tilapia'), findsOneWidget);
+
+      await tester.tap(find.text('Mis alimentos'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Aún no agregaste'), findsOneWidget);
+    });
+
+    testWidgets('al buscar mezcla las dos', (tester) async {
+      await _pump(tester, mixed);
+
+      await tester.enterText(_search, 'i');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Mi batido'), findsOneWidget);
+      expect(find.text('Tilapia'), findsOneWidget);
+    });
+  });
+
   group('Ver todo', () {
     testWidgets('la vista normal muestra solo los primeros 5', (tester) async {
       await _pump(tester);
@@ -99,7 +179,7 @@ void main() {
       await tester.tap(find.text('Ver todo'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Todos los alimentos'), findsOneWidget);
+      expect(find.text('Alimentos comunes'), findsOneWidget);
       expect(find.text('7 alimentos'), findsOneWidget);
       expect(find.text('Banana'), findsOneWidget);
       expect(find.text('Pera'), findsOneWidget);

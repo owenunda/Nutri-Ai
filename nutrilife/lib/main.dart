@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'core/navigation/navigator_key.dart';
@@ -39,6 +40,9 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Nutri life",
       theme: AppTheme.lightTheme,
+      locale: const Locale('es'),
+      supportedLocales: const [Locale('es'), Locale('en')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       builder: (context, child) => DismissKeyboardOnTap(child: child!),
       home: home,
     );

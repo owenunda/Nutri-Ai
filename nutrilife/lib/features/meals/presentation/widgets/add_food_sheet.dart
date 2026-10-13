@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/motion.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../nutrition/data/models/food_model.dart';
@@ -19,38 +20,38 @@ Future<void> showAddFoodSheet(
 
   final result = await showModalBottomSheet<({int detailId, MealType type, int calories})>(
     context: context,
+    sheetAnimationStyle: kSheetAnimation,
     isScrollControlled: true,
     backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-    ),
-    builder: (_) => _AddFoodSheet(
-      food: food,
-      initialType: initialType ?? MealType.forTime(now),
-      repository: repo,
-      now: now,
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+    builder: (_) =>
+        _AddFoodSheet(food: food, initialType: initialType ?? MealType.forTime(now), repository: repo, now: now),
   );
   if (result == null) return;
 
   messenger
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(
-      content: Text('Agregado a ${result.type.label} · ${result.calories} kcal'),
-      backgroundColor: AppTheme.primaryStart,
-      action: SnackBarAction(
-        label: 'Deshacer',
-        textColor: Colors.white,
-        onPressed: () async {
-          try {
-            await repo.deleteItem(result.detailId);
-            MealLogState.instance.bump();
-          } catch (_) {
-            messenger.showSnackBar(const SnackBar(content: Text('No se pudo deshacer')));
-          }
-        },
+    ..showSnackBar(
+      SnackBar(
+        content: Text('Agregado a ${result.type.label} · ${result.calories} kcal'),
+        backgroundColor: AppTheme.primaryStart,
+        // Con un botón, Flutter lo deja fijo por defecto; aquí debe irse solo.
+        persist: false,
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'Deshacer',
+          textColor: Colors.white,
+          onPressed: () async {
+            try {
+              await repo.deleteItem(result.detailId);
+              MealLogState.instance.bump();
+            } catch (_) {
+              messenger.showSnackBar(const SnackBar(content: Text('No se pudo deshacer')));
+            }
+          },
+        ),
       ),
-    ));
+    );
 }
 
 class _AddFoodSheet extends StatefulWidget {
@@ -59,12 +60,7 @@ class _AddFoodSheet extends StatefulWidget {
   final MealRepository repository;
   final DateTime now;
 
-  const _AddFoodSheet({
-    required this.food,
-    required this.initialType,
-    required this.repository,
-    required this.now,
-  });
+  const _AddFoodSheet({required this.food, required this.initialType, required this.repository, required this.now});
 
   @override
   State<_AddFoodSheet> createState() => _AddFoodSheetState();
@@ -122,109 +118,106 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
     return PopScope(
       canPop: !_saving,
       child: Padding(
-      padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 48,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFCBD5E1),
-                  borderRadius: BorderRadius.circular(2.5),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              widget.food.name,
-              style: const TextStyle(
-                color: Color(0xFF2C2F31),
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '${widget.food.caloriesPerUnit.round()} kcal por ${widget.food.baseUnit.toLowerCase()}',
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
-            ),
-            const SizedBox(height: 20),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+        padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
+        child: SafeArea(
+          top: false,
+          // Si aparece un error, la hoja crece suave en vez de saltar.
+          child: AnimatedSize(
+            duration: kResizeDuration,
+            curve: kResizeCurve,
+            alignment: Alignment.topCenter,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final type in MealType.values)
-                  ChoiceChip(
-                    label: Text(type.label),
-                    selected: _type == type,
-                    onSelected: (_) => setState(() => _type = type),
-                    selectedColor: const Color(0xFFDCFCE7),
-                    labelStyle: TextStyle(
-                      color: _type == type ? _green : const Color(0xFF475569),
-                      fontWeight: FontWeight.w700,
-                    ),
-                    side: BorderSide(
-                      color: _type == type ? _green : const Color(0xFFE2E8F0),
-                    ),
-                    showCheckmark: false,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                _StepButton(
-                  icon: Icons.remove_rounded,
-                  tooltip: 'Menos',
-                  onTap: _portions > kMinPortions ? () => _step(-kPortionStep) : null,
-                ),
-                Expanded(
-                  child: Text(
-                    _detail,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Color(0xFF2C2F31),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
+                Center(
+                  child: Container(
+                    width: 48,
+                    height: 5,
+                    decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2.5)),
                   ),
                 ),
-                _StepButton(
-                  icon: Icons.add_rounded,
-                  tooltip: 'Más',
-                  onTap: _portions < kMaxPortions ? () => _step(kPortionStep) : null,
+                const SizedBox(height: 20),
+                Text(
+                  widget.food.name,
+                  style: const TextStyle(
+                    color: Color(0xFF2C2F31),
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${widget.food.caloriesPerUnit.round()} kcal por ${widget.food.baseUnit.toLowerCase()}',
+                  style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                ),
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final type in MealType.values)
+                      ChoiceChip(
+                        label: Text(type.label),
+                        selected: _type == type,
+                        onSelected: (_) => setState(() => _type = type),
+                        selectedColor: const Color(0xFFDCFCE7),
+                        labelStyle: TextStyle(
+                          color: _type == type ? _green : const Color(0xFF475569),
+                          fontWeight: FontWeight.w700,
+                        ),
+                        side: BorderSide(color: _type == type ? _green : const Color(0xFFE2E8F0)),
+                        showCheckmark: false,
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    _StepButton(
+                      icon: Icons.remove_rounded,
+                      tooltip: 'Menos',
+                      onTap: _portions > kMinPortions ? () => _step(-kPortionStep) : null,
+                    ),
+                    Expanded(
+                      child: Text(
+                        _detail,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Color(0xFF2C2F31), fontSize: 15, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    _StepButton(
+                      icon: Icons.add_rounded,
+                      tooltip: 'Más',
+                      onTap: _portions < kMaxPortions ? () => _step(kPortionStep) : null,
+                    ),
+                  ],
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
+                ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _saving ? null : _save,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _green,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                    ),
+                    child: Text('Agregar a ${_type.label}'),
+                  ),
                 ),
               ],
             ),
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
-            ],
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saving ? null : _save,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _green,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-                ),
-                child: Text('Agregar a ${_type.label}'),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -243,10 +236,7 @@ class _StepButton extends StatelessWidget {
       tooltip: tooltip,
       onPressed: onTap,
       icon: Icon(icon),
-      style: IconButton.styleFrom(
-        backgroundColor: const Color(0xFFF1F5F9),
-        foregroundColor: const Color(0xFF0A6B3F),
-      ),
+      style: IconButton.styleFrom(backgroundColor: const Color(0xFFF1F5F9), foregroundColor: const Color(0xFF0A6B3F)),
     );
   }
 }

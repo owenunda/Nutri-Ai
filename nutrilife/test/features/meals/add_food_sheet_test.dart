@@ -98,6 +98,17 @@ void main() {
     expect(find.text('Agregado a Cena · 96 kcal'), findsOneWidget);
   });
 
+  testWidgets('el aviso con Deshacer se va solo a los pocos segundos', (tester) async {
+    await _open(tester);
+    await tester.tap(find.text('Agregar a Almuerzo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Deshacer'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    expect(find.text('Deshacer'), findsNothing);
+  });
+
   testWidgets('Deshacer borra lo que se acaba de agregar', (tester) async {
     final repo = await _open(tester);
     await tester.tap(find.text('Agregar a Almuerzo'));

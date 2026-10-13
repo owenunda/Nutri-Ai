@@ -18,20 +18,33 @@ class MealRepository {
     required MealType type,
     DateTime? now,
   }) async {
+    final ids = await addFoods(items: [(foodId: foodId, quantity: portions)], type: type, now: now);
+    return ids.first;
+  }
+
+  /// Registra varios alimentos de una vez (p. ej. los ingredientes de una
+  /// receta). El backend los inserta en una transacción. Devuelve los ids.
+  Future<List<int>> addFoods({
+    required List<({int foodId, double quantity})> items,
+    required MealType type,
+    DateTime? now,
+  }) async {
     try {
       final record = await _dio.post<Map<String, dynamic>>(
         ApiRoutes.meals,
         data: {'date': localDateString(now)},
       );
       final recordId = (record.data?['data']?['mealRecordId'] as num).toInt();
-      final items = await _dio.post<Map<String, dynamic>>(
+      final created = await _dio.post<Map<String, dynamic>>(
         ApiRoutes.mealItems(recordId),
         data: [
-          {'food_id': foodId, 'quantity': portions, 'meal_type': type.apiValue}
+          for (final item in items)
+            {'food_id': item.foodId, 'quantity': item.quantity, 'meal_type': type.apiValue}
         ],
       );
-      final created = (items.data?['data'] as List).first as Map;
-      return (created['detailId'] as num).toInt();
+      return (created.data?['data'] as List)
+          .map((e) => ((e as Map)['detailId'] as num).toInt())
+          .toList();
     } on DioException catch (e) {
       throw Exception(e.response?.data?['message'] ?? 'No se pudo registrar la comida');
     }

@@ -265,6 +265,13 @@ void main() {
       await repo.sendMessage('hola');
 
       expect((adapter.capturedBody as Map).containsKey('fridgeItemIds'), isFalse);
+      expect((adapter.capturedBody as Map).containsKey('foodIds'), isFalse);
+    });
+
+    test('manda los alimentos comunes como foodIds', () async {
+      await repo.sendMessage('cena', foodIds: [20, 21]);
+
+      expect((adapter.capturedBody as Map)['foodIds'], [20, 21]);
     });
 
     test('sigue mandando el mensaje tal cual', () async {

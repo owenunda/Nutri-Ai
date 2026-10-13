@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/widgets/segmented_tabs.dart';
 import '../../data/food_repository.dart';
+import '../../data/models/food_model.dart';
+import '../../domain/food_units.dart';
 import '../controllers/foods_view_model.dart';
 import '../widgets/food_list_tile.dart';
 import '../widgets/food_search_field.dart';
@@ -26,6 +30,13 @@ class _FoodsScreenState extends State<FoodsScreen> {
 
   /// En la vista normal solo se ven unos pocos; el resto está en "Ver todo".
   static const _previewCount = 5;
+
+  /// null hasta que el usuario elige: abre en "Mis alimentos" si tiene.
+  int? _tab;
+
+  List<FoodModel> get _mine => _viewModel.foods.where((f) => !f.isGlobal).toList();
+  List<FoodModel> get _common => _viewModel.foods.where((f) => f.isGlobal).toList();
+  bool get _showMine => (_tab ?? (_mine.isNotEmpty ? 0 : 1)) == 0;
 
   /// Buscando, la tarjeta y el consejo se esconden para que el teclado no
   /// tape los resultados.
@@ -57,10 +68,11 @@ class _FoodsScreenState extends State<FoodsScreen> {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
     final caloriesController = TextEditingController();
-    final unitController = TextEditingController();
+    var unit = kDefaultFoodUnit;
 
     showModalBottomSheet(
       context: context,
+      sheetAnimationStyle: kSheetAnimation,
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -162,11 +174,17 @@ class _FoodsScreenState extends State<FoodsScreen> {
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: TextFormField(
-                          controller: unitController,
+                        // Lista cerrada: el cálculo de porciones entiende estas
+                        // unidades y evita textos libres como "nada xd".
+                        child: DropdownButtonFormField<String>(
+                          key: const ValueKey('unit-field'),
+                          initialValue: unit,
+                          isExpanded: true,
+                          borderRadius: BorderRadius.circular(16),
+                          dropdownColor: Colors.white,
+                          icon: const Icon(Icons.expand_more_rounded, color: Color(0xFF64748B)),
                           decoration: InputDecoration(
                             labelText: 'Porción/Unidad base',
-                            hintText: 'Ej. 1 mediana',
                             filled: true,
                             fillColor: const Color(0xFFF1F5F9),
                             border: OutlineInputBorder(
@@ -175,12 +193,11 @@ class _FoodsScreenState extends State<FoodsScreen> {
                             ),
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                           ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Ingresa unidad base';
-                            }
-                            return null;
-                          },
+                          items: [
+                            for (final option in kFoodUnits)
+                              DropdownMenuItem(value: option.value, child: Text(option.label)),
+                          ],
+                          onChanged: (value) => unit = value ?? kDefaultFoodUnit,
                         ),
                       ),
                     ],
@@ -200,7 +217,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                   final success = await _viewModel.addCustomFood(
                                     name: nameController.text.trim(),
                                     calories: double.parse(caloriesController.text),
-                                    baseUnit: unitController.text.trim(),
+                                    baseUnit: unit,
                                   );
 
                                   if (success) {
@@ -302,10 +319,10 @@ class _FoodsScreenState extends State<FoodsScreen> {
     );
   }
 
-  void _openAllFoods() {
+  void _openAllFoods(String title, List<FoodModel> foods) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AllFoodsScreen(foods: _viewModel.foods),
+        builder: (_) => AllFoodsScreen(foods: foods, title: title),
       ),
     );
   }
@@ -338,52 +355,39 @@ class _FoodsScreenState extends State<FoodsScreen> {
                           ? const SizedBox(height: 20, width: double.infinity)
                           : _buildCustomFoodCard(),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _isSearching
-                                    ? 'Resultados (${_viewModel.foods.length})'
-                                    : 'Alimentos comunes',
-                                style: const TextStyle(
-                                  color: Color(0xFF2C2F31),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              if (!_isSearching) ...[
-                                const SizedBox(height: 2),
-                                const Text(
-                                  'Basado en tu actividad reciente',
-                                  style: TextStyle(
-                                    color: Color(0xFF64748B),
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
+                    if (!_isSearching && _viewModel.foods.isNotEmpty) ...[
+                      SegmentedTabs(
+                        labels: const ['Mis alimentos', 'Comunes'],
+                        selected: _showMine ? 0 : 1,
+                        onChanged: (index) => setState(() => _tab = index),
+                      ),
+                      const SizedBox(height: 12),
+                      _ListHeader(
+                        subtitle: _showMine
+                            ? 'Los que agregaste tú'
+                            : 'Catálogo de NutriLife',
+                        onSeeAll: _showMine
+                            ? (_mine.length > _previewCount
+                                ? () => _openAllFoods('Mis alimentos', _mine)
+                                : null)
+                            : (_common.length > _previewCount
+                                ? () => _openAllFoods('Alimentos comunes', _common)
+                                : null),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    if (_isSearching) ...[
+                      Text(
+                        'Resultados (${_viewModel.foods.length})',
+                        style: const TextStyle(
+                          color: Color(0xFF2C2F31),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
                         ),
-                        if (!_isSearching)
-                        TextButton(
-                          onPressed: _openAllFoods,
-                          child: const Text(
-                            'Ver todo',
-                            style: TextStyle(
-                              color: Color(0xFF0A6B3F),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ],
                 ),
               ),
@@ -522,16 +526,73 @@ class _FoodsScreenState extends State<FoodsScreen> {
       );
     }
 
-    final foods = _isSearching
-        ? _viewModel.foods
-        : _viewModel.foods.take(_previewCount).toList();
+    if (_isSearching) {
+      final foods = _viewModel.foods;
+      return ListView.separated(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+        itemCount: foods.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) => FoodListTile(food: foods[index]),
+      );
+    }
 
+    final foods = _showMine ? _mine : _common;
+    if (foods.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        child: Text(
+          _showMine
+              ? 'Aún no agregaste alimentos propios. Usa "Entrada manual" para crear uno.'
+              : 'No hay alimentos comunes cargados.',
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Color(0xFF64748B), fontSize: 14, height: 1.4),
+        ),
+      );
+    }
+
+    final preview = foods.take(_previewCount).toList();
     return ListView.separated(
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-      itemCount: foods.length,
+      padding: const EdgeInsets.fromLTRB(24, 4, 24, 8),
+      itemCount: preview.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => FoodListTile(food: foods[index]),
+      itemBuilder: (context, index) => FoodListTile(food: preview[index]),
+    );
+  }
+}
+
+class _ListHeader extends StatelessWidget {
+  final String subtitle;
+  final VoidCallback? onSeeAll;
+
+  const _ListHeader({required this.subtitle, this.onSeeAll});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 36,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              subtitle,
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+            ),
+          ),
+          if (onSeeAll != null)
+            TextButton(
+              onPressed: onSeeAll,
+              child: const Text(
+                'Ver todo',
+                style: TextStyle(
+                  color: Color(0xFF0A6B3F),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

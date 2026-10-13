@@ -75,6 +75,21 @@ void main() {
     expect((adapter.capturedBody as Map)['fridgeItemIds'], [4]);
   });
 
+  test('los alimentos comunes viajan como foodIds', () async {
+    const tilapia = FridgeItemModel(
+      fridgeItemId: 0,
+      foodId: 20,
+      name: 'Tilapia',
+      quantity: 0,
+      unit: '',
+    );
+    await viewModel.sendMessage('algo con pescado', foods: [_banana, tilapia]);
+
+    final body = adapter.capturedBody as Map;
+    expect(body['fridgeItemIds'], [4]);
+    expect(body['foodIds'], [20]);
+  });
+
   test('envía aunque el texto venga vacío si hay alimentos', () async {
     await viewModel.sendMessage('  ', foods: [_banana]);
 

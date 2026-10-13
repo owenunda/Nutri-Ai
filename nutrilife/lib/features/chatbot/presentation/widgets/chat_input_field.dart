@@ -47,9 +47,8 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   void _removeFood(FridgeItemModel item) {
     setState(() {
-      _attachedFoods = _attachedFoods
-          .where((i) => i.fridgeItemId != item.fridgeItemId)
-          .toList();
+      // Los comunes no tienen fridgeItemId: se compara la instancia.
+      _attachedFoods = _attachedFoods.where((i) => !identical(i, item)).toList();
     });
   }
 

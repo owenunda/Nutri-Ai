@@ -52,6 +52,19 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
     _reload();
   }
 
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _day,
+      firstDate: DateTime(_today.year - 5),
+      lastDate: _today,
+      helpText: 'Elegir fecha',
+    );
+    if (picked == null || _dateOnly(picked) == _day) return;
+    _day = _dateOnly(picked);
+    _reload();
+  }
+
   String get _title {
     // Diferencia en fechas de calendario (en UTC) para no depender del horario de verano.
     final diff = DateTime.utc(_today.year, _today.month, _today.day)
@@ -76,6 +89,14 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
           'Historial de comidas',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Elegir fecha',
+            onPressed: _pickDate,
+            icon: const Icon(Icons.calendar_month_rounded),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
@@ -88,10 +109,23 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
                 icon: const Icon(Icons.chevron_left_rounded),
               ),
               Expanded(
-                child: Text(
-                  _title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                child: InkWell(
+                  onTap: _pickDate,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _title,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.expand_more_rounded, size: 20, color: Color(0xFF747779)),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               IconButton(

@@ -28,3 +28,14 @@ String quantityLabel(double portions, String baseUnit) {
 
 int caloriesFor(double portions, double caloriesPerUnit) =>
     (portions * caloriesPerUnit).round();
+
+/// Cantidad de un ingrediente de receta: "17 g", o "0,25 unidad" si la unidad
+/// no es numérica (las fracciones de receta no siempre son medias).
+String ingredientAmountLabel(double quantity, String baseUnit) {
+  if (_numericUnit.hasMatch(baseUnit)) return quantityLabel(quantity, baseUnit);
+  final unit = baseUnit.trim().replaceFirst(RegExp(r'^\d+\s*'), '').toLowerCase();
+  final shown = quantity == quantity.roundToDouble()
+      ? quantity.toInt().toString()
+      : quantity.toStringAsFixed(2).replaceFirst(RegExp(r'0$'), '').replaceAll('.', ',');
+  return '$shown $unit';
+}

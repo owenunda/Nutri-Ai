@@ -51,6 +51,7 @@ class ChatRepository {
   Future<ChatResponse> sendMessage(
     String message, {
     List<int> fridgeItemIds = const [],
+    List<int> foodIds = const [],
   }) async {
     final Response<Map<String, dynamic>> response;
 
@@ -61,6 +62,8 @@ class ChatRepository {
           'message': message,
           // El backend los relee de la nevera; aquí solo viajan los ids.
           if (fridgeItemIds.isNotEmpty) 'fridgeItemIds': fridgeItemIds,
+          // Alimentos comunes adjuntados sin pasar por la nevera.
+          if (foodIds.isNotEmpty) 'foodIds': foodIds,
         },
         options: Options(
           receiveTimeout: _chatTimeout,

@@ -8,6 +8,8 @@ class RecipeStep {
         step: (map['step'] as num?)?.toInt() ?? fallbackStep,
         description: map['description'] as String? ?? '',
       );
+
+  Map<String, dynamic> toMap() => {'step': step, 'description': description};
 }
 
 class RecipeIngredient {
@@ -20,6 +22,8 @@ class RecipeIngredient {
         foodId: (map['food_id'] as num).toInt(),
         quantity: map['quantity'] as num,
       );
+
+  Map<String, dynamic> toMap() => {'food_id': foodId, 'quantity': quantity};
 }
 
 class YoutubeVideoModel {
@@ -44,6 +48,14 @@ class YoutubeVideoModel {
         thumbnailUrl: map['thumbnail'] as String? ?? '',
         url: map['url'] as String? ?? '',
       );
+
+  Map<String, dynamic> toMap() => {
+        'video_id': videoId,
+        'title': title,
+        'channel': channel,
+        'thumbnail': thumbnailUrl,
+        'url': url,
+      };
 }
 
 class RecipeModel {
@@ -100,6 +112,23 @@ class RecipeModel {
                 .map(RecipeIngredient.fromMap)
                 .toList() ??
             [],
-        youtubeVideo: youtube,
+        youtubeVideo: youtube ??
+            (map['youtube'] is Map ? YoutubeVideoModel.fromMap(map['youtube'] as Map) : null),
       );
+
+  /// Inverso de [RecipeModel.fromMap], para guardarla en el teléfono.
+  Map<String, dynamic> toMap() => {
+        'recipe_title': title,
+        'recipe_summary': summary,
+        'chef_reason': chefReason,
+        'meal_type': mealType,
+        'difficulty': difficulty,
+        'preparation_time_minutes': preparationTimeMinutes,
+        'servings': servings,
+        'estimated_calories': estimatedCalories,
+        'tips': tips,
+        'steps': steps.map((s) => s.toMap()).toList(),
+        'ingredients_used': ingredients.map((i) => i.toMap()).toList(),
+        if (youtubeVideo != null) 'youtube': youtubeVideo!.toMap(),
+      };
 }

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/motion.dart';
+import 'package:flutter/services.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/progress_repository.dart';
 
 const double _minWeight = 30;
 const double _maxWeight = 300;
+
+/// Solo dígitos (hasta 3) con un decimal opcional separado por coma o punto.
+final _numberFormatter = TextInputFormatter.withFunction(
+  (oldValue, newValue) => RegExp(r'^\d{0,3}([.,]\d?)?$').hasMatch(newValue.text) ? newValue : oldValue,
+);
 
 Future<bool> showRegisterWeightSheet(
   BuildContext context, {
@@ -14,16 +21,12 @@ Future<bool> showRegisterWeightSheet(
 }) async {
   final saved = await showModalBottomSheet<bool>(
     context: context,
+    sheetAnimationStyle: kSheetAnimation,
     isScrollControlled: true,
     backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-    ),
-    builder: (_) => _RegisterWeightSheet(
-      lastWeight: lastWeight,
-      height: height,
-      repository: repository ?? ProgressRepository(),
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+    builder: (_) =>
+        _RegisterWeightSheet(lastWeight: lastWeight, height: height, repository: repository ?? ProgressRepository()),
   );
   if (saved == true) MealLogState.instance.bump();
   return saved == true;
@@ -41,18 +44,30 @@ class _RegisterWeightSheet extends StatefulWidget {
 }
 
 class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
-  late final TextEditingController _weight =
-      TextEditingController(text: (widget.lastWeight ?? 70).toStringAsFixed(1));
+  late final TextEditingController _weight = TextEditingController(text: _formatNumber(widget.lastWeight ?? 70));
   final TextEditingController _height = TextEditingController();
   String? _error;
   bool _saving = false;
 
   double? get _parsedWeight => double.tryParse(_weight.text.replaceAll(',', '.'));
 
+  static String _formatNumber(double kg) => kg.toStringAsFixed(1).replaceAll('.', ',');
+  static String _formatKg(double kg) => '${_formatNumber(kg)} kg';
+
+  /// Diferencia contra el último registro, p. ej. "+0,6 kg desde el último".
+  String? get _deltaText {
+    final last = widget.lastWeight;
+    final current = _parsedWeight;
+    if (last == null || current == null) return null;
+    final diff = ((current - last) * 10).round() / 10;
+    if (diff == 0) return 'Igual que el último';
+    return '${diff > 0 ? '+' : '−'}${_formatKg(diff.abs())} desde el último';
+  }
+
   void _step(double delta) {
     final current = _parsedWeight ?? widget.lastWeight ?? 70;
     final next = ((current + delta) * 10).round() / 10;
-    _weight.text = next.clamp(_minWeight, _maxWeight).toStringAsFixed(1);
+    _weight.text = _formatNumber(next.clamp(_minWeight, _maxWeight));
     setState(() {});
   }
 
@@ -96,75 +111,157 @@ class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
       padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
       child: SafeArea(
         top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Registrar peso',
-              style: TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 22, fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                IconButton.filledTonal(
-                  tooltip: 'Restar 0,1 kg',
-                  onPressed: () => _step(-0.1),
-                  icon: const Icon(Icons.remove_rounded),
+        // Si aparece un error, la hoja crece suave en vez de saltar.
+        child: AnimatedSize(
+          duration: kResizeDuration,
+          curve: kResizeCurve,
+          alignment: Alignment.topCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2)),
                 ),
-                Expanded(
-                  child: TextField(
-                    key: const ValueKey('weight-field'),
-                    controller: _weight,
-                    textAlign: TextAlign.center,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: AppTheme.primaryStart),
-                    decoration: const InputDecoration(border: InputBorder.none, suffixText: 'kg'),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Registrar peso',
+                style: TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 22, fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                widget.lastWeight == null
+                    ? 'Escribe tu peso o ajústalo con − y +'
+                    : 'Último registro: ${_formatKg(widget.lastWeight!)}',
+                style: const TextStyle(color: Color(0xFF747779), fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                decoration: BoxDecoration(color: const Color(0xFFF5F7F9), borderRadius: BorderRadius.circular(24)),
+                child: Row(
+                  children: [
+                    _StepButton(tooltip: 'Restar 0,1 kg', icon: Icons.remove_rounded, onPressed: () => _step(-0.1)),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: 40, maxWidth: 140),
+                                child: IntrinsicWidth(
+                                  child: TextField(
+                                    key: const ValueKey('weight-field'),
+                                    controller: _weight,
+                                    textAlign: TextAlign.center,
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    inputFormatters: [_numberFormatter],
+                                    onChanged: (_) => setState(() {}),
+                                    cursorColor: AppTheme.primaryStart,
+                                    style: const TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
+                                      fontSize: 44,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -1,
+                                      color: AppTheme.primaryStart,
+                                    ),
+                                    decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'kg',
+                                style: TextStyle(color: Color(0xFF747779), fontSize: 18, fontWeight: FontWeight.w700),
+                              ),
+                            ],
+                          ),
+                          if (_deltaText != null) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              _deltaText!,
+                              style: const TextStyle(
+                                color: Color(0xFF747779),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    _StepButton(tooltip: 'Sumar 0,1 kg', icon: Icons.add_rounded, onPressed: () => _step(0.1)),
+                  ],
+                ),
+              ),
+              if (widget.height == null) ...[
+                const SizedBox(height: 12),
+                TextField(
+                  key: const ValueKey('height-field'),
+                  controller: _height,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [_numberFormatter],
+                  decoration: InputDecoration(
+                    labelText: 'Altura (cm)',
+                    filled: true,
+                    fillColor: const Color(0xFFF1F5F9),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                   ),
                 ),
-                IconButton.filledTonal(
-                  tooltip: 'Sumar 0,1 kg',
-                  onPressed: () => _step(0.1),
-                  icon: const Icon(Icons.add_rounded),
-                ),
               ],
-            ),
-            if (widget.height == null) ...[
-              const SizedBox(height: 12),
-              TextField(
-                key: const ValueKey('height-field'),
-                controller: _height,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: 'Altura (cm)',
-                  filled: true,
-                  fillColor: const Color(0xFFF1F5F9),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
+              ],
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saving ? null : _save,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryStart,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                  ),
+                  child: const Text('Guardar peso'),
                 ),
               ),
             ],
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
-            ],
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saving ? null : _save,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryStart,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-                ),
-                child: const Text('Guardar peso'),
-              ),
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _StepButton extends StatelessWidget {
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const _StepButton({required this.tooltip, required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icon, size: 26),
+      style: IconButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: AppTheme.primaryStart,
+        fixedSize: const Size(52, 52),
+        side: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
     );
   }

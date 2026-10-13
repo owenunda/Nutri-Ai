@@ -39,4 +39,35 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.dates.last, '2026-10-11');
   });
+
+  testWidgets('elige una fecha desde el calendario', (tester) async {
+    final repo = _RepoFalso();
+    await tester.pumpWidget(MaterialApp(
+      home: MealHistoryScreen(repository: repo, clock: () => DateTime(2026, 10, 12, 9)),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Elegir fecha'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+
+    await tester.tap(find.text('3'));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sáb 3 oct'), findsOneWidget);
+    expect(repo.dates.last, '2026-10-03');
+  });
+
+  testWidgets('tocar la fecha del título abre el calendario', (tester) async {
+    final repo = _RepoFalso();
+    await tester.pumpWidget(MaterialApp(
+      home: MealHistoryScreen(repository: repo, clock: () => DateTime(2026, 10, 12, 9)),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Hoy'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+  });
 }

@@ -13,8 +13,9 @@ class AllFoodsScreen extends StatefulWidget {
   final List<FoodModel>? foods;
   final MealType? mealType;
   final FoodRepository? foodRepository;
+  final String? title;
 
-  const AllFoodsScreen({super.key, this.foods, this.mealType, this.foodRepository});
+  const AllFoodsScreen({super.key, this.foods, this.mealType, this.foodRepository, this.title});
 
   @override
   State<AllFoodsScreen> createState() => _AllFoodsScreenState();
@@ -83,9 +84,9 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
         elevation: 0,
         foregroundColor: const Color(0xFF2C2F31),
         title: Text(
-          widget.mealType == null
-              ? 'Todos los alimentos'
-              : 'Agregar a ${widget.mealType!.label}',
+          widget.mealType != null
+              ? 'Agregar a ${widget.mealType!.label}'
+              : widget.title ?? 'Todos los alimentos',
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,

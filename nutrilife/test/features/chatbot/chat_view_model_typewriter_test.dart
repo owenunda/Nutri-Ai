@@ -9,7 +9,7 @@ class _RepoFalso extends ChatRepository {
 
   @override
   Future<ChatResponse> sendMessage(String message,
-      {List<int> fridgeItemIds = const []}) async {
+      {List<int> fridgeItemIds = const [], List<int> foodIds = const []}) async {
     return ChatResponse(type: ChatResponseType.chat, text: texto);
   }
 }

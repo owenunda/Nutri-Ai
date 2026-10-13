@@ -128,7 +128,8 @@ class ChatViewModel extends ChangeNotifier {
     try {
       final reply = await _repository.sendMessage(
         message,
-        fridgeItemIds: foods.map((f) => f.fridgeItemId).toList(),
+        fridgeItemIds: [for (final f in foods) if (f.isFromFridge) f.fridgeItemId],
+        foodIds: [for (final f in foods) if (!f.isFromFridge) f.foodId],
       );
       if (reply.recipe != null) {
         _messages.add(ChatMessageModel(

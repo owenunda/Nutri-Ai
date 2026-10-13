@@ -18,6 +18,9 @@ class FridgeItemModel {
     this.baseUnit = '',
   });
 
+  /// Los alimentos comunes adjuntados al chat no vienen de la nevera.
+  bool get isFromFridge => fridgeItemId > 0;
+
   /// Hay calorías que mostrar solo si el backend las mandó.
   bool get hasCalories => caloriesPerUnit > 0;
 

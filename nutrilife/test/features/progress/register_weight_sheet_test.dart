@@ -32,7 +32,7 @@ Future<_RepoFalso> _open(WidgetTester tester, {double? weight = 80, double? heig
 void main() {
   testWidgets('precarga el último peso y ajusta de a 0,1', (tester) async {
     final repo = await _open(tester);
-    expect(find.text('80.0'), findsOneWidget);
+    expect(find.text('80,0'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Sumar 0,1 kg'));
     await tester.pump();
@@ -40,6 +40,23 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.saved.single, (80.1, 175.0));
+  });
+
+  testWidgets('el peso solo acepta números con un decimal', (tester) async {
+    await _open(tester);
+    final field = find.byKey(const ValueKey('weight-field'));
+
+    await tester.enterText(field, 'abc');
+    expect(find.text('80,0'), findsOneWidget);
+
+    await tester.enterText(field, '72,5');
+    expect(find.text('72,5'), findsOneWidget);
+
+    await tester.enterText(field, '72.55');
+    expect(find.text('72,5'), findsOneWidget);
+
+    await tester.enterText(field, '1234');
+    expect(find.text('72,5'), findsOneWidget);
   });
 
   testWidgets('rechaza pesos fuera de rango', (tester) async {
