@@ -1,5 +1,6 @@
 import { successResponse } from '../../utils/response.js';
 import {
+  deleteUserAccount,
   getPhysicalHistory,
   getUserProfile,
   savePhysicalRecord,
@@ -37,6 +38,15 @@ export const updateProfile = async (req, res, next) => {
   try {
     const updatedProfile = await updateUserProfile(req.user.userId, req.profileUpdateData);
     return successResponse(res, updatedProfile, 'User profile updated successfully', 200);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteAccount = async (req, res, next) => {
+  try {
+    await deleteUserAccount(req.user.userId, req.accountDeletionData.password);
+    return successResponse(res, null, 'User account deleted successfully', 200);
   } catch (error) {
     next(error);
   }

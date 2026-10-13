@@ -171,3 +171,99 @@ export const updateUserProfileData = async (userId, { age, goal, height, weight 
     client.release();
   }
 };
+
+export const findUserPasswordHashById = async (userId) => {
+  const { rows } = await pool.query(
+    'SELECT password AS "passwordHash" FROM users WHERE user_id = $1 LIMIT 1',
+    [userId]
+  );
+  return rows[0]?.passwordHash ?? null;
+};
+
+// Borra la cuenta y todo lo que cuelga de ella en una sola transacción.
+// Varias FK hacia users no tienen ON DELETE CASCADE, así que el orden importa:
+// primero lo que referencia a los alimentos y recetas del usuario, después
+// esos alimentos y recetas, y al final el usuario.
+export const deleteUserAccountData = async (userId) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const { rowCount: userExists } = await client.query(
+      'SELECT 1 FROM users WHERE user_id = $1 FOR UPDATE',
+      [userId]
+    );
+
+    if (userExists === 0) {
+      await client.query('ROLLBACK');
+      return false;
+    }
+
+    await client.query(
+      `DELETE FROM chat_messages
+       WHERE session_id IN (SELECT session_id FROM chat_sessions WHERE user_id = $1)`,
+      [userId]
+    );
+    await client.query('DELETE FROM chat_sessions WHERE user_id = $1', [userId]);
+
+    // Los detalles caen en cascada con su meal_record.
+    await client.query('DELETE FROM meal_records WHERE user_id = $1', [userId]);
+    await client.query('DELETE FROM meal_recipe_logs WHERE user_id = $1', [userId]);
+
+    await client.query(
+      `DELETE FROM fridge_items
+       WHERE fridge_id IN (SELECT fridge_id FROM fridges WHERE user_id = $1)`,
+      [userId]
+    );
+    await client.query('DELETE FROM fridges WHERE user_id = $1', [userId]);
+
+    await client.query('DELETE FROM physical_records WHERE user_id = $1', [userId]);
+
+    // Cada receta generada por la IA se inserta para un solo usuario; solo se
+    // borran las que nadie más tiene ni aparecen en comidas de otros.
+    const { rows: recipeRows } = await client.query(
+      'DELETE FROM user_recipes WHERE user_id = $1 RETURNING recipe_id',
+      [userId]
+    );
+    const recipeIds = [...new Set(recipeRows.map((row) => row.recipe_id))];
+
+    if (recipeIds.length > 0) {
+      await client.query(
+        `DELETE FROM recipes r
+         WHERE r.recipe_id = ANY($1::int[])
+           AND NOT EXISTS (SELECT 1 FROM user_recipes ur WHERE ur.recipe_id = r.recipe_id)
+           AND NOT EXISTS (SELECT 1 FROM meal_record_details d WHERE d.recipe_id = r.recipe_id)`,
+        [recipeIds]
+      );
+    }
+
+    // Alimentos personalizados: los que todavía usa alguna receta o comida
+    // ajena se desvinculan y desactivan en vez de borrarse.
+    await client.query(
+      `UPDATE foods f
+       SET created_by_user_id = NULL, is_active = FALSE, updated_at = NOW()
+       WHERE f.created_by_user_id = $1
+         AND (
+           EXISTS (SELECT 1 FROM recipe_ingredients ri WHERE ri.food_id = f.food_id)
+           OR EXISTS (SELECT 1 FROM meal_record_details d WHERE d.food_id = f.food_id)
+           OR EXISTS (SELECT 1 FROM fridge_items fi WHERE fi.food_id = f.food_id)
+         )`,
+      [userId]
+    );
+    await client.query('DELETE FROM foods WHERE created_by_user_id = $1', [userId]);
+
+    // Los eventos guardan el correo en metadata; se van con la cuenta.
+    await client.query('DELETE FROM activity_events WHERE user_id = $1', [userId]);
+
+    await client.query('DELETE FROM users WHERE user_id = $1', [userId]);
+
+    await client.query('COMMIT');
+    return true;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};

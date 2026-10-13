@@ -90,3 +90,18 @@ export const validateUpdateProfileRequest = (req, res, next) => {
 
   next();
 };
+
+export const validateDeleteAccountRequest = (req, res, next) => {
+  const { password } = req.body ?? {};
+
+  if (typeof password !== 'string' || password.length === 0) {
+    return next(
+      new AppError('Validation error', 400, 'VALIDATION_ERROR', [
+        { field: 'password', message: 'Password is required' },
+      ])
+    );
+  }
+
+  req.accountDeletionData = { password };
+  next();
+};

@@ -2,12 +2,14 @@ import { Router } from 'express';
 import authenticateToken from '../../middleware/auth.middleware.js';
 import {
   createPhysical,
+  deleteAccount,
   getPhysicalHistoryController,
   getProfile,
   updateProfile,
 } from './user.controller.js';
 import {
   validateCreatePhysicalRecordRequest,
+  validateDeleteAccountRequest,
   validateUpdateProfileRequest,
 } from './user.validation.js';
 
@@ -134,5 +136,39 @@ router.post('/physical', authenticateToken(), validateCreatePhysicalRecordReques
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.put('/profile', authenticateToken(), validateUpdateProfileRequest, updateProfile);
+
+/**
+ * @openapi
+ * /api/v1/user/account:
+ *   delete:
+ *     tags: [User]
+ *     summary: Eliminar la cuenta del usuario y todos sus datos
+ *     description: Borra de forma permanente el usuario, sus comidas, nevera, registros físicos, chats, recetas y alimentos personalizados. Exige la contraseña actual.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [password]
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 example: MiContraseña123
+ *     responses:
+ *       200:
+ *         description: Cuenta eliminada
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: Contraseña incorrecta (code INVALID_PASSWORD)
+ *       404:
+ *         description: El usuario ya no existe
+ */
+router.delete('/account', authenticateToken(), validateDeleteAccountRequest, deleteAccount);
 
 export default router;

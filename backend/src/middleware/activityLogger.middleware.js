@@ -4,6 +4,10 @@ import { logEventService } from '../modules/events/events.service.js';
 // o que se registran de forma explícita con mayor semántica (/auth).
 const IGNORED_PREFIXES = ['/api/v1/health', '/api-docs', '/favicon', '/api/v1/auth'];
 
+// Al terminar este request el usuario ya no existe y el insert fallaría por la
+// FK; el borrado se registra de forma explícita y anónima en user.service.
+const IGNORED_PATHS = ['/api/v1/user/account'];
+
 // No auditamos las lecturas del propio panel admin de eventos para evitar auto-ruido.
 const isAdminEventsRead = (method, path) =>
   method === 'GET' && path.startsWith('/api/v1/admin/events');
@@ -35,6 +39,7 @@ export const activityLogger = (req, res, next) => {
     const path = req.originalUrl.split('?')[0];
 
     if (IGNORED_PREFIXES.some((prefix) => path.startsWith(prefix))) return;
+    if (req.method === 'DELETE' && IGNORED_PATHS.includes(path)) return;
     if (isAdminEventsRead(req.method, path)) return;
 
     // Los errores del servidor (>= 500) se registran como SYSTEM_ERROR en el errorHandler.
