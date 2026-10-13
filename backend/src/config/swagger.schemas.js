@@ -128,6 +128,18 @@
  *         message:
  *           type: string
  *           example: Quiero un plan de comida para hoy
+ *         fridgeItemIds:
+ *           type: array
+ *           description: Alimentos adjuntos de la nevera del usuario.
+ *           items:
+ *             type: integer
+ *           example: [4, 7]
+ *         foodIds:
+ *           type: array
+ *           description: Alimentos adjuntos del catálogo (comunes o propios).
+ *           items:
+ *             type: integer
+ *           example: [12]
  *
  *     ApiResponse:
  *       type: object

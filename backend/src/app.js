@@ -100,15 +100,15 @@ app.get('/api/v1/health', (_req, res) => {
  */
 app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), chatRateLimit, async (req, res) => {
   try {
-    const { message, fridgeItemIds } = req.body;
+    const { message, fridgeItemIds, foodIds } = req.body;
     const { userId, name } = req.user;
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!message) throw new AppError("Bad request", 400, "BAD_REQUEST");
 
-    // Los ids se releen de la nevera del usuario autenticado: lo que el cliente
-    // mande y no sea suyo nunca llega a n8n.
-    const attachedFoods = await getFridgeItemsByIdsService(userId, fridgeItemIds);
+    // Los ids se releen de la nevera y del catálogo visible para el usuario
+    // autenticado: lo que el cliente mande y no sea suyo nunca llega a n8n.
+    const attachedFoods = await getFridgeItemsByIdsService(userId, fridgeItemIds, foodIds);
 
     const result = await sendChatN8n(message, userId, name, token, attachedFoods);
     return successResponse(res, result, 'Mensaje enviado correctamente a n8n');

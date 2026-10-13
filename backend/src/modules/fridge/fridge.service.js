@@ -1,5 +1,5 @@
 import { AppError } from '../../utils/AppError.js';
-import { addFridgeItemRepository, findFridgeItemsByIdsRepository, addOrUpdateFridgeItemRepository, checkFoodExistsRepository, createFridgeRepository, getFridgeByUserIdRepository, updateFridgeItemRepository, deleteFridgeItemRepository } from './fridge.repository.js';
+import { addFridgeItemRepository, findFridgeItemsByIdsRepository, findAttachableFoodsByIdsRepository, addOrUpdateFridgeItemRepository, checkFoodExistsRepository, createFridgeRepository, getFridgeByUserIdRepository, updateFridgeItemRepository, deleteFridgeItemRepository } from './fridge.repository.js';
 
 export const getFridge = async (userId) => {
     try {
@@ -135,24 +135,41 @@ const normalizeQuantity = (quantity) => {
     return Number.isFinite(value) && value > 0 ? value : 1;
 };
 
-export const getFridgeItemsByIdsService = async (userId, fridgeItemIds) => {
-    try {
-        const ids = (Array.isArray(fridgeItemIds) ? fridgeItemIds : [])
-            .map(Number)
-            .filter(Number.isInteger)
-            .slice(0, MAX_ATTACHED_FOODS);
+const toIds = (values) => (Array.isArray(values) ? values : [])
+    .map(Number)
+    .filter(Number.isInteger)
+    .slice(0, MAX_ATTACHED_FOODS);
 
-        if (ids.length === 0) {
+/**
+ * Alimentos que el usuario adjuntó al chat: de su nevera (fridgeItemIds) y
+ * del catálogo, comunes o propios (foodIds). Si un alimento llega por las dos
+ * vías gana el de la nevera, que trae la cantidad real.
+ */
+export const getFridgeItemsByIdsService = async (userId, fridgeItemIds, foodIds = []) => {
+    try {
+        const fridgeIds = toIds(fridgeItemIds);
+        const catalogIds = toIds(foodIds);
+
+        if (fridgeIds.length === 0 && catalogIds.length === 0) {
             return [];
         }
 
-        const items = await findFridgeItemsByIdsRepository(userId, ids);
+        const fromFridge = fridgeIds.length > 0
+            ? await findFridgeItemsByIdsRepository(userId, fridgeIds)
+            : [];
+        const inFridge = new Set(fromFridge.map((item) => Number(item.foodId)));
+        const fromCatalog = catalogIds.length > 0
+            ? (await findAttachableFoodsByIdsRepository(userId, catalogIds))
+                .filter((food) => !inFridge.has(Number(food.foodId)))
+            : [];
 
-        return items.map((item) => ({
-            ...item,
-            quantity: normalizeQuantity(item.quantity),
-            caloriesPerUnit: Number(item.caloriesPerUnit),
-        }));
+        return [...fromFridge, ...fromCatalog]
+            .slice(0, MAX_ATTACHED_FOODS)
+            .map((item) => ({
+                ...item,
+                quantity: normalizeQuantity(item.quantity),
+                caloriesPerUnit: Number(item.caloriesPerUnit),
+            }));
     } catch (error) {
         if (error instanceof AppError) {
             throw error;

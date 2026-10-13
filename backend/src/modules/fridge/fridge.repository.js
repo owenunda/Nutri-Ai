@@ -186,3 +186,26 @@ export const findFridgeItemsByIdsRepository = async (userId, fridgeItemIds) => {
     const { rows } = await pool.query(query, [userId, fridgeItemIds]);
     return rows;
 };
+
+// Alimentos adjuntados directamente (sin pasar por la nevera): solo los
+// activos globales o creados por el usuario, con la misma garantía de arriba.
+export const findAttachableFoodsByIdsRepository = async (userId, foodIds) => {
+    const query = `
+        SELECT
+            NULL::int           AS "fridgeItemId",
+            f.food_id           AS "foodId",
+            f.name              AS "name",
+            1                   AS "quantity",
+            NULL::text          AS "unit",
+            f.calories_per_unit AS "caloriesPerUnit",
+            f.base_unit         AS "baseUnit"
+        FROM foods f
+        WHERE f.food_id = ANY($2::int[])
+            AND f.is_active = true
+            AND (f.is_global = true OR f.created_by_user_id = $1)
+        ORDER BY f.food_id
+    `;
+
+    const { rows } = await pool.query(query, [userId, foodIds]);
+    return rows;
+};
