@@ -392,7 +392,7 @@ class _BotTextBubble extends StatelessWidget {
         children: [
           ClipOval(
             child: Image.asset(
-              'assets/images/nutria_logo.png',
+              'assets/images/nutria_saludando.png',
               width: 30,
               height: 30,
               fit: BoxFit.cover,
@@ -458,7 +458,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
         children: [
           ClipOval(
             child: Image.asset(
-              'assets/images/nutria_logo.png',
+              'assets/images/nutria_pensando2.png',
               width: 30,
               height: 30,
               fit: BoxFit.cover,

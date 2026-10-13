@@ -34,6 +34,17 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
   _GoalType _selectedGoal = _GoalType.maintainWeight;
   bool _isSaving = false;
 
+  String get _selectedGoalImage {
+    switch (_selectedGoal) {
+      case _GoalType.loseWeight:
+        return 'assets/images/nutria_definida.png';
+      case _GoalType.maintainWeight:
+        return 'assets/images/nutria_pesas.png';
+      case _GoalType.gainWeight:
+        return 'assets/images/nutria_musculosa.png';
+    }
+  }
+
   double get _progress => 1.0;
 
   int get _recommendedCalories {
@@ -319,6 +330,68 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                         },
                       ),
                       const SizedBox(height: 24),
+                      SizedBox(
+                        height: 220,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 7,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(999),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(
+                                          0xFF1E2A24,
+                                        ).withValues(alpha: 0.06),
+                                        blurRadius: 18,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.auto_awesome_rounded,
+                                        color: AppTheme.primaryStart,
+                                        size: 13,
+                                      ),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        'PLAN PERSONALIZADO',
+                                        style: TextStyle(
+                                          color: Color(0xFF2C2F31),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Image.asset(
+                                  _selectedGoalImage,
+                                  width: 180,
+                                  height: 180,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
@@ -403,83 +476,6 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                                 fontSize: 15,
                                 height: 1.35,
                                 fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      Container(
-                        height: 250,
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFDCDCF6),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(999),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFF1E2A24,
-                                      ).withValues(alpha: 0.06),
-                                      blurRadius: 18,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                  ],
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.auto_awesome_rounded,
-                                      color: AppTheme.primaryStart,
-                                      size: 16,
-                                    ),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'PLAN PERSONALIZADO',
-                                      style: TextStyle(
-                                        color: Color(0xFF2C2F31),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: 0.6,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Center(
-                              child: Container(
-                                width: 76,
-                                height: 76,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.55),
-                                  borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(
-                                    color: const Color(
-                                      0xFF6B61F4,
-                                    ).withValues(alpha: 0.5),
-                                    width: 2,
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.image_outlined,
-                                  color: Color(0xFF6B61F4),
-                                  size: 36,
-                                ),
                               ),
                             ),
                           ],

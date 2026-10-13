@@ -46,7 +46,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
         children: [
           Center(
             child: ClipOval(
-              child: Image.asset('assets/images/nutria_logo.png', width: 96, height: 96, fit: BoxFit.cover),
+              child: Image.asset('assets/images/nutria_atenta.png', width: 96, height: 96, fit: BoxFit.cover),
             ),
           ),
           const SizedBox(height: 16),

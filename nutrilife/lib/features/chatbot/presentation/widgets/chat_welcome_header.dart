@@ -16,14 +16,14 @@ class ChatWelcomeHeader extends StatelessWidget {
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [Color(0xFF00C6B5), Color(0xFF00897B)], // Teal-cyan gradient
+              colors: [Color(0xFFEDEFF1), Color(0xFFD8DCE0)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
           ),
           child: ClipOval(
             child: Image.asset(
-              'assets/images/nutria_logo.png',
+              'assets/images/nutria_sentada.png',
               width: 64,
               height: 64,
               fit: BoxFit.cover,

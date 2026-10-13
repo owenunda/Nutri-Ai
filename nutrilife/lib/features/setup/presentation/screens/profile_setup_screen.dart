@@ -463,14 +463,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(18),
+Container(
+                                  width: 68,
+                                  height: 68,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Image.asset(
+                                      'assets/images/nutria_cintametrica.png',
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
+                                ),
                                   const SizedBox(width: 14),
                                   Expanded(
                                     child: Column(

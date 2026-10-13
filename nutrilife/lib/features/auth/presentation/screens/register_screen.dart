@@ -304,10 +304,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onLoginTap: () => Navigator.pop(context),
                           ),
 
-                          const SizedBox(height: 22),
-
-                          const _BrandFooter(),
-
                           SizedBox(
                             height: constraints.maxHeight < 760 ? 18 : 10,
                           ),
@@ -386,15 +382,29 @@ class _RegisterCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Crear cuenta',
-              style: TextStyle(
-                color: _RegisterPalette.title,
-                fontSize: 30,
-                height: 1.02,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.9,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Crear cuenta',
+                    style: TextStyle(
+                      color: _RegisterPalette.title,
+                      fontSize: 30,
+                      height: 1.02,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.9,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Image.asset(
+                  'assets/images/nutria_feliz.png',
+                  width: 72,
+                  height: 72,
+                  fit: BoxFit.contain,
+                ),
+              ],
             ),
 
             const SizedBox(height: 8),
@@ -793,16 +803,19 @@ class _BrandFooter extends StatelessWidget {
               color: _RegisterPalette.primarySoft,
               borderRadius: BorderRadius.circular(999),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.eco_rounded,
-                  size: 20,
-                  color: _RegisterPalette.primary,
+                ClipOval(
+                  child: Image.asset(
+                    'assets/images/nutria_feliz.png',
+                    width: 26,
+                    height: 26,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                SizedBox(width: 8),
-                Text(
+                const SizedBox(width: 8),
+                const Text(
                   'NutriLife',
                   style: TextStyle(
                     color: _RegisterPalette.primary,

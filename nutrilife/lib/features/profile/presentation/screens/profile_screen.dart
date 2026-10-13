@@ -199,6 +199,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 18),
                 _NutritionGoalSelector(goal: profile.goal),
+                const SizedBox(height: 18),
+                Center(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeIn,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: ScaleTransition(
+                          scale: Tween<double>(begin: 0.92, end: 1).animate(
+                            animation,
+                          ),
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: _GoalNutria(
+                      key: ValueKey(_normalizeGoal(profile.goal)),
+                      goal: profile.goal,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 42),
                 Text(
                   'Ajustes y recordatorios',
@@ -815,6 +838,15 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Center(
+            child: Image.asset(
+              'assets/images/nutria_triste.png',
+              width: 72,
+              height: 72,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(height: 12),
           const Text(
             'Se borrarán para siempre tu perfil, historial de peso, comidas, '
             'nevera, recetas y conversaciones. Esta acción no se puede deshacer.',
@@ -896,4 +928,32 @@ String _normalizeGoal(String? goal) {
   }
 
   return 'maintain';
+}
+
+String _goalNutriaAsset(String? goal) {
+  switch (_normalizeGoal(goal)) {
+    case 'lose':
+      return 'assets/images/nutria_definida.png';
+    case 'gain':
+      return 'assets/images/nutria_musculosa.png';
+    case 'maintain':
+    default:
+      return 'assets/images/nutria_pesas.png';
+  }
+}
+
+class _GoalNutria extends StatelessWidget {
+  const _GoalNutria({super.key, required this.goal});
+
+  final String? goal;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      _goalNutriaAsset(goal),
+      width: 110,
+      height: 110,
+      fit: BoxFit.contain,
+    );
+  }
 }

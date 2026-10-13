@@ -120,7 +120,7 @@ class _BrandHeader extends StatelessWidget {
           height: logoSize,
 
           child: Image.asset(
-            'assets/images/nutria_logo.png',
+            'assets/images/nutria_comiendo2.png',
             fit: BoxFit.contain,
           ),
         ),
