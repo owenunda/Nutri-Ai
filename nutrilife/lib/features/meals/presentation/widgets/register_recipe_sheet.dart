@@ -6,18 +6,17 @@ import '../../../chatbot/data/models/recipe_model.dart';
 import '../../../nutrition/data/food_repository.dart';
 import '../../../nutrition/data/models/food_model.dart';
 import '../../data/meal_repository.dart';
-import '../../data/recipe_meal_links.dart';
 import '../../domain/meal_type.dart';
 import '../../domain/portions.dart';
 
 /// Registra porciones de una receta del chat como sus ingredientes, en la
-/// comida elegida, y recuerda la receta para verla desde el historial.
+/// comida elegida. El backend guarda también la receta, para verla o borrarla
+/// entera desde el historial en cualquier dispositivo.
 Future<void> showRegisterRecipeSheet(
   BuildContext context,
   RecipeModel recipe, {
   MealRepository? repository,
   FoodRepository? foodRepository,
-  RecipeMealLinks links = const RecipeMealLinks(),
   DateTime Function()? clock,
 }) async {
   final messenger = ScaffoldMessenger.of(context);
@@ -31,7 +30,7 @@ Future<void> showRegisterRecipeSheet(
   final now = (clock ?? DateTime.now)();
   final repo = repository ?? MealRepository();
 
-  final result = await showModalBottomSheet<({List<int> detailIds, MealType type, int calories})>(
+  final result = await showModalBottomSheet<({int recipeLogId, MealType type, int calories})>(
     context: context,
     sheetAnimationStyle: kSheetAnimation,
     isScrollControlled: true,
@@ -42,7 +41,6 @@ Future<void> showRegisterRecipeSheet(
       initialType: mealTypeOfRecipe(recipe) ?? MealType.forTime(now),
       repository: repo,
       foodRepository: foodRepository ?? FoodRepository(),
-      links: links,
       now: now,
     ),
   );
@@ -62,9 +60,8 @@ Future<void> showRegisterRecipeSheet(
           textColor: Colors.white,
           onPressed: () async {
             try {
-              for (final id in result.detailIds) {
-                await repo.deleteItem(id);
-              }
+              // Borra la receta con todos sus ingredientes, de una vez.
+              await repo.deleteRecipeLog(result.recipeLogId);
             } catch (_) {
               messenger.showSnackBar(const SnackBar(content: Text('No se pudo deshacer')));
             } finally {
@@ -117,7 +114,6 @@ class _RegisterRecipeSheet extends StatefulWidget {
   final MealType initialType;
   final MealRepository repository;
   final FoodRepository foodRepository;
-  final RecipeMealLinks links;
   final DateTime now;
 
   const _RegisterRecipeSheet({
@@ -125,7 +121,6 @@ class _RegisterRecipeSheet extends StatefulWidget {
     required this.initialType,
     required this.repository,
     required this.foodRepository,
-    required this.links,
     required this.now,
   });
 
@@ -181,18 +176,16 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
       _error = null;
     });
     try {
-      final ids = await widget.repository.addFoods(
+      final saved = await widget.repository.addRecipe(
+        recipe: widget.recipe,
+        portions: _portions,
         items: _items,
         type: _type,
         now: widget.now,
       );
-      // Si no se pudo guardar el vínculo, la comida igual quedó registrada.
-      try {
-        await widget.links.save(RecipeLink(recipe: widget.recipe, portions: _portions, detailIds: ids));
-      } catch (_) {}
       MealLogState.instance.bump();
       if (!mounted) return;
-      Navigator.of(context).pop((detailIds: ids, type: _type, calories: _calories));
+      Navigator.of(context).pop((recipeLogId: saved.recipeLogId, type: _type, calories: _calories));
     } catch (e) {
       if (!mounted) return;
       setState(() {

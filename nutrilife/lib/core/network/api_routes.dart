@@ -20,6 +20,8 @@ class ApiRoutes {
   static String mealItems(int mealRecordId) => '/meals/$mealRecordId/items';
   static const String mealsDay = '/meals/day';
   static String mealItem(int detailId) => '/meals/items/$detailId';
+  static String mealRecipeLog(int mealRecordId) => '/meals/$mealRecordId/recipe-log';
+  static String mealRecipeLogById(int recipeLogId) => '/meals/recipe-logs/$recipeLogId';
   static const String statsWeek = '/stats/week';
   static const String userPhysical = '/user/physical';
 }

@@ -5,14 +5,12 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../chatbot/presentation/widgets/recipe_card_widget.dart';
 import '../../data/meal_repository.dart';
 import '../../data/models/day_meals.dart';
-import '../../data/recipe_meal_links.dart';
 import '../../domain/portions.dart';
 
 Future<void> showMealDetailSheet(
   BuildContext context,
   MealGroup group, {
   MealRepository? repository,
-  RecipeMealLinks links = const RecipeMealLinks(),
 }) {
   final repo = repository ?? MealRepository();
   return showModalBottomSheet<void>(
@@ -27,16 +25,7 @@ Future<void> showMealDetailSheet(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.85),
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 20, 12, 16),
-          child: FutureBuilder<Map<int, RecipeLink>>(
-            future: links.byDetailId().catchError((_) => <int, RecipeLink>{}),
-            // El bloque de la receta llega un instante después: que no salte.
-            builder: (context, snapshot) => AnimatedSize(
-              duration: kResizeDuration,
-              curve: kResizeCurve,
-              alignment: Alignment.topCenter,
-              child: _MealDetail(group: group, recipes: snapshot.data ?? const {}, repository: repo),
-            ),
-          ),
+          child: _MealDetail(group: group, repository: repo),
         ),
       ),
     ),
@@ -45,22 +34,22 @@ Future<void> showMealDetailSheet(
 
 class _MealDetail extends StatelessWidget {
   final MealGroup group;
-  final Map<int, RecipeLink> recipes;
   final MealRepository repository;
 
-  const _MealDetail({required this.group, required this.recipes, required this.repository});
+  const _MealDetail({required this.group, required this.repository});
 
   @override
   Widget build(BuildContext context) {
     // Ítems agrupados por la receta de la que salieron, en orden de aparición.
-    final byRecipe = <RecipeLink, List<MealItem>>{};
+    // Las recetas vienen del backend, así que se ven igual en cualquier dispositivo.
+    final byRecipe = <LoggedRecipe, List<MealItem>>{};
     final loose = <MealItem>[];
     for (final item in group.items) {
-      final link = recipes[item.detailId];
-      if (link == null) {
+      final recipe = group.recipeOf(item);
+      if (recipe == null) {
         loose.add(item);
       } else {
-        byRecipe.putIfAbsent(link, () => []).add(item);
+        byRecipe.putIfAbsent(recipe, () => []).add(item);
       }
     }
 
@@ -74,7 +63,7 @@ class _MealDetail extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         for (final entry in byRecipe.entries) ...[
-          _RecipeHeader(link: entry.key, items: entry.value, repository: repository),
+          _RecipeHeader(logged: entry.key, items: entry.value, repository: repository),
           // Los ingredientes de una receta solo se borran con la receta entera.
           for (final item in entry.value)
             _ItemTile(
@@ -105,18 +94,18 @@ class _MealDetail extends StatelessWidget {
 }
 
 class _RecipeHeader extends StatelessWidget {
-  final RecipeLink link;
+  final LoggedRecipe logged;
   final List<MealItem> items;
   final MealRepository repository;
 
-  const _RecipeHeader({required this.link, required this.items, required this.repository});
+  const _RecipeHeader({required this.logged, required this.items, required this.repository});
 
   Future<void> _delete(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('¿Borrar receta?'),
-        content: Text('Se quitará "${link.recipe.title}" con sus ${items.length} ingredientes de esta comida.'),
+        content: Text('Se quitará "${logged.title}" con sus ${items.length} ingredientes de esta comida.'),
         actions: [
           TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Cancelar')),
           TextButton(
@@ -130,15 +119,13 @@ class _RecipeHeader extends StatelessWidget {
     if (confirmed != true) return;
 
     try {
-      for (final item in items) {
-        await repository.deleteItem(item.detailId);
-      }
+      // El backend borra la receta y sus ingredientes en una transacción.
+      await repository.deleteRecipeLog(logged.id);
       if (context.mounted) Navigator.of(context).pop();
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))));
     } finally {
-      // Aunque falle a medias, lo que sí se borró debe verse.
       MealLogState.instance.bump();
     }
   }
@@ -146,7 +133,7 @@ class _RecipeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final calories = items.fold<int>(0, (sum, i) => sum + i.calories);
-    final unit = link.portions <= 1 ? 'porción' : 'porciones';
+    final unit = logged.portions <= 1 ? 'porción' : 'porciones';
     return Container(
       margin: const EdgeInsets.only(top: 8, right: 12),
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
@@ -167,14 +154,14 @@ class _RecipeHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      link.recipe.title,
+                      logged.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${portionsLabel(link.portions)} $unit · $calories kcal',
+                      '${portionsLabel(logged.portions)} $unit · $calories kcal',
                       style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                     ),
                   ],
@@ -192,7 +179,7 @@ class _RecipeHeader extends StatelessWidget {
                 label: const Text('Borrar receta', style: TextStyle(fontWeight: FontWeight.w700)),
               ),
               TextButton(
-                onPressed: () => showRecipeInfoSheet(context, link.recipe),
+                onPressed: () => showRecipeInfoSheet(context, logged.recipe),
                 style: TextButton.styleFrom(foregroundColor: AppTheme.primaryStart),
                 child: const Text('Ver receta', style: TextStyle(fontWeight: FontWeight.w800)),
               ),
