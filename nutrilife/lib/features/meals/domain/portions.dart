@@ -2,7 +2,21 @@ const double kMinPortions = 0.5;
 const double kMaxPortions = 10.0;
 const double kPortionStep = 0.5;
 
-final _numericUnit = RegExp(r'^\s*(\d+(?:[.,]\d+)?)\s*(g|ml)\s*$', caseSensitive: false);
+// "100 G", "100 ml" o con detalle: "100 G COCIDO".
+final _numericUnit = RegExp(r'^\s*(\d+(?:[.,]\d+)?)\s*(g|ml)\b\s*(.*)$', caseSensitive: false);
+final _leadingAmount = RegExp(r'^\s*(\d+(?:[.,]\d+)?)');
+
+/// Cuánto mide la unidad base: "100 G" → 100, "2 grandes" → 2,
+/// "1 UNIDAD" → 1. Sin número al inicio, 1.
+double baseAmountOf(String baseUnit) {
+  final match = _leadingAmount.firstMatch(baseUnit);
+  final value = match == null ? 1.0 : double.parse(match.group(1)!.replaceAll(',', '.'));
+  return value > 0 ? value : 1;
+}
+
+/// El chef da cantidades naturales (300 g, 1 pera); el backend guarda
+/// cuántas unidades base son: 300 g de "100 G" → 3, 1 pera de "2 grandes" → 0,5.
+double toBaseUnits(num naturalQuantity, String baseUnit) => naturalQuantity / baseAmountOf(baseUnit);
 
 /// 0.5 → "½", 1 → "1", 1.5 → "1½".
 String portionsLabel(double portions) {
@@ -20,7 +34,8 @@ String quantityLabel(double portions, String baseUnit) {
     final shown = amount == amount.roundToDouble()
         ? amount.toInt().toString()
         : amount.toStringAsFixed(1);
-    return '$shown ${match.group(2)!.toLowerCase()}';
+    final detail = match.group(3)!.trim().toLowerCase();
+    return '$shown ${match.group(2)!.toLowerCase()}${detail.isEmpty ? '' : ' $detail'}';
   }
   final unit = baseUnit.trim().replaceFirst(RegExp(r'^\d+\s*'), '').toLowerCase();
   return '${portionsLabel(portions)} $unit';

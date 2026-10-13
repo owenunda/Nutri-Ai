@@ -45,4 +45,24 @@ void main() {
       expect(caloriesFor(1.5, 96), 144);
     });
   });
+
+  group('unidades base', () {
+    test('baseAmountOf lee el número de la unidad', () {
+      expect(baseAmountOf('100 G'), 100);
+      expect(baseAmountOf('100 G COCIDO'), 100);
+      expect(baseAmountOf('1 UNIDAD'), 1);
+      expect(baseAmountOf('2 grandes'), 2);
+      expect(baseAmountOf('nada xd'), 1);
+    });
+
+    test('toBaseUnits pasa cantidades naturales a unidades base', () {
+      expect(toBaseUnits(300, '100 G'), 3);
+      expect(toBaseUnits(1, '2 grandes'), 0.5);
+      expect(toBaseUnits(2, '1 UNIDAD'), 2);
+    });
+
+    test('quantityLabel conserva el detalle de la unidad', () {
+      expect(quantityLabel(3, '100 G COCIDO'), '300 g cocido');
+    });
+  });
 }

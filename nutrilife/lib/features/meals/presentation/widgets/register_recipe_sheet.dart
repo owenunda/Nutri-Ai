@@ -3,6 +3,8 @@ import '../../../../core/theme/motion.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../chatbot/data/models/recipe_model.dart';
+import '../../../nutrition/data/food_repository.dart';
+import '../../../nutrition/data/models/food_model.dart';
 import '../../data/meal_repository.dart';
 import '../../data/recipe_meal_links.dart';
 import '../../domain/meal_type.dart';
@@ -14,6 +16,7 @@ Future<void> showRegisterRecipeSheet(
   BuildContext context,
   RecipeModel recipe, {
   MealRepository? repository,
+  FoodRepository? foodRepository,
   RecipeMealLinks links = const RecipeMealLinks(),
   DateTime Function()? clock,
 }) async {
@@ -38,6 +41,7 @@ Future<void> showRegisterRecipeSheet(
       recipe: recipe,
       initialType: mealTypeOfRecipe(recipe) ?? MealType.forTime(now),
       repository: repo,
+      foodRepository: foodRepository ?? FoodRepository(),
       links: links,
       now: now,
     ),
@@ -48,7 +52,7 @@ Future<void> showRegisterRecipeSheet(
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        content: Text('Registrado en ${result.type.label} · ≈${result.calories} kcal'),
+        content: Text('Registrado en ${result.type.label} · ${result.calories} kcal'),
         backgroundColor: AppTheme.primaryStart,
         // Con un botón, Flutter lo deja fijo por defecto; aquí debe irse solo.
         persist: false,
@@ -81,20 +85,38 @@ MealType? mealTypeOfRecipe(RecipeModel recipe) {
   return null;
 }
 
-/// Cantidad de cada ingrediente para [portions] porciones. El backend guarda
-/// dos decimales y exige más de 0.
-List<({int foodId, double quantity})> ingredientsFor(RecipeModel recipe, double portions) {
+/// Cantidad de cada ingrediente para [portions] porciones, en unidades base
+/// del alimento (lo que guarda el backend). El chef da cantidades naturales
+/// para toda la receta (300 g, 1 pera), así que se reparte por porción y se
+/// convierte con la unidad base de [foods]. El backend guarda dos decimales y
+/// exige más de 0.
+List<({int foodId, double quantity})> ingredientsFor(
+  RecipeModel recipe,
+  double portions,
+  Map<int, FoodModel> foods,
+) {
   final servings = recipe.servings > 0 ? recipe.servings : 1;
   return [
     for (final i in recipe.ingredients)
-      (foodId: i.foodId, quantity: ((i.quantity * portions / servings) * 100).round().clamp(1, 1 << 31) / 100),
+      (
+        foodId: i.foodId,
+        quantity: (toBaseUnits(i.quantity * portions / servings, foods[i.foodId]?.baseUnit ?? '1') * 100)
+                .round()
+                .clamp(1, 1 << 31) /
+            100,
+      ),
   ];
 }
+
+/// Calorías reales de lo que se va a registrar, igual que las calcula el backend.
+int caloriesOf(List<({int foodId, double quantity})> items, Map<int, FoodModel> foods) =>
+    items.fold<double>(0, (sum, i) => sum + i.quantity * (foods[i.foodId]?.caloriesPerUnit ?? 0)).round();
 
 class _RegisterRecipeSheet extends StatefulWidget {
   final RecipeModel recipe;
   final MealType initialType;
   final MealRepository repository;
+  final FoodRepository foodRepository;
   final RecipeMealLinks links;
   final DateTime now;
 
@@ -102,6 +124,7 @@ class _RegisterRecipeSheet extends StatefulWidget {
     required this.recipe,
     required this.initialType,
     required this.repository,
+    required this.foodRepository,
     required this.links,
     required this.now,
   });
@@ -118,10 +141,33 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
   bool _saving = false;
   String? _error;
 
+  /// Unidad base y calorías de cada ingrediente; sin ellas no se puede
+  /// convertir la cantidad del chef, así que registrar espera a tenerlas.
+  Map<int, FoodModel>? _foods;
+
   int get _servings => widget.recipe.servings > 0 ? widget.recipe.servings : 1;
 
-  /// Estimación del chef; el total real lo calcula el backend con los alimentos.
-  int get _calories => (widget.recipe.estimatedCalories / _servings * _portions).round();
+  List<({int foodId, double quantity})> get _items => ingredientsFor(widget.recipe, _portions, _foods ?? const {});
+
+  int get _calories => caloriesOf(_items, _foods ?? const {});
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFoods();
+  }
+
+  Future<void> _loadFoods() async {
+    setState(() => _error = null);
+    try {
+      final foods = await widget.foodRepository.getFoods();
+      if (!mounted) return;
+      setState(() => _foods = {for (final f in foods) f.foodId: f});
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _error = 'No pudimos cargar los alimentos de la receta. Intenta de nuevo.');
+    }
+  }
 
   void _step(double delta) {
     setState(() {
@@ -136,7 +182,7 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
     });
     try {
       final ids = await widget.repository.addFoods(
-        items: ingredientsFor(widget.recipe, _portions),
+        items: _items,
         type: _type,
         now: widget.now,
       );
@@ -238,7 +284,9 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '≈$_calories kcal · la receta rinde $_servings',
+                              _foods == null
+                                  ? 'Calculando calorías… · la receta rinde $_servings'
+                                  : '$_calories kcal · la receta rinde $_servings',
                               style: const TextStyle(
                                 color: Color(0xFF747779),
                                 fontSize: 13,
@@ -259,12 +307,18 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                 if (_error != null) ...[
                   const SizedBox(height: 12),
                   Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
+                  if (_foods == null)
+                    TextButton(
+                      onPressed: _loadFoods,
+                      style: TextButton.styleFrom(foregroundColor: _green),
+                      child: const Text('Reintentar', style: TextStyle(fontWeight: FontWeight.w700)),
+                    ),
                 ],
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _saving ? null : _save,
+                    onPressed: _saving || _foods == null ? null : _save,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _green,
                       foregroundColor: Colors.white,

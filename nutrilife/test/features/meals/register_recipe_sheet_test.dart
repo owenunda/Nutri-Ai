@@ -8,6 +8,8 @@ import 'package:nutrilife/features/meals/data/recipe_meal_links.dart';
 import 'package:nutrilife/features/meals/domain/meal_type.dart';
 import 'package:nutrilife/features/meals/presentation/widgets/meal_detail_sheet.dart';
 import 'package:nutrilife/features/meals/presentation/widgets/register_recipe_sheet.dart';
+import 'package:nutrilife/features/nutrition/data/food_repository.dart';
+import 'package:nutrilife/features/nutrition/data/models/food_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _RepoFalso extends MealRepository {
@@ -28,6 +30,27 @@ class _RepoFalso extends MealRepository {
   Future<void> deleteItem(int detailId) async => deleted.add(detailId);
 }
 
+class _Catalogo extends FoodRepository {
+  _Catalogo({this.falla = false});
+  final bool falla;
+
+  @override
+  Future<List<FoodModel>> getFoods() async {
+    if (falla) throw Exception('sin red');
+    return [
+      FoodModel(foodId: 3, name: 'Banana', caloriesPerUnit: 105, baseUnit: '1 UNIDAD', isGlobal: true, isActive: true),
+      FoodModel(foodId: 4, name: 'Pera', caloriesPerUnit: 57, baseUnit: '100 G', isGlobal: true, isActive: true),
+      FoodModel(foodId: 5, name: 'Pechuga de pollo', caloriesPerUnit: 165, baseUnit: '100 G', isGlobal: true, isActive: true),
+    ];
+  }
+}
+
+final _foods = {
+  3: FoodModel(foodId: 3, name: 'Banana', caloriesPerUnit: 105, baseUnit: '1 UNIDAD', isGlobal: true, isActive: true),
+  4: FoodModel(foodId: 4, name: 'Pera', caloriesPerUnit: 57, baseUnit: '100 G', isGlobal: true, isActive: true),
+};
+
+// El chef da cantidades naturales para toda la receta: 3 bananas, 300 g de pera.
 const _ensalada = RecipeModel(
   title: 'Ensalada dulce de banana y pera',
   summary: 'Fresca y ligera',
@@ -41,11 +64,11 @@ const _ensalada = RecipeModel(
   steps: [RecipeStep(step: 1, description: 'Corta la fruta')],
   ingredients: [
     RecipeIngredient(foodId: 3, quantity: 3),
-    RecipeIngredient(foodId: 4, quantity: 2),
+    RecipeIngredient(foodId: 4, quantity: 300),
   ],
 );
 
-Future<_RepoFalso> _open(WidgetTester tester, RecipeModel recipe) async {
+Future<_RepoFalso> _open(WidgetTester tester, RecipeModel recipe, {bool catalogoFalla = false}) async {
   final repo = _RepoFalso();
   await tester.pumpWidget(MaterialApp(
     home: Scaffold(
@@ -55,6 +78,7 @@ Future<_RepoFalso> _open(WidgetTester tester, RecipeModel recipe) async {
             context,
             recipe,
             repository: repo,
+            foodRepository: _Catalogo(falla: catalogoFalla),
             clock: () => DateTime(2026, 10, 12, 9),
           ),
           child: const Text('abrir'),
@@ -70,10 +94,26 @@ Future<_RepoFalso> _open(WidgetTester tester, RecipeModel recipe) async {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('ingredientsFor reparte la receta por porción con dos decimales', () {
-    final items = ingredientsFor(_ensalada, 1);
-    expect(items.map((i) => (i.foodId, i.quantity)), [(3, 0.5), (4, 0.33)]);
-    expect(ingredientsFor(_ensalada, 1.5).map((i) => i.quantity), [0.75, 0.5]);
+  test('ingredientsFor reparte por porción y pasa a unidades base', () {
+    // 3 bananas / 6 = 0,5 unidad; 300 g / 6 = 50 g = 0,5 de "100 G".
+    final items = ingredientsFor(_ensalada, 1, _foods);
+    expect(items.map((i) => (i.foodId, i.quantity)), [(3, 0.5), (4, 0.5)]);
+    expect(ingredientsFor(_ensalada, 1.5, _foods).map((i) => i.quantity), [0.75, 0.75]);
+    expect(caloriesOf(items, _foods), 81);
+  });
+
+  test('300 g de pollo en 4 porciones no se vuelven 7,5 kg', () {
+    const pollo = RecipeModel(
+      title: 'Pollo', summary: '', chefReason: '', mealType: 'cena', difficulty: '',
+      preparationTimeMinutes: 0, servings: 4, estimatedCalories: 0, tips: [], steps: [],
+      ingredients: [RecipeIngredient(foodId: 5, quantity: 300)],
+    );
+    final foods = {
+      5: FoodModel(foodId: 5, name: 'Pechuga', caloriesPerUnit: 165, baseUnit: '100 G', isGlobal: true, isActive: true),
+    };
+    final items = ingredientsFor(pollo, 1, foods);
+    expect(items.single.quantity, 0.75); // 75 g
+    expect(caloriesOf(items, foods), 124);
   });
 
   test('mealTypeOfRecipe entiende el tipo en español', () {
@@ -92,7 +132,7 @@ void main() {
     final repo = await _open(tester, _ensalada);
 
     expect(find.text('Registrar en Cena'), findsOneWidget);
-    expect(find.text('≈68 kcal · la receta rinde 6'), findsOneWidget);
+    expect(find.text('81 kcal · la receta rinde 6'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Más porciones'));
     await tester.pump();
@@ -103,8 +143,8 @@ void main() {
 
     final (items, type) = repo.added.single;
     expect(type, MealType.dinner);
-    expect(items.map((i) => i.quantity), [0.75, 0.5]);
-    expect(find.text('Registrado en Cena · ≈101 kcal'), findsOneWidget);
+    expect(items.map((i) => i.quantity), [0.75, 0.75]);
+    expect(find.text('Registrado en Cena · 122 kcal'), findsOneWidget);
 
     final links = await const RecipeMealLinks().byDetailId();
     expect(links.keys, [100, 101]);
@@ -131,6 +171,15 @@ void main() {
     await tester.tap(find.text('Deshacer'));
     await tester.pumpAndSettle();
     expect(repo.deleted, [100, 101]);
+  });
+
+  testWidgets('sin los alimentos no deja registrar y ofrece reintentar', (tester) async {
+    final repo = await _open(tester, _ensalada, catalogoFalla: true);
+
+    expect(find.text('Reintentar'), findsOneWidget);
+    final button = tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Registrar en Cena'));
+    expect(button.onPressed, isNull);
+    expect(repo.added, isEmpty);
   });
 
   testWidgets('sin ingredientes avisa y no abre la hoja', (tester) async {
