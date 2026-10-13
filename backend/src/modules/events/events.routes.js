@@ -23,8 +23,8 @@ const router = Router();
  *         schema: { type: string, enum: [AUTH, AI, ERROR, CRUD, SYSTEM] }
  *       - in: query
  *         name: module
- *         schema: { type: string, enum: [food, fridge, recipe, user, stats, meals, ai, admin, chat, auth, bots, other] }
- *         description: Módulo derivado de la ruta (bots = rutas ajenas a la API)
+ *         schema: { type: string, enum: [food, fridge, recipe, user, stats, meals, ai, admin, chat, auth, bots, external, other] }
+ *         description: Módulo derivado de la ruta (bots = escaneos de rutas inexistentes, external = raíz/favicon/robots.txt)
  *       - in: query
  *         name: userId
  *         schema: { type: integer }
@@ -41,7 +41,7 @@ const router = Router();
  *       - in: query
  *         name: hideBots
  *         schema: { type: boolean }
- *         description: Oculta los escaneos de bots
+ *         description: Oculta escaneos (bots) y tráfico externo
  *       - in: query
  *         name: page
  *         schema: { type: integer, default: 1 }

@@ -24,6 +24,11 @@ import { AppError } from './utils/AppError.js';
 
 const app = express();
 
+// En producción hay un único proxy delante (Coolify). Sin esto req.ip es la IP
+// del proxy para todas las peticiones, y los límites por IP se comparten entre
+// todos los clientes.
+app.set('trust proxy', 1);
+
 // Middlewares globales
 app.use(cors());
 app.use(express.json());

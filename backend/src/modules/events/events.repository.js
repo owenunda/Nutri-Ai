@@ -2,12 +2,21 @@ import pool from '../../database/connection.js';
 
 // Módulos de la API que se reconocen a partir de la ruta (/api/v1/<módulo>/...).
 export const KNOWN_MODULES = ['food', 'fridge', 'recipe', 'user', 'stats', 'meals', 'ai', 'admin'];
-export const EVENT_MODULES = [...KNOWN_MODULES, 'chat', 'auth', 'bots', 'other'];
+export const EVENT_MODULES = [...KNOWN_MODULES, 'chat', 'auth', 'bots', 'external', 'other'];
+
+// Módulos que no son tráfico de la app: se ocultan juntos con hideBots.
+export const NOISE_MODULES = ['bots', 'external'];
+
+// Rutas de raíz que piden monitores, buscadores o alguien abriendo la URL de la
+// API en el navegador. No se puede saber si son bots, así que van aparte.
+const EXTERNAL_PATHS = ['/', '/favicon.ico', '/robots.txt', '/sitemap.xml', '/apple-touch-icon.png'];
 
 /**
  * Deriva el módulo de un evento a partir de su ruta. Se calcula al leer para
- * que también aplique a los eventos históricos. Todo lo que no cae bajo una
- * ruta conocida de la API (/.env, /wp-login.php...) son escaneos de bots.
+ * que también aplique a los eventos históricos.
+ *   - external: la raíz, favicon, robots.txt... (origen dudoso)
+ *   - bots: el resto de rutas que no existen en la API (/.env, /wp-login.php...),
+ *     que son escaneos automáticos.
  * @param {string} alias Alias de activity_events en la consulta.
  */
 export const moduleSql = (alias = 'e') => `
@@ -17,6 +26,7 @@ export const moduleSql = (alias = 'e') => `
     WHEN ${alias}.path LIKE '/api/v1/n8n/%' OR ${alias}.path LIKE '/api/v1/chat%' THEN 'chat'
     WHEN split_part(${alias}.path, '/', 4) IN (${KNOWN_MODULES.map((m) => `'${m}'`).join(', ')})
       THEN split_part(${alias}.path, '/', 4)
+    WHEN ${alias}.path IN (${EXTERNAL_PATHS.map((p) => `'${p}'`).join(', ')}) THEN 'external'
     ELSE 'bots'
   END
 `;
@@ -62,8 +72,8 @@ const buildEventWhere = (filters = {}) => {
   if (hideReads) {
     conditions.push(`(e.method IS NULL OR e.method NOT IN ('GET', 'HEAD', 'OPTIONS'))`);
   }
-  if (hideBots && module !== 'bots') {
-    conditions.push(`(${moduleSql('e')}) <> 'bots'`);
+  if (hideBots && !NOISE_MODULES.includes(module)) {
+    conditions.push(`(${moduleSql('e')}) NOT IN ('bots', 'external')`);
   }
 
   return {
@@ -136,7 +146,7 @@ export const insertEvent = async ({
  * @param {string} [filters.from]  Fecha ISO
  * @param {string} [filters.to]    Fecha ISO
  * @param {boolean} [filters.hideReads] Oculta las lecturas (GET/HEAD/OPTIONS)
- * @param {boolean} [filters.hideBots]  Oculta los escaneos de bots
+ * @param {boolean} [filters.hideBots]  Oculta escaneos y tráfico externo
  * @param {number} [filters.limit]
  * @param {number} [filters.offset]
  * @returns {Promise<{items: Array, total: number}>}

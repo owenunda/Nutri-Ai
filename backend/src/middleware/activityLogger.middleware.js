@@ -46,16 +46,22 @@ export const activityLogger = (req, res, next) => {
     if (res.statusCode >= 500) return;
 
     const { category, eventType } = classify(req.method, path);
+    const userId = req.user?.userId ?? null;
+
+    // En las peticiones anónimas el User-Agent ayuda a distinguir escáneres,
+    // monitores y buscadores.
+    const userAgent = req.get('user-agent');
+    const metadata = userId === null && userAgent ? { userAgent: userAgent.slice(0, 300) } : {};
 
     logEventService({
       eventType,
       category,
-      userId: req.user?.userId ?? null,
+      userId,
       method: req.method,
       path,
       statusCode: res.statusCode,
       ip: req.ip,
-      metadata: {},
+      metadata,
     });
   });
 

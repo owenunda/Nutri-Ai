@@ -40,7 +40,8 @@ export const getOverview = async (days) => {
       COUNT(*) FILTER (WHERE e.category = 'ERROR' AND ${inRange('e.created_at')})::int AS "errorsInRange",
       COUNT(*) FILTER (WHERE e.event_type = 'LOGIN_FAILED' AND ${inRange('e.created_at')})::int AS "failedLoginsInRange",
       COUNT(*) FILTER (WHERE (${moduleSql('e')}) = 'bots' AND ${inRange('e.created_at')})::int AS "botHitsInRange",
-      COUNT(*) FILTER (WHERE (${moduleSql('e')}) <> 'bots' AND ${inRange('e.created_at')})::int AS "apiRequestsInRange"
+      COUNT(*) FILTER (WHERE (${moduleSql('e')}) = 'external' AND ${inRange('e.created_at')})::int AS "externalHitsInRange",
+      COUNT(*) FILTER (WHERE (${moduleSql('e')}) NOT IN ('bots', 'external') AND ${inRange('e.created_at')})::int AS "apiRequestsInRange"
     FROM activity_events e
   `;
 
@@ -66,8 +67,8 @@ export const getOverview = async (days) => {
         ${localDay('e.created_at')} AS day,
         COUNT(*) FILTER (WHERE ${aiQuerySql('e')}) AS ai,
         COUNT(DISTINCT e.user_id) AS active,
-        COUNT(*) FILTER (WHERE (${moduleSql('e')}) <> 'bots') AS requests,
-        COUNT(*) FILTER (WHERE (${moduleSql('e')}) = 'bots') AS bots
+        COUNT(*) FILTER (WHERE (${moduleSql('e')}) NOT IN ('bots', 'external')) AS requests,
+        COUNT(*) FILTER (WHERE (${moduleSql('e')}) IN ('bots', 'external')) AS bots
       FROM activity_events e
       WHERE e.created_at >= NOW() - (($1::int + 1) * INTERVAL '1 day')
       GROUP BY 1
