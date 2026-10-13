@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Promedio del borde del ícono: solo asoma si el launcher anima la capa frontal. -->
+    <color name="ic_launcher_background">#99B196</color>
+</resources>

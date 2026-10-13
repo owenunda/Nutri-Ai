@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../legal/data/legal_documents.dart';
+import '../../../legal/presentation/screens/legal_document_screen.dart';
 import 'discover_foods_screen.dart';
 import 'onboarding_screen.dart';
 import 'analyze_progress_screen.dart';
@@ -277,7 +279,10 @@ class _AuthFlowNavigatorState extends State<AuthFlowNavigator> {
                             child: Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: () => openLegalDocument(
+                                  context,
+                                  LegalDocuments.terms,
+                                ),
                                 child: const Text(
                                   'REVISAR TÉRMINOS',
                                   style: TextStyle(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../legal/data/legal_documents.dart';
+import '../../../legal/presentation/screens/legal_document_screen.dart';
 import '../../../../core/theme/app_theme.dart';
 
 // Precios y textos de ejemplo: todavía no hay cobro.
@@ -107,7 +109,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
             children: [
               TextButton(onPressed: _soon, child: const Text('Restaurar compras')),
               const Text('·'),
-              TextButton(onPressed: _soon, child: const Text('Términos')),
+              TextButton(
+                onPressed: () => openLegalDocument(context, LegalDocuments.terms),
+                child: const Text('Términos'),
+              ),
             ],
           ),
         ],

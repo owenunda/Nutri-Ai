@@ -1,4 +1,4 @@
-package com.example.nutrilife
+package software.oween.nutrilife
 
 import io.flutter.embedding.android.FlutterActivity
 

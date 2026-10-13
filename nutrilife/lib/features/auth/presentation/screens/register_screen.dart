@@ -1,5 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import '../../../legal/data/legal_documents.dart';
+import '../../../legal/presentation/screens/legal_document_screen.dart';
 
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/services/auth_service.dart';
@@ -30,8 +34,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscureConfirmPassword = true;
   bool _isSubmitting = false;
 
+  late final TapGestureRecognizer _termsTap = TapGestureRecognizer()
+    ..onTap = () => openLegalDocument(context, LegalDocuments.terms);
+  late final TapGestureRecognizer _privacyTap = TapGestureRecognizer()
+    ..onTap = () => openLegalDocument(context, LegalDocuments.privacy);
+
   @override
   void dispose() {
+    _termsTap.dispose();
+    _privacyTap.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -271,6 +282,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             obscurePassword: _obscurePassword,
                             obscureConfirmPassword: _obscureConfirmPassword,
                             isSubmitting: _isSubmitting,
+                            termsTap: _termsTap,
+                            privacyTap: _privacyTap,
                             onToggleTerms: () {
                               setState(() {
                                 _acceptedTerms = !_acceptedTerms;
@@ -323,6 +336,8 @@ class _RegisterCard extends StatelessWidget {
     required this.obscurePassword,
     required this.obscureConfirmPassword,
     required this.isSubmitting,
+    required this.termsTap,
+    required this.privacyTap,
     required this.onToggleTerms,
     required this.onTogglePasswordVisibility,
     required this.onToggleConfirmVisibility,
@@ -340,6 +355,9 @@ class _RegisterCard extends StatelessWidget {
   final bool obscurePassword;
   final bool obscureConfirmPassword;
   final bool isSubmitting;
+
+  final GestureRecognizer termsTap;
+  final GestureRecognizer privacyTap;
 
   final VoidCallback onToggleTerms;
   final VoidCallback onTogglePasswordVisibility;
@@ -562,6 +580,7 @@ class _RegisterCard extends StatelessWidget {
                           const TextSpan(text: 'Acepto los '),
                           TextSpan(
                             text: 'Términos del Servicio',
+                            recognizer: termsTap,
                             style: const TextStyle(
                               color: _RegisterPalette.primary,
                               fontWeight: FontWeight.w700,
@@ -569,12 +588,14 @@ class _RegisterCard extends StatelessWidget {
                           ),
                           const TextSpan(text: ' y la '),
                           TextSpan(
-                            text: 'Política de Privacidad.',
+                            text: 'Política de Privacidad',
+                            recognizer: privacyTap,
                             style: const TextStyle(
                               color: _RegisterPalette.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
+                          const TextSpan(text: '.'),
                         ],
                       ),
                     ),

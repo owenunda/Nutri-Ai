@@ -164,6 +164,49 @@ class ProfileRepository {
     }
   }
 
+  // Borra la cuenta en el backend y lo que la app guardó de ella en el
+  // dispositivo. La sesión la limpia quien llama, igual que al cerrar sesión.
+  Future<void> deleteAccount({
+    required String password,
+    required String email,
+  }) async {
+    try {
+      final response = await _dio.delete<Map<String, dynamic>>(
+        ApiRoutes.userAccount,
+        data: {'password': password},
+      );
+
+      final body = response.data;
+      if (body != null && body['success'] == true) {
+        if (email.trim().isNotEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove(_sexKey(email));
+        }
+        return;
+      }
+
+      throw ProfileException(
+        _extractFriendlyMessage(body) ?? 'No se pudo eliminar tu cuenta.',
+      );
+    } on DioException catch (error) {
+      final data = error.response?.data;
+      final errorInfo = data is Map ? data['error'] : null;
+      final code = errorInfo is Map ? errorInfo['code'] : null;
+      if (code == 'INVALID_PASSWORD') {
+        throw const ProfileException('La contraseña no es correcta.');
+      }
+      throw ProfileException(
+        _extractFriendlyMessage(data) ?? _fallbackMessage(error),
+      );
+    } on ProfileException {
+      rethrow;
+    } catch (_) {
+      throw const ProfileException(
+        'No se pudo eliminar tu cuenta. Inténtalo de nuevo.',
+      );
+    }
+  }
+
   Future<String?> getLocalSex(String email) async {
     if (email.trim().isEmpty) {
       return null;

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../legal/data/legal_documents.dart';
+import '../../../legal/presentation/screens/legal_document_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
 import '../../data/profile_repository.dart';
 import 'edit_profile_screen.dart';
@@ -50,6 +52,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (updated == true && mounted) {
       await _refreshProfile();
     }
+  }
+
+  Future<void> _deleteAccount(UserProfile profile) async {
+    final deleted = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _DeleteAccountDialog(
+        onConfirm: (password) => _profileRepository.deleteAccount(
+          password: password,
+          email: profile.email,
+        ),
+      ),
+    );
+
+    if (deleted != true || !mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(content: Text('Tu cuenta y tus datos fueron eliminados.')),
+      );
+    widget.onLogout();
   }
 
   @override
@@ -193,8 +219,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   onOpenConfiguration: () => _openConfiguration(profile),
                 ),
+                const SizedBox(height: 42),
+                Text(
+                  'Legal',
+                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                    color: _ProfileColors.text,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const _LegalCard(),
                 const SizedBox(height: 44),
                 _LogoutButton(onPressed: widget.onLogout),
+                const SizedBox(height: 12),
+                _DeleteAccountButton(onPressed: () => _deleteAccount(profile)),
               ],
             ),
           ),
@@ -654,12 +694,168 @@ class _LogoutButton extends StatelessWidget {
   }
 }
 
+class _LegalCard extends StatelessWidget {
+  const _LegalCard();
+
+  @override
+  Widget build(BuildContext context) {
+    const chevron = Icon(
+      Icons.chevron_right_rounded,
+      color: Color(0xFFADB4BC),
+      size: 30,
+    );
+
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: AppTheme.ambientShadow,
+      ),
+      child: Column(
+        children: [
+          _SettingsRow(
+            icon: Icons.description_rounded,
+            iconColor: const Color(0xFF475569),
+            iconBackground: const Color(0xFFECEFF1),
+            title: 'Términos y condiciones',
+            subtitle: 'Reglas de uso de NutriLife',
+            trailing: chevron,
+            onTap: () => openLegalDocument(context, LegalDocuments.terms),
+          ),
+          _SettingsRow(
+            icon: Icons.privacy_tip_rounded,
+            iconColor: const Color(0xFF475569),
+            iconBackground: const Color(0xFFECEFF1),
+            title: 'Política de privacidad',
+            subtitle: 'Cómo tratamos tus datos',
+            trailing: chevron,
+            onTap: () => openLegalDocument(context, LegalDocuments.privacy),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DeleteAccountButton extends StatelessWidget {
+  const _DeleteAccountButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      onPressed: onPressed,
+      icon: const Icon(Icons.delete_forever_rounded, size: 22),
+      label: Text(
+        'Eliminar cuenta',
+        style: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w800),
+      ),
+      style: TextButton.styleFrom(
+        foregroundColor: _ProfileColors.danger,
+        minimumSize: const Size.fromHeight(56),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(999),
+        ),
+      ),
+    );
+  }
+}
+
+class _DeleteAccountDialog extends StatefulWidget {
+  const _DeleteAccountDialog({required this.onConfirm});
+
+  final Future<void> Function(String password) onConfirm;
+
+  @override
+  State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
+}
+
+class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
+  final _passwordController = TextEditingController();
+  bool _isDeleting = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _confirm() async {
+    final password = _passwordController.text;
+    if (password.isEmpty) {
+      setState(() => _error = 'Escribe tu contraseña para confirmar.');
+      return;
+    }
+
+    setState(() {
+      _isDeleting = true;
+      _error = null;
+    });
+
+    try {
+      await widget.onConfirm(password);
+      if (mounted) Navigator.of(context).pop(true);
+    } on ProfileException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isDeleting = false;
+        _error = error.message;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('¿Eliminar tu cuenta?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Se borrarán para siempre tu perfil, historial de peso, comidas, '
+            'nevera, recetas y conversaciones. Esta acción no se puede deshacer.',
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _passwordController,
+            obscureText: true,
+            enabled: !_isDeleting,
+            autofillHints: const [AutofillHints.password],
+            decoration: InputDecoration(
+              labelText: 'Contraseña',
+              errorText: _error,
+              border: const OutlineInputBorder(),
+            ),
+            onSubmitted: (_) => _confirm(),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isDeleting ? null : () => Navigator.of(context).pop(false),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: _isDeleting ? null : _confirm,
+          style: TextButton.styleFrom(foregroundColor: _ProfileColors.danger),
+          child: Text(_isDeleting ? 'Eliminando...' : 'Eliminar'),
+        ),
+      ],
+    );
+  }
+}
+
 class _ProfileColors {
   const _ProfileColors._();
 
   static const Color green = AppTheme.primaryStart;
   static const Color text = AppTheme.onSurface;
   static const Color muted = AppTheme.onSurfaceVariant;
+  static const Color danger = Color(0xFFB42318);
 }
 
 String _formatProfileNumber(double? value) {
