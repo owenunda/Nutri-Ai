@@ -6,6 +6,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "admin-panel", "run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "backend", "start"],
+      "port": 3000
+    },
+    {
+      "name": "admin-panel-local-api",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "admin-panel", "run", "dev", "--", "--port", "5174", "--mode", "localapi"],
+      "port": 5174
     }
   ]
 }

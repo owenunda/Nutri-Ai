@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('/fonts/PlusJakartaSans-Variable.ttf') format('truetype');
+  font-weight: 200 800;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -21,26 +28,27 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 142 71% 45%;
-    --radius: 0.6rem;
+    --radius: 0.9rem;
   }
 
+  /* Oscuro con un tinte verde, para que combine con la app. */
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 5.9%;
-    --card-foreground: 0 0% 98%;
+    --background: 160 20% 4%;
+    --foreground: 140 10% 96%;
+    --card: 160 16% 7%;
+    --card-foreground: 140 10% 96%;
     --primary: 142 71% 45%;
-    --primary-foreground: 240 10% 3.9%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 50.6%;
+    --primary-foreground: 160 20% 4%;
+    --secondary: 160 12% 12%;
+    --secondary-foreground: 140 10% 96%;
+    --muted: 160 12% 12%;
+    --muted-foreground: 150 8% 62%;
+    --accent: 160 14% 13%;
+    --accent-foreground: 140 10% 96%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 160 12% 14%;
+    --input: 160 12% 16%;
     --ring: 142 71% 45%;
   }
 }
@@ -52,7 +60,31 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     font-feature-settings: 'rlig' 1, 'calt' 1;
     -webkit-font-smoothing: antialiased;
   }
+}
+
+@layer components {
+  /* Degradado verde de la app (primaryStart → primaryEnd). */
+  .brand-gradient {
+    background-image: linear-gradient(135deg, #0a6b3f 0%, #1b7d50 55%, #15803d 100%);
+  }
+  .nutria {
+    image-rendering: pixelated;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+}
+
+@keyframes nutria-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-bob {
+  animation: nutria-bob 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-bob { animation: none; }
 }

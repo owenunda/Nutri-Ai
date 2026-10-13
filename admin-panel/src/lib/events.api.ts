@@ -1,18 +1,12 @@
 import { api } from './api';
 import type { ApiResponse } from '../types/auth';
-import type {
-  ActivityEvent,
-  EventFilters,
-  EventListResponse,
-  EventStats,
-  RetentionResult,
-} from '../types/event';
+import type { EventFilters, EventListResponse, RetentionResult } from '../types/event';
 
 /** Construye los query params ignorando valores vacíos. */
-function buildParams(filters: EventFilters): Record<string, string> {
+export function buildParams(filters: object): Record<string, string> {
   const params: Record<string, string> = {};
   Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
+    if (value !== undefined && value !== null && value !== '' && value !== false) {
       params[key] = String(value);
     }
   });
@@ -20,17 +14,10 @@ function buildParams(filters: EventFilters): Record<string, string> {
 }
 
 export async function fetchEvents(filters: EventFilters): Promise<EventListResponse> {
+  // "Hasta" es un día completo: sin hora, el backend lo cortaría a las 00:00.
+  const to = filters.to && filters.to.length === 10 ? `${filters.to}T23:59:59.999` : filters.to;
   const { data } = await api.get<ApiResponse<EventListResponse>>('/admin/events', {
-    params: buildParams(filters),
-  });
-  return data.data;
-}
-
-export async function fetchStats(
-  filters: Pick<EventFilters, 'from' | 'to'>
-): Promise<EventStats> {
-  const { data } = await api.get<ApiResponse<EventStats>>('/admin/events/stats', {
-    params: buildParams(filters),
+    params: buildParams({ ...filters, to }),
   });
   return data.data;
 }
@@ -41,5 +28,3 @@ export async function runRetention(days: number, type?: string): Promise<Retenti
   });
   return data.data;
 }
-
-export type { ActivityEvent };
