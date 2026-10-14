@@ -12,7 +12,8 @@
     "redis:keys": "node scripts/redis-cli.js keys",
     "redis:flush": "node scripts/redis-cli.js flush",
     "redis:info": "node scripts/redis-cli.js info",
-    "db:apply": "node scripts/db-apply.js"
+    "db:apply": "node scripts/db-apply.js",
+    "user:set-password": "node scripts/set-password.js"
   },
   "keywords": [],
   "author": "",
