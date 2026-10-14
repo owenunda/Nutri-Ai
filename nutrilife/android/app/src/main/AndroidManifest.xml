@@ -29,6 +29,12 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- App ID de AdMob de la app Android de NutriLife. Sin este valor la
+             app se cierra al arrancar. En debug los bloques siguen siendo los
+             de prueba (ver ads_config.dart), que funcionan con cualquier App ID. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8768785455820831~2630359654"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

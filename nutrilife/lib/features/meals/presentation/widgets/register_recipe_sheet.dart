@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/ads/ads_service.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -45,6 +46,9 @@ Future<void> showRegisterRecipeSheet(
     ),
   );
   if (result == null) return;
+
+  // Si toca intersticial, el aviso con "Deshacer" sale al cerrarlo, no debajo.
+  await AdsService.instance.maybeShowAfterMealLog();
 
   messenger
     ..hideCurrentSnackBar()

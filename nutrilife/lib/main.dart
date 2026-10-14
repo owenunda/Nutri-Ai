@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'core/ads/ads_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/navigation/navigator_key.dart';
 import 'features/auth/presentation/screens/auth_flow_navigator.dart';
@@ -27,6 +28,10 @@ void main() async {
   }
 
   runApp(MainApp(home: home));
+
+  // Después del primer frame: el formulario de consentimiento y el aviso de
+  // seguimiento de iOS necesitan la app ya en pantalla.
+  WidgetsBinding.instance.addPostFrameCallback((_) => AdsService.instance.init());
 }
 
 class MainApp extends StatelessWidget {

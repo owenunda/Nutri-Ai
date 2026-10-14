@@ -6,7 +6,7 @@
 const kLegalOwnerName = 'Oween Unda';
 const kLegalOwnerCity = 'Medellín';
 const kLegalContactEmail = 'oweenunda.dev@gmail.com';
-const kLegalUpdatedAt = '12 de octubre de 2026';
+const kLegalUpdatedAt = '13 de octubre de 2026';
 
 sealed class LegalBlock {
   const LegalBlock();
@@ -77,8 +77,9 @@ class LegalDocuments {
           'artificial que sugiere recetas e ideas de alimentación.',
         ),
         LegalParagraph(
-          'Actualmente el servicio es gratuito. Podemos agregar, modificar o '
-          'retirar funciones para mejorar la App.',
+          'El servicio es gratuito y se financia con publicidad: en el plan '
+          'gratuito verás anuncios proporcionados por Google AdMob. Podemos '
+          'agregar, modificar o retirar funciones para mejorar la App.',
         ),
       ]),
       LegalSection('2. Requisitos para usar la App', [
@@ -247,6 +248,9 @@ class LegalDocuments {
               'alimentos de tu nevera virtual y recetas guardadas.',
           'Conversaciones: mensajes que escribes al asistente de IA y sus '
               'respuestas.',
+          'Publicidad: el identificador de publicidad de tu dispositivo, tu '
+              'dirección IP e información general del dispositivo, que recoge '
+              'Google AdMob para mostrarte anuncios en el plan gratuito.',
           'Datos técnicos: dirección IP, fecha y hora de las solicitudes, '
               'acciones realizadas en la App y errores, para seguridad y '
               'diagnóstico.',
@@ -256,8 +260,8 @@ class LegalDocuments {
           'no se envía a nuestros servidores.',
         ),
         LegalParagraph(
-          'NutriLife no accede a tu ubicación, contactos, cámara, micrófono ni '
-          'fotos, no muestra publicidad y no usa identificadores publicitarios.',
+          'NutriLife no accede a tu ubicación precisa, contactos, cámara, '
+          'micrófono ni fotos.',
         ),
       ]),
       LegalSection('3. Datos sensibles', [
@@ -288,12 +292,14 @@ class LegalDocuments {
               'fallas.',
           'Atender tus peticiones, consultas y reclamos.',
           'Elaborar estadísticas internas y anónimas para mejorar el servicio.',
+          'Mostrar anuncios en el plan gratuito, a través de Google AdMob.',
           'Enviarte comunicaciones sobre el funcionamiento del servicio (no '
               'publicitarias).',
         ]),
         LegalParagraph(
-          'No vendemos ni alquilamos tus datos personales, ni los usamos para '
-          'publicidad de terceros.',
+          'No vendemos ni alquilamos tus datos personales. Tu perfil, tu peso, '
+          'tus comidas y tus conversaciones nunca se comparten con '
+          'anunciantes.',
         ),
       ]),
       LegalSection('5. Con quién compartimos tus datos', [
@@ -308,7 +314,18 @@ class LegalDocuments {
               'alimentos que adjuntes, únicamente para generar la respuesta.',
           'Proveedores de infraestructura en la nube: alojan nuestros '
               'servidores y bases de datos.',
+          'Google AdMob (Google LLC, Estados Unidos): muestra los anuncios del '
+              'plan gratuito y para ello recibe el identificador de publicidad, '
+              'la dirección IP e información general del dispositivo. Trata '
+              'estos datos según la política de privacidad de Google.',
         ]),
+        LegalParagraph(
+          'Los anuncios personalizados solo se muestran si los autorizas: en '
+          'iPhone, al aceptar el aviso de seguimiento; en Android, puedes '
+          'restablecer o eliminar tu identificador de publicidad en Ajustes → '
+          'Privacidad → Anuncios. Si no lo autorizas, verás anuncios genéricos. '
+          'Los usuarios del plan Premium no ven anuncios.',
+        ),
         LegalParagraph(
           'Algunos de estos proveedores están fuera de Colombia, por lo que '
           'puede haber transmisión internacional de datos. Al aceptar esta '

@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/ads/ad_banner.dart';
+import '../../../../core/ads/ads_service.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../../core/state/bot_mood_state.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -25,6 +27,8 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
+const _tabsWithBanner = {0, 1, 3};
+
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentTab = 0;
   int _progressRefreshToken = 0;
@@ -34,6 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _userName = widget.user?['name'] ?? 'Usuario';
+    AdsService.instance.setPlan(widget.user?['plan']?.toString());
   }
 
   void _onTabSelected(int index) {
@@ -78,6 +83,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _buildProfileTab(),
                   ],
                 ),
+              ),
+              // Banner solo en Inicio, Alimentos y Progreso: en el chat
+              // taparía el campo de escribir. Se mantiene montado al ocultarlo
+              // para no pedir un anuncio nuevo en cada cambio de pestaña.
+              Visibility(
+                visible: _tabsWithBanner.contains(_currentTab),
+                maintainState: true,
+                child: const AdBanner(),
               ),
             ],
           ),

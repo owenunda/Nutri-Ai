@@ -24,8 +24,20 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<!-- App ID de AdMob de PRUEBA de Google: cámbialo por el de tu app iOS en AdMob. -->
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3940256099942544~1458002511</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>NutriLife usa este identificador para mostrarte anuncios más relevantes. Si no lo permites, verás anuncios genéricos.</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
