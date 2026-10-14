@@ -24,6 +24,7 @@ class UserProfile {
     required this.sex,
     required this.plan,
     required this.createdAt,
+    required this.hasPassword,
   });
 
   final String name;
@@ -36,6 +37,9 @@ class UserProfile {
   final String? plan;
   final DateTime? createdAt;
 
+  /// false si la cuenta solo entra con Google.
+  final bool hasPassword;
+
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
       name: json['name']?.toString().trim() ?? 'Usuario',
@@ -47,6 +51,7 @@ class UserProfile {
       sex: null,
       plan: json['plan']?.toString().trim(),
       createdAt: _toDateTime(json['createdAt']),
+      hasPassword: json['hasPassword'] != false,
     );
   }
 
@@ -60,6 +65,7 @@ class UserProfile {
     String? sex,
     String? plan,
     DateTime? createdAt,
+    bool? hasPassword,
   }) {
     return UserProfile(
       name: name ?? this.name,
@@ -71,6 +77,7 @@ class UserProfile {
       sex: sex ?? this.sex,
       plan: plan ?? this.plan,
       createdAt: createdAt ?? this.createdAt,
+      hasPassword: hasPassword ?? this.hasPassword,
     );
   }
 
@@ -166,14 +173,23 @@ class ProfileRepository {
 
   // Borra la cuenta en el backend y lo que la app guardó de ella en el
   // dispositivo. La sesión la limpia quien llama, igual que al cerrar sesión.
+  // Se confirma con la contraseña o, si la cuenta no tiene, con Google.
   Future<void> deleteAccount({
-    required String password,
+    String? password,
+    String? googleIdToken,
     required String email,
   }) async {
+    assert(
+      (password == null) != (googleIdToken == null),
+      'Pasa la contraseña o el idToken de Google, no ambos',
+    );
+
     try {
       final response = await _dio.delete<Map<String, dynamic>>(
         ApiRoutes.userAccount,
-        data: {'password': password},
+        data: password != null
+            ? {'password': password}
+            : {'googleIdToken': googleIdToken},
       );
 
       final body = response.data;
@@ -194,6 +210,16 @@ class ProfileRepository {
       final code = errorInfo is Map ? errorInfo['code'] : null;
       if (code == 'INVALID_PASSWORD') {
         throw const ProfileException('La contraseña no es correcta.');
+      }
+      if (code == 'GOOGLE_ACCOUNT_MISMATCH') {
+        throw const ProfileException(
+          'Esa cuenta de Google no corresponde a este perfil.',
+        );
+      }
+      if (code == 'INVALID_GOOGLE_TOKEN') {
+        throw const ProfileException(
+          'No se pudo confirmar con Google. Inténtalo de nuevo.',
+        );
       }
       throw ProfileException(
         _extractFriendlyMessage(data) ?? _fallbackMessage(error),

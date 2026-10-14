@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/services/google_auth_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../legal/data/legal_documents.dart';
@@ -59,10 +60,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => _DeleteAccountDialog(
-        onConfirm: (password) => _profileRepository.deleteAccount(
-          password: password,
-          email: profile.email,
-        ),
+        requiresPassword: profile.hasPassword,
+        onConfirm: (password) => _confirmDeletion(profile, password),
       ),
     );
 
@@ -76,6 +75,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SnackBar(content: Text('Tu cuenta y tus datos fueron eliminados.')),
       );
     widget.onLogout();
+  }
+
+  /// Devuelve false si el usuario cerró el selector de Google sin elegir.
+  Future<bool> _confirmDeletion(UserProfile profile, String? password) async {
+    if (profile.hasPassword) {
+      await _profileRepository.deleteAccount(
+        password: password,
+        email: profile.email,
+      );
+      return true;
+    }
+
+    final String? idToken;
+    try {
+      idToken = await GoogleAuthService.getIdToken();
+    } on GoogleAuthException catch (error) {
+      throw ProfileException(error.message);
+    }
+    if (idToken == null) return false;
+
+    await _profileRepository.deleteAccount(
+      googleIdToken: idToken,
+      email: profile.email,
+    );
+    return true;
   }
 
   @override
@@ -787,9 +811,16 @@ class _DeleteAccountButton extends StatelessWidget {
 }
 
 class _DeleteAccountDialog extends StatefulWidget {
-  const _DeleteAccountDialog({required this.onConfirm});
+  const _DeleteAccountDialog({
+    required this.requiresPassword,
+    required this.onConfirm,
+  });
 
-  final Future<void> Function(String password) onConfirm;
+  /// false en cuentas que solo entran con Google: se confirma con Google.
+  final bool requiresPassword;
+
+  /// Devuelve false si el usuario canceló la confirmación.
+  final Future<bool> Function(String? password) onConfirm;
 
   @override
   State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
@@ -808,7 +839,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
 
   Future<void> _confirm() async {
     final password = _passwordController.text;
-    if (password.isEmpty) {
+    if (widget.requiresPassword && password.isEmpty) {
       setState(() => _error = 'Escribe tu contraseña para confirmar.');
       return;
     }
@@ -819,8 +850,15 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
     });
 
     try {
-      await widget.onConfirm(password);
-      if (mounted) Navigator.of(context).pop(true);
+      final deleted = await widget.onConfirm(
+        widget.requiresPassword ? password : null,
+      );
+      if (!mounted) return;
+      if (deleted) {
+        Navigator.of(context).pop(true);
+      } else {
+        setState(() => _isDeleting = false);
+      }
     } on ProfileException catch (error) {
       if (!mounted) return;
       setState(() {
@@ -852,18 +890,29 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
             'nevera, recetas y conversaciones. Esta acción no se puede deshacer.',
           ),
           const SizedBox(height: 16),
-          TextField(
-            controller: _passwordController,
-            obscureText: true,
-            enabled: !_isDeleting,
-            autofillHints: const [AutofillHints.password],
-            decoration: InputDecoration(
-              labelText: 'Contraseña',
-              errorText: _error,
-              border: const OutlineInputBorder(),
-            ),
-            onSubmitted: (_) => _confirm(),
-          ),
+          if (widget.requiresPassword)
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              enabled: !_isDeleting,
+              autofillHints: const [AutofillHints.password],
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                errorText: _error,
+                border: const OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _confirm(),
+            )
+          else ...[
+            const Text('Para confirmar, elige tu cuenta de Google.'),
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _error!,
+                style: const TextStyle(color: _ProfileColors.danger),
+              ),
+            ],
+          ],
         ],
       ),
       actions: [
@@ -874,7 +923,13 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
         TextButton(
           onPressed: _isDeleting ? null : _confirm,
           style: TextButton.styleFrom(foregroundColor: _ProfileColors.danger),
-          child: Text(_isDeleting ? 'Eliminando...' : 'Eliminar'),
+          child: Text(
+            _isDeleting
+                ? 'Eliminando...'
+                : widget.requiresPassword
+                    ? 'Eliminar'
+                    : 'Confirmar con Google',
+          ),
         ),
       ],
     );
