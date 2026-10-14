@@ -18,6 +18,9 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "axios": "^1.15.2",
     "bcrypt": "^6.0.0",
