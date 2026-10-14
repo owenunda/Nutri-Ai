@@ -74,3 +74,18 @@ export const validateRegisterRequest = (req, res, next) => {
 
   next();
 };
+
+export const validateGoogleLoginRequest = (req, res, next) => {
+  const { idToken } = req.body ?? {};
+
+  if (typeof idToken !== 'string' || !idToken.trim()) {
+    return next(
+      new AppError('Validation error', 400, 'VALIDATION_ERROR', [
+        { field: 'idToken', message: 'Google idToken is required' },
+      ])
+    );
+  }
+
+  req.googleLoginData = { idToken: idToken.trim() };
+  next();
+};

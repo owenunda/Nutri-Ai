@@ -1,10 +1,12 @@
 import { Router } from 'express';
-import { getAuthHealth, login, register } from './auth.controller.js';
+import { getAuthHealth, googleLogin, login, register } from './auth.controller.js';
 import {
   validateAuthHealthRequest,
+  validateGoogleLoginRequest,
   validateLoginRequest,
   validateRegisterRequest,
 } from './auth.validation.js';
+import { strictAuthRateLimit } from '../../middleware/rateLimit.middleware.js';
 
 const router = Router();
 
@@ -115,5 +117,55 @@ router.post('/login', validateLoginRequest, login);
  *         description: El email ya está registrado
  */
 router.post('/register', validateRegisterRequest, register);
+
+/**
+ * @openapi
+ * /api/v1/auth/google:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Iniciar sesión o registrarse con Google
+ *     description: Verifica el idToken de Google. Si el sub ya está vinculado, inicia sesión; si existe una cuenta con el mismo email verificado, la vincula; si no, crea una cuenta sin contraseña.
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [idToken]
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login exitoso. needsProfileSetup es true si el usuario no ha completado su perfil (edad).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         token:
+ *                           type: string
+ *                         user:
+ *                           $ref: '#/components/schemas/User'
+ *                         needsProfileSetup:
+ *                           type: boolean
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         description: idToken inválido (code INVALID_GOOGLE_TOKEN)
+ *       403:
+ *         description: Email de Google no verificado (code GOOGLE_EMAIL_NOT_VERIFIED)
+ *       409:
+ *         description: El email ya está vinculado a otra cuenta de Google (code GOOGLE_ACCOUNT_CONFLICT)
+ *       429:
+ *         description: Demasiados intentos
+ */
+router.post('/google', strictAuthRateLimit, validateGoogleLoginRequest, googleLogin);
 
 export default router;

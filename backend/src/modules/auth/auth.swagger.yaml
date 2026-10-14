@@ -53,3 +53,27 @@
     responses:
       201:
         description: User registered successfully
+
+/api/v1/auth/google:
+  post:
+    summary: Login or register with Google
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [idToken]
+            properties:
+              idToken:
+                type: string
+    responses:
+      200:
+        description: Successful login (includes needsProfileSetup)
+      401:
+        description: Invalid Google idToken
+      403:
+        description: Google email not verified
+      409:
+        description: Email linked to another Google account
