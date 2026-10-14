@@ -56,6 +56,12 @@ class GoogleAuthService {
       throw const GoogleAuthException(
         'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
       );
+    } on GoogleAuthException {
+      rethrow;
+    } catch (_) {
+      throw const GoogleAuthException(
+        'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
+      );
     }
   }
 

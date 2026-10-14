@@ -236,6 +236,8 @@ class _LoginPanelState extends State<_LoginPanel> {
       _showError(error.message);
     } on AuthException catch (error) {
       _showError(error.message);
+    } catch (_) {
+      _showError('No se pudo iniciar sesión con Google. Inténtalo de nuevo.');
     }
   }
 
