@@ -92,7 +92,11 @@ class AuthRepository {
     } on DioException catch (error) {
       throw AuthException(
         _extractFriendlyMessage(error.response?.data) ??
-            _fallbackMessage(error),
+            _fallbackMessage(
+              error,
+              defaultMessage:
+                  'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
+            ),
       );
     } on AuthException {
       rethrow;
@@ -103,7 +107,11 @@ class AuthRepository {
     }
   }
 
-  String _fallbackMessage(DioException error) {
+  String _fallbackMessage(
+    DioException error, {
+    String defaultMessage =
+        'No se pudo completar el registro. Inténtalo de nuevo.',
+  }) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
@@ -112,7 +120,7 @@ class AuthRepository {
       case DioExceptionType.connectionError:
         return 'No se pudo conectar con el servidor. Verifica que el backend esté activo.';
       default:
-        return 'No se pudo completar el registro. Inténtalo de nuevo.';
+        return defaultMessage;
     }
   }
 
