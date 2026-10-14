@@ -23,6 +23,8 @@ class AuthService {
           'success': true,
           'token': responseData['data']['token'],
           'user': responseData['data']['user'],
+          'needsProfileSetup':
+              responseData['data']['needsProfileSetup'] == true,
           'message': responseData['message'] ?? 'Login successful',
         };
       } else {

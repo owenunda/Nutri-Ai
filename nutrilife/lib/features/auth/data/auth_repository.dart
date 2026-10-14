@@ -12,6 +12,20 @@ class AuthException implements Exception {
   String toString() => message;
 }
 
+class GoogleLoginResult {
+  const GoogleLoginResult({
+    required this.token,
+    required this.user,
+    required this.needsProfileSetup,
+  });
+
+  final String token;
+  final Map<String, dynamic> user;
+
+  /// true si el usuario no completó su perfil: hay que mandarlo al setup.
+  final bool needsProfileSetup;
+}
+
 class AuthRepository {
   AuthRepository({Dio? dio}) : _dio = dio ?? DioClient.instance;
 
@@ -50,6 +64,41 @@ class AuthRepository {
     } catch (_) {
       throw const AuthException(
         'No se pudo completar el registro. Inténtalo de nuevo.',
+      );
+    }
+  }
+
+  Future<GoogleLoginResult> loginWithGoogle(String idToken) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiRoutes.authGoogle,
+        data: {'idToken': idToken},
+      );
+
+      final body = response.data;
+      final data = body?['data'];
+      if (body != null && body['success'] == true && data is Map<String, dynamic>) {
+        return GoogleLoginResult(
+          token: data['token'] as String,
+          user: Map<String, dynamic>.from(data['user'] as Map),
+          needsProfileSetup: data['needsProfileSetup'] == true,
+        );
+      }
+
+      throw AuthException(
+        _extractFriendlyMessage(body) ??
+            'No se pudo iniciar sesión con Google.',
+      );
+    } on DioException catch (error) {
+      throw AuthException(
+        _extractFriendlyMessage(error.response?.data) ??
+            _fallbackMessage(error),
+      );
+    } on AuthException {
+      rethrow;
+    } catch (_) {
+      throw const AuthException(
+        'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
       );
     }
   }
