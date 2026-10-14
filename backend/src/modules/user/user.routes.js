@@ -143,7 +143,7 @@ router.put('/profile', authenticateToken(), validateUpdateProfileRequest, update
  *   delete:
  *     tags: [User]
  *     summary: Eliminar la cuenta del usuario y todos sus datos
- *     description: Borra de forma permanente el usuario, sus comidas, nevera, registros físicos, chats, recetas y alimentos personalizados. Exige la contraseña actual.
+ *     description: Borra de forma permanente el usuario, sus comidas, nevera, registros físicos, chats, recetas y alimentos personalizados. Exige la contraseña actual, o un idToken de Google si la cuenta no tiene contraseña.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -152,11 +152,13 @@ router.put('/profile', authenticateToken(), validateUpdateProfileRequest, update
  *         application/json:
  *           schema:
  *             type: object
- *             required: [password]
  *             properties:
  *               password:
  *                 type: string
  *                 example: MiContraseña123
+ *               googleIdToken:
+ *                 type: string
+ *                 description: Solo para cuentas sin contraseña
  *     responses:
  *       200:
  *         description: Cuenta eliminada
@@ -165,7 +167,7 @@ router.put('/profile', authenticateToken(), validateUpdateProfileRequest, update
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
- *         description: Contraseña incorrecta (code INVALID_PASSWORD)
+ *         description: Confirmación incorrecta (code INVALID_PASSWORD, INVALID_GOOGLE_TOKEN o GOOGLE_ACCOUNT_MISMATCH)
  *       404:
  *         description: El usuario ya no existe
  */

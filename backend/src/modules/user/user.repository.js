@@ -7,6 +7,7 @@ const profileSelectQuery = `
     u.email,
     u.age,
     u.goal,
+    (u.password IS NOT NULL) AS "hasPassword",
     r.name AS role,
     p.name AS plan,
     pr.height,
@@ -172,12 +173,21 @@ export const updateUserProfileData = async (userId, { age, goal, height, weight 
   }
 };
 
-export const findUserPasswordHashById = async (userId) => {
+// Lo necesario para confirmar el borrado: la contraseña, o la cuenta de
+// Google vinculada si el usuario no tiene contraseña.
+export const findUserCredentialsById = async (userId) => {
   const { rows } = await pool.query(
-    'SELECT password AS "passwordHash" FROM users WHERE user_id = $1 LIMIT 1',
+    `SELECT
+       u.password AS "passwordHash",
+       ap.provider_user_id AS "googleSub"
+     FROM users u
+     LEFT JOIN user_auth_providers ap
+       ON ap.user_id = u.user_id AND ap.provider = 'google'
+     WHERE u.user_id = $1
+     LIMIT 1`,
     [userId]
   );
-  return rows[0]?.passwordHash ?? null;
+  return rows[0] ?? null;
 };
 
 // Borra la cuenta y todo lo que cuelga de ella en una sola transacción.

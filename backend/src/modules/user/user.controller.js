@@ -45,7 +45,7 @@ export const updateProfile = async (req, res, next) => {
 
 export const deleteAccount = async (req, res, next) => {
   try {
-    await deleteUserAccount(req.user.userId, req.accountDeletionData.password);
+    await deleteUserAccount(req.user.userId, req.accountDeletionData);
     return successResponse(res, null, 'User account deleted successfully', 200);
   } catch (error) {
     next(error);
