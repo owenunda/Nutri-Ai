@@ -35,7 +35,7 @@ import { Button, buttonVariants } from '../components/ui/button';
 import { Dialog } from '../components/ui/dialog';
 import { StatCard } from '../components/StatCard';
 import { UserAvatar } from '../components/UserAvatar';
-import { ModuleBadge, PlanBadge, StatusBadge } from '../components/CategoryBadge';
+import { ModuleBadge, PlanBadge, StatusBadge, authMethodLabel } from '../components/CategoryBadge';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { Nutria } from '../components/Nutria';
 import { CHART_COLORS, ModuleBars, axisProps, chartTooltipStyle } from '../components/charts';
@@ -97,6 +97,9 @@ export default function UserDetail() {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-bold">{profile.name}</h1>
                 <PlanBadge plan={profile.plan} />
+                <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-bold">
+                  {authMethodLabel(profile.authMethod)}
+                </span>
                 {profile.role === 'ADMIN' && (
                   <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-bold">ADMIN</span>
                 )}

@@ -160,6 +160,16 @@ const USER_SORTS = {
 };
 export const USER_SORT_KEYS = Object.keys(USER_SORTS);
 
+// Cómo entra el usuario: solo contraseña, solo Google, o ambos.
+const authMethodSql = (alias) => `
+  CASE
+    WHEN ${alias}.password IS NULL THEN 'GOOGLE'
+    WHEN EXISTS (
+      SELECT 1 FROM user_auth_providers ap WHERE ap.user_id = ${alias}.user_id
+    ) THEN 'BOTH'
+    ELSE 'EMAIL'
+  END`;
+
 /**
  * Lista usuarios con su uso de la app y de la IA.
  * @param {Object} filters
@@ -211,6 +221,7 @@ export const findUsers = async ({ search, plan, sort = 'recent', limit, offset }
       u.goal,
       r.name AS role,
       p.name AS plan,
+      ${authMethodSql('u')} AS "authMethod",
       u.created_at AS "createdAt",
       COALESCE(ev.total, 0) AS "totalEvents",
       COALESCE(ev.ai, 0) AS "aiQueries",
@@ -250,6 +261,7 @@ export const findUserDetail = async (userId) => {
       u.goal,
       r.name AS role,
       p.name AS plan,
+      ${authMethodSql('u')} AS "authMethod",
       pr.height,
       pr.weight,
       u.created_at AS "createdAt",
