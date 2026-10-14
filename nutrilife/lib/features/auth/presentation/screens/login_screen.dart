@@ -4,8 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/google_auth_service.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
+import '../../../setup/presentation/screens/profile_setup_screen.dart';
+import '../../data/auth_repository.dart';
 import 'auth_flow_navigator.dart';
 import 'register_screen.dart';
 
@@ -168,6 +171,8 @@ class _LoginPanelState extends State<_LoginPanel> {
 
   late final TextEditingController _passwordController;
 
+  final _authRepository = AuthRepository();
+
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   String? _errorMessage;
@@ -186,6 +191,52 @@ class _LoginPanelState extends State<_LoginPanel> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  /// Tras iniciar sesión: al setup del perfil si falta, si no al Dashboard.
+  void _goToApp(Map<String, dynamic> user, {required bool needsProfileSetup}) {
+    final Widget destination = needsProfileSetup
+        ? ProfileSetupScreen(userName: user['name']?.toString())
+        : DashboardScreen(user: user);
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => destination),
+      (route) => false,
+    );
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    setState(() {
+      _errorMessage = message;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    setState(() {
+      _errorMessage = null;
+      _isLoading = true;
+    });
+
+    try {
+      final idToken = await GoogleAuthService.getIdToken();
+      if (idToken == null) {
+        // El usuario cerró el selector: no es un error.
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+
+      final result = await _authRepository.loginWithGoogle(idToken);
+      await SessionService.save(token: result.token, user: result.user);
+
+      if (!mounted) return;
+      _goToApp(result.user, needsProfileSetup: result.needsProfileSetup);
+    } on GoogleAuthException catch (error) {
+      _showError(error.message);
+    } on AuthException catch (error) {
+      _showError(error.message);
+    }
   }
 
   Future<void> _handleLogin() async {
@@ -209,10 +260,9 @@ class _LoginPanelState extends State<_LoginPanel> {
         );
 
         if (!mounted) return;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => DashboardScreen(user: result['user']),
-          ),
+        _goToApp(
+          result['user'] as Map<String, dynamic>,
+          needsProfileSetup: result['needsProfileSetup'] == true,
         );
 
         return;
@@ -415,6 +465,7 @@ class _LoginPanelState extends State<_LoginPanel> {
                 // Login con Apple retirado temporalmente.
                 _SocialButton(
                   semanticsLabel: 'Continuar con Google',
+                  onPressed: _isLoading ? null : _handleGoogleLogin,
                   child: SvgPicture.asset(
                     'assets/images/google_wordmark.svg',
                     height: 20,
@@ -566,9 +617,14 @@ class _LoginInput extends StatelessWidget {
 }
 
 class _SocialButton extends StatelessWidget {
-  const _SocialButton({required this.semanticsLabel, required this.child});
+  const _SocialButton({
+    required this.semanticsLabel,
+    required this.onPressed,
+    required this.child,
+  });
 
   final String semanticsLabel;
+  final VoidCallback? onPressed;
   final Widget child;
 
   @override
@@ -578,7 +634,7 @@ class _SocialButton extends StatelessWidget {
       width: double.infinity,
 
       child: TextButton(
-        onPressed: () {},
+        onPressed: onPressed,
 
         style: TextButton.styleFrom(
           backgroundColor: const Color(0xFFF0F3F4),
