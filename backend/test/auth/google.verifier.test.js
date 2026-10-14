@@ -54,11 +54,17 @@ test('token rechazado por Google: 401 INVALID_GOOGLE_TOKEN', async () => {
   verifyImpl = async () => {
     throw new Error('Token used too late');
   };
+  const warn = mock.method(console, 'warn', () => {});
 
-  await assert.rejects(verifyGoogleIdToken('token'), {
-    status: 401,
-    code: 'INVALID_GOOGLE_TOKEN',
-  });
+  try {
+    await assert.rejects(verifyGoogleIdToken('token'), {
+      status: 401,
+      code: 'INVALID_GOOGLE_TOKEN',
+    });
+    assert.equal(warn.mock.callCount(), 1);
+  } finally {
+    warn.mock.restore();
+  }
 });
 
 test('payload sin sub o sin email: 401 INVALID_GOOGLE_TOKEN', async () => {

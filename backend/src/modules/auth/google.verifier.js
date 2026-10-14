@@ -20,7 +20,10 @@ export const verifyGoogleIdToken = async (idToken) => {
   try {
     const ticket = await client.verifyIdToken({ idToken, audience });
     payload = ticket.getPayload();
-  } catch {
+  } catch (error) {
+    // Solo al log: la causa (p. ej. audiencia distinta de GOOGLE_CLIENT_IDS)
+    // nunca se envía al cliente.
+    console.warn('[auth] Google rechazó el idToken:', error.message);
     throw invalidToken();
   }
 
