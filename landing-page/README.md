@@ -1,23 +1,27 @@
 # NutriLife Web
 
-Sitio informativo independiente hecho con Flutter y Dart. Incluye rutas para
-privacidad, términos y condiciones, eliminación de datos y soporte.
+Sitio informativo de NutriLife construido con React, JavaScript y HTML/CSS.
+Incluye la página principal, Política de Privacidad, Términos y Condiciones,
+eliminación de cuenta y datos, y soporte. Esta carpeta usa npm/Vite para la web.
 
-## Probar en Chrome
+## Iniciar en desarrollo
 
 Desde esta carpeta, ejecuta:
 
 ```powershell
-flutter pub get
-flutter run -d chrome
+npm install
+npm run dev
 ```
 
-## Rutas
+## Generar la versión para publicar
+
+```powershell
+npm run build
+```
+
+Las páginas legales usan rutas con fragmento para funcionar en hosting estático:
 
 - `/#/privacidad`
 - `/#/terminos`
 - `/#/eliminacion-de-datos`
 - `/#/soporte`
-
-Las rutas usan el fragmento `#` de la URL para que funcionen en hosting estático
-sin reglas adicionales de reescritura.
