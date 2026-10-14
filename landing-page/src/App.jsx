@@ -11,6 +11,19 @@ const navigation = [
   { label: 'Soporte', route: '/soporte' },
 ];
 
+function Otter({ name, className = '', alt = '' }) {
+  return (
+    <img
+      className={`otter ${className}`.trim()}
+      src={`/nutrias/${name}.webp`}
+      alt={alt}
+      aria-hidden={alt ? undefined : 'true'}
+      loading="lazy"
+      decoding="async"
+    />
+  );
+}
+
 function currentRoute() {
   const route = window.location.hash.replace(/^#/, '').split('?')[0];
   return route || '/';
@@ -22,10 +35,7 @@ function SiteHeader({ activeRoute }) {
       <div className="header-inner">
         <a className="brand" href="#/" aria-label="NutriLife, inicio">
           <span className="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M19.5 4.5C12 4.8 6.2 6.6 5 11.4c-.8 3.2 1.4 5.7 4.2 5.7 5.3 0 8.8-5.8 10.3-12.6Z" />
-              <path d="M3.5 21c2.4-5.2 6.4-8.7 11.6-11.4" />
-            </svg>
+            <img src="/nutrias/feliz.webp" alt="" />
           </span>
           <span>NutriLife</span>
         </a>
@@ -49,7 +59,10 @@ function SiteHeader({ activeRoute }) {
 function SiteFooter() {
   return (
     <footer className="site-footer">
-      <span>© 2026 NutriLife</span>
+      <span className="footer-brand">
+        <Otter name="sentada" className="footer-otter" />
+        © 2026 NutriLife
+      </span>
       <nav aria-label="Enlaces del pie de página">
         {navigation.slice(1).map(({ label, route }) => (
           <a href={`#${route}`} key={route}>{label}</a>
@@ -93,11 +106,16 @@ function FeatureIcon({ kind }) {
   );
 }
 
-function InfoCard({ icon, title, children, action }) {
+function InfoCard({ icon, otter, title, children, action }) {
   return (
-    <article className="info-card">
+    <article className={otter ? 'info-card has-otter' : 'info-card'}>
+      {otter && (
+        <div className="card-otter-stage" aria-hidden="true">
+          <Otter name={otter} />
+        </div>
+      )}
       <div className="card-heading">
-        <FeatureIcon kind={icon} />
+        {!otter && <FeatureIcon kind={icon} />}
         <h3>{title}</h3>
       </div>
       <div className="card-copy">{children}</div>
@@ -123,51 +141,73 @@ function HomePage() {
   return (
     <SiteFrame activeRoute="/">
       <section className="hero-card">
-        <span className="eyebrow">TU ASISTENTE NUTRICIONAL</span>
-        <h1>Bienvenido a nuestra web</h1>
-        <p>
-          NutriLife reúne el registro de comidas, tus objetivos y el seguimiento
-          de tu progreso, junto con herramientas para encontrar ideas de
-          alimentación. Queremos ayudarte a conocer mejor tus hábitos y avanzar
-          a tu propio ritmo.
-        </p>
-        <a className="button button-primary" href="#/soporte">Conoce más sobre NutriLife <span aria-hidden="true">→</span></a>
-        <div className="hero-decoration" aria-hidden="true">
-          <span className="decor-circle decor-circle-one" />
-          <span className="decor-circle decor-circle-two" />
-          <span className="decor-leaf">✳</span>
+        <div className="hero-copy">
+          <span className="eyebrow">TU ASISTENTE NUTRICIONAL</span>
+          <h1>Bienvenido a nuestra web</h1>
+          <p>
+            NutriLife reúne el registro de comidas, tus objetivos y el seguimiento
+            de tu progreso, junto con herramientas para encontrar ideas de
+            alimentación. Queremos ayudarte a conocer mejor tus hábitos y avanzar
+            a tu propio ritmo.
+          </p>
+          <a className="button button-primary" href="#/soporte">Conoce más sobre NutriLife <span aria-hidden="true">→</span></a>
+        </div>
+        <div className="hero-stage" aria-hidden="true">
+          <div className="hero-notes">
+            <span className="speech-bubble">¡Hola! Te acompaño en cada comida</span>
+            <span className="float-chip chip-goal">
+              <span className="chip-label">META DIARIA</span>
+              <strong>1.850 kcal</strong>
+              <span className="chip-bar"><span /></span>
+            </span>
+            <span className="float-chip chip-meal">
+              <span className="chip-check">✓</span>
+              Almuerzo registrado
+            </span>
+          </div>
+          <div className="hero-figure">
+            <span className="hero-circle" />
+            <span className="hero-shadow" />
+            <Otter name="saludando" className="hero-otter" />
+          </div>
         </div>
       </section>
 
       <section className="content-section">
         <SectionHeading>Nuestro objetivo</SectionHeading>
-        <InfoCard icon="goal" title="Acompañarte a organizar tus hábitos de alimentación">
-          NutriLife busca ayudarte a tener una visión más clara de lo que comes y
-          de tus metas. Para eso reúne en un mismo lugar el registro de alimentos,
-          el seguimiento de calorías y peso, y un asistente con IA para explorar
-          opciones de alimentación.
-        </InfoCard>
+        <article className="mission-card">
+          <div className="mission-copy">
+            <h3>Acompañarte a organizar tus hábitos de alimentación</h3>
+            <p>
+              NutriLife busca ayudarte a tener una visión más clara de lo que comes y
+              de tus metas. Para eso reúne en un mismo lugar el registro de alimentos,
+              el seguimiento de calorías y peso, y un asistente con IA para explorar
+              opciones de alimentación.
+            </p>
+          </div>
+          <Otter name="agua" className="mission-otter" />
+        </article>
       </section>
 
       <section className="content-section">
         <SectionHeading>¿Qué encontrarás en la app?</SectionHeading>
         <div className="feature-grid">
-          <InfoCard icon="goal" title="Perfil y objetivos nutricionales">
+          <InfoCard otter="cintametrica" title="Perfil y objetivos nutricionales">
             Completa tus datos, como edad, estatura y peso, y elige si tu objetivo
             es bajar, mantener o subir de peso. La app usa esa información para
             mostrarte una meta diaria de calorías.
           </InfoCard>
-          <InfoCard icon="meals" title="Alimentos, comidas e historial">
+          <InfoCard otter="comiendo" title="Alimentos, comidas e historial">
             Busca alimentos en el catálogo común o registra los tuyos. Añádelos a
             tus comidas —desayuno, almuerzo, cena o snack— y consulta lo que has
             guardado en el historial.
           </InfoCard>
-          <InfoCard icon="ai" title="Asistente nutricional con IA">
+          <InfoCard otter="pensando" title="Asistente nutricional con IA">
             Pide recetas, consejos de nutrición o planes de alimentación. En una
             consulta puedes incluir alimentos comunes o productos de tu nevera;
             las recetas también se pueden revisar y registrar como comida.
           </InfoCard>
-          <InfoCard icon="progress" title="Resumen y progreso">
+          <InfoCard otter="pesas" title="Resumen y progreso">
             Revisa las calorías consumidas y tu meta del día, consulta el resumen
             semanal y registra tu peso para ver su historial.
           </InfoCard>
@@ -183,7 +223,29 @@ function HomePage() {
           <LinkCard icon="support" title="Soporte" description="Escríbenos si necesitas ayuda." route="/soporte" />
         </div>
       </section>
+
+      <section className="closing-band">
+        <Otter name="celebracion" className="closing-otter" />
+        <div>
+          <h2>Cada pequeño paso cuenta</h2>
+          <p>Registra, aprende y celebra tu progreso con NutriLife.</p>
+        </div>
+        <a className="button button-light" href="#/soporte">Hablar con nosotros</a>
+      </section>
     </SiteFrame>
+  );
+}
+
+function PageHeading({ eyebrow, title, otter, children }) {
+  return (
+    <div className="document-heading">
+      <div className="document-heading-copy">
+        <span className="eyebrow">{eyebrow}</span>
+        <h1>{title}</h1>
+        {children}
+      </div>
+      {otter && <Otter name={otter} className="heading-otter" />}
+    </div>
   );
 }
 
@@ -198,11 +260,9 @@ function LegalBlock({ block }) {
 function LegalDocumentPage({ document, route }) {
   return (
     <SiteFrame activeRoute={route}>
-      <div className="document-heading">
-        <span className="eyebrow">INFORMACIÓN LEGAL</span>
-        <h1>{document.title}</h1>
+      <PageHeading eyebrow="INFORMACIÓN LEGAL" title={document.title} otter={route === '/privacidad' ? 'atenta' : 'leyendo'}>
         <p className="updated-at">Última actualización: {legalDocuments.updatedAt}</p>
-      </div>
+      </PageHeading>
       {document.intro.map((block, index) => <LegalBlock block={block} key={`intro-${index}`} />)}
       <div className="legal-sections">
         {document.sections.map((section) => (
@@ -229,10 +289,7 @@ function DataDeletionPage() {
 
   return (
     <SiteFrame activeRoute="/eliminacion-de-datos">
-      <div className="document-heading">
-        <span className="eyebrow">CONTROL DE TUS DATOS</span>
-        <h1>Eliminación de cuenta y datos</h1>
-      </div>
+      <PageHeading eyebrow="CONTROL DE TUS DATOS" title="Eliminación de cuenta y datos" otter="triste" />
       <p className="page-intro">
         Puedes solicitar la eliminación de tu cuenta de NutriLife y de los datos
         personales asociados. Hay dos formas de hacerlo:
@@ -265,10 +322,7 @@ function DataDeletionPage() {
 function SupportPage() {
   return (
     <SiteFrame activeRoute="/soporte">
-      <div className="document-heading">
-        <span className="eyebrow">ESTAMOS PARA AYUDAR</span>
-        <h1>Soporte</h1>
-      </div>
+      <PageHeading eyebrow="ESTAMOS PARA AYUDAR" title="Soporte" otter="saludando" />
       <p className="page-intro">
         Si tienes preguntas sobre NutriLife, tu cuenta o tus datos, puedes
         escribirnos por correo electrónico.
@@ -283,10 +337,7 @@ function SupportPage() {
 function NotFoundPage() {
   return (
     <SiteFrame activeRoute="">
-      <div className="document-heading">
-        <span className="eyebrow">NUTRILIFE</span>
-        <h1>Página no encontrada</h1>
-      </div>
+      <PageHeading eyebrow="NUTRILIFE" title="Página no encontrada" otter="enojada" />
       <a className="button button-primary" href="#/">Volver al inicio</a>
     </SiteFrame>
   );
