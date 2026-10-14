@@ -4,6 +4,8 @@ export type Plan = 'FREE' | 'PRO';
 
 export type AuthMethod = 'EMAIL' | 'GOOGLE' | 'BOTH';
 
+export type Role = 'ADMIN' | 'USER';
+
 export interface DayPoint {
   day: string;
   registrations: number;

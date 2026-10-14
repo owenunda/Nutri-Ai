@@ -393,3 +393,33 @@ export const updateUserPlan = async (userId, planName) => {
   const { rows } = await pool.query(query, [userId, planName]);
   return rows[0] ?? null;
 };
+
+/**
+ * Pone una contraseña nueva (ya hasheada) a un usuario.
+ * @returns {Promise<Object|null>} { userId } o null si no existe.
+ */
+export const updateUserPassword = async (userId, passwordHash) => {
+  const { rows } = await pool.query(
+    `UPDATE users SET password = $2, updated_at = CURRENT_TIMESTAMP
+     WHERE user_id = $1
+     RETURNING user_id AS "userId"`,
+    [userId, passwordHash]
+  );
+  return rows[0] ?? null;
+};
+
+/**
+ * Cambia el rol de un usuario (ADMIN / USER).
+ * @returns {Promise<Object|null>} El usuario actualizado o null si no existe.
+ */
+export const updateUserRole = async (userId, roleName) => {
+  const query = `
+    UPDATE users u
+    SET role_id = r.role_id, updated_at = CURRENT_TIMESTAMP
+    FROM roles r
+    WHERE u.user_id = $1 AND r.name = $2
+    RETURNING u.user_id AS "userId", r.name AS role
+  `;
+  const { rows } = await pool.query(query, [userId, roleName]);
+  return rows[0] ?? null;
+};

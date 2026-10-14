@@ -12,6 +12,8 @@ import {
   MessageCircle,
   Refrigerator,
   Scale,
+  ShieldCheck,
+  ShieldOff,
   Sparkles,
   UtensilsCrossed,
 } from 'lucide-react';
@@ -26,13 +28,16 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { fetchUserDetail, updateUserPlan } from '../lib/admin.api';
+import { fetchUserDetail, updateUserPassword, updateUserPlan, updateUserRole } from '../lib/admin.api';
 import { getErrorMessage } from '../lib/api';
+import { useAuth } from '../lib/auth';
 import { cn, formatAxisDay, formatDate, formatDay, formatNumber, formatRelative } from '../lib/utils';
-import type { Plan, UserDetail as UserDetailData } from '../types/admin';
+import type { Plan, Role, UserDetail as UserDetailData } from '../types/admin';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button, buttonVariants } from '../components/ui/button';
 import { Dialog } from '../components/ui/dialog';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
 import { StatCard } from '../components/StatCard';
 import { UserAvatar } from '../components/UserAvatar';
 import { ModuleBadge, PlanBadge, StatusBadge, authMethodLabel } from '../components/CategoryBadge';
@@ -47,6 +52,9 @@ export default function UserDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [planDialog, setPlanDialog] = useState(false);
+  const [passwordDialog, setPasswordDialog] = useState(false);
+  const [roleDialog, setRoleDialog] = useState(false);
+  const { user: currentUser } = useAuth();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -82,6 +90,8 @@ export default function UserDetail() {
 
   const { profile, usage } = data;
   const isPro = profile.plan === 'PRO';
+  const isAdmin = profile.role === 'ADMIN';
+  const isSelf = currentUser?.userId === profile.userId;
 
   return (
     <div className="space-y-6">
@@ -128,6 +138,24 @@ export default function UserDetail() {
           >
             <Crown className="h-4 w-4" />
             {isPro ? 'Pasar a FREE' : 'Regalar PRO'}
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setPasswordDialog(true)}
+            className="bg-white/15 text-white hover:bg-white/25"
+          >
+            <KeyRound className="h-4 w-4" />
+            Cambiar contraseña
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setRoleDialog(true)}
+            disabled={isSelf}
+            title={isSelf ? 'No puedes cambiar tu propio rol' : undefined}
+            className="bg-white/15 text-white hover:bg-white/25"
+          >
+            {isAdmin ? <ShieldOff className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+            {isAdmin ? 'Quitar admin' : 'Hacer admin'}
           </Button>
           <Link
             to={`/events?userId=${profile.userId}`}
@@ -265,6 +293,30 @@ export default function UserDetail() {
         current={profile.plan}
         onChanged={(plan) => setData((d) => (d ? { ...d, profile: { ...d.profile, plan } } : d))}
       />
+
+      <PasswordDialog
+        open={passwordDialog}
+        onClose={() => setPasswordDialog(false)}
+        userId={profile.userId}
+        name={profile.name}
+        // Con contraseña, un usuario que solo entraba con Google pasa a "Ambos".
+        onChanged={() =>
+          setData((d) =>
+            d && d.profile.authMethod === 'GOOGLE'
+              ? { ...d, profile: { ...d.profile, authMethod: 'BOTH' } }
+              : d
+          )
+        }
+      />
+
+      <RoleDialog
+        open={roleDialog}
+        onClose={() => setRoleDialog(false)}
+        userId={profile.userId}
+        name={profile.name}
+        isAdmin={isAdmin}
+        onChanged={(role) => setData((d) => (d ? { ...d, profile: { ...d.profile, role } } : d))}
+      />
     </div>
   );
 }
@@ -344,6 +396,155 @@ function PlanDialog({
         >
           {saving && <Loader2 className="h-4 w-4 animate-spin" />}
           {next === 'PRO' ? 'Dar PRO' : 'Pasar a FREE'}
+        </Button>
+      </div>
+    </Dialog>
+  );
+}
+
+const MIN_PASSWORD_LENGTH = 6;
+
+function PasswordDialog({
+  open,
+  onClose,
+  userId,
+  name,
+  onChanged,
+}: {
+  open: boolean;
+  onClose: () => void;
+  userId: number;
+  name: string;
+  onChanged: () => void;
+}) {
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const close = () => {
+    setPassword('');
+    setConfirmation('');
+    setError(null);
+    onClose();
+  };
+
+  const save = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`);
+      return;
+    }
+    if (password !== confirmation) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+    try {
+      await updateUserPassword(userId, password);
+      onChanged();
+      close();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={close} title="Cambiar contraseña">
+      <form onSubmit={save} className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          {name} podrá entrar con esta contraseña desde ahora. Su contraseña anterior deja de funcionar.
+        </p>
+        <div className="space-y-2">
+          <Label htmlFor="new-password">Contraseña nueva</Label>
+          <Input
+            id="new-password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={saving}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="confirm-password">Repite la contraseña</Label>
+          <Input
+            id="confirm-password"
+            type="password"
+            autoComplete="new-password"
+            value={confirmation}
+            onChange={(e) => setConfirmation(e.target.value)}
+            disabled={saving}
+          />
+        </div>
+        {error && <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+        <div className="flex justify-end gap-2 pt-2">
+          <Button type="button" variant="outline" onClick={close} disabled={saving}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={saving}>
+            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+            Guardar
+          </Button>
+        </div>
+      </form>
+    </Dialog>
+  );
+}
+
+function RoleDialog({
+  open,
+  onClose,
+  userId,
+  name,
+  isAdmin,
+  onChanged,
+}: {
+  open: boolean;
+  onClose: () => void;
+  userId: number;
+  name: string;
+  isAdmin: boolean;
+  onChanged: (role: Role) => void;
+}) {
+  const next: Role = isAdmin ? 'USER' : 'ADMIN';
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const confirm = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const result = await updateUserRole(userId, next);
+      onChanged(result.role);
+      onClose();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} title={next === 'ADMIN' ? 'Hacer administrador' : 'Quitar administrador'}>
+      <p className="text-sm text-muted-foreground">
+        {next === 'ADMIN'
+          ? `${name} podrá entrar a este panel y ver y cambiar los datos de todos los usuarios.`
+          : `${name} ya no podrá entrar a este panel.`}{' '}
+        El cambio se aplica la próxima vez que inicie sesión.
+      </p>
+      {error && <p className="mt-4 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+      <div className="mt-6 flex justify-end gap-2">
+        <Button variant="outline" onClick={onClose} disabled={saving}>
+          Cancelar
+        </Button>
+        <Button onClick={confirm} disabled={saving} variant={next === 'ADMIN' ? 'default' : 'destructive'}>
+          {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+          {next === 'ADMIN' ? 'Hacer admin' : 'Quitar admin'}
         </Button>
       </div>
     </Dialog>

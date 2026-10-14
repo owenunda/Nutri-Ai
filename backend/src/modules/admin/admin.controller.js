@@ -3,6 +3,8 @@ import {
   listUsersService,
   getUserDetailService,
   updateUserPlanService,
+  updateUserPasswordService,
+  updateUserRoleService,
 } from './admin.service.js';
 import { successResponse } from '../../utils/response.js';
 
@@ -37,6 +39,24 @@ export const updateUserPlan = async (req, res, next) => {
   try {
     const result = await updateUserPlanService(req.targetUserId, req.body.plan);
     return successResponse(res, result, 'Plan actualizado con éxito');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserPassword = async (req, res, next) => {
+  try {
+    const result = await updateUserPasswordService(req.user.userId, req.targetUserId, req.body.password);
+    return successResponse(res, result, 'Contraseña actualizada con éxito');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserRole = async (req, res, next) => {
+  try {
+    const result = await updateUserRoleService(req.user.userId, req.targetUserId, req.body.role);
+    return successResponse(res, result, 'Rol actualizado con éxito');
   } catch (error) {
     next(error);
   }
