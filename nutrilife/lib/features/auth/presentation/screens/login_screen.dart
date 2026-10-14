@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -411,18 +412,13 @@ class _LoginPanelState extends State<_LoginPanel> {
 
                 const SizedBox(height: 22),
 
-                Row(
-                  children: const [
-                    Expanded(
-                      child: _SocialButton(label: 'Google', iconText: 'G'),
-                    ),
-
-                    SizedBox(width: 18),
-
-                    Expanded(
-                      child: _SocialButton(label: 'Apple', icon: Icons.apple),
-                    ),
-                  ],
+                // Login con Apple retirado temporalmente.
+                _SocialButton(
+                  semanticsLabel: 'Continuar con Google',
+                  child: SvgPicture.asset(
+                    'assets/images/google_wordmark.svg',
+                    height: 20,
+                  ),
                 ),
               ],
             ),
@@ -570,16 +566,16 @@ class _LoginInput extends StatelessWidget {
 }
 
 class _SocialButton extends StatelessWidget {
-  const _SocialButton({required this.label, this.icon, this.iconText});
+  const _SocialButton({required this.semanticsLabel, required this.child});
 
-  final String label;
-  final IconData? icon;
-  final String? iconText;
+  final String semanticsLabel;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 48,
+      width: double.infinity,
 
       child: TextButton(
         onPressed: () {},
@@ -594,38 +590,10 @@ class _SocialButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14),
         ),
 
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          mainAxisSize: MainAxisSize.min,
-
-          children: [
-            if (icon != null)
-              Icon(icon, size: 17, color: const Color(0xFF2C2F31)),
-
-            if (iconText != null)
-              Text(
-                iconText!,
-
-                style: const TextStyle(
-                  color: Color(0xFF2C2F31),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-
-            if (icon != null || iconText != null) const SizedBox(width: 6),
-
-            Text(
-              label,
-
-              style: const TextStyle(
-                color: Color(0xFF2C2F31),
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
+        child: Semantics(
+          label: semanticsLabel,
+          excludeSemantics: true,
+          child: child,
         ),
       ),
     );
