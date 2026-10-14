@@ -13,7 +13,7 @@ const REPO_EXPORTS = [
   'findUserByProvider',
   'getAuthRepositoryStatus',
   'getDefaultRoleAndPlanIds',
-  'linkAuthProvider',
+  'linkProviderToExistingUser',
 ];
 
 const repo = {};
@@ -69,7 +69,7 @@ beforeEach(() => {
     findUserByProvider: async () => null,
     getAuthRepositoryStatus: async () => ({}),
     getDefaultRoleAndPlanIds: async () => ({ roleId: 2, planId: 1 }),
-    linkAuthProvider: fail('linkAuthProvider'),
+    linkProviderToExistingUser: fail('linkProviderToExistingUser'),
   });
 });
 
@@ -92,15 +92,17 @@ test('Google: usuario ya vinculado entra sin crear ni vincular nada', async () =
   assert.equal(events[0].metadata.method, 'google');
 });
 
-test('Google: email ya registrado con contraseña se vincula', async () => {
+test('Google: email ya registrado con contraseña se vincula y la contraseña se borra', async () => {
   const links = [];
   repo.findUserByEmail = async () => ana;
-  repo.linkAuthProvider = async (link) => {
+  repo.linkProviderToExistingUser = async (link) => {
     links.push(link);
   };
 
   const session = await loginWithGoogle({ idToken: 'tok' });
 
+  // Una sola llamada que vincula y deja la cuenta sin contraseña: quien la
+  // hubiera registrado con el correo de otro pierde el acceso.
   assert.deepEqual(links, [
     { userId: 7, provider: 'google', providerUserId: 'sub-1', email: 'ana@gmail.com' },
   ]);

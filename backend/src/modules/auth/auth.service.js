@@ -10,7 +10,7 @@ import {
   findUserByProvider,
   getAuthRepositoryStatus,
   getDefaultRoleAndPlanIds,
-  linkAuthProvider,
+  linkProviderToExistingUser,
 } from './auth.repository.js';
 import { verifyGoogleIdToken } from './google.verifier.js';
 import { createFridgeService } from '../fridge/fridge.service.js';
@@ -212,14 +212,19 @@ const resolveGoogleUser = async ({ sub, email, name }) => {
       );
     }
 
-    await linkAuthProvider({ userId: existingUser.userId, provider: GOOGLE, providerUserId: sub, email });
+    await linkProviderToExistingUser({
+      userId: existingUser.userId,
+      provider: GOOGLE,
+      providerUserId: sub,
+      email,
+    });
     await logEventService({
       eventType: 'ACCOUNT_LINKED',
       category: 'AUTH',
       userId: existingUser.userId,
       metadata: { provider: GOOGLE },
     });
-    return existingUser;
+    return { ...existingUser, passwordHash: null };
   }
 
   const displayName = name?.trim() || email.split('@')[0];
