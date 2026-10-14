@@ -28,7 +28,7 @@ recibiendo el mismo JWT propio que el login con email, sin romper a los usuarios
 | Tema | Decisión |
 |---|---|
 | Proveedores | Solo Google. Apple queda fuera por ahora, pero el modelo de datos lo admite sin migrar. |
-| Email ya registrado con contraseña | Se vincula automáticamente si Google devuelve `email_verified = true`, y la contraseña se borra (la cuenta pasa a ser solo de Google). El registro con email no verifica el correo: así, quien registró antes el correo de otra persona pierde el acceso en cuanto el dueño real entra con Google. |
+| Email ya registrado con contraseña | Se vincula automáticamente si Google devuelve `email_verified = true`, y la contraseña se borra (la cuenta pasa a ser solo de Google). El registro con email no verifica el correo: así, quien registró antes el correo de otra persona pierde el acceso en cuanto el dueño real entra con Google. Excepción: las cuentas ADMIN conservan la contraseña (el panel de admin solo entra con ella, y el rol ADMIN se asigna a mano, así que no puede ser una cuenta preparada por otra persona). |
 | Usuarios sin contraseña | Solo pueden entrar con Google. El login con email les responde `USE_GOOGLE_SIGN_IN`. Crear contraseña queda como trabajo futuro. |
 | Borrar cuenta sin contraseña | Se re-autentica con Google; el backend comprueba que el `sub` coincide. |
 | Admin-panel | Sigue con email + contraseña. Muestra el método de cada usuario (`EMAIL`, `GOOGLE`, `BOTH`). `BOTH` solo aparecerá cuando exista "crear contraseña desde el perfil". |
@@ -93,7 +93,8 @@ Va en un módulo aparte para poder simularlo en los tests.
 3. Busca en `user_auth_providers` por `('google', sub)`:
    - **Existe** → ese es el usuario. Evento `LOGIN` con `metadata.method = 'google'`.
    - **No existe y hay un usuario con ese email** → inserta la fila del proveedor
-     (vinculación) y, en la misma transacción, pone su `password` en `NULL`. Evento
+     (vinculación) y, en la misma transacción, pone su `password` en `NULL` salvo
+     que el usuario sea ADMIN. Evento
      `ACCOUNT_LINKED`, y luego `LOGIN`. Si ese usuario ya tiene
      vinculada otra cuenta de Google (otro `sub`, p. ej. una cuenta de Google borrada y
      recreada con el mismo email) → 409 `GOOGLE_ACCOUNT_CONFLICT`; no se sobrescribe.

@@ -104,9 +104,32 @@ test('Google: email ya registrado con contraseña se vincula y la contraseña se
   // Una sola llamada que vincula y deja la cuenta sin contraseña: quien la
   // hubiera registrado con el correo de otro pierde el acceso.
   assert.deepEqual(links, [
-    { userId: 7, provider: 'google', providerUserId: 'sub-1', email: 'ana@gmail.com' },
+    {
+      userId: 7,
+      provider: 'google',
+      providerUserId: 'sub-1',
+      email: 'ana@gmail.com',
+      clearPassword: true,
+    },
   ]);
   assert.equal(session.user.userId, 7);
+  assert.deepEqual(eventTypes(), ['ACCOUNT_LINKED', 'LOGIN']);
+});
+
+test('Google: una cuenta ADMIN se vincula sin perder la contraseña', async () => {
+  const links = [];
+  repo.findUserByEmail = async () => ({ ...ana, role: 'ADMIN' });
+  repo.linkProviderToExistingUser = async (link) => {
+    links.push(link);
+  };
+
+  const session = await loginWithGoogle({ idToken: 'tok' });
+
+  // El panel de admin solo entra con contraseña, y los ADMIN se asignan a
+  // mano: no los puede haber creado alguien con el correo de otro.
+  assert.equal(links.length, 1);
+  assert.equal(links[0].clearPassword, false);
+  assert.equal(session.user.role, 'ADMIN');
   assert.deepEqual(eventTypes(), ['ACCOUNT_LINKED', 'LOGIN']);
 });
 

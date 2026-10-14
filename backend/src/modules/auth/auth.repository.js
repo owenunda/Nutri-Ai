@@ -123,20 +123,28 @@ export const createUserWithProvider = async ({ provider, providerUserId, ...user
   }
 };
 
-// Vincula Google a una cuenta que ya existía y le borra la contraseña.
-// El registro con email no verifica el correo: si la cuenta la creó otra
-// persona con el correo del dueño, esa contraseña deja de servir en cuanto
-// Google demuestra quién es el dueño real.
-export const linkProviderToExistingUser = async ({ userId, provider, providerUserId, email }) => {
+// Vincula Google a una cuenta que ya existía y, con `clearPassword`, le borra
+// la contraseña. El registro con email no verifica el correo: si la cuenta la
+// creó otra persona con el correo del dueño, esa contraseña deja de servir en
+// cuanto Google demuestra quién es el dueño real.
+export const linkProviderToExistingUser = async ({
+  userId,
+  provider,
+  providerUserId,
+  email,
+  clearPassword,
+}) => {
   const client = await pool.connect();
 
   try {
     await client.query('BEGIN');
     await linkAuthProvider({ userId, provider, providerUserId, email }, client);
-    await client.query(
-      'UPDATE users SET password = NULL, updated_at = CURRENT_TIMESTAMP WHERE user_id = $1',
-      [userId]
-    );
+    if (clearPassword) {
+      await client.query(
+        'UPDATE users SET password = NULL, updated_at = CURRENT_TIMESTAMP WHERE user_id = $1',
+        [userId]
+      );
+    }
     await client.query('COMMIT');
   } catch (error) {
     await client.query('ROLLBACK');

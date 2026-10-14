@@ -212,11 +212,16 @@ const resolveGoogleUser = async ({ sub, email, name }) => {
       );
     }
 
+    // Los ADMIN conservan la contraseña: el panel de admin solo entra con
+    // ella, y como el rol se asigna a mano no pueden ser una cuenta que otra
+    // persona registró con su correo.
+    const clearPassword = existingUser.role !== 'ADMIN';
     await linkProviderToExistingUser({
       userId: existingUser.userId,
       provider: GOOGLE,
       providerUserId: sub,
       email,
+      clearPassword,
     });
     await logEventService({
       eventType: 'ACCOUNT_LINKED',
@@ -224,7 +229,7 @@ const resolveGoogleUser = async ({ sub, email, name }) => {
       userId: existingUser.userId,
       metadata: { provider: GOOGLE },
     });
-    return { ...existingUser, passwordHash: null };
+    return clearPassword ? { ...existingUser, passwordHash: null } : existingUser;
   }
 
   const displayName = name?.trim() || email.split('@')[0];
