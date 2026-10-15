@@ -263,7 +263,7 @@
       }
     }
   },
-  "mealsRegisteredIn": "Logged in {meal} · {kcal} kcal",
+  "mealsRegisteredIn": "Added to {meal} · {kcal} kcal",
   "@mealsRegisteredIn": {
     "placeholders": {
       "meal": {
@@ -328,7 +328,7 @@
   "mealsRegisterTitle": "Log meal",
   "mealsLessPortions": "Fewer servings",
   "mealsMorePortions": "More servings",
-  "mealsCalculatingCalories": "Calculating calories… · recipe makes {servings}",
+  "mealsCalculatingCalories": "Calculating calories… · serves {servings}",
   "@mealsCalculatingCalories": {
     "placeholders": {
       "servings": {
@@ -336,7 +336,7 @@
       }
     }
   },
-  "mealsRecipeYield": "{kcal} kcal · recipe makes {servings}",
+  "mealsRecipeYield": "{kcal} kcal · serves {servings}",
   "@mealsRecipeYield": {
     "placeholders": {
       "kcal": {
@@ -348,7 +348,7 @@
     }
   },
   "mealsLoadFoodsError": "We couldn't load the recipe's foods. Please try again.",
-  "mealsRegisterIn": "Log in {meal}",
+  "mealsRegisterIn": "Add to {meal}",
   "@mealsRegisterIn": {
     "placeholders": {
       "meal": {

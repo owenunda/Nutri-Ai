@@ -53,14 +53,15 @@ int caloriesFor(double portions, double caloriesPerUnit) =>
     (portions * caloriesPerUnit).round();
 
 /// Cantidad de un ingrediente de receta: "17 g", o "0,25 unidad" si la unidad
-/// no es numérica (las fracciones de receta no siempre son medias).
-String ingredientAmountLabel(double quantity, String baseUnit) {
+/// no es numérica (las fracciones de receta no siempre son medias). El
+/// separador decimal sigue al idioma: coma en español, punto en inglés.
+String ingredientAmountLabel(double quantity, String baseUnit, AppLocalizations l10n) {
   if (_numericUnit.hasMatch(baseUnit)) return quantityLabel(quantity, baseUnit);
   final unit = baseUnit.trim().replaceFirst(RegExp(r'^\d+\s*'), '').toLowerCase();
   final shown = quantity == quantity.roundToDouble()
       ? quantity.toInt().toString()
-      : quantity.toStringAsFixed(2).replaceFirst(RegExp(r'0$'), '').replaceAll('.', ',');
-  return '$shown $unit';
+      : quantity.toStringAsFixed(2).replaceFirst(RegExp(r'0$'), '');
+  return '${l10n.localeName == 'es' ? shown.replaceAll('.', ',') : shown} $unit';
 }
 
 /// Subtítulo de un alimento registrado. Si son medias porciones exactas (lo
@@ -69,6 +70,6 @@ String ingredientAmountLabel(double quantity, String baseUnit) {
 /// redondear 0,75 a "½".
 String mealItemLabel(double quantity, String baseUnit, AppLocalizations l10n) {
   final isHalfStep = (quantity * 2 - (quantity * 2).roundToDouble()).abs() < 0.001;
-  if (!isHalfStep) return ingredientAmountLabel(quantity, baseUnit);
+  if (!isHalfStep) return ingredientAmountLabel(quantity, baseUnit, l10n);
   return '${portionsText(quantity, l10n)} · ${quantityLabel(quantity, baseUnit)}';
 }

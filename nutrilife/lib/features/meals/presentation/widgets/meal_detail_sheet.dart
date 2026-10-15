@@ -70,7 +70,7 @@ class _MealDetail extends StatelessWidget {
           for (final item in entry.value)
             _ItemTile(
               item: item,
-              subtitle: ingredientAmountLabel(item.quantity, item.baseUnit),
+              subtitle: ingredientAmountLabel(item.quantity, item.baseUnit, l10n),
               repository: repository,
               deletable: false,
             ),

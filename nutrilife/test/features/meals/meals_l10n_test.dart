@@ -59,6 +59,21 @@ void main() {
     });
   });
 
+  test('el separador decimal de los ingredientes sigue al idioma', () {
+    expect(ingredientAmountLabel(0.25, '1 UNIDAD', en), '0.25 unidad');
+    expect(ingredientAmountLabel(0.25, '1 UNIDAD', es), '0,25 unidad');
+    expect(ingredientAmountLabel(0.5, '1 UNIDAD', en), '0.5 unidad');
+    expect(ingredientAmountLabel(2, '1 UNIDAD', en), '2 unidad');
+    expect(mealItemLabel(0.17, '1 UNIDAD', en), '0.17 unidad');
+  });
+
+  test('el aviso de borrar receta distingue 1 ingrediente de varios', () {
+    expect(es.mealsDeleteRecipeBody('Pollo', 1), 'Se quitará "Pollo" con su ingrediente de esta comida.');
+    expect(es.mealsDeleteRecipeBody('Pollo', 3), 'Se quitará "Pollo" con sus 3 ingredientes de esta comida.');
+    expect(en.mealsDeleteRecipeBody('Pollo', 1), '"Pollo" will be removed from this meal along with its ingredient.');
+    expect(en.mealsDeleteRecipeBody('Pollo', 3), '"Pollo" will be removed from this meal along with its 3 ingredients.');
+  });
+
   testWidgets('las tarjetas del día salen en inglés', (tester) async {
     await tester.pumpWidget(l10nApp(
       Scaffold(body: SingleChildScrollView(child: DayMealsList(day: DayMeals.empty('2026-10-12'), onOpen: (_) {}))),

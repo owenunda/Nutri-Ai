@@ -642,7 +642,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String mealsRegisteredIn(String meal, int kcal) {
-    return 'Logged in $meal · $kcal kcal';
+    return 'Added to $meal · $kcal kcal';
   }
 
   @override
@@ -713,12 +713,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String mealsCalculatingCalories(int servings) {
-    return 'Calculating calories… · recipe makes $servings';
+    return 'Calculating calories… · serves $servings';
   }
 
   @override
   String mealsRecipeYield(int kcal, int servings) {
-    return '$kcal kcal · recipe makes $servings';
+    return '$kcal kcal · serves $servings';
   }
 
   @override
@@ -727,6 +727,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String mealsRegisterIn(String meal) {
-    return 'Log in $meal';
+    return 'Add to $meal';
   }
 }
