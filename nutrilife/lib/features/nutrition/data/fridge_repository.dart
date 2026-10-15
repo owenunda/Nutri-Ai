@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 import 'models/fridge_item_model.dart';
@@ -13,7 +14,7 @@ class FridgeRepository {
       final response = await _dio.get<Map<String, dynamic>>(ApiRoutes.fridge);
       final data = response.data;
       if (data == null || data['success'] != true) {
-        throw Exception(data?['message'] ?? 'Error al obtener la nevera');
+        throw Exception(data?['message'] ?? currentL10n.nutritionErrorLoadFridge);
       }
       final items = data['data']?['items'] as List? ?? [];
       return items
@@ -22,11 +23,12 @@ class FridgeRepository {
           .toList();
     } on DioException catch (e) {
       final message =
-          e.response?.data?['message'] ?? 'Error de conexión con el servidor';
+          e.response?.data?['message'] ??
+          currentL10n.nutritionErrorServerConnection;
       throw Exception(message);
     } catch (e) {
       if (e is Exception) rethrow;
-      throw Exception('Ocurrió un error inesperado al obtener la nevera: $e');
+      throw Exception(currentL10n.nutritionErrorUnexpectedLoadFridge(e.toString()));
     }
   }
 
@@ -49,7 +51,7 @@ class FridgeRepository {
       );
       final data = response.data;
       if (data == null || data['success'] != true) {
-        throw Exception(data?['message'] ?? 'No se pudo agregar a la nevera');
+        throw Exception(data?['message'] ?? currentL10n.nutritionErrorAddToFridge);
       }
       final raw = data['data'];
       if (raw is Map<String, dynamic>) {
@@ -69,11 +71,12 @@ class FridgeRepository {
       );
     } on DioException catch (e) {
       final message =
-          e.response?.data?['message'] ?? 'Error de conexión con el servidor';
+          e.response?.data?['message'] ??
+          currentL10n.nutritionErrorServerConnection;
       throw Exception(message);
     } catch (e) {
       if (e is Exception) rethrow;
-      throw Exception('No se pudo agregar a la nevera: $e');
+      throw Exception(currentL10n.nutritionErrorAddToFridgeDetail(e.toString()));
     }
   }
 
@@ -89,15 +92,16 @@ class FridgeRepository {
       );
       final data = response.data;
       if (data == null || data['success'] != true) {
-        throw Exception(data?['message'] ?? 'No se pudo actualizar la cantidad');
+        throw Exception(data?['message'] ?? currentL10n.nutritionErrorUpdateAmount);
       }
     } on DioException catch (e) {
       final message =
-          e.response?.data?['message'] ?? 'Error de conexión con el servidor';
+          e.response?.data?['message'] ??
+          currentL10n.nutritionErrorServerConnection;
       throw Exception(message);
     } catch (e) {
       if (e is Exception) rethrow;
-      throw Exception('No se pudo actualizar la cantidad: $e');
+      throw Exception(currentL10n.nutritionErrorUpdateAmountDetail(e.toString()));
     }
   }
 
@@ -109,15 +113,16 @@ class FridgeRepository {
       );
       final data = response.data;
       if (data == null || data['success'] != true) {
-        throw Exception(data?['message'] ?? 'No se pudo quitar de la nevera');
+        throw Exception(data?['message'] ?? currentL10n.nutritionErrorRemoveFromFridge);
       }
     } on DioException catch (e) {
       final message =
-          e.response?.data?['message'] ?? 'Error de conexión con el servidor';
+          e.response?.data?['message'] ??
+          currentL10n.nutritionErrorServerConnection;
       throw Exception(message);
     } catch (e) {
       if (e is Exception) rethrow;
-      throw Exception('No se pudo quitar de la nevera: $e');
+      throw Exception(currentL10n.nutritionErrorRemoveFromFridgeDetail(e.toString()));
     }
   }
 

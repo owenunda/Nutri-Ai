@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/network/dio_client.dart';
 import 'models/food_model.dart';
 
@@ -15,13 +16,13 @@ class FoodRepository {
         final List<dynamic> foodsJson = responseData['data']['foods'] ?? [];
         return foodsJson.map((json) => FoodModel.fromJson(json)).toList();
       } else {
-        throw Exception(responseData?['message'] ?? 'Error al obtener alimentos');
+        throw Exception(responseData?['message'] ?? currentL10n.nutritionErrorLoadFoods);
       }
     } on DioException catch (e) {
-      final message = e.response?.data?['message'] ?? 'Error de conexión con el servidor';
+      final message = e.response?.data?['message'] ?? currentL10n.nutritionErrorServerConnection;
       throw Exception(message);
     } catch (e) {
-      throw Exception('Ocurrió un error inesperado al obtener los alimentos: $e');
+      throw Exception(currentL10n.nutritionErrorUnexpectedLoadFoods(e.toString()));
     }
   }
 
@@ -51,13 +52,13 @@ class FoodRepository {
           isActive: true,
         );
       } else {
-        throw Exception(responseData?['message'] ?? 'Error al registrar el alimento');
+        throw Exception(responseData?['message'] ?? currentL10n.nutritionErrorRegisterFood);
       }
     } on DioException catch (e) {
-      final message = e.response?.data?['message'] ?? 'Error al registrar el alimento en el servidor';
+      final message = e.response?.data?['message'] ?? currentL10n.nutritionErrorRegisterFoodServer;
       throw Exception(message);
     } catch (e) {
-      throw Exception('Ocurrió un error inesperado al registrar el alimento: $e');
+      throw Exception(currentL10n.nutritionErrorUnexpectedRegisterFood(e.toString()));
     }
   }
 }

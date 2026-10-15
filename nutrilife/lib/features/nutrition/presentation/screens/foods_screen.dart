@@ -100,11 +100,14 @@ class _FoodsScreenState extends State<FoodsScreen> {
     MealType mealType = MealType.forTime(DateTime.now());
     FoodModel? selectedExistingFood;
 
+    final l10n = context.l10n;
     final isInFridge = intent == _FoodEntryIntent.inFridge;
-    final title = isInFridge ? 'Agregar a mi nevera' : 'Registrar consumido';
+    final title = isInFridge
+        ? l10n.nutritionAddFridgeTitle
+        : l10n.nutritionLogConsumedTitle;
     final subtitle = isInFridge
-        ? 'Lo guardarás en tu nevera para que la IA pueda sugerirlo al chatear.'
-        : 'Se registrará como consumido en la comida que elijas para que el conteo de calorías sea correcto.';
+        ? l10n.nutritionAddFridgeSubtitle
+        : l10n.nutritionLogConsumedSubtitle;
 
     showModalBottomSheet(
       context: context,
@@ -185,8 +188,8 @@ class _FoodsScreenState extends State<FoodsScreen> {
                     TextFormField(
                       controller: nameController,
                       decoration: InputDecoration(
-                        labelText: 'Nombre del alimento',
-                        hintText: 'Ej. Banana',
+                        labelText: l10n.nutritionFoodNameLabel,
+                        hintText: l10n.nutritionFoodNameHint,
                         filled: true,
                         fillColor: const Color(0xFFF1F5F9),
                         border: OutlineInputBorder(
@@ -197,7 +200,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Por favor ingresa un nombre';
+                          return l10n.nutritionFoodNameRequired;
                         }
                         return null;
                       },
@@ -245,9 +248,9 @@ class _FoodsScreenState extends State<FoodsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Ya existe un alimento parecido. Elige uno para usarlo:',
-                                style: TextStyle(
+                              Text(
+                                l10n.nutritionSimilarFoodExists,
+                                style: const TextStyle(
                                   color: Color(0xFF64748B),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -272,7 +275,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                     ),
                                   ),
                                   subtitle: Text(
-                                    '${food.caloriesPerUnit.toStringAsFixed(0)} kcal · ${prettyUnitLabel(food.baseUnit)}',
+                                    '${food.caloriesPerUnit.toStringAsFixed(0)} kcal · ${prettyUnitLabel(food.baseUnit, l10n)}',
                                   ),
                                   trailing: const Icon(
                                     Icons.add_circle_outline_rounded,
@@ -314,7 +317,9 @@ class _FoodsScreenState extends State<FoodsScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Usar ${selectedExistingFood!.name}',
+                                l10n.nutritionUseFood(
+                                  selectedExistingFood!.name,
+                                ),
                                 style: const TextStyle(
                                   color: Color(0xFF0A6B3F),
                                   fontWeight: FontWeight.w800,
@@ -325,7 +330,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                               onPressed: () => setSheetState(
                                 () => selectedExistingFood = null,
                               ),
-                              child: const Text('Cambiar'),
+                              child: Text(l10n.nutritionChange),
                             ),
                           ],
                         ),
@@ -343,8 +348,8 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                     decimal: true,
                                   ),
                               decoration: InputDecoration(
-                                labelText: 'Calorías (Kcal)',
-                                hintText: 'Ej. 105',
+                                labelText: l10n.nutritionCaloriesLabel,
+                                hintText: l10n.nutritionCaloriesHint,
                                 filled: true,
                                 fillColor: const Color(0xFFF1F5F9),
                                 border: OutlineInputBorder(
@@ -356,11 +361,11 @@ class _FoodsScreenState extends State<FoodsScreen> {
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Ingresa calorías';
+                                  return l10n.nutritionCaloriesRequired;
                                 }
                                 final numVal = double.tryParse(value);
                                 if (numVal == null || numVal <= 0) {
-                                  return 'Debe ser > 0';
+                                  return l10n.nutritionMustBePositive;
                                 }
                                 return null;
                               },
@@ -379,7 +384,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                 color: Color(0xFF64748B),
                               ),
                               decoration: InputDecoration(
-                                labelText: 'Porción',
+                                labelText: l10n.nutritionPortionLabel,
                                 filled: true,
                                 fillColor: const Color(0xFFF1F5F9),
                                 border: OutlineInputBorder(
@@ -390,7 +395,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                     FloatingLabelBehavior.always,
                               ),
                               items: [
-                                for (final option in kFoodUnits)
+                                for (final option in foodUnitOptions(l10n))
                                   DropdownMenuItem(
                                     value: option.value,
                                     child: Text(option.label),
@@ -412,8 +417,8 @@ class _FoodsScreenState extends State<FoodsScreen> {
                       ),
                       decoration: InputDecoration(
                         labelText: isInFridge
-                            ? 'Cantidad que tienes'
-                            : 'Cantidad consumida',
+                            ? l10n.nutritionAmountHaveLabel
+                            : l10n.nutritionAmountConsumedLabel,
                         hintText: '1',
                         filled: true,
                         fillColor: const Color(0xFFF1F5F9),
@@ -425,18 +430,20 @@ class _FoodsScreenState extends State<FoodsScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Ingresa cantidad';
+                          return l10n.nutritionAmountRequired;
                         }
                         final v = double.tryParse(value.replaceAll(',', '.'));
-                        if (v == null || v <= 0) return 'Debe ser > 0';
+                        if (v == null || v <= 0) {
+                          return l10n.nutritionMustBePositive;
+                        }
                         return null;
                       },
                     ),
                     if (!isInFridge) ...[
                       const SizedBox(height: 14),
-                      const Text(
-                        'Comida del día',
-                        style: TextStyle(
+                      Text(
+                        l10n.nutritionMealOfDay,
+                        style: const TextStyle(
                           color: Color(0xFF2C2F31),
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
@@ -450,7 +457,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                           for (final t in MealType.values)
                             ChoiceChip(
                               key: ValueKey('meal-type-${t.apiValue}'),
-                              label: Text('${t.emoji} ${t.label(sheetContext.l10n)}'),
+                              label: Text('${t.emoji} ${t.label(l10n)}'),
                               selected: t == mealType,
                               onSelected: (_) =>
                                   setSheetState(() => mealType = t),
@@ -481,10 +488,10 @@ class _FoodsScreenState extends State<FoodsScreen> {
                       builder: (context, _) {
                         return PrimaryButton(
                           textButton: _viewModel.isLoading
-                              ? 'Guardando...'
+                              ? l10n.nutritionSaving
                               : (isInFridge
-                                    ? 'Guardar en nevera'
-                                    : 'Registrar consumo'),
+                                    ? l10n.nutritionSaveInFridge
+                                    : l10n.nutritionLogConsumption),
                           width: double.infinity,
                           icon: Icons.check,
                           iconSize: 18,
@@ -523,7 +530,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                           SnackBar(
                                             content: Text(
                                               _viewModel.errorMessage ??
-                                                  'Error',
+                                                  l10n.nutritionGenericError,
                                             ),
                                             backgroundColor: Colors.redAccent,
                                           ),
@@ -540,9 +547,9 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                         ScaffoldMessenger.of(
                                           sheetContext,
                                         ).showSnackBar(
-                                          const SnackBar(
+                                          SnackBar(
                                             content: Text(
-                                              'No se pudo obtener el identificador del alimento. Inténtalo de nuevo.',
+                                              l10n.nutritionErrorNoFoodId,
                                             ),
                                             backgroundColor: Colors.redAccent,
                                           ),
@@ -582,7 +589,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                         SnackBar(
                                           content: Text(
                                             _viewModel.errorMessage ??
-                                                'No se pudo completar el registro. Inténtalo de nuevo.',
+                                                l10n.nutritionErrorRegisterFailed,
                                           ),
                                           backgroundColor: Colors.redAccent,
                                         ),
@@ -604,6 +611,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
   }
 
   Future<void> _showPostAddSheet({required bool isInFridge}) async {
+    final l10n = context.l10n;
     await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -638,7 +646,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                '¡Listo!',
+                l10n.nutritionDoneTitle,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Color(0xFF2C2F31),
@@ -649,8 +657,8 @@ class _FoodsScreenState extends State<FoodsScreen> {
               const SizedBox(height: 4),
               Text(
                 isInFridge
-                    ? 'Tu alimento ya está en la nevera.'
-                    : 'Tu consumo quedó registrado.',
+                    ? l10n.nutritionDoneFridge
+                    : l10n.nutritionDoneConsumed,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
               ),
@@ -661,7 +669,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                   _showAddCustomFoodSheet(intent: _FoodEntryIntent.inFridge);
                 },
                 icon: const Icon(Icons.kitchen_outlined, size: 18),
-                label: const Text('Agregar otro a mi nevera'),
+                label: Text(l10n.nutritionAddAnotherFridge),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF0A6B3F),
                   side: const BorderSide(color: Color(0xFF0A6B3F)),
@@ -678,7 +686,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                   _showAddCustomFoodSheet(intent: _FoodEntryIntent.consumed);
                 },
                 icon: const Icon(Icons.restaurant_outlined, size: 18),
-                label: const Text('Registrar otro consumo'),
+                label: Text(l10n.nutritionLogAnother),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF0A6B3F),
                   side: const BorderSide(color: Color(0xFF0A6B3F)),
@@ -692,7 +700,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
               FilledButton.icon(
                 onPressed: () => Navigator.of(sheetContext).pop(),
                 icon: const Icon(Icons.check_rounded, size: 18),
-                label: const Text('Listo'),
+                label: Text(l10n.nutritionDoneButton),
                 style: FilledButton.styleFrom(
                   backgroundColor: const Color(0xFF0A6B3F),
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -709,6 +717,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
   }
 
   Widget _buildTitle() {
+    final l10n = context.l10n;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -716,9 +725,9 @@ class _FoodsScreenState extends State<FoodsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Mi nevera',
-                style: TextStyle(
+              Text(
+                l10n.nutritionFridgeTitle,
+                style: const TextStyle(
                   color: Color(0xFF2C2F31),
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -728,8 +737,8 @@ class _FoodsScreenState extends State<FoodsScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Lo que tienes en casa. La IA lo sugiere primero cuando lo adjuntas al chat.',
-                style: TextStyle(
+                l10n.nutritionFridgeSubtitle,
+                style: const TextStyle(
                   color: Color(0xFF64748B),
                   fontSize: 13,
                   height: 1.35,
@@ -744,7 +753,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
             Icons.help_outline_rounded,
             color: Color(0xFF64748B),
           ),
-          tooltip: '¿Cómo funciona?',
+          tooltip: l10n.nutritionHowItWorks,
           style: IconButton.styleFrom(
             backgroundColor: const Color(0xFFF1F5F9),
             shape: const CircleBorder(),
@@ -756,49 +765,51 @@ class _FoodsScreenState extends State<FoodsScreen> {
   }
 
   void _showHelpDialog() {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.kitchen_outlined, color: Color(0xFF0A6B3F), size: 24),
-            SizedBox(width: 10),
-            Text('Mi nevera'),
+            const Icon(
+              Icons.kitchen_outlined,
+              color: Color(0xFF0A6B3F),
+              size: 24,
+            ),
+            const SizedBox(width: 10),
+            Text(l10n.nutritionFridgeTitle),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _HelpRow(
               icon: Icons.kitchen_outlined,
-              title: 'Mi nevera',
-              body:
-                  'Alimentos que tienes guardados. Al adjuntarlos al chat, la IA los prioriza.',
+              title: l10n.nutritionFridgeTitle,
+              body: l10n.nutritionHelpFridgeBody,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _HelpRow(
               icon: Icons.public_rounded,
-              title: 'Comunes',
-              body:
-                  'Catálogo general de NutriLife para cuando no encuentras lo que buscas.',
+              title: l10n.nutritionCommonTitle,
+              body: l10n.nutritionHelpCommonBody,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _HelpRow(
               icon: Icons.add_box_outlined,
-              title: 'Entrada manual',
-              body:
-                  'Elige entre "lo tengo" (a tu nevera) o "lo consumí" (alimento registrado, sin guardar).',
+              title: l10n.nutritionManualEntryTitle,
+              body: l10n.nutritionHelpManualBody,
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text(
-              'Entendido',
-              style: TextStyle(
+            child: Text(
+              l10n.nutritionGotIt,
+              style: const TextStyle(
                 color: Color(0xFF0A6B3F),
                 fontWeight: FontWeight.w800,
               ),
@@ -810,6 +821,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
   }
 
   Widget _buildCustomFoodCard() {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.only(top: 20, bottom: 24),
       child: Container(
@@ -829,9 +841,9 @@ class _FoodsScreenState extends State<FoodsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Agregar personalizado',
-              style: TextStyle(
+            Text(
+              l10n.nutritionCustomTitle,
+              style: const TextStyle(
                 color: Color(0xFF2C2F31),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -839,9 +851,9 @@ class _FoodsScreenState extends State<FoodsScreen> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              '¿No encuentras tu alimento? Agrégalo y elige si lo tienes en casa o solo lo registraste.',
-              style: TextStyle(
+            Text(
+              l10n.nutritionCustomBody,
+              style: const TextStyle(
                 color: Color(0xFF64748B),
                 fontSize: 12.5,
                 height: 1.4,
@@ -853,7 +865,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                 Expanded(
                   child: _ManualEntryTile(
                     icon: Icons.kitchen_outlined,
-                    label: 'A mi nevera',
+                    label: l10n.nutritionToFridge,
                     onTap: () => _showAddCustomFoodSheet(
                       intent: _FoodEntryIntent.inFridge,
                     ),
@@ -863,7 +875,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                 Expanded(
                   child: _ManualEntryTile(
                     icon: Icons.restaurant_outlined,
-                    label: 'Lo consumí',
+                    label: l10n.nutritionIAteIt,
                     onTap: () => _showAddCustomFoodSheet(
                       intent: _FoodEntryIntent.consumed,
                     ),
@@ -879,6 +891,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return ListenableBuilder(
       listenable: _viewModel,
       builder: (context, _) {
@@ -940,7 +953,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                         const SizedBox(height: 14),
                         if (!_isSearching && _viewModel.foods.isNotEmpty) ...[
                           SegmentedTabs(
-                            labels: const ['Mi nevera', 'Comunes'],
+                            labels: [l10n.nutritionFridgeTitle, l10n.nutritionCommonTitle],
                             selected: _showMine ? 0 : 1,
                             onChanged: (index) {
                               _clearCommonSelection();
@@ -950,26 +963,25 @@ class _FoodsScreenState extends State<FoodsScreen> {
                           const SizedBox(height: 12),
                           _ListHeader(
                             subtitle: _showMine
-                                ? 'Lo que tienes guardado'
-                                : 'Catálogo de NutriLife',
+                                ? l10n.nutritionSavedSubtitle
+                                : l10n.nutritionCatalogSubtitle,
                             seeAllLabel: _showMine
                                 ? (_viewModel.fridgeItems.length > _previewCount
-                                      ? 'Ver todo'
+                                      ? l10n.nutritionSeeAllItems
                                       : null)
                                 : (_common.length > _previewCount
                                       ? (_showAllCommon
-                                            ? 'Ver menos'
-                                            : 'Ver todos')
+                                            ? l10n.nutritionSeeLess
+                                            : l10n.nutritionSeeAllFoods)
                                       : null),
                             onSeeAll: _showMine
                                 ? (_viewModel.fridgeItems.length > _previewCount
                                       ? () => Navigator.of(context).push(
                                           MaterialPageRoute(
-                                            builder: (_) =>
-                                                const AllFoodsScreen(
-                                                  title: 'Mi nevera',
-                                                  showFridge: true,
-                                                ),
+                                            builder: (_) => AllFoodsScreen(
+                                              title: l10n.nutritionFridgeTitle,
+                                              showFridge: true,
+                                            ),
                                           ),
                                         )
                                       : null)
@@ -987,7 +999,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                         ],
                         if (_isSearching) ...[
                           Text(
-                            'Resultados (${_viewModel.foods.length})',
+                            l10n.nutritionResultsCount(_viewModel.foods.length),
                             style: const TextStyle(
                               color: Color(0xFF2C2F31),
                               fontSize: 20,
@@ -1018,19 +1030,19 @@ class _FoodsScreenState extends State<FoodsScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.all(16),
-                        child: const Row(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.tips_and_updates_outlined,
                               color: Color(0xFF0284C7),
                               size: 24,
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Tip: agregar primero lo que tienes en tu nevera (no lo que comiste fuera) ayuda a la IA a sugerirte recetas con lo que ya está en casa.',
-                                style: TextStyle(
+                                l10n.nutritionTip,
+                                style: const TextStyle(
                                   color: Color(0xFF0369A1),
                                   fontSize: 12.5,
                                   height: 1.4,
@@ -1054,6 +1066,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
   /// Construye la lista como slivers para que no quede espacio vacío abajo.
   /// Devuelve una lista de slivers que se insertan en el CustomScrollView.
   List<Widget> _buildListSlivers() {
+    final l10n = context.l10n;
     if (_viewModel.isLoading && _viewModel.foods.isEmpty) {
       return const [
         SliverToBoxAdapter(
@@ -1098,7 +1111,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                   TextButton.icon(
                     onPressed: _viewModel.refreshAll,
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Reintentar'),
+                    label: Text(l10n.commonRetry),
                     style: TextButton.styleFrom(
                       foregroundColor: AppTheme.primaryStart,
                     ),
@@ -1122,7 +1135,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                 vertical: 24.0,
               ),
               child: Text(
-                'No encontramos "${_viewModel.searchQuery.trim()}". Prueba con otro nombre o agrégalo desde "Entrada manual".',
+                l10n.nutritionNoResults(_viewModel.searchQuery.trim()),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Color(0xFF64748B),
@@ -1181,13 +1194,13 @@ class _FoodsScreenState extends State<FoodsScreen> {
     final foods = _common;
     if (foods.isEmpty) {
       return [
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
             child: Text(
-              'No hay alimentos comunes cargados.',
+              l10n.nutritionNoCommonFoods,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF64748B),
                 fontSize: 14,
                 height: 1.4,
@@ -1223,6 +1236,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
   }
 
   Widget _buildFoodTile(FoodModel food, {required bool fromCommonTab}) {
+    final l10n = context.l10n;
     return FoodListTile(
       food: food,
       fromCommonTab: fromCommonTab,
@@ -1242,8 +1256,8 @@ class _FoodsScreenState extends State<FoodsScreen> {
               SnackBar(
                 content: Text(
                   ok
-                      ? '${food.name} agregado a tu nevera'
-                      : (_viewModel.errorMessage ?? 'No se pudo agregar'),
+                      ? l10n.nutritionFoodAddedToFridge(food.name)
+                      : (_viewModel.errorMessage ?? l10n.nutritionErrorAdd),
                 ),
                 backgroundColor: ok
                     ? const Color(0xFF0A6B3F)
@@ -1268,8 +1282,11 @@ class _FoodsScreenState extends State<FoodsScreen> {
               SnackBar(
                 content: Text(
                   ok
-                      ? '${food.name} registrado en ${_mealLabel(mealType)}'
-                      : (_viewModel.errorMessage ?? 'No se pudo registrar'),
+                      ? l10n.nutritionFoodLoggedIn(
+                          food.name,
+                          _mealLabel(mealType, l10n),
+                        )
+                      : (_viewModel.errorMessage ?? l10n.nutritionErrorLog),
                 ),
                 backgroundColor: ok
                     ? const Color(0xFF0A6B3F)
@@ -1288,6 +1305,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
       emoji: _emojiFor(food.name),
     );
     if (!mounted || result == null) return;
+    final l10n = context.l10n;
     if (result.action == CommonFoodAction.fridge) {
       final ok = await _viewModel.addToFridge(
         foodId: food.foodId,
@@ -1299,8 +1317,8 @@ class _FoodsScreenState extends State<FoodsScreen> {
         SnackBar(
           content: Text(
             ok
-                ? '${food.name} agregado a tu nevera'
-                : (_viewModel.errorMessage ?? 'No se pudo agregar'),
+                ? l10n.nutritionFoodAddedToFridge(food.name)
+                : (_viewModel.errorMessage ?? l10n.nutritionErrorAdd),
           ),
           backgroundColor: ok ? const Color(0xFF0A6B3F) : Colors.redAccent,
         ),
@@ -1316,8 +1334,11 @@ class _FoodsScreenState extends State<FoodsScreen> {
         SnackBar(
           content: Text(
             ok
-                ? '${food.name} registrado en ${_mealLabel(result.mealType!)}'
-                : (_viewModel.errorMessage ?? 'No se pudo registrar'),
+                ? l10n.nutritionFoodLoggedIn(
+                    food.name,
+                    _mealLabel(result.mealType!, l10n),
+                  )
+                : (_viewModel.errorMessage ?? l10n.nutritionErrorLog),
           ),
           backgroundColor: ok ? const Color(0xFF0A6B3F) : Colors.redAccent,
         ),
@@ -1392,18 +1413,9 @@ class _FoodsScreenState extends State<FoodsScreen> {
     return '🍲';
   }
 
-  String _mealLabel(MealType type) {
-    switch (type) {
-      case MealType.breakfast:
-        return 'desayuno';
-      case MealType.lunch:
-        return 'almuerzo';
-      case MealType.dinner:
-        return 'cena';
-      case MealType.snack:
-        return 'snack';
-    }
-  }
+  /// Nombre de la comida en minúsculas para usarlo dentro de una frase.
+  String _mealLabel(MealType type, AppLocalizations l10n) =>
+      type.label(l10n).toLowerCase();
 }
 
 class _ListHeader extends StatelessWidget {
@@ -1653,13 +1665,17 @@ class _BulkAddComunesSectionState extends State<_BulkAddComunesSection> {
     widget.onSelectionChanged({});
     await widget.onBulkDone();
     if (!mounted) return;
-    final failed = res.failed.isEmpty
-        ? ''
-        : ' Fallaron: ${res.failed.join(", ")}';
+    final l10n = context.l10n;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${res.ok}/${res.total} procesados correctamente.$failed',
+          res.failed.isEmpty
+              ? l10n.nutritionBulkResult(res.ok, res.total)
+              : l10n.nutritionBulkResultWithFailed(
+                  res.ok,
+                  res.total,
+                  res.failed.join(', '),
+                ),
         ),
         backgroundColor: res.failed.isEmpty
             ? const Color(0xFF0A6B3F)
@@ -1718,18 +1734,18 @@ class _BulkAddComunesSectionState extends State<_BulkAddComunesSection> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  '¿En qué comida?',
-                  style: TextStyle(
+                Text(
+                  sheetContext.l10n.nutritionAskMealTitle,
+                  style: const TextStyle(
                     color: Color(0xFF2C2F31),
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Se registrará como consumido en la comida seleccionada para todos los alimentos marcados.',
-                  style: TextStyle(
+                Text(
+                  sheetContext.l10n.nutritionAskMealBody,
+                  style: const TextStyle(
                     color: Color(0xFF64748B),
                     fontSize: 13,
                     height: 1.35,
@@ -1885,7 +1901,7 @@ class _SelectableFoodTile extends StatelessWidget {
               IconButton(
                 onPressed: onAddOne,
                 icon: const Icon(Icons.tune_rounded, color: Color(0xFF0A6B3F)),
-                tooltip: 'Acciones',
+                tooltip: context.l10n.nutritionActions,
                 visualDensity: VisualDensity.compact,
               ),
             ],
@@ -1945,12 +1961,12 @@ class _BulkActionBar extends StatelessWidget {
                     Icons.close_rounded,
                     color: Color(0xFF64748B),
                   ),
-                  tooltip: 'Quitar selección',
+                  tooltip: context.l10n.nutritionClearSelection,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    '$count ${count == 1 ? 'alimento seleccionado' : 'alimentos seleccionados'}',
+                    context.l10n.nutritionSelectedCount(count),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -1975,7 +1991,7 @@ class _BulkActionBar extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: loading ? null : onFridge,
                     icon: const Icon(Icons.kitchen_outlined, size: 16),
-                    label: const Text('A mi nevera'),
+                    label: Text(context.l10n.nutritionToFridge),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0A6B3F),
                       foregroundColor: Colors.white,
@@ -1998,7 +2014,7 @@ class _BulkActionBar extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: loading ? null : onConsume,
                     icon: const Icon(Icons.restaurant_outlined, size: 16),
-                    label: const Text('Lo consumí'),
+                    label: Text(context.l10n.nutritionIAteIt),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1D4ED8),
                       foregroundColor: Colors.white,
@@ -2042,25 +2058,29 @@ class _EmptyMineView extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
         ),
         padding: const EdgeInsets.all(28),
-        child: const Column(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.kitchen_outlined, color: Color(0xFF94A3B8), size: 44),
-            SizedBox(height: 12),
+            const Icon(
+              Icons.kitchen_outlined,
+              color: Color(0xFF94A3B8),
+              size: 44,
+            ),
+            const SizedBox(height: 12),
             Text(
-              'Tu nevera está vacía',
+              context.l10n.nutritionEmptyFridgeTitle,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF2C2F31),
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(
-              'Agrega lo que tienes en casa desde "Entrada manual" para que la IA pueda sugerírtelo en el chat.',
+              context.l10n.nutritionEmptyFridgeBody,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF64748B),
                 fontSize: 13,
                 height: 1.4,
@@ -2146,7 +2166,7 @@ class _FridgeItemTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  formatQuantityWithUnit(item.quantity, item.unit),
+                  formatQuantityWithUnit(item.quantity, item.unit, context.l10n),
                   style: const TextStyle(
                     color: Color(0xFF94A3B8),
                     fontSize: 12,

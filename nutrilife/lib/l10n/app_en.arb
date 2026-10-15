@@ -355,5 +355,349 @@
         "type": "String"
       }
     }
+  },
+  "nutritionAddFridgeTitle": "Add to my fridge",
+  "nutritionLogConsumedTitle": "Log what you ate",
+  "nutritionAddFridgeSubtitle": "It'll be saved in your fridge so the AI can suggest it when you chat.",
+  "nutritionLogConsumedSubtitle": "It'll be logged as eaten in the meal you pick, so your calorie count stays accurate.",
+  "nutritionFoodNameLabel": "Food name",
+  "nutritionFoodNameHint": "E.g. Banana",
+  "nutritionFoodNameRequired": "Please enter a name",
+  "nutritionSimilarFoodExists": "A similar food already exists. Pick one to use it:",
+  "nutritionUseFood": "Use {name}",
+  "@nutritionUseFood": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionChange": "Change",
+  "nutritionCaloriesLabel": "Calories (kcal)",
+  "nutritionCaloriesHint": "E.g. 105",
+  "nutritionCaloriesRequired": "Enter calories",
+  "nutritionMustBePositive": "Must be > 0",
+  "nutritionPortionLabel": "Serving",
+  "nutritionAmountHaveLabel": "Amount you have",
+  "nutritionAmountConsumedLabel": "Amount eaten",
+  "nutritionAmountRequired": "Enter an amount",
+  "nutritionAmountLabel": "Amount",
+  "nutritionUnitLabel": "Unit",
+  "nutritionMealOfDay": "Meal of the day",
+  "nutritionSaving": "Saving...",
+  "nutritionSaveInFridge": "Save to fridge",
+  "nutritionSaveInMyFridge": "Save to my fridge",
+  "nutritionLogConsumption": "Log what I ate",
+  "nutritionGenericError": "Error",
+  "nutritionErrorNoFoodId": "We couldn't get the food's ID. Please try again.",
+  "nutritionErrorRegisterFailed": "We couldn't complete that. Please try again.",
+  "nutritionDoneTitle": "All set!",
+  "nutritionDoneFridge": "Your food is now in the fridge.",
+  "nutritionDoneConsumed": "Your meal has been logged.",
+  "nutritionAddAnotherFridge": "Add another to my fridge",
+  "nutritionLogAnother": "Log another meal",
+  "nutritionDoneButton": "Done",
+  "nutritionFridgeTitle": "My fridge",
+  "nutritionFridgeSubtitle": "What you have at home. The AI suggests it first when you attach it to the chat.",
+  "nutritionHowItWorks": "How does it work?",
+  "nutritionCommonTitle": "Common",
+  "nutritionManualEntryTitle": "Manual entry",
+  "nutritionHelpFridgeBody": "Foods you've saved. When you attach them to the chat, the AI prioritizes them.",
+  "nutritionHelpCommonBody": "NutriLife's general catalog, for when you can't find what you're looking for.",
+  "nutritionHelpManualBody": "Choose \"I have it\" (goes to your fridge) or \"I ate it\" (logged, not saved).",
+  "nutritionGotIt": "Got it",
+  "nutritionCustomTitle": "Add your own",
+  "nutritionCustomBody": "Can't find your food? Add it and choose whether you have it at home or just logged it.",
+  "nutritionToFridge": "To my fridge",
+  "nutritionIAteIt": "I ate it",
+  "nutritionSavedSubtitle": "What you've saved",
+  "nutritionCatalogSubtitle": "NutriLife catalog",
+  "nutritionSeeAllItems": "See all",
+  "nutritionSeeAllFoods": "See all",
+  "nutritionSeeLess": "See less",
+  "nutritionResultsCount": "Results ({count})",
+  "@nutritionResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionTip": "Tip: adding what's in your fridge first (not what you ate out) helps the AI suggest recipes using what you already have at home.",
+  "nutritionNoResults": "We couldn't find \"{query}\". Try another name or add it from \"Manual entry\".",
+  "@nutritionNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionNoCommonFoods": "No common foods loaded yet.",
+  "nutritionFoodAddedToFridge": "{food} added to your fridge",
+  "@nutritionFoodAddedToFridge": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFoodLoggedIn": "{food} added to {meal}",
+  "@nutritionFoodLoggedIn": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorAdd": "Couldn't add it",
+  "nutritionErrorLog": "Couldn't log it",
+  "nutritionBulkResult": "{ok}/{total} processed successfully.",
+  "@nutritionBulkResult": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionBulkResultWithFailed": "{ok}/{total} processed successfully. Failed: {names}",
+  "@nutritionBulkResultWithFailed": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAskMealTitle": "Which meal?",
+  "nutritionAskMealBody": "All the selected foods will be logged as eaten in the meal you choose.",
+  "nutritionActions": "Actions",
+  "nutritionClearSelection": "Clear selection",
+  "nutritionSelectedCount": "{count, plural, =1{1 food selected} other{{count} foods selected}}",
+  "@nutritionSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionEmptyFridgeTitle": "Your fridge is empty",
+  "nutritionEmptyFridgeBody": "Add what you have at home from \"Manual entry\" so the AI can suggest it in the chat.",
+  "nutritionAllFoodsTitle": "All foods",
+  "nutritionItemsCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@nutritionItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionFoodsCount": "{count, plural, =1{1 food} other{{count} foods}}",
+  "@nutritionFoodsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionFridgeEmptyAll": "Your fridge is empty. Add foods from \"Manual entry\" or from the Common tab.",
+  "nutritionEditAmount": "Edit amount of {name}",
+  "@nutritionEditAmount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFridgeItemRemoved": "{name} was removed from your fridge",
+  "@nutritionFridgeItemRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFridgeAmountUpdated": "{name} amount updated",
+  "@nutritionFridgeAmountUpdated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionRemoveFoodTitle": "Remove food",
+  "nutritionRemoveFoodBody": "Remove {name} from your fridge? It will no longer show up among your available foods.",
+  "@nutritionRemoveFoodBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionRemove": "Remove",
+  "nutritionAmountGreaterThanZero": "Enter an amount greater than 0",
+  "nutritionCantSubtractMore": "You can't subtract more than you have ({quantity}).",
+  "@nutritionCantSubtractMore": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAvailable": "Available: {amount}",
+  "@nutritionAvailable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAdjustLabel": "Amount to add or subtract ({unit})",
+  "@nutritionAdjustLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionNewTotalLabel": "New total amount ({unit})",
+  "@nutritionNewTotalLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionSubtract": "Subtract",
+  "nutritionIncrease": "Add",
+  "nutritionSaveExactAmount": "Save exact amount",
+  "nutritionRemoveFromFridge": "Remove from fridge",
+  "nutritionSearchHint": "Search over 100,000 foods...",
+  "nutritionClearSearch": "Clear search",
+  "nutritionUnitOne": "1 unit",
+  "nutritionUnitServing": "1 serving",
+  "nutritionUnitCup": "1 cup",
+  "nutritionUnitTablespoon": "1 tablespoon",
+  "nutritionUnitSlice": "1 slice",
+  "nutritionCountUnit": "{count, plural, =1{1 unit} other{{amount} units}}",
+  "@nutritionCountUnit": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountServing": "{count, plural, =1{1 serving} other{{amount} servings}}",
+  "@nutritionCountServing": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountCup": "{count, plural, =1{1 cup} other{{amount} cups}}",
+  "@nutritionCountCup": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountTablespoon": "{count, plural, =1{1 tablespoon} other{{amount} tablespoons}}",
+  "@nutritionCountTablespoon": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountSlice": "{count, plural, =1{1 slice} other{{amount} slices}}",
+  "@nutritionCountSlice": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorServerConnection": "Server connection error",
+  "nutritionErrorLoadFoods": "Couldn't load foods",
+  "nutritionErrorUnexpectedLoadFoods": "Something unexpected went wrong loading the foods: {error}",
+  "@nutritionErrorUnexpectedLoadFoods": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorRegisterFood": "Couldn't save the food",
+  "nutritionErrorRegisterFoodServer": "Couldn't save the food on the server",
+  "nutritionErrorUnexpectedRegisterFood": "Something unexpected went wrong saving the food: {error}",
+  "@nutritionErrorUnexpectedRegisterFood": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorLoadFridge": "Couldn't load your fridge",
+  "nutritionErrorUnexpectedLoadFridge": "Something unexpected went wrong loading your fridge: {error}",
+  "@nutritionErrorUnexpectedLoadFridge": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorAddToFridge": "Couldn't add it to your fridge",
+  "nutritionErrorAddToFridgeDetail": "Couldn't add it to your fridge: {error}",
+  "@nutritionErrorAddToFridgeDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorUpdateAmount": "Couldn't update the amount",
+  "nutritionErrorUpdateAmountDetail": "Couldn't update the amount: {error}",
+  "@nutritionErrorUpdateAmountDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorRemoveFromFridge": "Couldn't remove it from your fridge",
+  "nutritionErrorRemoveFromFridgeDetail": "Couldn't remove it from your fridge: {error}",
+  "@nutritionErrorRemoveFromFridgeDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

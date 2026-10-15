@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/features/nutrition/data/fridge_repository.dart';
 import 'package:nutrilife/features/nutrition/data/models/fridge_item_model.dart';
 import 'package:nutrilife/features/nutrition/presentation/screens/all_foods_screen.dart';
+import '../../helpers/l10n_app.dart';
 
 class _FakeFridgeRepository extends FridgeRepository {
   _FakeFridgeRepository() : super(dio: Dio());
@@ -48,8 +49,8 @@ Future<void> _pumpFridge(
   _FakeFridgeRepository repository,
 ) async {
   await tester.pumpWidget(
-    MaterialApp(
-      home: AllFoodsScreen(showFridge: true, fridgeRepository: repository),
+    l10nApp(
+      AllFoodsScreen(showFridge: true, fridgeRepository: repository),
     ),
   );
   await tester.pumpAndSettle();

@@ -7,6 +7,7 @@ import 'package:nutrilife/features/nutrition/data/food_repository.dart';
 import 'package:nutrilife/features/nutrition/data/models/food_model.dart';
 import 'package:nutrilife/features/nutrition/domain/food_units.dart';
 import 'package:nutrilife/features/nutrition/presentation/screens/foods_screen.dart';
+import 'package:nutrilife/l10n/app_localizations.dart';
 import '../../helpers/l10n_app.dart';
 
 FoodModel _food(int id, String name, {bool global = true}) => FoodModel(
@@ -362,10 +363,11 @@ void main() {
   });
 
   test('formatea cantidades sin repetir la unidad', () {
-    expect(formatQuantityWithUnit(1, '1 UNIDAD'), '1 unidad');
-    expect(formatQuantityWithUnit(2, '1 UNIDAD'), '2 unidades');
-    expect(formatQuantityWithUnit(1, '1 unidad'), '1 unidad');
-    expect(formatQuantityWithUnit(1, '100 G'), '1 100 g');
-    expect(formatQuantityWithUnit(2.5, '100 G'), '2.5 100 g');
+    final es = lookupAppLocalizations(const Locale('es'));
+    expect(formatQuantityWithUnit(1, '1 UNIDAD', es), '1 unidad');
+    expect(formatQuantityWithUnit(2, '1 UNIDAD', es), '2 unidades');
+    expect(formatQuantityWithUnit(1, '1 unidad', es), '1 unidad');
+    expect(formatQuantityWithUnit(1, '100 G', es), '1 100 g');
+    expect(formatQuantityWithUnit(2.5, '100 G', es), '2.5 100 g');
   });
 }

@@ -8,6 +8,8 @@ import 'package:nutrilife/features/chatbot/presentation/widgets/chat_input_field
 import 'package:nutrilife/features/nutrition/data/fridge_repository.dart';
 import 'package:nutrilife/features/nutrition/data/models/fridge_item_model.dart';
 
+import '../../helpers/l10n_app.dart';
+
 /// Devuelve siempre la misma nevera canned, sin tocar la red.
 class _FakeAdapter implements HttpClientAdapter {
   _FakeAdapter(this.body);
@@ -42,7 +44,7 @@ FridgeRepository fridgeWith(List<Map<String, Object>> items) {
   return FridgeRepository(dio: dio);
 }
 
-Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+Widget wrap(Widget child) => l10nApp(Scaffold(body: child));
 
 void main() {
   final arroz = {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/widgets/segmented_tabs.dart';
 import '../../../nutrition/data/food_repository.dart';
@@ -398,7 +399,7 @@ class _FoodRow extends StatelessWidget {
             if (item.isFromFridge)
               item.quantity > 0
                   ? Text(
-                      formatQuantityWithUnit(item.quantity, item.unit),
+                      formatQuantityWithUnit(item.quantity, item.unit, context.l10n),
                       style: const TextStyle(
                         fontSize: 13,
                         color: Color(0xFF2C2F31),

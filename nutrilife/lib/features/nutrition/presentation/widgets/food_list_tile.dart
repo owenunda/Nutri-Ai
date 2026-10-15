@@ -135,7 +135,7 @@ class FoodListTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  prettyUnitLabel(food.baseUnit),
+                  prettyUnitLabel(food.baseUnit, context.l10n),
                   style: const TextStyle(
                     color: Color(0xFF94A3B8),
                     fontSize: 10,
@@ -257,6 +257,10 @@ class CommonFoodActionsSheet extends StatefulWidget {
 }
 
 class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
+  /// Unidades que se ofrecen al meter un alimento común a la nevera (códigos
+  /// que se guardan; el nombre que se ve sale de prettyUnitLabel).
+  static const _quickUnits = ['1 UNIDAD', '100 G', '100 ML', '1 PORCIÓN', '1 TAZA'];
+
   final _formKey = GlobalKey<FormState>();
   final _quantityController = TextEditingController(text: '1');
   String _unit = '1 UNIDAD';
@@ -285,6 +289,7 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       child: Form(
@@ -351,7 +356,7 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
                 Expanded(
                   child: _IntentPill(
                     icon: Icons.kitchen_outlined,
-                    label: 'A mi nevera',
+                    label: l10n.nutritionToFridge,
                     selected: _intent == CommonFoodAction.fridge,
                     onTap: () => setState(() => _intent = CommonFoodAction.fridge),
                   ),
@@ -360,7 +365,7 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
                 Expanded(
                   child: _IntentPill(
                     icon: Icons.restaurant_outlined,
-                    label: 'Lo consumí',
+                    label: l10n.nutritionIAteIt,
                     selected: _intent == CommonFoodAction.consumed,
                     onTap: () => setState(() => _intent = CommonFoodAction.consumed),
                   ),
@@ -376,7 +381,7 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
                     controller: _quantityController,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
-                      labelText: 'Cantidad',
+                      labelText: l10n.nutritionAmountLabel,
                       filled: true,
                       fillColor: const Color(0xFFF1F5F9),
                       border: OutlineInputBorder(
@@ -387,10 +392,12 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Ingresa cantidad';
+                        return l10n.nutritionAmountRequired;
                       }
                       final v = double.tryParse(value.replaceAll(',', '.'));
-                      if (v == null || v <= 0) return 'Debe ser > 0';
+                      if (v == null || v <= 0) {
+                        return l10n.nutritionMustBePositive;
+                      }
                       return null;
                     },
                   ),
@@ -406,7 +413,7 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
                       dropdownColor: Colors.white,
                       icon: const Icon(Icons.expand_more_rounded, color: Color(0xFF64748B)),
                       decoration: InputDecoration(
-                        labelText: 'Unidad',
+                        labelText: l10n.nutritionUnitLabel,
                         filled: true,
                         fillColor: const Color(0xFFF1F5F9),
                         border: OutlineInputBorder(
@@ -415,12 +422,12 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
                         ),
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                       ),
-                      items: const [
-                        DropdownMenuItem(value: '1 UNIDAD', child: Text('1 unidad')),
-                        DropdownMenuItem(value: '100 G', child: Text('100 g')),
-                        DropdownMenuItem(value: '100 ML', child: Text('100 ml')),
-                        DropdownMenuItem(value: '1 PORCIÓN', child: Text('1 porción')),
-                        DropdownMenuItem(value: '1 TAZA', child: Text('1 taza')),
+                      items: [
+                        for (final value in _quickUnits)
+                          DropdownMenuItem(
+                            value: value,
+                            child: Text(prettyUnitLabel(value, l10n)),
+                          ),
                       ],
                       onChanged: (v) => setState(() => _unit = v ?? '1 UNIDAD'),
                     ),
@@ -447,7 +454,7 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text('Cancelar'),
+                    child: Text(l10n.commonCancel),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -462,8 +469,8 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
                     ),
                     child: Text(
                       _intent == CommonFoodAction.fridge
-                          ? 'Guardar en mi nevera'
-                          : 'Registrar consumo',
+                          ? l10n.nutritionSaveInMyFridge
+                          : l10n.nutritionLogConsumption,
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ),

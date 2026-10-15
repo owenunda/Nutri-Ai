@@ -1375,6 +1375,690 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Registrar en {meal}'**
   String mealsRegisterIn(String meal);
+
+  /// No description provided for @nutritionAddFridgeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar a mi nevera'**
+  String get nutritionAddFridgeTitle;
+
+  /// No description provided for @nutritionLogConsumedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar consumido'**
+  String get nutritionLogConsumedTitle;
+
+  /// No description provided for @nutritionAddFridgeSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo guardarás en tu nevera para que la IA pueda sugerirlo al chatear.'**
+  String get nutritionAddFridgeSubtitle;
+
+  /// No description provided for @nutritionLogConsumedSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Se registrará como consumido en la comida que elijas para que el conteo de calorías sea correcto.'**
+  String get nutritionLogConsumedSubtitle;
+
+  /// No description provided for @nutritionFoodNameLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del alimento'**
+  String get nutritionFoodNameLabel;
+
+  /// No description provided for @nutritionFoodNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej. Banana'**
+  String get nutritionFoodNameHint;
+
+  /// No description provided for @nutritionFoodNameRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor ingresa un nombre'**
+  String get nutritionFoodNameRequired;
+
+  /// No description provided for @nutritionSimilarFoodExists.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya existe un alimento parecido. Elige uno para usarlo:'**
+  String get nutritionSimilarFoodExists;
+
+  /// No description provided for @nutritionUseFood.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar {name}'**
+  String nutritionUseFood(String name);
+
+  /// No description provided for @nutritionChange.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar'**
+  String get nutritionChange;
+
+  /// No description provided for @nutritionCaloriesLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Calorías (Kcal)'**
+  String get nutritionCaloriesLabel;
+
+  /// No description provided for @nutritionCaloriesHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej. 105'**
+  String get nutritionCaloriesHint;
+
+  /// No description provided for @nutritionCaloriesRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa calorías'**
+  String get nutritionCaloriesRequired;
+
+  /// No description provided for @nutritionMustBePositive.
+  ///
+  /// In es, this message translates to:
+  /// **'Debe ser > 0'**
+  String get nutritionMustBePositive;
+
+  /// No description provided for @nutritionPortionLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Porción'**
+  String get nutritionPortionLabel;
+
+  /// No description provided for @nutritionAmountHaveLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad que tienes'**
+  String get nutritionAmountHaveLabel;
+
+  /// No description provided for @nutritionAmountConsumedLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad consumida'**
+  String get nutritionAmountConsumedLabel;
+
+  /// No description provided for @nutritionAmountRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa cantidad'**
+  String get nutritionAmountRequired;
+
+  /// No description provided for @nutritionAmountLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad'**
+  String get nutritionAmountLabel;
+
+  /// No description provided for @nutritionUnitLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Unidad'**
+  String get nutritionUnitLabel;
+
+  /// No description provided for @nutritionMealOfDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Comida del día'**
+  String get nutritionMealOfDay;
+
+  /// No description provided for @nutritionSaving.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando...'**
+  String get nutritionSaving;
+
+  /// No description provided for @nutritionSaveInFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar en nevera'**
+  String get nutritionSaveInFridge;
+
+  /// No description provided for @nutritionSaveInMyFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar en mi nevera'**
+  String get nutritionSaveInMyFridge;
+
+  /// No description provided for @nutritionLogConsumption.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar consumo'**
+  String get nutritionLogConsumption;
+
+  /// No description provided for @nutritionGenericError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error'**
+  String get nutritionGenericError;
+
+  /// No description provided for @nutritionErrorNoFoodId.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo obtener el identificador del alimento. Inténtalo de nuevo.'**
+  String get nutritionErrorNoFoodId;
+
+  /// No description provided for @nutritionErrorRegisterFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo completar el registro. Inténtalo de nuevo.'**
+  String get nutritionErrorRegisterFailed;
+
+  /// No description provided for @nutritionDoneTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Listo!'**
+  String get nutritionDoneTitle;
+
+  /// No description provided for @nutritionDoneFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu alimento ya está en la nevera.'**
+  String get nutritionDoneFridge;
+
+  /// No description provided for @nutritionDoneConsumed.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu consumo quedó registrado.'**
+  String get nutritionDoneConsumed;
+
+  /// No description provided for @nutritionAddAnotherFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar otro a mi nevera'**
+  String get nutritionAddAnotherFridge;
+
+  /// No description provided for @nutritionLogAnother.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar otro consumo'**
+  String get nutritionLogAnother;
+
+  /// No description provided for @nutritionDoneButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Listo'**
+  String get nutritionDoneButton;
+
+  /// No description provided for @nutritionFridgeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Mi nevera'**
+  String get nutritionFridgeTitle;
+
+  /// No description provided for @nutritionFridgeSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo que tienes en casa. La IA lo sugiere primero cuando lo adjuntas al chat.'**
+  String get nutritionFridgeSubtitle;
+
+  /// No description provided for @nutritionHowItWorks.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cómo funciona?'**
+  String get nutritionHowItWorks;
+
+  /// No description provided for @nutritionCommonTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Comunes'**
+  String get nutritionCommonTitle;
+
+  /// No description provided for @nutritionManualEntryTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrada manual'**
+  String get nutritionManualEntryTitle;
+
+  /// No description provided for @nutritionHelpFridgeBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Alimentos que tienes guardados. Al adjuntarlos al chat, la IA los prioriza.'**
+  String get nutritionHelpFridgeBody;
+
+  /// No description provided for @nutritionHelpCommonBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Catálogo general de NutriLife para cuando no encuentras lo que buscas.'**
+  String get nutritionHelpCommonBody;
+
+  /// No description provided for @nutritionHelpManualBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige entre \"lo tengo\" (a tu nevera) o \"lo consumí\" (alimento registrado, sin guardar).'**
+  String get nutritionHelpManualBody;
+
+  /// No description provided for @nutritionGotIt.
+  ///
+  /// In es, this message translates to:
+  /// **'Entendido'**
+  String get nutritionGotIt;
+
+  /// No description provided for @nutritionCustomTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar personalizado'**
+  String get nutritionCustomTitle;
+
+  /// No description provided for @nutritionCustomBody.
+  ///
+  /// In es, this message translates to:
+  /// **'¿No encuentras tu alimento? Agrégalo y elige si lo tienes en casa o solo lo registraste.'**
+  String get nutritionCustomBody;
+
+  /// No description provided for @nutritionToFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'A mi nevera'**
+  String get nutritionToFridge;
+
+  /// No description provided for @nutritionIAteIt.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo consumí'**
+  String get nutritionIAteIt;
+
+  /// No description provided for @nutritionSavedSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo que tienes guardado'**
+  String get nutritionSavedSubtitle;
+
+  /// No description provided for @nutritionCatalogSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Catálogo de NutriLife'**
+  String get nutritionCatalogSubtitle;
+
+  /// No description provided for @nutritionSeeAllItems.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todo'**
+  String get nutritionSeeAllItems;
+
+  /// No description provided for @nutritionSeeAllFoods.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todos'**
+  String get nutritionSeeAllFoods;
+
+  /// No description provided for @nutritionSeeLess.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver menos'**
+  String get nutritionSeeLess;
+
+  /// No description provided for @nutritionResultsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultados ({count})'**
+  String nutritionResultsCount(int count);
+
+  /// No description provided for @nutritionTip.
+  ///
+  /// In es, this message translates to:
+  /// **'Tip: agregar primero lo que tienes en tu nevera (no lo que comiste fuera) ayuda a la IA a sugerirte recetas con lo que ya está en casa.'**
+  String get nutritionTip;
+
+  /// No description provided for @nutritionNoResults.
+  ///
+  /// In es, this message translates to:
+  /// **'No encontramos \"{query}\". Prueba con otro nombre o agrégalo desde \"Entrada manual\".'**
+  String nutritionNoResults(String query);
+
+  /// No description provided for @nutritionNoCommonFoods.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay alimentos comunes cargados.'**
+  String get nutritionNoCommonFoods;
+
+  /// No description provided for @nutritionFoodAddedToFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'{food} agregado a tu nevera'**
+  String nutritionFoodAddedToFridge(String food);
+
+  /// No description provided for @nutritionFoodLoggedIn.
+  ///
+  /// In es, this message translates to:
+  /// **'{food} registrado en {meal}'**
+  String nutritionFoodLoggedIn(String food, String meal);
+
+  /// No description provided for @nutritionErrorAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo agregar'**
+  String get nutritionErrorAdd;
+
+  /// No description provided for @nutritionErrorLog.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo registrar'**
+  String get nutritionErrorLog;
+
+  /// No description provided for @nutritionBulkResult.
+  ///
+  /// In es, this message translates to:
+  /// **'{ok}/{total} procesados correctamente.'**
+  String nutritionBulkResult(int ok, int total);
+
+  /// No description provided for @nutritionBulkResultWithFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'{ok}/{total} procesados correctamente. Fallaron: {names}'**
+  String nutritionBulkResultWithFailed(int ok, int total, String names);
+
+  /// No description provided for @nutritionAskMealTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿En qué comida?'**
+  String get nutritionAskMealTitle;
+
+  /// No description provided for @nutritionAskMealBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Se registrará como consumido en la comida seleccionada para todos los alimentos marcados.'**
+  String get nutritionAskMealBody;
+
+  /// No description provided for @nutritionActions.
+  ///
+  /// In es, this message translates to:
+  /// **'Acciones'**
+  String get nutritionActions;
+
+  /// No description provided for @nutritionClearSelection.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar selección'**
+  String get nutritionClearSelection;
+
+  /// No description provided for @nutritionSelectedCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 alimento seleccionado} other{{count} alimentos seleccionados}}'**
+  String nutritionSelectedCount(int count);
+
+  /// No description provided for @nutritionEmptyFridgeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu nevera está vacía'**
+  String get nutritionEmptyFridgeTitle;
+
+  /// No description provided for @nutritionEmptyFridgeBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Agrega lo que tienes en casa desde \"Entrada manual\" para que la IA pueda sugerírtelo en el chat.'**
+  String get nutritionEmptyFridgeBody;
+
+  /// No description provided for @nutritionAllFoodsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los alimentos'**
+  String get nutritionAllFoodsTitle;
+
+  /// No description provided for @nutritionItemsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 ítem} other{{count} ítems}}'**
+  String nutritionItemsCount(int count);
+
+  /// No description provided for @nutritionFoodsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 alimento} other{{count} alimentos}}'**
+  String nutritionFoodsCount(int count);
+
+  /// No description provided for @nutritionFridgeEmptyAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu nevera está vacía. Agrega alimentos desde \"Entrada manual\" o desde la pestaña Comunes.'**
+  String get nutritionFridgeEmptyAll;
+
+  /// No description provided for @nutritionEditAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar cantidad de {name}'**
+  String nutritionEditAmount(String name);
+
+  /// No description provided for @nutritionFridgeItemRemoved.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} se quitó de tu nevera'**
+  String nutritionFridgeItemRemoved(String name);
+
+  /// No description provided for @nutritionFridgeAmountUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad de {name} actualizada'**
+  String nutritionFridgeAmountUpdated(String name);
+
+  /// No description provided for @nutritionRemoveFoodTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar alimento'**
+  String get nutritionRemoveFoodTitle;
+
+  /// No description provided for @nutritionRemoveFoodBody.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quieres quitar {name} de tu nevera? Ya no aparecerá entre tus alimentos disponibles.'**
+  String nutritionRemoveFoodBody(String name);
+
+  /// No description provided for @nutritionRemove.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar'**
+  String get nutritionRemove;
+
+  /// No description provided for @nutritionAmountGreaterThanZero.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa una cantidad mayor que 0'**
+  String get nutritionAmountGreaterThanZero;
+
+  /// No description provided for @nutritionCantSubtractMore.
+  ///
+  /// In es, this message translates to:
+  /// **'No puedes descontar más de lo que tienes ({quantity}).'**
+  String nutritionCantSubtractMore(String quantity);
+
+  /// No description provided for @nutritionAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponible: {amount}'**
+  String nutritionAvailable(String amount);
+
+  /// No description provided for @nutritionAdjustLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad para sumar o descontar ({unit})'**
+  String nutritionAdjustLabel(String unit);
+
+  /// No description provided for @nutritionNewTotalLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad total nueva ({unit})'**
+  String nutritionNewTotalLabel(String unit);
+
+  /// No description provided for @nutritionSubtract.
+  ///
+  /// In es, this message translates to:
+  /// **'Descontar'**
+  String get nutritionSubtract;
+
+  /// No description provided for @nutritionIncrease.
+  ///
+  /// In es, this message translates to:
+  /// **'Aumentar'**
+  String get nutritionIncrease;
+
+  /// No description provided for @nutritionSaveExactAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar cantidad exacta'**
+  String get nutritionSaveExactAmount;
+
+  /// No description provided for @nutritionRemoveFromFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar de la nevera'**
+  String get nutritionRemoveFromFridge;
+
+  /// No description provided for @nutritionSearchHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Busca más de 100,000 alimentos...'**
+  String get nutritionSearchHint;
+
+  /// No description provided for @nutritionClearSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar búsqueda'**
+  String get nutritionClearSearch;
+
+  /// No description provided for @nutritionUnitOne.
+  ///
+  /// In es, this message translates to:
+  /// **'1 unidad'**
+  String get nutritionUnitOne;
+
+  /// No description provided for @nutritionUnitServing.
+  ///
+  /// In es, this message translates to:
+  /// **'1 porción'**
+  String get nutritionUnitServing;
+
+  /// No description provided for @nutritionUnitCup.
+  ///
+  /// In es, this message translates to:
+  /// **'1 taza'**
+  String get nutritionUnitCup;
+
+  /// No description provided for @nutritionUnitTablespoon.
+  ///
+  /// In es, this message translates to:
+  /// **'1 cucharada'**
+  String get nutritionUnitTablespoon;
+
+  /// No description provided for @nutritionUnitSlice.
+  ///
+  /// In es, this message translates to:
+  /// **'1 rebanada'**
+  String get nutritionUnitSlice;
+
+  /// No description provided for @nutritionCountUnit.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 unidad} other{{amount} unidades}}'**
+  String nutritionCountUnit(num count, String amount);
+
+  /// No description provided for @nutritionCountServing.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 porción} other{{amount} porciones}}'**
+  String nutritionCountServing(num count, String amount);
+
+  /// No description provided for @nutritionCountCup.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 taza} other{{amount} tazas}}'**
+  String nutritionCountCup(num count, String amount);
+
+  /// No description provided for @nutritionCountTablespoon.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 cucharada} other{{amount} cucharadas}}'**
+  String nutritionCountTablespoon(num count, String amount);
+
+  /// No description provided for @nutritionCountSlice.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 rebanada} other{{amount} rebanadas}}'**
+  String nutritionCountSlice(num count, String amount);
+
+  /// No description provided for @nutritionErrorServerConnection.
+  ///
+  /// In es, this message translates to:
+  /// **'Error de conexión con el servidor'**
+  String get nutritionErrorServerConnection;
+
+  /// No description provided for @nutritionErrorLoadFoods.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al obtener alimentos'**
+  String get nutritionErrorLoadFoods;
+
+  /// No description provided for @nutritionErrorUnexpectedLoadFoods.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un error inesperado al obtener los alimentos: {error}'**
+  String nutritionErrorUnexpectedLoadFoods(String error);
+
+  /// No description provided for @nutritionErrorRegisterFood.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al registrar el alimento'**
+  String get nutritionErrorRegisterFood;
+
+  /// No description provided for @nutritionErrorRegisterFoodServer.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al registrar el alimento en el servidor'**
+  String get nutritionErrorRegisterFoodServer;
+
+  /// No description provided for @nutritionErrorUnexpectedRegisterFood.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un error inesperado al registrar el alimento: {error}'**
+  String nutritionErrorUnexpectedRegisterFood(String error);
+
+  /// No description provided for @nutritionErrorLoadFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al obtener la nevera'**
+  String get nutritionErrorLoadFridge;
+
+  /// No description provided for @nutritionErrorUnexpectedLoadFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un error inesperado al obtener la nevera: {error}'**
+  String nutritionErrorUnexpectedLoadFridge(String error);
+
+  /// No description provided for @nutritionErrorAddToFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo agregar a la nevera'**
+  String get nutritionErrorAddToFridge;
+
+  /// No description provided for @nutritionErrorAddToFridgeDetail.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo agregar a la nevera: {error}'**
+  String nutritionErrorAddToFridgeDetail(String error);
+
+  /// No description provided for @nutritionErrorUpdateAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo actualizar la cantidad'**
+  String get nutritionErrorUpdateAmount;
+
+  /// No description provided for @nutritionErrorUpdateAmountDetail.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo actualizar la cantidad: {error}'**
+  String nutritionErrorUpdateAmountDetail(String error);
+
+  /// No description provided for @nutritionErrorRemoveFromFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo quitar de la nevera'**
+  String get nutritionErrorRemoveFromFridge;
+
+  /// No description provided for @nutritionErrorRemoveFromFridgeDetail.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo quitar de la nevera: {error}'**
+  String nutritionErrorRemoveFromFridgeDetail(String error);
 }
 
 class _AppLocalizationsDelegate

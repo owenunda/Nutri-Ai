@@ -729,4 +729,468 @@ class AppLocalizationsEn extends AppLocalizations {
   String mealsRegisterIn(String meal) {
     return 'Add to $meal';
   }
+
+  @override
+  String get nutritionAddFridgeTitle => 'Add to my fridge';
+
+  @override
+  String get nutritionLogConsumedTitle => 'Log what you ate';
+
+  @override
+  String get nutritionAddFridgeSubtitle =>
+      'It\'ll be saved in your fridge so the AI can suggest it when you chat.';
+
+  @override
+  String get nutritionLogConsumedSubtitle =>
+      'It\'ll be logged as eaten in the meal you pick, so your calorie count stays accurate.';
+
+  @override
+  String get nutritionFoodNameLabel => 'Food name';
+
+  @override
+  String get nutritionFoodNameHint => 'E.g. Banana';
+
+  @override
+  String get nutritionFoodNameRequired => 'Please enter a name';
+
+  @override
+  String get nutritionSimilarFoodExists =>
+      'A similar food already exists. Pick one to use it:';
+
+  @override
+  String nutritionUseFood(String name) {
+    return 'Use $name';
+  }
+
+  @override
+  String get nutritionChange => 'Change';
+
+  @override
+  String get nutritionCaloriesLabel => 'Calories (kcal)';
+
+  @override
+  String get nutritionCaloriesHint => 'E.g. 105';
+
+  @override
+  String get nutritionCaloriesRequired => 'Enter calories';
+
+  @override
+  String get nutritionMustBePositive => 'Must be > 0';
+
+  @override
+  String get nutritionPortionLabel => 'Serving';
+
+  @override
+  String get nutritionAmountHaveLabel => 'Amount you have';
+
+  @override
+  String get nutritionAmountConsumedLabel => 'Amount eaten';
+
+  @override
+  String get nutritionAmountRequired => 'Enter an amount';
+
+  @override
+  String get nutritionAmountLabel => 'Amount';
+
+  @override
+  String get nutritionUnitLabel => 'Unit';
+
+  @override
+  String get nutritionMealOfDay => 'Meal of the day';
+
+  @override
+  String get nutritionSaving => 'Saving...';
+
+  @override
+  String get nutritionSaveInFridge => 'Save to fridge';
+
+  @override
+  String get nutritionSaveInMyFridge => 'Save to my fridge';
+
+  @override
+  String get nutritionLogConsumption => 'Log what I ate';
+
+  @override
+  String get nutritionGenericError => 'Error';
+
+  @override
+  String get nutritionErrorNoFoodId =>
+      'We couldn\'t get the food\'s ID. Please try again.';
+
+  @override
+  String get nutritionErrorRegisterFailed =>
+      'We couldn\'t complete that. Please try again.';
+
+  @override
+  String get nutritionDoneTitle => 'All set!';
+
+  @override
+  String get nutritionDoneFridge => 'Your food is now in the fridge.';
+
+  @override
+  String get nutritionDoneConsumed => 'Your meal has been logged.';
+
+  @override
+  String get nutritionAddAnotherFridge => 'Add another to my fridge';
+
+  @override
+  String get nutritionLogAnother => 'Log another meal';
+
+  @override
+  String get nutritionDoneButton => 'Done';
+
+  @override
+  String get nutritionFridgeTitle => 'My fridge';
+
+  @override
+  String get nutritionFridgeSubtitle =>
+      'What you have at home. The AI suggests it first when you attach it to the chat.';
+
+  @override
+  String get nutritionHowItWorks => 'How does it work?';
+
+  @override
+  String get nutritionCommonTitle => 'Common';
+
+  @override
+  String get nutritionManualEntryTitle => 'Manual entry';
+
+  @override
+  String get nutritionHelpFridgeBody =>
+      'Foods you\'ve saved. When you attach them to the chat, the AI prioritizes them.';
+
+  @override
+  String get nutritionHelpCommonBody =>
+      'NutriLife\'s general catalog, for when you can\'t find what you\'re looking for.';
+
+  @override
+  String get nutritionHelpManualBody =>
+      'Choose \"I have it\" (goes to your fridge) or \"I ate it\" (logged, not saved).';
+
+  @override
+  String get nutritionGotIt => 'Got it';
+
+  @override
+  String get nutritionCustomTitle => 'Add your own';
+
+  @override
+  String get nutritionCustomBody =>
+      'Can\'t find your food? Add it and choose whether you have it at home or just logged it.';
+
+  @override
+  String get nutritionToFridge => 'To my fridge';
+
+  @override
+  String get nutritionIAteIt => 'I ate it';
+
+  @override
+  String get nutritionSavedSubtitle => 'What you\'ve saved';
+
+  @override
+  String get nutritionCatalogSubtitle => 'NutriLife catalog';
+
+  @override
+  String get nutritionSeeAllItems => 'See all';
+
+  @override
+  String get nutritionSeeAllFoods => 'See all';
+
+  @override
+  String get nutritionSeeLess => 'See less';
+
+  @override
+  String nutritionResultsCount(int count) {
+    return 'Results ($count)';
+  }
+
+  @override
+  String get nutritionTip =>
+      'Tip: adding what\'s in your fridge first (not what you ate out) helps the AI suggest recipes using what you already have at home.';
+
+  @override
+  String nutritionNoResults(String query) {
+    return 'We couldn\'t find \"$query\". Try another name or add it from \"Manual entry\".';
+  }
+
+  @override
+  String get nutritionNoCommonFoods => 'No common foods loaded yet.';
+
+  @override
+  String nutritionFoodAddedToFridge(String food) {
+    return '$food added to your fridge';
+  }
+
+  @override
+  String nutritionFoodLoggedIn(String food, String meal) {
+    return '$food added to $meal';
+  }
+
+  @override
+  String get nutritionErrorAdd => 'Couldn\'t add it';
+
+  @override
+  String get nutritionErrorLog => 'Couldn\'t log it';
+
+  @override
+  String nutritionBulkResult(int ok, int total) {
+    return '$ok/$total processed successfully.';
+  }
+
+  @override
+  String nutritionBulkResultWithFailed(int ok, int total, String names) {
+    return '$ok/$total processed successfully. Failed: $names';
+  }
+
+  @override
+  String get nutritionAskMealTitle => 'Which meal?';
+
+  @override
+  String get nutritionAskMealBody =>
+      'All the selected foods will be logged as eaten in the meal you choose.';
+
+  @override
+  String get nutritionActions => 'Actions';
+
+  @override
+  String get nutritionClearSelection => 'Clear selection';
+
+  @override
+  String nutritionSelectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count foods selected',
+      one: '1 food selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nutritionEmptyFridgeTitle => 'Your fridge is empty';
+
+  @override
+  String get nutritionEmptyFridgeBody =>
+      'Add what you have at home from \"Manual entry\" so the AI can suggest it in the chat.';
+
+  @override
+  String get nutritionAllFoodsTitle => 'All foods';
+
+  @override
+  String nutritionItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionFoodsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count foods',
+      one: '1 food',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nutritionFridgeEmptyAll =>
+      'Your fridge is empty. Add foods from \"Manual entry\" or from the Common tab.';
+
+  @override
+  String nutritionEditAmount(String name) {
+    return 'Edit amount of $name';
+  }
+
+  @override
+  String nutritionFridgeItemRemoved(String name) {
+    return '$name was removed from your fridge';
+  }
+
+  @override
+  String nutritionFridgeAmountUpdated(String name) {
+    return '$name amount updated';
+  }
+
+  @override
+  String get nutritionRemoveFoodTitle => 'Remove food';
+
+  @override
+  String nutritionRemoveFoodBody(String name) {
+    return 'Remove $name from your fridge? It will no longer show up among your available foods.';
+  }
+
+  @override
+  String get nutritionRemove => 'Remove';
+
+  @override
+  String get nutritionAmountGreaterThanZero => 'Enter an amount greater than 0';
+
+  @override
+  String nutritionCantSubtractMore(String quantity) {
+    return 'You can\'t subtract more than you have ($quantity).';
+  }
+
+  @override
+  String nutritionAvailable(String amount) {
+    return 'Available: $amount';
+  }
+
+  @override
+  String nutritionAdjustLabel(String unit) {
+    return 'Amount to add or subtract ($unit)';
+  }
+
+  @override
+  String nutritionNewTotalLabel(String unit) {
+    return 'New total amount ($unit)';
+  }
+
+  @override
+  String get nutritionSubtract => 'Subtract';
+
+  @override
+  String get nutritionIncrease => 'Add';
+
+  @override
+  String get nutritionSaveExactAmount => 'Save exact amount';
+
+  @override
+  String get nutritionRemoveFromFridge => 'Remove from fridge';
+
+  @override
+  String get nutritionSearchHint => 'Search over 100,000 foods...';
+
+  @override
+  String get nutritionClearSearch => 'Clear search';
+
+  @override
+  String get nutritionUnitOne => '1 unit';
+
+  @override
+  String get nutritionUnitServing => '1 serving';
+
+  @override
+  String get nutritionUnitCup => '1 cup';
+
+  @override
+  String get nutritionUnitTablespoon => '1 tablespoon';
+
+  @override
+  String get nutritionUnitSlice => '1 slice';
+
+  @override
+  String nutritionCountUnit(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount units',
+      one: '1 unit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionCountServing(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount servings',
+      one: '1 serving',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionCountCup(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount cups',
+      one: '1 cup',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionCountTablespoon(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount tablespoons',
+      one: '1 tablespoon',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionCountSlice(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount slices',
+      one: '1 slice',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nutritionErrorServerConnection => 'Server connection error';
+
+  @override
+  String get nutritionErrorLoadFoods => 'Couldn\'t load foods';
+
+  @override
+  String nutritionErrorUnexpectedLoadFoods(String error) {
+    return 'Something unexpected went wrong loading the foods: $error';
+  }
+
+  @override
+  String get nutritionErrorRegisterFood => 'Couldn\'t save the food';
+
+  @override
+  String get nutritionErrorRegisterFoodServer =>
+      'Couldn\'t save the food on the server';
+
+  @override
+  String nutritionErrorUnexpectedRegisterFood(String error) {
+    return 'Something unexpected went wrong saving the food: $error';
+  }
+
+  @override
+  String get nutritionErrorLoadFridge => 'Couldn\'t load your fridge';
+
+  @override
+  String nutritionErrorUnexpectedLoadFridge(String error) {
+    return 'Something unexpected went wrong loading your fridge: $error';
+  }
+
+  @override
+  String get nutritionErrorAddToFridge => 'Couldn\'t add it to your fridge';
+
+  @override
+  String nutritionErrorAddToFridgeDetail(String error) {
+    return 'Couldn\'t add it to your fridge: $error';
+  }
+
+  @override
+  String get nutritionErrorUpdateAmount => 'Couldn\'t update the amount';
+
+  @override
+  String nutritionErrorUpdateAmountDetail(String error) {
+    return 'Couldn\'t update the amount: $error';
+  }
+
+  @override
+  String get nutritionErrorRemoveFromFridge =>
+      'Couldn\'t remove it from your fridge';
+
+  @override
+  String nutritionErrorRemoveFromFridgeDetail(String error) {
+    return 'Couldn\'t remove it from your fridge: $error';
+  }
 }

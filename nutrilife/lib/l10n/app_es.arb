@@ -390,5 +390,349 @@
         "type": "String"
       }
     }
+  },
+  "nutritionAddFridgeTitle": "Agregar a mi nevera",
+  "nutritionLogConsumedTitle": "Registrar consumido",
+  "nutritionAddFridgeSubtitle": "Lo guardarás en tu nevera para que la IA pueda sugerirlo al chatear.",
+  "nutritionLogConsumedSubtitle": "Se registrará como consumido en la comida que elijas para que el conteo de calorías sea correcto.",
+  "nutritionFoodNameLabel": "Nombre del alimento",
+  "nutritionFoodNameHint": "Ej. Banana",
+  "nutritionFoodNameRequired": "Por favor ingresa un nombre",
+  "nutritionSimilarFoodExists": "Ya existe un alimento parecido. Elige uno para usarlo:",
+  "nutritionUseFood": "Usar {name}",
+  "@nutritionUseFood": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionChange": "Cambiar",
+  "nutritionCaloriesLabel": "Calorías (Kcal)",
+  "nutritionCaloriesHint": "Ej. 105",
+  "nutritionCaloriesRequired": "Ingresa calorías",
+  "nutritionMustBePositive": "Debe ser > 0",
+  "nutritionPortionLabel": "Porción",
+  "nutritionAmountHaveLabel": "Cantidad que tienes",
+  "nutritionAmountConsumedLabel": "Cantidad consumida",
+  "nutritionAmountRequired": "Ingresa cantidad",
+  "nutritionAmountLabel": "Cantidad",
+  "nutritionUnitLabel": "Unidad",
+  "nutritionMealOfDay": "Comida del día",
+  "nutritionSaving": "Guardando...",
+  "nutritionSaveInFridge": "Guardar en nevera",
+  "nutritionSaveInMyFridge": "Guardar en mi nevera",
+  "nutritionLogConsumption": "Registrar consumo",
+  "nutritionGenericError": "Error",
+  "nutritionErrorNoFoodId": "No se pudo obtener el identificador del alimento. Inténtalo de nuevo.",
+  "nutritionErrorRegisterFailed": "No se pudo completar el registro. Inténtalo de nuevo.",
+  "nutritionDoneTitle": "¡Listo!",
+  "nutritionDoneFridge": "Tu alimento ya está en la nevera.",
+  "nutritionDoneConsumed": "Tu consumo quedó registrado.",
+  "nutritionAddAnotherFridge": "Agregar otro a mi nevera",
+  "nutritionLogAnother": "Registrar otro consumo",
+  "nutritionDoneButton": "Listo",
+  "nutritionFridgeTitle": "Mi nevera",
+  "nutritionFridgeSubtitle": "Lo que tienes en casa. La IA lo sugiere primero cuando lo adjuntas al chat.",
+  "nutritionHowItWorks": "¿Cómo funciona?",
+  "nutritionCommonTitle": "Comunes",
+  "nutritionManualEntryTitle": "Entrada manual",
+  "nutritionHelpFridgeBody": "Alimentos que tienes guardados. Al adjuntarlos al chat, la IA los prioriza.",
+  "nutritionHelpCommonBody": "Catálogo general de NutriLife para cuando no encuentras lo que buscas.",
+  "nutritionHelpManualBody": "Elige entre \"lo tengo\" (a tu nevera) o \"lo consumí\" (alimento registrado, sin guardar).",
+  "nutritionGotIt": "Entendido",
+  "nutritionCustomTitle": "Agregar personalizado",
+  "nutritionCustomBody": "¿No encuentras tu alimento? Agrégalo y elige si lo tienes en casa o solo lo registraste.",
+  "nutritionToFridge": "A mi nevera",
+  "nutritionIAteIt": "Lo consumí",
+  "nutritionSavedSubtitle": "Lo que tienes guardado",
+  "nutritionCatalogSubtitle": "Catálogo de NutriLife",
+  "nutritionSeeAllItems": "Ver todo",
+  "nutritionSeeAllFoods": "Ver todos",
+  "nutritionSeeLess": "Ver menos",
+  "nutritionResultsCount": "Resultados ({count})",
+  "@nutritionResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionTip": "Tip: agregar primero lo que tienes en tu nevera (no lo que comiste fuera) ayuda a la IA a sugerirte recetas con lo que ya está en casa.",
+  "nutritionNoResults": "No encontramos \"{query}\". Prueba con otro nombre o agrégalo desde \"Entrada manual\".",
+  "@nutritionNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionNoCommonFoods": "No hay alimentos comunes cargados.",
+  "nutritionFoodAddedToFridge": "{food} agregado a tu nevera",
+  "@nutritionFoodAddedToFridge": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFoodLoggedIn": "{food} registrado en {meal}",
+  "@nutritionFoodLoggedIn": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorAdd": "No se pudo agregar",
+  "nutritionErrorLog": "No se pudo registrar",
+  "nutritionBulkResult": "{ok}/{total} procesados correctamente.",
+  "@nutritionBulkResult": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionBulkResultWithFailed": "{ok}/{total} procesados correctamente. Fallaron: {names}",
+  "@nutritionBulkResultWithFailed": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAskMealTitle": "¿En qué comida?",
+  "nutritionAskMealBody": "Se registrará como consumido en la comida seleccionada para todos los alimentos marcados.",
+  "nutritionActions": "Acciones",
+  "nutritionClearSelection": "Quitar selección",
+  "nutritionSelectedCount": "{count, plural, =1{1 alimento seleccionado} other{{count} alimentos seleccionados}}",
+  "@nutritionSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionEmptyFridgeTitle": "Tu nevera está vacía",
+  "nutritionEmptyFridgeBody": "Agrega lo que tienes en casa desde \"Entrada manual\" para que la IA pueda sugerírtelo en el chat.",
+  "nutritionAllFoodsTitle": "Todos los alimentos",
+  "nutritionItemsCount": "{count, plural, =1{1 ítem} other{{count} ítems}}",
+  "@nutritionItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionFoodsCount": "{count, plural, =1{1 alimento} other{{count} alimentos}}",
+  "@nutritionFoodsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionFridgeEmptyAll": "Tu nevera está vacía. Agrega alimentos desde \"Entrada manual\" o desde la pestaña Comunes.",
+  "nutritionEditAmount": "Editar cantidad de {name}",
+  "@nutritionEditAmount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFridgeItemRemoved": "{name} se quitó de tu nevera",
+  "@nutritionFridgeItemRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFridgeAmountUpdated": "Cantidad de {name} actualizada",
+  "@nutritionFridgeAmountUpdated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionRemoveFoodTitle": "Quitar alimento",
+  "nutritionRemoveFoodBody": "¿Quieres quitar {name} de tu nevera? Ya no aparecerá entre tus alimentos disponibles.",
+  "@nutritionRemoveFoodBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionRemove": "Quitar",
+  "nutritionAmountGreaterThanZero": "Ingresa una cantidad mayor que 0",
+  "nutritionCantSubtractMore": "No puedes descontar más de lo que tienes ({quantity}).",
+  "@nutritionCantSubtractMore": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAvailable": "Disponible: {amount}",
+  "@nutritionAvailable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAdjustLabel": "Cantidad para sumar o descontar ({unit})",
+  "@nutritionAdjustLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionNewTotalLabel": "Cantidad total nueva ({unit})",
+  "@nutritionNewTotalLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionSubtract": "Descontar",
+  "nutritionIncrease": "Aumentar",
+  "nutritionSaveExactAmount": "Guardar cantidad exacta",
+  "nutritionRemoveFromFridge": "Quitar de la nevera",
+  "nutritionSearchHint": "Busca más de 100,000 alimentos...",
+  "nutritionClearSearch": "Borrar búsqueda",
+  "nutritionUnitOne": "1 unidad",
+  "nutritionUnitServing": "1 porción",
+  "nutritionUnitCup": "1 taza",
+  "nutritionUnitTablespoon": "1 cucharada",
+  "nutritionUnitSlice": "1 rebanada",
+  "nutritionCountUnit": "{count, plural, =1{1 unidad} other{{amount} unidades}}",
+  "@nutritionCountUnit": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountServing": "{count, plural, =1{1 porción} other{{amount} porciones}}",
+  "@nutritionCountServing": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountCup": "{count, plural, =1{1 taza} other{{amount} tazas}}",
+  "@nutritionCountCup": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountTablespoon": "{count, plural, =1{1 cucharada} other{{amount} cucharadas}}",
+  "@nutritionCountTablespoon": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountSlice": "{count, plural, =1{1 rebanada} other{{amount} rebanadas}}",
+  "@nutritionCountSlice": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorServerConnection": "Error de conexión con el servidor",
+  "nutritionErrorLoadFoods": "Error al obtener alimentos",
+  "nutritionErrorUnexpectedLoadFoods": "Ocurrió un error inesperado al obtener los alimentos: {error}",
+  "@nutritionErrorUnexpectedLoadFoods": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorRegisterFood": "Error al registrar el alimento",
+  "nutritionErrorRegisterFoodServer": "Error al registrar el alimento en el servidor",
+  "nutritionErrorUnexpectedRegisterFood": "Ocurrió un error inesperado al registrar el alimento: {error}",
+  "@nutritionErrorUnexpectedRegisterFood": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorLoadFridge": "Error al obtener la nevera",
+  "nutritionErrorUnexpectedLoadFridge": "Ocurrió un error inesperado al obtener la nevera: {error}",
+  "@nutritionErrorUnexpectedLoadFridge": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorAddToFridge": "No se pudo agregar a la nevera",
+  "nutritionErrorAddToFridgeDetail": "No se pudo agregar a la nevera: {error}",
+  "@nutritionErrorAddToFridgeDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorUpdateAmount": "No se pudo actualizar la cantidad",
+  "nutritionErrorUpdateAmountDetail": "No se pudo actualizar la cantidad: {error}",
+  "@nutritionErrorUpdateAmountDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorRemoveFromFridge": "No se pudo quitar de la nevera",
+  "nutritionErrorRemoveFromFridgeDetail": "No se pudo quitar de la nevera: {error}",
+  "@nutritionErrorRemoveFromFridgeDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

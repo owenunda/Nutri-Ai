@@ -732,4 +732,469 @@ class AppLocalizationsEs extends AppLocalizations {
   String mealsRegisterIn(String meal) {
     return 'Registrar en $meal';
   }
+
+  @override
+  String get nutritionAddFridgeTitle => 'Agregar a mi nevera';
+
+  @override
+  String get nutritionLogConsumedTitle => 'Registrar consumido';
+
+  @override
+  String get nutritionAddFridgeSubtitle =>
+      'Lo guardarás en tu nevera para que la IA pueda sugerirlo al chatear.';
+
+  @override
+  String get nutritionLogConsumedSubtitle =>
+      'Se registrará como consumido en la comida que elijas para que el conteo de calorías sea correcto.';
+
+  @override
+  String get nutritionFoodNameLabel => 'Nombre del alimento';
+
+  @override
+  String get nutritionFoodNameHint => 'Ej. Banana';
+
+  @override
+  String get nutritionFoodNameRequired => 'Por favor ingresa un nombre';
+
+  @override
+  String get nutritionSimilarFoodExists =>
+      'Ya existe un alimento parecido. Elige uno para usarlo:';
+
+  @override
+  String nutritionUseFood(String name) {
+    return 'Usar $name';
+  }
+
+  @override
+  String get nutritionChange => 'Cambiar';
+
+  @override
+  String get nutritionCaloriesLabel => 'Calorías (Kcal)';
+
+  @override
+  String get nutritionCaloriesHint => 'Ej. 105';
+
+  @override
+  String get nutritionCaloriesRequired => 'Ingresa calorías';
+
+  @override
+  String get nutritionMustBePositive => 'Debe ser > 0';
+
+  @override
+  String get nutritionPortionLabel => 'Porción';
+
+  @override
+  String get nutritionAmountHaveLabel => 'Cantidad que tienes';
+
+  @override
+  String get nutritionAmountConsumedLabel => 'Cantidad consumida';
+
+  @override
+  String get nutritionAmountRequired => 'Ingresa cantidad';
+
+  @override
+  String get nutritionAmountLabel => 'Cantidad';
+
+  @override
+  String get nutritionUnitLabel => 'Unidad';
+
+  @override
+  String get nutritionMealOfDay => 'Comida del día';
+
+  @override
+  String get nutritionSaving => 'Guardando...';
+
+  @override
+  String get nutritionSaveInFridge => 'Guardar en nevera';
+
+  @override
+  String get nutritionSaveInMyFridge => 'Guardar en mi nevera';
+
+  @override
+  String get nutritionLogConsumption => 'Registrar consumo';
+
+  @override
+  String get nutritionGenericError => 'Error';
+
+  @override
+  String get nutritionErrorNoFoodId =>
+      'No se pudo obtener el identificador del alimento. Inténtalo de nuevo.';
+
+  @override
+  String get nutritionErrorRegisterFailed =>
+      'No se pudo completar el registro. Inténtalo de nuevo.';
+
+  @override
+  String get nutritionDoneTitle => '¡Listo!';
+
+  @override
+  String get nutritionDoneFridge => 'Tu alimento ya está en la nevera.';
+
+  @override
+  String get nutritionDoneConsumed => 'Tu consumo quedó registrado.';
+
+  @override
+  String get nutritionAddAnotherFridge => 'Agregar otro a mi nevera';
+
+  @override
+  String get nutritionLogAnother => 'Registrar otro consumo';
+
+  @override
+  String get nutritionDoneButton => 'Listo';
+
+  @override
+  String get nutritionFridgeTitle => 'Mi nevera';
+
+  @override
+  String get nutritionFridgeSubtitle =>
+      'Lo que tienes en casa. La IA lo sugiere primero cuando lo adjuntas al chat.';
+
+  @override
+  String get nutritionHowItWorks => '¿Cómo funciona?';
+
+  @override
+  String get nutritionCommonTitle => 'Comunes';
+
+  @override
+  String get nutritionManualEntryTitle => 'Entrada manual';
+
+  @override
+  String get nutritionHelpFridgeBody =>
+      'Alimentos que tienes guardados. Al adjuntarlos al chat, la IA los prioriza.';
+
+  @override
+  String get nutritionHelpCommonBody =>
+      'Catálogo general de NutriLife para cuando no encuentras lo que buscas.';
+
+  @override
+  String get nutritionHelpManualBody =>
+      'Elige entre \"lo tengo\" (a tu nevera) o \"lo consumí\" (alimento registrado, sin guardar).';
+
+  @override
+  String get nutritionGotIt => 'Entendido';
+
+  @override
+  String get nutritionCustomTitle => 'Agregar personalizado';
+
+  @override
+  String get nutritionCustomBody =>
+      '¿No encuentras tu alimento? Agrégalo y elige si lo tienes en casa o solo lo registraste.';
+
+  @override
+  String get nutritionToFridge => 'A mi nevera';
+
+  @override
+  String get nutritionIAteIt => 'Lo consumí';
+
+  @override
+  String get nutritionSavedSubtitle => 'Lo que tienes guardado';
+
+  @override
+  String get nutritionCatalogSubtitle => 'Catálogo de NutriLife';
+
+  @override
+  String get nutritionSeeAllItems => 'Ver todo';
+
+  @override
+  String get nutritionSeeAllFoods => 'Ver todos';
+
+  @override
+  String get nutritionSeeLess => 'Ver menos';
+
+  @override
+  String nutritionResultsCount(int count) {
+    return 'Resultados ($count)';
+  }
+
+  @override
+  String get nutritionTip =>
+      'Tip: agregar primero lo que tienes en tu nevera (no lo que comiste fuera) ayuda a la IA a sugerirte recetas con lo que ya está en casa.';
+
+  @override
+  String nutritionNoResults(String query) {
+    return 'No encontramos \"$query\". Prueba con otro nombre o agrégalo desde \"Entrada manual\".';
+  }
+
+  @override
+  String get nutritionNoCommonFoods => 'No hay alimentos comunes cargados.';
+
+  @override
+  String nutritionFoodAddedToFridge(String food) {
+    return '$food agregado a tu nevera';
+  }
+
+  @override
+  String nutritionFoodLoggedIn(String food, String meal) {
+    return '$food registrado en $meal';
+  }
+
+  @override
+  String get nutritionErrorAdd => 'No se pudo agregar';
+
+  @override
+  String get nutritionErrorLog => 'No se pudo registrar';
+
+  @override
+  String nutritionBulkResult(int ok, int total) {
+    return '$ok/$total procesados correctamente.';
+  }
+
+  @override
+  String nutritionBulkResultWithFailed(int ok, int total, String names) {
+    return '$ok/$total procesados correctamente. Fallaron: $names';
+  }
+
+  @override
+  String get nutritionAskMealTitle => '¿En qué comida?';
+
+  @override
+  String get nutritionAskMealBody =>
+      'Se registrará como consumido en la comida seleccionada para todos los alimentos marcados.';
+
+  @override
+  String get nutritionActions => 'Acciones';
+
+  @override
+  String get nutritionClearSelection => 'Quitar selección';
+
+  @override
+  String nutritionSelectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alimentos seleccionados',
+      one: '1 alimento seleccionado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nutritionEmptyFridgeTitle => 'Tu nevera está vacía';
+
+  @override
+  String get nutritionEmptyFridgeBody =>
+      'Agrega lo que tienes en casa desde \"Entrada manual\" para que la IA pueda sugerírtelo en el chat.';
+
+  @override
+  String get nutritionAllFoodsTitle => 'Todos los alimentos';
+
+  @override
+  String nutritionItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ítems',
+      one: '1 ítem',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionFoodsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alimentos',
+      one: '1 alimento',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nutritionFridgeEmptyAll =>
+      'Tu nevera está vacía. Agrega alimentos desde \"Entrada manual\" o desde la pestaña Comunes.';
+
+  @override
+  String nutritionEditAmount(String name) {
+    return 'Editar cantidad de $name';
+  }
+
+  @override
+  String nutritionFridgeItemRemoved(String name) {
+    return '$name se quitó de tu nevera';
+  }
+
+  @override
+  String nutritionFridgeAmountUpdated(String name) {
+    return 'Cantidad de $name actualizada';
+  }
+
+  @override
+  String get nutritionRemoveFoodTitle => 'Quitar alimento';
+
+  @override
+  String nutritionRemoveFoodBody(String name) {
+    return '¿Quieres quitar $name de tu nevera? Ya no aparecerá entre tus alimentos disponibles.';
+  }
+
+  @override
+  String get nutritionRemove => 'Quitar';
+
+  @override
+  String get nutritionAmountGreaterThanZero =>
+      'Ingresa una cantidad mayor que 0';
+
+  @override
+  String nutritionCantSubtractMore(String quantity) {
+    return 'No puedes descontar más de lo que tienes ($quantity).';
+  }
+
+  @override
+  String nutritionAvailable(String amount) {
+    return 'Disponible: $amount';
+  }
+
+  @override
+  String nutritionAdjustLabel(String unit) {
+    return 'Cantidad para sumar o descontar ($unit)';
+  }
+
+  @override
+  String nutritionNewTotalLabel(String unit) {
+    return 'Cantidad total nueva ($unit)';
+  }
+
+  @override
+  String get nutritionSubtract => 'Descontar';
+
+  @override
+  String get nutritionIncrease => 'Aumentar';
+
+  @override
+  String get nutritionSaveExactAmount => 'Guardar cantidad exacta';
+
+  @override
+  String get nutritionRemoveFromFridge => 'Quitar de la nevera';
+
+  @override
+  String get nutritionSearchHint => 'Busca más de 100,000 alimentos...';
+
+  @override
+  String get nutritionClearSearch => 'Borrar búsqueda';
+
+  @override
+  String get nutritionUnitOne => '1 unidad';
+
+  @override
+  String get nutritionUnitServing => '1 porción';
+
+  @override
+  String get nutritionUnitCup => '1 taza';
+
+  @override
+  String get nutritionUnitTablespoon => '1 cucharada';
+
+  @override
+  String get nutritionUnitSlice => '1 rebanada';
+
+  @override
+  String nutritionCountUnit(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount unidades',
+      one: '1 unidad',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionCountServing(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount porciones',
+      one: '1 porción',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionCountCup(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount tazas',
+      one: '1 taza',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionCountTablespoon(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount cucharadas',
+      one: '1 cucharada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionCountSlice(num count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$amount rebanadas',
+      one: '1 rebanada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nutritionErrorServerConnection =>
+      'Error de conexión con el servidor';
+
+  @override
+  String get nutritionErrorLoadFoods => 'Error al obtener alimentos';
+
+  @override
+  String nutritionErrorUnexpectedLoadFoods(String error) {
+    return 'Ocurrió un error inesperado al obtener los alimentos: $error';
+  }
+
+  @override
+  String get nutritionErrorRegisterFood => 'Error al registrar el alimento';
+
+  @override
+  String get nutritionErrorRegisterFoodServer =>
+      'Error al registrar el alimento en el servidor';
+
+  @override
+  String nutritionErrorUnexpectedRegisterFood(String error) {
+    return 'Ocurrió un error inesperado al registrar el alimento: $error';
+  }
+
+  @override
+  String get nutritionErrorLoadFridge => 'Error al obtener la nevera';
+
+  @override
+  String nutritionErrorUnexpectedLoadFridge(String error) {
+    return 'Ocurrió un error inesperado al obtener la nevera: $error';
+  }
+
+  @override
+  String get nutritionErrorAddToFridge => 'No se pudo agregar a la nevera';
+
+  @override
+  String nutritionErrorAddToFridgeDetail(String error) {
+    return 'No se pudo agregar a la nevera: $error';
+  }
+
+  @override
+  String get nutritionErrorUpdateAmount => 'No se pudo actualizar la cantidad';
+
+  @override
+  String nutritionErrorUpdateAmountDetail(String error) {
+    return 'No se pudo actualizar la cantidad: $error';
+  }
+
+  @override
+  String get nutritionErrorRemoveFromFridge => 'No se pudo quitar de la nevera';
+
+  @override
+  String nutritionErrorRemoveFromFridgeDetail(String error) {
+    return 'No se pudo quitar de la nevera: $error';
+  }
 }

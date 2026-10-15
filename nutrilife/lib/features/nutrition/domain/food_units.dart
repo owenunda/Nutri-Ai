@@ -1,24 +1,47 @@
-/// Unidades base que se pueden elegir al crear un alimento propio. El valor
-/// es el que se guarda (mismo formato que el catálogo: "100 G", "1 UNIDAD");
-/// la etiqueta es lo que ve el usuario.
-const List<({String value, String label})> kFoodUnits = [
-  (value: '100 G', label: '100 g'),
-  (value: '100 ML', label: '100 ml'),
-  (value: '1 UNIDAD', label: '1 unidad'),
-  (value: '1 PORCIÓN', label: '1 porción'),
-  (value: '1 TAZA', label: '1 taza'),
-  (value: '1 CUCHARADA', label: '1 cucharada'),
-  (value: '1 REBANADA', label: '1 rebanada'),
+import '../../../core/l10n/l10n.dart';
+
+/// Códigos de las unidades base que se pueden elegir al crear un alimento
+/// propio. Es lo que se guarda (mismo formato que el catálogo: "100 G",
+/// "1 UNIDAD") y nunca se traduce; lo que ve el usuario sale de
+/// [prettyUnitLabel].
+const List<String> kFoodUnitValues = [
+  '100 G',
+  '100 ML',
+  '1 UNIDAD',
+  '1 PORCIÓN',
+  '1 TAZA',
+  '1 CUCHARADA',
+  '1 REBANADA',
+];
+
+/// Opciones para el selector de unidad: [value] es el código que se guarda y
+/// [label] el nombre traducido que se muestra.
+List<({String value, String label})> foodUnitOptions(AppLocalizations l10n) => [
+  for (final value in kFoodUnitValues)
+    (value: value, label: prettyUnitLabel(value, l10n)),
 ];
 
 /// La mayoría del catálogo (y las etiquetas nutricionales) van por 100 g.
 const String kDefaultFoodUnit = '100 G';
 
 /// Mapea el valor guardado ("1 UNIDAD", "100 G", etc.) a una etiqueta
-/// corta y legible para mostrar al usuario.
-String prettyUnitLabel(String value) {
-  for (final option in kFoodUnits) {
-    if (option.value == value) return option.label;
+/// corta y legible para mostrar al usuario, en el idioma de la app.
+String prettyUnitLabel(String value, AppLocalizations l10n) {
+  switch (value.trim().toUpperCase()) {
+    case '100 G':
+      return '100 g';
+    case '100 ML':
+      return '100 ml';
+    case '1 UNIDAD':
+      return l10n.nutritionUnitOne;
+    case '1 PORCIÓN':
+      return l10n.nutritionUnitServing;
+    case '1 TAZA':
+      return l10n.nutritionUnitCup;
+    case '1 CUCHARADA':
+      return l10n.nutritionUnitTablespoon;
+    case '1 REBANADA':
+      return l10n.nutritionUnitSlice;
   }
   final normalized = value.trim().toLowerCase();
   if (const {'g', 'kg', 'ml', 'l'}.contains(normalized)) return normalized;
@@ -31,27 +54,25 @@ String prettyUnitLabel(String value) {
 /// Formatea [quantity] + [unit] para mostrarlos juntos sin redundancias.
 /// Si la unidad ya empieza con la cantidad (ej. "1 UNIDAD" con quantity 1),
 /// se omite la cantidad para no duplicar.
-String formatQuantityWithUnit(double quantity, String unit) {
-  final prettyUnit = prettyUnitLabel(unit);
-  final normalizedUnit = unit.trim().toUpperCase();
-  const countedUnits = {
-    '1 UNIDAD': 'unidad',
-    '1 PORCIÓN': 'porción',
-    '1 TAZA': 'taza',
-    '1 CUCHARADA': 'cucharada',
-    '1 REBANADA': 'rebanada',
-  };
-  final countedUnit = countedUnits[normalizedUnit];
-  if (countedUnit != null) {
-    final formattedQuantity = quantity % 1 == 0
-        ? quantity.toInt().toString()
-        : quantity.toString();
-    if (quantity == 1) return '1 $countedUnit';
-    final plural = countedUnit == 'unidad' ? 'unidades' : '${countedUnit}s';
-    return '$formattedQuantity $plural';
-  }
-  final q = quantity % 1 == 0
+String formatQuantityWithUnit(
+  double quantity,
+  String unit,
+  AppLocalizations l10n,
+) {
+  final amount = quantity % 1 == 0
       ? quantity.toInt().toString()
       : quantity.toString();
-  return '$q $prettyUnit';
+  switch (unit.trim().toUpperCase()) {
+    case '1 UNIDAD':
+      return l10n.nutritionCountUnit(quantity, amount);
+    case '1 PORCIÓN':
+      return l10n.nutritionCountServing(quantity, amount);
+    case '1 TAZA':
+      return l10n.nutritionCountCup(quantity, amount);
+    case '1 CUCHARADA':
+      return l10n.nutritionCountTablespoon(quantity, amount);
+    case '1 REBANADA':
+      return l10n.nutritionCountSlice(quantity, amount);
+  }
+  return '$amount ${prettyUnitLabel(unit, l10n)}';
 }

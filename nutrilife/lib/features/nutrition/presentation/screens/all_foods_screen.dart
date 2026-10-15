@@ -136,6 +136,7 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final showFridge = widget.showFridge;
     final count = showFridge ? _visibleFridge.length : _visible.length;
 
@@ -149,8 +150,10 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
         title: Text(
           widget.title ??
               (widget.mealType != null
-                  ? context.l10n.homeAddToMeal(widget.mealType!.label(context.l10n))
-                  : (showFridge ? 'Mi nevera' : 'Todos los alimentos')),
+                  ? l10n.homeAddToMeal(widget.mealType!.label(l10n))
+                  : (showFridge
+                        ? l10n.nutritionFridgeTitle
+                        : l10n.nutritionAllFoodsTitle)),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
@@ -168,7 +171,9 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(28, 0, 24, 12),
             child: Text(
-              '$count ${count == 1 ? (showFridge ? 'ítem' : 'alimento') : (showFridge ? 'ítems' : 'alimentos')}',
+              showFridge
+                  ? l10n.nutritionItemsCount(count)
+                  : l10n.nutritionFoodsCount(count),
               style: const TextStyle(
                 color: Color(0xFF64748B),
                 fontSize: 13,
@@ -191,7 +196,7 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
                         ),
                         TextButton(
                           onPressed: _load,
-                          child: const Text('Reintentar'),
+                          child: Text(l10n.commonRetry),
                         ),
                       ],
                     ),
@@ -223,12 +228,13 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
   }
 
   Widget _buildFridgeList() {
+    final l10n = context.l10n;
     if (_visibleFridge.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(28),
           child: Text(
-            'Tu nevera está vacía. Agrega alimentos desde "Entrada manual" o desde la pestaña Comunes.',
+            l10n.nutritionFridgeEmptyAll,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFF64748B),
@@ -291,7 +297,7 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      formatQuantityWithUnit(item.quantity, item.unit),
+                      formatQuantityWithUnit(item.quantity, item.unit, l10n),
                       style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 12,
@@ -303,7 +309,7 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
               ),
               const SizedBox(width: 4),
               IconButton(
-                tooltip: 'Editar cantidad de ${item.name}',
+                tooltip: l10n.nutritionEditAmount(item.name),
                 onPressed: isBusy || !item.isFromFridge
                     ? null
                     : () => _manageFridgeItem(item),
@@ -323,6 +329,7 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
   }
 
   Future<void> _manageFridgeItem(FridgeItemModel item) async {
+    final l10n = context.l10n;
     final change = await showModalBottomSheet<_FridgeItemChange>(
       context: context,
       isScrollControlled: true,
@@ -371,7 +378,7 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
             (current) => current.fridgeItemId == item.fridgeItemId,
           );
         });
-        _showFridgeMessage('${item.name} se quitó de tu nevera');
+        _showFridgeMessage(l10n.nutritionFridgeItemRemoved(item.name));
       } else {
         await _fridgeRepository.updateItem(
           fridgeItemId: item.fridgeItemId,
@@ -391,7 +398,7 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
           _replaceFridgeItem(_fridgeItems, updatedItem);
           _replaceFridgeItem(_visibleFridge, updatedItem);
         });
-        _showFridgeMessage('Cantidad de ${item.name} actualizada');
+        _showFridgeMessage(l10n.nutritionFridgeAmountUpdated(item.name));
       }
     } catch (error) {
       if (mounted) {
@@ -418,22 +425,21 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
   }
 
   Future<bool> _confirmFridgeItemRemoval(FridgeItemModel item) async {
+    final l10n = context.l10n;
     return await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: const Text('Quitar alimento'),
-            content: Text(
-              '¿Quieres quitar ${item.name} de tu nevera? Ya no aparecerá entre tus alimentos disponibles.',
-            ),
+            title: Text(l10n.nutritionRemoveFoodTitle),
+            content: Text(l10n.nutritionRemoveFoodBody(item.name)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text('Cancelar'),
+                child: Text(l10n.commonCancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, true),
                 style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-                child: const Text('Quitar'),
+                child: Text(l10n.nutritionRemove),
               ),
             ],
           ),
@@ -499,7 +505,9 @@ class _FridgeItemManagementSheetState
       controller.text.trim().replaceAll(',', '.'),
     );
     if (amount == null || !amount.isFinite || amount <= 0) {
-      setState(() => _validationMessage = 'Ingresa una cantidad mayor que 0');
+      setState(
+        () => _validationMessage = context.l10n.nutritionAmountGreaterThanZero,
+      );
       return null;
     }
     setState(() => _validationMessage = null);
@@ -515,8 +523,9 @@ class _FridgeItemManagementSheetState
     if (action == _FridgeChangeAction.subtract &&
         amount > widget.item.quantity) {
       setState(
-        () => _validationMessage =
-            'No puedes descontar más de lo que tienes (${widget.item.quantity}).',
+        () => _validationMessage = context.l10n.nutritionCantSubtractMore(
+          widget.item.quantity.toString(),
+        ),
       );
       return;
     }
@@ -525,6 +534,7 @@ class _FridgeItemManagementSheetState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final item = widget.item;
     return Padding(
       padding: EdgeInsets.only(
@@ -559,7 +569,9 @@ class _FridgeItemManagementSheetState
             ),
             const SizedBox(height: 4),
             Text(
-              'Disponible: ${formatQuantityWithUnit(item.quantity, item.unit)}',
+              l10n.nutritionAvailable(
+                formatQuantityWithUnit(item.quantity, item.unit, l10n),
+              ),
               style: const TextStyle(
                 color: Color(0xFF64748B),
                 fontSize: 13,
@@ -577,7 +589,7 @@ class _FridgeItemManagementSheetState
                 }
               },
               decoration: InputDecoration(
-                labelText: 'Cantidad para sumar o descontar (${item.unit})',
+                labelText: l10n.nutritionAdjustLabel(prettyUnitLabel(item.unit, l10n)),
                 filled: true,
                 fillColor: const Color(0xFFF1F5F9),
                 border: OutlineInputBorder(
@@ -597,7 +609,7 @@ class _FridgeItemManagementSheetState
                       _adjustmentController,
                     ),
                     icon: const Icon(Icons.remove_rounded),
-                    label: const Text('Descontar'),
+                    label: Text(l10n.nutritionSubtract),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -608,7 +620,7 @@ class _FridgeItemManagementSheetState
                       _adjustmentController,
                     ),
                     icon: const Icon(Icons.add_rounded),
-                    label: const Text('Aumentar'),
+                    label: Text(l10n.nutritionIncrease),
                   ),
                 ),
               ],
@@ -624,7 +636,7 @@ class _FridgeItemManagementSheetState
                 }
               },
               decoration: InputDecoration(
-                labelText: 'Cantidad total nueva (${item.unit})',
+                labelText: l10n.nutritionNewTotalLabel(prettyUnitLabel(item.unit, l10n)),
                 filled: true,
                 fillColor: const Color(0xFFF1F5F9),
                 border: OutlineInputBorder(
@@ -644,14 +656,14 @@ class _FridgeItemManagementSheetState
                 backgroundColor: const Color(0xFF0A6B3F),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Guardar cantidad exacta'),
+              child: Text(l10n.nutritionSaveExactAmount),
             ),
             TextButton.icon(
               onPressed: () => Navigator.of(
                 context,
               ).pop(const _FridgeItemChange(_FridgeChangeAction.remove)),
               icon: const Icon(Icons.delete_outline_rounded),
-              label: const Text('Quitar de la nevera'),
+              label: Text(l10n.nutritionRemoveFromFridge),
               style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
             ),
           ],
