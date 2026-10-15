@@ -143,6 +143,25 @@ localizeCode('Construir Respuesta Final', [
   ["(j.message || 'Listo.')", "(j.message || (lang === 'en' ? 'Done.' : 'Listo.'))"],
 ]);
 
+// El backend busca los ingredientes (`/food/match`) en el catálogo, que está en
+// español: el intérprete debe entregarlos siempre en español y en singular,
+// aunque el usuario escriba en otro idioma.
+const INTERPRET = 'Agente: Interpretar Intención';
+const QUANTITY_RULE = 'Si no indica cantidad, usa null.';
+const INGREDIENT_NAME_RULE =
+  'En `ingredients[].name` escribe siempre el nombre del alimento en español y en singular, traduciéndolo si el usuario escribió en otro idioma.';
+for (const value of getNode(INTERPRET).parameters.responses.values) {
+  if (typeof value.content !== 'string' || value.content.includes(INGREDIENT_NAME_RULE)) continue;
+  value.content = replaceExact(
+    value.content,
+    QUANTITY_RULE,
+    `${QUANTITY_RULE}
+
+${INGREDIENT_NAME_RULE}`,
+    INTERPRET,
+  );
+}
+
 // Conserva si el archivo original terminaba con salto de línea.
 const trailingNewline = original.endsWith('\n') ? '\n' : '';
 writeFileSync(path, `${JSON.stringify(flow, null, 2)}${trailingNewline}`);
