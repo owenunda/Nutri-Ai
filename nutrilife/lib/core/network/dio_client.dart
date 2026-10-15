@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/api_base_url.dart';
 import '../navigation/navigator_key.dart';
+import '../state/locale_state.dart';
 import 'api_routes.dart';
 import '../services/session_service.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -57,6 +58,9 @@ class DioClient {
               if (!isPublicAuthRequest && authToken != null) {
                 options.headers['Authorization'] = 'Bearer $authToken';
               }
+              // El backend responde errores, correos y el chat en este idioma.
+              options.headers['Accept-Language'] =
+                  LocaleState.instance.languageCode;
               return handler.next(options);
             },
             onResponse: (response, handler) {
