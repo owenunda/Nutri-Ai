@@ -148,5 +148,62 @@
   "setupSnackMissingTitle": "Missing info",
   "setupProfileSaveError": "We couldn't save your profile. Please try again.",
   "setupErrorNothingToSave": "There's nothing to save.",
-  "setupErrorSave": "We couldn't save your info. Please try again."
+  "setupErrorSave": "We couldn't save your info. Please try again.",
+  "commonNavHome": "Home",
+  "commonNavFoods": "Foods",
+  "commonNavAi": "AI",
+  "commonNavProgress": "Progress",
+  "commonNavProfile": "Profile",
+  "homeSummaryLabel": "SUMMARY",
+  "homeGreeting": "Hi {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeAiCardTitle": "Ask the AI what to eat.",
+  "homeAiCardSubtitle": "Meal ideas tailored to your goals.",
+  "homeAddToMeal": "Add to {meal}",
+  "@homeAddToMeal": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTodayMealsTitle": "Today's meals",
+  "homeViewHistory": "View history",
+  "homeTodayCaloriesTitle": "Today's calories",
+  "homeTodayCaloriesTarget": "Goal: {kcal} kcal",
+  "@homeTodayCaloriesTarget": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTodayCaloriesTotal": "Total consumed",
+  "homeTodayCaloriesConsumed": "consumed",
+  "homeGoalLoading": "Loading your daily goal...",
+  "homeGoalError": "We couldn't load your daily goal.",
+  "homeGoalIncomplete": "Complete your profile to calculate your daily goal.",
+  "homeGoalRemaining": "You have {kcal} kcal left to reach today's goal.",
+  "@homeGoalRemaining": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGoalExceeded": "You went {kcal} kcal over your daily goal.",
+  "@homeGoalExceeded": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGoalReached": "You've reached your daily goal!"
 }

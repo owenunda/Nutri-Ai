@@ -9,6 +9,8 @@ import 'package:nutrilife/features/meals/data/models/day_meals.dart';
 import 'package:nutrilife/features/meals/domain/meal_type.dart';
 import 'package:nutrilife/features/progress/data/progress_repository.dart';
 
+import '../../helpers/l10n_app.dart';
+
 class _RepoFalso extends MealRepository {
   _RepoFalso({this.initialCalories = 144});
 
@@ -95,11 +97,12 @@ Future<_RepoFalso> _pump(
   WidgetTester tester, {
   int dailyLimit = 2000,
   int initialCalories = 144,
+  Locale locale = const Locale('es'),
 }) async {
   final repo = _RepoFalso(initialCalories: initialCalories);
   await tester.pumpWidget(
-    MaterialApp(
-      home: Scaffold(
+    l10nApp(
+      Scaffold(
         body: SingleChildScrollView(
           child: TodayMealsSection(
             repository: repo,
@@ -108,6 +111,7 @@ Future<_RepoFalso> _pump(
           ),
         ),
       ),
+      locale: locale,
     ),
   );
   await tester.pumpAndSettle();
@@ -133,6 +137,22 @@ void main() {
     expect(find.text('Snack'), findsOneWidget);
   });
 
+  testWidgets('en ingles muestra los textos y los miles con coma', (
+    tester,
+  ) async {
+    await _pump(tester, dailyLimit: 3000, locale: const Locale('en'));
+
+    expect(find.text("Today's meals"), findsOneWidget);
+    expect(find.text('View history'), findsOneWidget);
+    expect(find.text("Today's calories"), findsOneWidget);
+    expect(find.text('Goal: 3,000 kcal'), findsOneWidget);
+    expect(find.text('consumed'), findsOneWidget);
+    expect(
+      find.text("You have 2,856 kcal left to reach today's goal."),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('recarga cuando se registra algo en otra pantalla', (
     tester,
   ) async {
@@ -148,8 +168,8 @@ void main() {
     final repo = _RepoFalso();
     final foods = FoodsViewModel(mealRepository: repo);
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      l10nApp(
+        Scaffold(
           body: SingleChildScrollView(
             child: Column(
               children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 class AiSuggestionCard extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -37,19 +38,19 @@ class AiSuggestionCard extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
-                    'Pregúntale a la IA qué comer.',
-                    style: TextStyle(
+                    context.l10n.homeAiCardTitle,
+                    style: const TextStyle(
                       color: Color(0xFF2C2F31),
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Ideas de comidas personalizadas según tus metas.',
-                    style: TextStyle(
+                    context.l10n.homeAiCardSubtitle,
+                    style: const TextStyle(
                       color: Color(0xFF64748B),
                       fontSize: 13,
                       height: 1.3,

@@ -494,4 +494,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setupErrorSave => 'We couldn\'t save your info. Please try again.';
+
+  @override
+  String get commonNavHome => 'Home';
+
+  @override
+  String get commonNavFoods => 'Foods';
+
+  @override
+  String get commonNavAi => 'AI';
+
+  @override
+  String get commonNavProgress => 'Progress';
+
+  @override
+  String get commonNavProfile => 'Profile';
+
+  @override
+  String get homeSummaryLabel => 'SUMMARY';
+
+  @override
+  String homeGreeting(String name) {
+    return 'Hi $name';
+  }
+
+  @override
+  String get homeAiCardTitle => 'Ask the AI what to eat.';
+
+  @override
+  String get homeAiCardSubtitle => 'Meal ideas tailored to your goals.';
+
+  @override
+  String homeAddToMeal(String meal) {
+    return 'Add to $meal';
+  }
+
+  @override
+  String get homeTodayMealsTitle => 'Today\'s meals';
+
+  @override
+  String get homeViewHistory => 'View history';
+
+  @override
+  String get homeTodayCaloriesTitle => 'Today\'s calories';
+
+  @override
+  String homeTodayCaloriesTarget(String kcal) {
+    return 'Goal: $kcal kcal';
+  }
+
+  @override
+  String get homeTodayCaloriesTotal => 'Total consumed';
+
+  @override
+  String get homeTodayCaloriesConsumed => 'consumed';
+
+  @override
+  String get homeGoalLoading => 'Loading your daily goal...';
+
+  @override
+  String get homeGoalError => 'We couldn\'t load your daily goal.';
+
+  @override
+  String get homeGoalIncomplete =>
+      'Complete your profile to calculate your daily goal.';
+
+  @override
+  String homeGoalRemaining(String kcal) {
+    return 'You have $kcal kcal left to reach today\'s goal.';
+  }
+
+  @override
+  String homeGoalExceeded(String kcal) {
+    return 'You went $kcal kcal over your daily goal.';
+  }
+
+  @override
+  String get homeGoalReached => 'You\'ve reached your daily goal!';
 }

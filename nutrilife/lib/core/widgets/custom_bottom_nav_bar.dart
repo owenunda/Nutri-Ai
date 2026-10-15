@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/bot/domain/bot_mood.dart';
 import '../../features/bot/presentation/bot_avatar.dart';
+import '../l10n/l10n.dart';
 import '../state/bot_mood_state.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
@@ -16,6 +17,7 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       height: 76,
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -33,11 +35,11 @@ class CustomBottomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(0, Icons.home_rounded, 'Inicio'),
-          _buildNavItem(1, Icons.restaurant_menu_rounded, 'Alimentos'),
-          _buildCenterItem(2, 'IA'),
-          _buildNavItem(3, Icons.bar_chart_rounded, 'Progreso'),
-          _buildNavItem(4, Icons.person_rounded, 'Perfil'),
+          _buildNavItem(0, Icons.home_rounded, l10n.commonNavHome),
+          _buildNavItem(1, Icons.restaurant_menu_rounded, l10n.commonNavFoods),
+          _buildCenterItem(2, l10n.commonNavAi),
+          _buildNavItem(3, Icons.bar_chart_rounded, l10n.commonNavProgress),
+          _buildNavItem(4, Icons.person_rounded, l10n.commonNavProfile),
         ],
       ),
     );

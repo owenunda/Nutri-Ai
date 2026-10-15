@@ -183,5 +183,62 @@
   "setupSnackMissingTitle": "Falta un dato",
   "setupProfileSaveError": "No se pudo guardar tu perfil. Inténtalo de nuevo.",
   "setupErrorNothingToSave": "No hay datos para guardar.",
-  "setupErrorSave": "No se pudo guardar la información. Inténtalo de nuevo."
+  "setupErrorSave": "No se pudo guardar la información. Inténtalo de nuevo.",
+  "commonNavHome": "Inicio",
+  "commonNavFoods": "Alimentos",
+  "commonNavAi": "IA",
+  "commonNavProgress": "Progreso",
+  "commonNavProfile": "Perfil",
+  "homeSummaryLabel": "RESUMEN",
+  "homeGreeting": "Hola {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeAiCardTitle": "Pregúntale a la IA qué comer.",
+  "homeAiCardSubtitle": "Ideas de comidas personalizadas según tus metas.",
+  "homeAddToMeal": "Agregar a {meal}",
+  "@homeAddToMeal": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTodayMealsTitle": "Comidas de hoy",
+  "homeViewHistory": "Ver historial",
+  "homeTodayCaloriesTitle": "Calorías de hoy",
+  "homeTodayCaloriesTarget": "Objetivo: {kcal} kcal",
+  "@homeTodayCaloriesTarget": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTodayCaloriesTotal": "Total consumido",
+  "homeTodayCaloriesConsumed": "consumidas",
+  "homeGoalLoading": "Cargando tu objetivo diario...",
+  "homeGoalError": "No se pudo cargar tu objetivo diario.",
+  "homeGoalIncomplete": "Completa tu perfil para calcular tu objetivo diario.",
+  "homeGoalRemaining": "Te faltan {kcal} kcal para cumplir tu objetivo de hoy.",
+  "@homeGoalRemaining": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGoalExceeded": "Te excediste por {kcal} kcal de tu objetivo diario.",
+  "@homeGoalExceeded": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGoalReached": "¡Has alcanzado tu objetivo diario!"
 }

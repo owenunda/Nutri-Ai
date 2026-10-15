@@ -5,10 +5,14 @@ import 'package:nutrilife/core/widgets/custom_bottom_nav_bar.dart';
 import 'package:nutrilife/features/bot/domain/bot_mood.dart';
 import 'package:nutrilife/features/bot/presentation/bot_avatar.dart';
 
-Widget _app({required void Function(int) onTab}) => MaterialApp(
-      home: Scaffold(
+import '../../helpers/l10n_app.dart';
+
+Widget _app({required void Function(int) onTab, Locale locale = const Locale('es')}) =>
+    l10nApp(
+      Scaffold(
         bottomNavigationBar: CustomBottomNavBar(selectedIndex: 2, onTabSelected: onTab),
       ),
+      locale: locale,
     );
 
 void main() {
@@ -28,6 +32,20 @@ void main() {
     expect(find.byIcon(Icons.restaurant_menu_rounded), findsOneWidget);
     expect(find.byIcon(Icons.bar_chart_rounded), findsOneWidget);
     expect(find.byIcon(Icons.person_rounded), findsOneWidget);
+  });
+
+  testWidgets('las etiquetas salen en espanol', (tester) async {
+    await tester.pumpWidget(_app(onTab: (_) {}));
+    for (final t in ['Inicio', 'Alimentos', 'IA', 'Progreso', 'Perfil']) {
+      expect(find.text(t), findsOneWidget);
+    }
+  });
+
+  testWidgets('las etiquetas salen en ingles', (tester) async {
+    await tester.pumpWidget(_app(onTab: (_) {}, locale: const Locale('en')));
+    for (final t in ['Home', 'Foods', 'AI', 'Progress', 'Profile']) {
+      expect(find.text(t), findsOneWidget);
+    }
   });
 
   testWidgets('tocar el boton IA sigue notificando el indice 2', (tester) async {

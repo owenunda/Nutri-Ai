@@ -991,6 +991,138 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo guardar la información. Inténtalo de nuevo.'**
   String get setupErrorSave;
+
+  /// No description provided for @commonNavHome.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio'**
+  String get commonNavHome;
+
+  /// No description provided for @commonNavFoods.
+  ///
+  /// In es, this message translates to:
+  /// **'Alimentos'**
+  String get commonNavFoods;
+
+  /// No description provided for @commonNavAi.
+  ///
+  /// In es, this message translates to:
+  /// **'IA'**
+  String get commonNavAi;
+
+  /// No description provided for @commonNavProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso'**
+  String get commonNavProgress;
+
+  /// No description provided for @commonNavProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil'**
+  String get commonNavProfile;
+
+  /// No description provided for @homeSummaryLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'RESUMEN'**
+  String get homeSummaryLabel;
+
+  /// No description provided for @homeGreeting.
+  ///
+  /// In es, this message translates to:
+  /// **'Hola {name}'**
+  String homeGreeting(String name);
+
+  /// No description provided for @homeAiCardTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Pregúntale a la IA qué comer.'**
+  String get homeAiCardTitle;
+
+  /// No description provided for @homeAiCardSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Ideas de comidas personalizadas según tus metas.'**
+  String get homeAiCardSubtitle;
+
+  /// No description provided for @homeAddToMeal.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar a {meal}'**
+  String homeAddToMeal(String meal);
+
+  /// No description provided for @homeTodayMealsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Comidas de hoy'**
+  String get homeTodayMealsTitle;
+
+  /// No description provided for @homeViewHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver historial'**
+  String get homeViewHistory;
+
+  /// No description provided for @homeTodayCaloriesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Calorías de hoy'**
+  String get homeTodayCaloriesTitle;
+
+  /// No description provided for @homeTodayCaloriesTarget.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo: {kcal} kcal'**
+  String homeTodayCaloriesTarget(String kcal);
+
+  /// No description provided for @homeTodayCaloriesTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'Total consumido'**
+  String get homeTodayCaloriesTotal;
+
+  /// No description provided for @homeTodayCaloriesConsumed.
+  ///
+  /// In es, this message translates to:
+  /// **'consumidas'**
+  String get homeTodayCaloriesConsumed;
+
+  /// No description provided for @homeGoalLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando tu objetivo diario...'**
+  String get homeGoalLoading;
+
+  /// No description provided for @homeGoalError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar tu objetivo diario.'**
+  String get homeGoalError;
+
+  /// No description provided for @homeGoalIncomplete.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa tu perfil para calcular tu objetivo diario.'**
+  String get homeGoalIncomplete;
+
+  /// No description provided for @homeGoalRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'Te faltan {kcal} kcal para cumplir tu objetivo de hoy.'**
+  String homeGoalRemaining(String kcal);
+
+  /// No description provided for @homeGoalExceeded.
+  ///
+  /// In es, this message translates to:
+  /// **'Te excediste por {kcal} kcal de tu objetivo diario.'**
+  String homeGoalExceeded(String kcal);
+
+  /// No description provided for @homeGoalReached.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Has alcanzado tu objetivo diario!'**
+  String get homeGoalReached;
 }
 
 class _AppLocalizationsDelegate

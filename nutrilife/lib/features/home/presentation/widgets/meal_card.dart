@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 class MealCard extends StatelessWidget {
   final String emoji;
   final String title;
@@ -91,7 +92,7 @@ class MealCard extends StatelessWidget {
           const SizedBox(width: 12),
           if (onAdd != null)
             Semantics(
-              label: 'Agregar a $title',
+              label: context.l10n.homeAddToMeal(title),
               button: true,
               child: InkWell(
                 onTap: onAdd,
