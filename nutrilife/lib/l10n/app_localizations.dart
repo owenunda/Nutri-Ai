@@ -2059,6 +2059,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo quitar de la nevera: {error}'**
   String nutritionErrorRemoveFromFridgeDetail(String error);
+
+  /// No description provided for @nutritionUnitNameUnit.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{unidad} other{unidades}}'**
+  String nutritionUnitNameUnit(num count);
+
+  /// No description provided for @nutritionUnitNameServing.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{porción} other{porciones}}'**
+  String nutritionUnitNameServing(num count);
+
+  /// No description provided for @nutritionUnitNameCup.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{taza} other{tazas}}'**
+  String nutritionUnitNameCup(num count);
+
+  /// No description provided for @nutritionUnitNameTablespoon.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{cucharada} other{cucharadas}}'**
+  String nutritionUnitNameTablespoon(num count);
+
+  /// No description provided for @nutritionUnitNameSlice.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{rebanada} other{rebanadas}}'**
+  String nutritionUnitNameSlice(num count);
 }
 
 class _AppLocalizationsDelegate

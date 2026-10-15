@@ -155,6 +155,27 @@ void main() {
       expect(prettyUnitLabel('', en), '');
     });
 
+    test('unitName: nombre suelto de la unidad, singular o plural', () {
+      expect(unitName('1 UNIDAD', en), 'unit');
+      expect(unitName('1 UNIDAD', en, count: 1), 'unit');
+      expect(unitName('1 UNIDAD', en, count: 2), 'units');
+      expect(unitName('unidad', en, count: 0.5), 'units');
+      expect(unitName('1 UNIDAD', es), 'unidad');
+      expect(unitName('1 UNIDAD', es, count: 2), 'unidades');
+      expect(unitName('TAZA', en), 'cup');
+      expect(unitName('1 PORCIÓN', en, count: 3), 'servings');
+      expect(unitName('Gramos', en), 'g');
+      expect(unitName('100 ML', en), 'ml');
+      expect(unitName('2 Grandes', en), 'grandes');
+      expect(unitName('', en), '');
+    });
+
+    test('prettyUnitLabel traduce la palabra suelta de unidades viejas', () {
+      expect(prettyUnitLabel('unidad', en), 'Unit');
+      expect(prettyUnitLabel('unidad', es), 'Unidad');
+      expect(prettyUnitLabel('2 grandes', en), '2 grandes');
+    });
+
     test('cantidad con unidad: plural según el idioma', () {
       expect(formatQuantityWithUnit(1, '1 UNIDAD', en), '1 unit');
       expect(formatQuantityWithUnit(2, '1 UNIDAD', en), '2 units');

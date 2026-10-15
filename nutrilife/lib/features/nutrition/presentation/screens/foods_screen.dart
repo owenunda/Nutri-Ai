@@ -1888,7 +1888,7 @@ class _SelectableFoodTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${food.caloriesPerUnit.toInt()} kcal · ${food.baseUnit}',
+                      '${food.caloriesPerUnit.toInt()} kcal · ${prettyUnitLabel(food.baseUnit, context.l10n)}',
                       style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 11.5,

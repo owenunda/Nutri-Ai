@@ -1197,4 +1197,59 @@ class AppLocalizationsEs extends AppLocalizations {
   String nutritionErrorRemoveFromFridgeDetail(String error) {
     return 'No se pudo quitar de la nevera: $error';
   }
+
+  @override
+  String nutritionUnitNameUnit(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'unidades',
+      one: 'unidad',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionUnitNameServing(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'porciones',
+      one: 'porción',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionUnitNameCup(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'tazas',
+      one: 'taza',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionUnitNameTablespoon(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'cucharadas',
+      one: 'cucharada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionUnitNameSlice(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'rebanadas',
+      one: 'rebanada',
+    );
+    return '$_temp0';
+  }
 }

@@ -5,6 +5,7 @@ import '../../../../core/theme/motion.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../nutrition/data/models/food_model.dart';
+import '../../../nutrition/domain/food_units.dart';
 import '../../data/meal_repository.dart';
 import '../../domain/meal_type.dart';
 import '../../domain/portions.dart';
@@ -84,7 +85,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
 
   String _detail(AppLocalizations l10n) =>
       '${portionsText(_portions, l10n)} · '
-      '${quantityLabel(_portions, widget.food.baseUnit)} · $_calories kcal';
+      '${quantityLabel(_portions, widget.food.baseUnit, l10n)} · $_calories kcal';
 
   void _step(double delta) {
     setState(() {
@@ -154,7 +155,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  l10n.mealsKcalPerUnit(widget.food.caloriesPerUnit.round(), widget.food.baseUnit.toLowerCase()),
+                  l10n.mealsKcalPerUnit(widget.food.caloriesPerUnit.round(), prettyUnitLabel(widget.food.baseUnit, l10n).toLowerCase()),
                   style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                 ),
                 const SizedBox(height: 20),

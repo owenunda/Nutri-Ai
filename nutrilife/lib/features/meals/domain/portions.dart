@@ -1,4 +1,5 @@
 import '../../../core/l10n/l10n.dart';
+import '../../nutrition/domain/food_units.dart';
 
 const double kMinPortions = 0.5;
 const double kMaxPortions = 10.0;
@@ -34,8 +35,9 @@ String portionsText(double portions, AppLocalizations l10n) {
   return portions <= 1 ? l10n.mealsPortionsOne(amount) : l10n.mealsPortionsOther(amount);
 }
 
-/// "150 g" si la unidad base es numérica (100 G), si no "1½ unidad".
-String quantityLabel(double portions, String baseUnit) {
+/// "150 g" si la unidad base es numérica (100 G), si no "1½ unidad" ("1½
+/// units" en inglés). Sin [l10n] el nombre de la unidad sale tal cual viene.
+String quantityLabel(double portions, String baseUnit, [AppLocalizations? l10n]) {
   final match = _numericUnit.firstMatch(baseUnit);
   if (match != null) {
     final amount = double.parse(match.group(1)!.replaceAll(',', '.')) * portions;
@@ -45,9 +47,16 @@ String quantityLabel(double portions, String baseUnit) {
     final detail = match.group(3)!.trim().toLowerCase();
     return '$shown ${match.group(2)!.toLowerCase()}${detail.isEmpty ? '' : ' $detail'}';
   }
-  final unit = baseUnit.trim().replaceFirst(RegExp(r'^\d+\s*'), '').toLowerCase();
+  final unit = l10n == null
+      ? baseUnit.trim().replaceFirst(RegExp(r'^\d+\s*'), '').toLowerCase()
+      : unitName(baseUnit, l10n, count: _unitCount(portions, l10n));
   return '${portionsLabel(portions)} $unit';
 }
+
+/// En español el nombre de la unidad va siempre en singular ("2 unidad", como
+/// siempre); en inglés sigue el plural ("2 units").
+num? _unitCount(num amount, AppLocalizations l10n) =>
+    l10n.localeName == 'es' ? null : amount;
 
 int caloriesFor(double portions, double caloriesPerUnit) =>
     (portions * caloriesPerUnit).round();
@@ -56,8 +65,8 @@ int caloriesFor(double portions, double caloriesPerUnit) =>
 /// no es numérica (las fracciones de receta no siempre son medias). El
 /// separador decimal sigue al idioma: coma en español, punto en inglés.
 String ingredientAmountLabel(double quantity, String baseUnit, AppLocalizations l10n) {
-  if (_numericUnit.hasMatch(baseUnit)) return quantityLabel(quantity, baseUnit);
-  final unit = baseUnit.trim().replaceFirst(RegExp(r'^\d+\s*'), '').toLowerCase();
+  if (_numericUnit.hasMatch(baseUnit)) return quantityLabel(quantity, baseUnit, l10n);
+  final unit = unitName(baseUnit, l10n, count: _unitCount(quantity, l10n));
   final shown = quantity == quantity.roundToDouble()
       ? quantity.toInt().toString()
       : quantity.toStringAsFixed(2).replaceFirst(RegExp(r'0$'), '');
@@ -71,5 +80,5 @@ String ingredientAmountLabel(double quantity, String baseUnit, AppLocalizations 
 String mealItemLabel(double quantity, String baseUnit, AppLocalizations l10n) {
   final isHalfStep = (quantity * 2 - (quantity * 2).roundToDouble()).abs() < 0.001;
   if (!isHalfStep) return ingredientAmountLabel(quantity, baseUnit, l10n);
-  return '${portionsText(quantity, l10n)} · ${quantityLabel(quantity, baseUnit)}';
+  return '${portionsText(quantity, l10n)} · ${quantityLabel(quantity, baseUnit, l10n)}';
 }

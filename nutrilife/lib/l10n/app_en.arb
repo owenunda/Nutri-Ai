@@ -390,7 +390,7 @@
   "nutritionLogConsumption": "Log what I ate",
   "nutritionGenericError": "Error",
   "nutritionErrorNoFoodId": "We couldn't get the food's ID. Please try again.",
-  "nutritionErrorRegisterFailed": "We couldn't complete that. Please try again.",
+  "nutritionErrorRegisterFailed": "We couldn't save that entry. Please try again.",
   "nutritionDoneTitle": "All set!",
   "nutritionDoneFridge": "Your food is now in the fridge.",
   "nutritionDoneConsumed": "Your meal has been logged.",
@@ -697,6 +697,46 @@
     "placeholders": {
       "error": {
         "type": "String"
+      }
+    }
+  },
+  "nutritionUnitNameUnit": "{count, plural, =1{unit} other{units}}",
+  "@nutritionUnitNameUnit": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameServing": "{count, plural, =1{serving} other{servings}}",
+  "@nutritionUnitNameServing": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameCup": "{count, plural, =1{cup} other{cups}}",
+  "@nutritionUnitNameCup": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameTablespoon": "{count, plural, =1{tablespoon} other{tablespoons}}",
+  "@nutritionUnitNameTablespoon": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameSlice": "{count, plural, =1{slice} other{slices}}",
+  "@nutritionUnitNameSlice": {
+    "placeholders": {
+      "count": {
+        "type": "num"
       }
     }
   }

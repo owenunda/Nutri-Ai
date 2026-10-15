@@ -734,5 +734,45 @@
         "type": "String"
       }
     }
+  },
+  "nutritionUnitNameUnit": "{count, plural, =1{unidad} other{unidades}}",
+  "@nutritionUnitNameUnit": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameServing": "{count, plural, =1{porción} other{porciones}}",
+  "@nutritionUnitNameServing": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameCup": "{count, plural, =1{taza} other{tazas}}",
+  "@nutritionUnitNameCup": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameTablespoon": "{count, plural, =1{cucharada} other{cucharadas}}",
+  "@nutritionUnitNameTablespoon": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameSlice": "{count, plural, =1{rebanada} other{rebanadas}}",
+  "@nutritionUnitNameSlice": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
   }
 }

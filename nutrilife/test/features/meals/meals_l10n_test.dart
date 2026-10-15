@@ -60,11 +60,24 @@ void main() {
   });
 
   test('el separador decimal de los ingredientes sigue al idioma', () {
-    expect(ingredientAmountLabel(0.25, '1 UNIDAD', en), '0.25 unidad');
+    expect(ingredientAmountLabel(0.25, '1 UNIDAD', en), '0.25 units');
     expect(ingredientAmountLabel(0.25, '1 UNIDAD', es), '0,25 unidad');
-    expect(ingredientAmountLabel(0.5, '1 UNIDAD', en), '0.5 unidad');
-    expect(ingredientAmountLabel(2, '1 UNIDAD', en), '2 unidad');
-    expect(mealItemLabel(0.17, '1 UNIDAD', en), '0.17 unidad');
+    expect(ingredientAmountLabel(0.5, '1 UNIDAD', en), '0.5 units');
+    expect(ingredientAmountLabel(2, '1 UNIDAD', en), '2 units');
+    expect(ingredientAmountLabel(1, '1 UNIDAD', en), '1 unit');
+    expect(mealItemLabel(0.17, '1 UNIDAD', en), '0.17 units');
+  });
+
+  test('el nombre de la unidad de los ingredientes sale en el idioma', () {
+    expect(ingredientAmountLabel(2, '1 TAZA', en), '2 cups');
+    expect(ingredientAmountLabel(2, '1 TAZA', es), '2 taza');
+    expect(ingredientAmountLabel(1.5, 'cucharada', en), '1.5 tablespoons');
+    expect(ingredientAmountLabel(3, '2 grandes', en), '3 grandes');
+    expect(quantityLabel(1.5, '1 UNIDAD', en), '1½ units');
+    expect(quantityLabel(1, '1 UNIDAD', en), '1 unit');
+    expect(quantityLabel(1.5, '1 UNIDAD', es), '1½ unidad');
+    expect(quantityLabel(1.5, '100 G', en), '150 g');
+    expect(mealItemLabel(1.5, '1 REBANADA', en), '1½ servings · 1½ slices');
   });
 
   test('el aviso de borrar receta distingue 1 ingrediente de varios', () {

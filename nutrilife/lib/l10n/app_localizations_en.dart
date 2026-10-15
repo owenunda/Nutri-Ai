@@ -819,7 +819,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nutritionErrorRegisterFailed =>
-      'We couldn\'t complete that. Please try again.';
+      'We couldn\'t save that entry. Please try again.';
 
   @override
   String get nutritionDoneTitle => 'All set!';
@@ -1192,5 +1192,60 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String nutritionErrorRemoveFromFridgeDetail(String error) {
     return 'Couldn\'t remove it from your fridge: $error';
+  }
+
+  @override
+  String nutritionUnitNameUnit(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'units',
+      one: 'unit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionUnitNameServing(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'servings',
+      one: 'serving',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionUnitNameCup(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'cups',
+      one: 'cup',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionUnitNameTablespoon(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'tablespoons',
+      one: 'tablespoon',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String nutritionUnitNameSlice(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'slices',
+      one: 'slice',
+    );
+    return '$_temp0';
   }
 }

@@ -337,7 +337,7 @@ class _CommonFoodActionsSheetState extends State<CommonFoodActionsSheet> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${widget.food.caloriesPerUnit.toInt()} kcal · ${widget.food.baseUnit}',
+                        '${widget.food.caloriesPerUnit.toInt()} kcal · ${prettyUnitLabel(widget.food.baseUnit, l10n)}',
                         style: const TextStyle(
                           color: Color(0xFF64748B),
                           fontSize: 12.5,

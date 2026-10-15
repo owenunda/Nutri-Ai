@@ -45,10 +45,76 @@ String prettyUnitLabel(String value, AppLocalizations l10n) {
   }
   final normalized = value.trim().toLowerCase();
   if (const {'g', 'kg', 'ml', 'l'}.contains(normalized)) return normalized;
-  // Si el valor no está en la lista (ej. unidades viejas de la BD), al
-  // menos capitalizamos la primera letra para que se vea mejor.
   if (normalized.isEmpty) return normalized;
-  return normalized[0].toUpperCase() + normalized.substring(1);
+  // Palabra suelta de una unidad conocida (ej. "unidad" de la BD vieja): se
+  // muestra traducida.
+  final known = _knownUnit(normalized);
+  final name = known == null ? normalized : _unitWord(known, l10n, null);
+  // Si el valor no está en la lista, al menos capitalizamos la primera letra
+  // para que se vea mejor.
+  return name[0].toUpperCase() + name.substring(1);
+}
+
+enum _KnownUnit { unit, serving, cup, tablespoon, slice, gram, milliliter }
+
+final _leadingNumber = RegExp(r'^\d+(?:[.,]\d+)?\s*');
+
+/// La unidad sin la cantidad del inicio ("1 UNIDAD" → "unidad"), en minúsculas.
+String _bareUnit(String rawUnit) =>
+    rawUnit.trim().replaceFirst(_leadingNumber, '').toLowerCase();
+
+_KnownUnit? _knownUnit(String rawUnit) {
+  switch (_bareUnit(rawUnit)) {
+    case 'unidad':
+    case 'unidades':
+      return _KnownUnit.unit;
+    case 'porción':
+    case 'porcion':
+    case 'porciones':
+      return _KnownUnit.serving;
+    case 'taza':
+    case 'tazas':
+      return _KnownUnit.cup;
+    case 'cucharada':
+    case 'cucharadas':
+      return _KnownUnit.tablespoon;
+    case 'rebanada':
+    case 'rebanadas':
+      return _KnownUnit.slice;
+    case 'g':
+    case 'gramo':
+    case 'gramos':
+      return _KnownUnit.gram;
+    case 'ml':
+    case 'mililitro':
+    case 'mililitros':
+      return _KnownUnit.milliliter;
+  }
+  return null;
+}
+
+String _unitWord(_KnownUnit unit, AppLocalizations l10n, num? count) {
+  final n = count ?? 1;
+  return switch (unit) {
+    _KnownUnit.unit => l10n.nutritionUnitNameUnit(n),
+    _KnownUnit.serving => l10n.nutritionUnitNameServing(n),
+    _KnownUnit.cup => l10n.nutritionUnitNameCup(n),
+    _KnownUnit.tablespoon => l10n.nutritionUnitNameTablespoon(n),
+    _KnownUnit.slice => l10n.nutritionUnitNameSlice(n),
+    _KnownUnit.gram => 'g',
+    _KnownUnit.milliliter => 'ml',
+  };
+}
+
+/// Nombre de la unidad sin la cantidad, en minúsculas y en el idioma de la
+/// app: "1 UNIDAD" → "unidad" / "unit"; también entiende texto suelto de la
+/// BD vieja ("unidad", "Gramos" → "g"). Con [count] distinto de 1 devuelve el
+/// plural ("units"); sin [count] el singular. Una unidad que no conoce (ej.
+/// "2 grandes") se devuelve tal cual, sin la cantidad y en minúsculas.
+String unitName(String rawUnit, AppLocalizations l10n, {num? count}) {
+  final known = _knownUnit(rawUnit);
+  if (known == null) return _bareUnit(rawUnit);
+  return _unitWord(known, l10n, count);
 }
 
 /// Formatea [quantity] + [unit] para mostrarlos juntos sin redundancias.
