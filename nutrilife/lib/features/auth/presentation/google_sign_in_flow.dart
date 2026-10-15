@@ -5,6 +5,7 @@ import '../../../core/services/session_service.dart';
 import '../../home/presentation/screens/dashboard_screen.dart';
 import '../../setup/presentation/screens/profile_setup_screen.dart';
 import '../data/auth_repository.dart';
+import 'screens/link_google_account_screen.dart';
 import 'screens/set_password_screen.dart';
 
 const _googleErrorMessage =
@@ -16,8 +17,9 @@ Future<String?> signInWithGoogle(
   BuildContext context, {
   AuthRepository? repository,
 }) async {
+  String? idToken;
   try {
-    final idToken = await GoogleAuthService.getIdToken();
+    idToken = await GoogleAuthService.getIdToken();
     if (idToken == null) return null;
 
     final result = await (repository ?? AuthRepository()).loginWithGoogle(
@@ -31,6 +33,19 @@ Future<String?> signInWithGoogle(
       result.user,
       needsProfileSetup: result.needsProfileSetup,
       offerPasswordSetup: result.offerPasswordSetup,
+    );
+    return null;
+  } on GoogleLinkRequiredException {
+    // El correo ya tiene cuenta con contraseña: se pide encima de la pantalla
+    // actual, así "Cancelar" vuelve al login o al registro.
+    if (!context.mounted) return null;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => LinkGoogleAccountScreen(
+          idToken: idToken!,
+          repository: repository,
+        ),
+      ),
     );
     return null;
   } on GoogleAuthException catch (error) {

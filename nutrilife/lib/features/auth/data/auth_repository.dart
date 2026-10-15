@@ -12,6 +12,12 @@ class AuthException implements Exception {
   String toString() => message;
 }
 
+/// El correo de Google ya tiene una cuenta con contraseña: para vincularla
+/// hay que pedir esa contraseña.
+class GoogleLinkRequiredException extends AuthException {
+  const GoogleLinkRequiredException(super.message);
+}
+
 class GoogleLoginResult {
   const GoogleLoginResult({
     required this.token,
@@ -73,12 +79,26 @@ class AuthRepository {
     }
   }
 
-  Future<GoogleLoginResult> loginWithGoogle(String idToken) async {
+  /// Lanza [GoogleLinkRequiredException] si el correo ya tiene una cuenta con
+  /// contraseña: hay que pedirla y llamar a [linkGoogle].
+  Future<GoogleLoginResult> loginWithGoogle(String idToken) =>
+      _postGoogleSession(ApiRoutes.authGoogle, {'idToken': idToken});
+
+  /// Vincula Google a la cuenta existente con ese correo, confirmando su
+  /// contraseña. La contraseña se conserva.
+  Future<GoogleLoginResult> linkGoogle(String idToken, String password) =>
+      _postGoogleSession(ApiRoutes.authGoogleLink, {
+        'idToken': idToken,
+        'password': password,
+      });
+
+  Future<GoogleLoginResult> _postGoogleSession(
+    String path,
+    Map<String, dynamic> payload,
+  ) async {
+    const fallback = 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.';
     try {
-      final response = await _dio.post<Map<String, dynamic>>(
-        ApiRoutes.authGoogle,
-        data: {'idToken': idToken},
-      );
+      final response = await _dio.post<Map<String, dynamic>>(path, data: payload);
 
       final body = response.data;
       final data = body?['data'];
@@ -91,26 +111,27 @@ class AuthRepository {
         );
       }
 
-      throw AuthException(
-        _extractFriendlyMessage(body) ??
-            'No se pudo iniciar sesión con Google.',
-      );
+      throw AuthException(_extractFriendlyMessage(body) ?? fallback);
     } on DioException catch (error) {
-      throw AuthException(
-        _extractFriendlyMessage(error.response?.data) ??
-            _fallbackMessage(
-              error,
-              defaultMessage:
-                  'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
-            ),
-      );
+      final body = error.response?.data;
+      final message =
+          _extractFriendlyMessage(body) ??
+          _fallbackMessage(error, defaultMessage: fallback);
+      if (_errorCode(body) == 'GOOGLE_LINK_REQUIRES_PASSWORD') {
+        throw GoogleLinkRequiredException(message);
+      }
+      throw AuthException(message);
     } on AuthException {
       rethrow;
     } catch (_) {
-      throw const AuthException(
-        'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
-      );
+      throw const AuthException(fallback);
     }
+  }
+
+  String? _errorCode(dynamic data) {
+    if (data is! Map<String, dynamic>) return null;
+    final error = data['error'];
+    return error is Map<String, dynamic> ? error['code'] as String? : null;
   }
 
   /// Crea la contraseña de la cuenta en sesión, que solo entraba con Google.
@@ -200,6 +221,7 @@ class AuthRepository {
       'Default role or plan is not configured':
           'Falta configurar el rol o plan por defecto.',
       'Invalid credentials': 'Correo o contraseña inválidos.',
+      'Contraseña incorrecta': 'La contraseña no es correcta.',
       'JWT secret is not configured':
           'Falta configurar el secreto JWT en el backend.',
     };

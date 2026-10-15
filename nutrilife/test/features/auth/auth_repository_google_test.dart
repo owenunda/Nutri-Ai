@@ -126,4 +126,60 @@ void main() {
       ),
     );
   });
+
+  test('cuenta existente con contraseña: lanza GoogleLinkRequiredException', () async {
+    final adapter = _FakeAdapter(409, {
+      'success': false,
+      'message':
+          'Ya tienes una cuenta con este correo. Escribe tu contraseña para vincularla con Google.',
+      'error': {'code': 'GOOGLE_LINK_REQUIRES_PASSWORD', 'details': <Object>[]},
+    });
+
+    expect(
+      () => _repoWith(adapter).loginWithGoogle('google-token'),
+      throwsA(isA<GoogleLinkRequiredException>()),
+    );
+  });
+
+  test('linkGoogle manda idToken y contraseña y lee la sesión', () async {
+    final adapter = _FakeAdapter(200, {
+      'success': true,
+      'data': {
+        'token': 'jwt-456',
+        'user': {'userId': 7, 'name': 'Ana'},
+        'needsProfileSetup': false,
+        'offerPasswordSetup': false,
+      },
+    });
+
+    final result = await _repoWith(adapter).linkGoogle('google-token', 'secreto123');
+
+    expect(adapter.lastRequest!.path, ApiRoutes.authGoogleLink);
+    expect(adapter.lastRequest!.method, 'POST');
+    expect(adapter.lastRequest!.data, {
+      'idToken': 'google-token',
+      'password': 'secreto123',
+    });
+    expect(result.token, 'jwt-456');
+    expect(result.user['userId'], 7);
+  });
+
+  test('linkGoogle con contraseña incorrecta lanza AuthException', () async {
+    final adapter = _FakeAdapter(401, {
+      'success': false,
+      'message': 'Contraseña incorrecta',
+      'error': {'code': 'INVALID_PASSWORD', 'details': <Object>[]},
+    });
+
+    expect(
+      () => _repoWith(adapter).linkGoogle('google-token', 'otra'),
+      throwsA(
+        isA<AuthException>().having(
+          (error) => error.message,
+          'message',
+          'La contraseña no es correcta.',
+        ),
+      ),
+    );
+  });
 }

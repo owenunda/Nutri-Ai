@@ -1,9 +1,12 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/session_service.dart';
+import '../../../legal/data/legal_documents.dart';
+import '../../../legal/presentation/screens/legal_document_screen.dart';
 import '../google_sign_in_flow.dart';
 import '../widgets/google_sign_in_button.dart';
 import 'auth_flow_navigator.dart';
@@ -172,6 +175,11 @@ class _LoginPanelState extends State<_LoginPanel> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  late final TapGestureRecognizer _termsTap = TapGestureRecognizer()
+    ..onTap = () => openLegalDocument(context, LegalDocuments.terms);
+  late final TapGestureRecognizer _privacyTap = TapGestureRecognizer()
+    ..onTap = () => openLegalDocument(context, LegalDocuments.privacy);
+
   @override
   void initState() {
     super.initState();
@@ -183,6 +191,8 @@ class _LoginPanelState extends State<_LoginPanel> {
 
   @override
   void dispose() {
+    _termsTap.dispose();
+    _privacyTap.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -431,6 +441,43 @@ class _LoginPanelState extends State<_LoginPanel> {
                 // Login con Apple retirado temporalmente.
                 GoogleSignInButton(
                   onPressed: _isLoading ? null : _handleGoogleLogin,
+                ),
+
+                const SizedBox(height: 12),
+
+                // Entrar con Google puede crear una cuenta nueva: se avisa de
+                // los términos sin agregar un paso.
+                Text.rich(
+                  TextSpan(
+                    style: TextStyle(
+                      color: const Color(0xFF595C5E).withValues(alpha: 0.8),
+                      fontSize: 12,
+                      height: 1.4,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    children: [
+                      const TextSpan(text: 'Al continuar con Google aceptas los '),
+                      TextSpan(
+                        text: 'Términos del Servicio',
+                        recognizer: _termsTap,
+                        style: const TextStyle(
+                          color: AppTheme.primaryStart,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const TextSpan(text: ' y la '),
+                      TextSpan(
+                        text: 'Política de Privacidad',
+                        recognizer: _privacyTap,
+                        style: const TextStyle(
+                          color: AppTheme.primaryStart,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const TextSpan(text: '.'),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
