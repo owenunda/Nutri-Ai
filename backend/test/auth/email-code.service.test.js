@@ -23,7 +23,6 @@ const { AppError } = await import(src('utils/AppError.js'));
 const { consumeCode, sendCode } = await import(src('modules/auth/email-code.service.js'));
 
 const ana = { userId: 7, name: 'Ana', email: 'ana@gmail.com' };
-const MINUTE = 60 * 1000;
 
 let stored;
 let deleted;
@@ -39,7 +38,7 @@ beforeEach(() => {
   attemptsAdded = 0;
   repo.findCode = async () => stored;
   repo.upsertCode = async (row) => {
-    stored = { ...row, attempts: 0, createdAt: new Date() };
+    stored = { ...row, attempts: 0, secondsSinceCreated: 0, expired: false };
   };
   repo.deleteCode = async (userId, purpose) => {
     deleted.push({ userId, purpose });
@@ -60,22 +59,23 @@ test('enviar: guarda el hash del código y lo manda por correo', async () => {
   assert.equal(stored.purpose, 'verify_email');
   assert.notEqual(stored.codeHash, code);
   assert.equal(await bcrypt.compare(code, stored.codeHash), true);
-  const minutesLeft = (stored.expiresAt - Date.now()) / MINUTE;
-  assert.ok(minutesLeft > 14 && minutesLeft <= 15);
+  // El vencimiento lo calcula la base: el servicio solo pasa la duración.
+  assert.equal(stored.ttlMinutes, 15);
 });
 
 test('enviar: antes de 60 segundos responde 429 y no envía', async () => {
-  stored = { createdAt: new Date(Date.now() - 20 * 1000) };
+  stored = { secondsSinceCreated: 20 };
 
   await assert.rejects(sendCode(ana, 'verify_email'), {
     status: 429,
     code: 'CODE_RECENTLY_SENT',
+    message: 'Espera 40 segundos para pedir otro código.',
   });
   assert.equal(sentEmails.length, 0);
 });
 
 test('enviar: después de 60 segundos reemplaza el código', async () => {
-  stored = { createdAt: new Date(Date.now() - 61 * 1000), codeHash: 'viejo' };
+  stored = { secondsSinceCreated: 61, codeHash: 'viejo' };
 
   await sendCode(ana, 'reset_password');
 
@@ -96,9 +96,9 @@ test('enviar: si el correo falla borra el código para poder reintentar', async 
 const storeCode = async (code, overrides = {}) => {
   stored = {
     codeHash: await bcrypt.hash(code, 4),
-    expiresAt: new Date(Date.now() + 10 * MINUTE),
     attempts: 0,
-    createdAt: new Date(),
+    secondsSinceCreated: 30,
+    expired: false,
     ...overrides,
   };
 };
@@ -130,7 +130,7 @@ test('consumir: sin código responde 400 CODE_EXPIRED', async () => {
 });
 
 test('consumir: código vencido responde 400 CODE_EXPIRED aunque sea correcto', async () => {
-  await storeCode('482913', { expiresAt: new Date(Date.now() - 1000) });
+  await storeCode('482913', { expired: true });
 
   await assert.rejects(consumeCode(7, 'verify_email', '482913'), {
     status: 400,

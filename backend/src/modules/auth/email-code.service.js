@@ -15,8 +15,8 @@ export const CODE_PURPOSE = {
   RESET_PASSWORD: 'reset_password',
 };
 
-const CODE_TTL_MS = 15 * 60 * 1000;
-const RESEND_COOLDOWN_MS = 60 * 1000;
+const CODE_TTL_MINUTES = 15;
+const RESEND_COOLDOWN_SECONDS = 60;
 const MAX_ATTEMPTS = 5;
 const SALT_ROUNDS = 10;
 
@@ -28,9 +28,8 @@ const codeExpired = () =>
 export const sendCode = async (user, purpose) => {
   const previous = await findCode(user.userId, purpose);
   if (previous) {
-    const waitMs = RESEND_COOLDOWN_MS - (Date.now() - new Date(previous.createdAt).getTime());
-    if (waitMs > 0) {
-      const seconds = Math.ceil(waitMs / 1000);
+    const seconds = RESEND_COOLDOWN_SECONDS - previous.secondsSinceCreated;
+    if (seconds > 0) {
       throw new AppError(
         `Espera ${seconds} segundos para pedir otro código.`,
         429,
@@ -44,7 +43,7 @@ export const sendCode = async (user, purpose) => {
     userId: user.userId,
     purpose,
     codeHash: await bcrypt.hash(code, SALT_ROUNDS),
-    expiresAt: new Date(Date.now() + CODE_TTL_MS),
+    ttlMinutes: CODE_TTL_MINUTES,
   });
 
   try {
@@ -60,11 +59,7 @@ export const sendCode = async (user, purpose) => {
 export const consumeCode = async (userId, purpose, code) => {
   const stored = await findCode(userId, purpose);
 
-  if (
-    !stored ||
-    new Date(stored.expiresAt).getTime() <= Date.now() ||
-    stored.attempts >= MAX_ATTEMPTS
-  ) {
+  if (!stored || stored.expired || stored.attempts >= MAX_ATTEMPTS) {
     throw codeExpired();
   }
 

@@ -1,12 +1,14 @@
 import pool from '../../database/connection.js';
 
+// Los tiempos se calculan en la base: las columnas son TIMESTAMP sin zona
+// horaria y Node las leería en la zona del servidor, no en la de PostgreSQL.
 export const findCode = async (userId, purpose) => {
   const { rows } = await pool.query(
     `SELECT
        code_hash AS "codeHash",
-       expires_at AS "expiresAt",
        attempts,
-       created_at AS "createdAt"
+       EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - created_at))::int AS "secondsSinceCreated",
+       (expires_at <= CURRENT_TIMESTAMP) AS expired
      FROM email_codes
      WHERE user_id = $1 AND purpose = $2
      LIMIT 1`,
@@ -16,16 +18,16 @@ export const findCode = async (userId, purpose) => {
 };
 
 // Un solo código vigente por usuario y propósito: uno nuevo reemplaza al anterior.
-export const upsertCode = async ({ userId, purpose, codeHash, expiresAt }) => {
+export const upsertCode = async ({ userId, purpose, codeHash, ttlMinutes }) => {
   await pool.query(
     `INSERT INTO email_codes (user_id, purpose, code_hash, expires_at)
-     VALUES ($1, $2, $3, $4)
+     VALUES ($1, $2, $3, CURRENT_TIMESTAMP + make_interval(mins => $4))
      ON CONFLICT (user_id, purpose) DO UPDATE
        SET code_hash = EXCLUDED.code_hash,
            expires_at = EXCLUDED.expires_at,
            attempts = 0,
            created_at = CURRENT_TIMESTAMP`,
-    [userId, purpose, codeHash, expiresAt]
+    [userId, purpose, codeHash, ttlMinutes]
   );
 };
 
