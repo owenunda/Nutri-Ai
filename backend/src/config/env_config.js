@@ -32,6 +32,10 @@ export const config = {
   google: {
     clientIds: googleClientIds,
   },
+  email: {
+    resendApiKey: trim(env.RESEND_API_KEY),
+    from: trim(env.EMAIL_FROM),
+  },
   n8n: {
     url_dev: trim(env.N8N_URL_DEV),
     url_pro: trim(env.N8N_URL_PRO),

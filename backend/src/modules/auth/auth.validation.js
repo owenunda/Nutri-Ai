@@ -108,3 +108,56 @@ export const validateGoogleLinkRequest = (req, res, next) => {
   req.googleLinkData = { idToken: idToken.trim(), password };
   next();
 };
+
+const codeRegex = /^\d{6}$/;
+
+// Valida y normaliza los campos de los endpoints con código por correo.
+const collectFields = (body, fields) => {
+  const { email, code, password } = body ?? {};
+  const details = [];
+  const data = {};
+
+  if (fields.includes('email')) {
+    if (typeof email !== 'string' || !emailRegex.test(email.trim())) {
+      details.push({ field: 'email', message: 'Email format is invalid' });
+    } else {
+      data.email = email.trim().toLowerCase();
+    }
+  }
+
+  if (fields.includes('code')) {
+    if (typeof code !== 'string' || !codeRegex.test(code.trim())) {
+      details.push({ field: 'code', message: 'Code must be 6 digits' });
+    } else {
+      data.code = code.trim();
+    }
+  }
+
+  if (fields.includes('password')) {
+    if (typeof password !== 'string' || password.length < 6) {
+      details.push({ field: 'password', message: 'Password must be at least 6 characters' });
+    } else {
+      data.password = password;
+    }
+  }
+
+  return { details, data };
+};
+
+const fieldsValidator = (fields, target) => (req, res, next) => {
+  const { details, data } = collectFields(req.body, fields);
+
+  if (details.length > 0) {
+    return next(new AppError('Validation error', 400, 'VALIDATION_ERROR', details));
+  }
+
+  req[target] = data;
+  next();
+};
+
+export const validateVerifyEmailRequest = fieldsValidator(['email', 'code'], 'verifyEmailData');
+export const validateEmailOnlyRequest = fieldsValidator(['email'], 'emailData');
+export const validateResetPasswordRequest = fieldsValidator(
+  ['email', 'code', 'password'],
+  'resetPasswordData'
+);

@@ -11,7 +11,10 @@ import {
   getAuthRepositoryStatus,
   getDefaultRoleAndPlanIds,
   linkAuthProvider,
+  markEmailVerified,
+  setPasswordAndVerify,
 } from './auth.repository.js';
+import { CODE_PURPOSE, consumeCode, sendCode } from './email-code.service.js';
 import { verifyGoogleIdToken } from './google.verifier.js';
 import { createFridgeService } from '../fridge/fridge.service.js';
 import { logEventService } from '../events/events.service.js';
@@ -76,6 +79,7 @@ const createUserWithDefaults = async ({
   passwordHash = null,
   goal = null,
   provider = null,
+  emailVerifiedAt = null,
 }) => {
   const defaults = await getDefaultRoleAndPlanIds();
 
@@ -90,6 +94,7 @@ const createUserWithDefaults = async ({
     goal,
     roleId: Number(defaults.roleId),
     planId: Number(defaults.planId),
+    emailVerifiedAt,
   };
 
   const newUser = provider
@@ -100,6 +105,36 @@ const createUserWithDefaults = async ({
 
   return newUser;
 };
+
+const logLogin = (user, metadata = {}) =>
+  logEventService({
+    eventType: 'LOGIN',
+    category: 'AUTH',
+    userId: user.userId,
+    metadata: { email: user.email, role: user.role, ...metadata },
+  });
+
+const startSession = async (user) => {
+  const session = buildSession(user);
+  await logLogin(user);
+  return session;
+};
+
+// Envía el código de verificación sin cortar el flujo si falla (correo caído
+// o un código enviado hace menos de un minuto): el usuario puede reenviarlo.
+const sendVerificationCodeQuietly = async (user) => {
+  try {
+    await sendCode(user, CODE_PURPOSE.VERIFY_EMAIL);
+  } catch (error) {
+    if (error?.code !== 'CODE_RECENTLY_SENT') {
+      console.error('[auth] No se pudo enviar el código de verificación:', error.message);
+    }
+  }
+};
+
+// Mismo error para un correo que no existe y un código equivocado: no revela
+// qué correos tienen cuenta.
+const invalidCode = () => new AppError('El código no es correcto.', 400, 'INVALID_CODE');
 
 export const loginUser = async ({ email, password }) => {
   try {
@@ -141,16 +176,22 @@ export const loginUser = async ({ email, password }) => {
       throw new AppError('Contraseña incorrecta', 401, 'INVALID_PASSWORD');
     }
 
-    const session = buildSession(user);
+    if (!user.emailVerifiedAt) {
+      await sendVerificationCodeQuietly(user);
+      await logEventService({
+        eventType: 'LOGIN_FAILED',
+        category: 'AUTH',
+        userId: user.userId,
+        metadata: { email, reason: 'EMAIL_NOT_VERIFIED' },
+      });
+      throw new AppError(
+        'Verifica tu correo: te enviamos un código.',
+        403,
+        'EMAIL_NOT_VERIFIED'
+      );
+    }
 
-    await logEventService({
-      eventType: 'LOGIN',
-      category: 'AUTH',
-      userId: user.userId,
-      metadata: { email: user.email, role: user.role },
-    });
-
-    return session;
+    return await startSession(user);
   } catch (error) {
     if (error instanceof AppError) {
       throw error;
@@ -178,10 +219,14 @@ export const registerUser = async ({ name, email, password, goal }) => {
       metadata: { email, name },
     });
 
+    // Si el correo falla, la cuenta queda creada: la app permite reenviarlo.
+    await sendVerificationCodeQuietly({ ...newUser, name, email });
+
     return {
       ...newUser,
       role: 'USER',
       plan: 'FREE',
+      verificationRequired: true,
     };
   } catch (error) {
     if (error instanceof AppError) {
@@ -216,6 +261,10 @@ const assertNoOtherGoogleAccount = async (userId) => {
 
 const linkGoogleToUser = async (user, { sub, email }) => {
   await linkAuthProvider({ userId: user.userId, provider: GOOGLE, providerUserId: sub, email });
+  // Google demostró que el correo es suyo.
+  if (!user.emailVerifiedAt) {
+    await markEmailVerified(user.userId);
+  }
   await logEventService({
     eventType: 'ACCOUNT_LINKED',
     category: 'AUTH',
@@ -224,13 +273,7 @@ const linkGoogleToUser = async (user, { sub, email }) => {
   });
 };
 
-const logGoogleLogin = (user) =>
-  logEventService({
-    eventType: 'LOGIN',
-    category: 'AUTH',
-    userId: user.userId,
-    metadata: { email: user.email, role: user.role, method: GOOGLE },
-  });
+const logGoogleLogin = (user) => logLogin(user, { method: GOOGLE });
 
 // Busca al usuario de Google por su `sub`; si no existe, lo vincula a la
 // cuenta con el mismo email o crea una nueva. `isFirstGoogleLogin` es true
@@ -267,6 +310,8 @@ const resolveGoogleUser = async (profile) => {
     name: displayName,
     email,
     provider: { provider: GOOGLE, providerUserId: sub },
+    // Google ya verificó el correo.
+    emailVerifiedAt: new Date(),
   });
 
   await logEventService({
@@ -348,6 +393,73 @@ export const linkGoogleAccount = async ({ idToken, password }) => {
     const session = { ...buildSession(user), offerPasswordSetup: false };
     await logGoogleLogin(user);
     return session;
+  } catch (error) {
+    throw toAuthError(error);
+  }
+};
+
+// Verifica el correo con el código y entra directo.
+export const verifyEmail = async ({ email, code }) => {
+  try {
+    const user = await findUserByEmail(email);
+    if (!user) {
+      throw invalidCode();
+    }
+
+    await consumeCode(user.userId, CODE_PURPOSE.VERIFY_EMAIL, code);
+    await markEmailVerified(user.userId);
+    await logEventService({
+      eventType: 'EMAIL_VERIFIED',
+      category: 'AUTH',
+      userId: user.userId,
+      metadata: {},
+    });
+
+    return await startSession({ ...user, emailVerifiedAt: user.emailVerifiedAt ?? new Date() });
+  } catch (error) {
+    throw toAuthError(error);
+  }
+};
+
+// Reenvía el código a una cuenta sin verificar. No dice si el correo existe.
+export const resendVerification = async ({ email }) => {
+  try {
+    const user = await findUserByEmail(email);
+    if (user && !user.emailVerifiedAt) {
+      await sendCode(user, CODE_PURPOSE.VERIFY_EMAIL);
+    }
+  } catch (error) {
+    throw toAuthError(error);
+  }
+};
+
+// Envía el código para restablecer la contraseña. No dice si el correo existe.
+export const forgotPassword = async ({ email }) => {
+  try {
+    const user = await findUserByEmail(email);
+    if (user) {
+      await sendCode(user, CODE_PURPOSE.RESET_PASSWORD);
+    }
+  } catch (error) {
+    throw toAuthError(error);
+  }
+};
+
+export const resetPassword = async ({ email, code, password }) => {
+  try {
+    const user = await findUserByEmail(email);
+    if (!user) {
+      throw invalidCode();
+    }
+
+    await consumeCode(user.userId, CODE_PURPOSE.RESET_PASSWORD, code);
+    await setPasswordAndVerify(user.userId, await bcrypt.hash(password, SALT_ROUNDS));
+    await logEventService({
+      eventType: 'PASSWORD_RESET',
+      category: 'AUTH',
+      userId: user.userId,
+      metadata: {},
+    });
   } catch (error) {
     throw toAuthError(error);
   }

@@ -16,6 +16,7 @@ const userSelect = `
     u.password AS "passwordHash",
     u.goal,
     u.age,
+    u.email_verified_at AS "emailVerifiedAt",
     r.name AS role,
     p.name AS plan,
     u.created_at AS "createdAt",
@@ -77,13 +78,14 @@ export const getDefaultRoleAndPlanIds = async () => {
   return rows[0] ?? null;
 };
 
+// `emailVerifiedAt` en null: el usuario aún no demostró que el correo es suyo.
 export const createUser = async (
-  { name, email, passwordHash, goal, roleId, planId },
+  { name, email, passwordHash, goal, roleId, planId, emailVerifiedAt = null },
   client = pool
 ) => {
   const query = `
-    INSERT INTO users (name, email, password, goal, role_id, plan_id)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO users (name, email, password, goal, role_id, plan_id, email_verified_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING
       user_id AS "userId",
       name,
@@ -95,7 +97,7 @@ export const createUser = async (
       updated_at AS "updatedAt"
   `;
 
-  const values = [name, email, passwordHash, goal, roleId, planId];
+  const values = [name, email, passwordHash, goal, roleId, planId, emailVerifiedAt];
   const { rows } = await client.query(query, values);
 
   return rows[0];
@@ -121,4 +123,27 @@ export const createUserWithProvider = async ({ provider, providerUserId, ...user
   } finally {
     client.release();
   }
+};
+
+// Marca el correo como verificado; si ya lo estaba, conserva la fecha original.
+export const markEmailVerified = async (userId) => {
+  await pool.query(
+    `UPDATE users
+     SET email_verified_at = COALESCE(email_verified_at, CURRENT_TIMESTAMP),
+         updated_at = CURRENT_TIMESTAMP
+     WHERE user_id = $1`,
+    [userId]
+  );
+};
+
+// Restablecer con un código enviado al correo también prueba que el correo es suyo.
+export const setPasswordAndVerify = async (userId, passwordHash) => {
+  await pool.query(
+    `UPDATE users
+     SET password = $2,
+         email_verified_at = COALESCE(email_verified_at, CURRENT_TIMESTAMP),
+         updated_at = CURRENT_TIMESTAMP
+     WHERE user_id = $1`,
+    [userId, passwordHash]
+  );
 };
