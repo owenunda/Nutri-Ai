@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/features/chatbot/presentation/widgets/attached_food_chips.dart';
 import 'package:nutrilife/features/nutrition/data/models/fridge_item_model.dart';
 
+import '../../helpers/l10n_app.dart';
+
 const _banana = FridgeItemModel(
   fridgeItemId: 4,
   foodId: 11,
@@ -24,8 +26,8 @@ const _arroz = FridgeItemModel(
 );
 
 Future<void> pump(WidgetTester tester, List<FridgeItemModel> foods) {
-  return tester.pumpWidget(MaterialApp(
-    home: Scaffold(body: AttachedFoodChips(foods: foods)),
+  return tester.pumpWidget(l10nApp(
+    Scaffold(body: AttachedFoodChips(foods: foods)),
   ));
 }
 

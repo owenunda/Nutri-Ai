@@ -1248,4 +1248,274 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get commonDone => 'Done';
+
+  @override
+  String get chatHistoryBarrierLabel => 'Close history';
+
+  @override
+  String get chatWaitForReply => 'Hold on until the chef finishes replying';
+
+  @override
+  String get chatDeleteTitle => 'Delete chat';
+
+  @override
+  String get chatDeleteConfirm =>
+      'Are you sure you want to delete this conversation?';
+
+  @override
+  String get chatDeleteButton => 'Delete';
+
+  @override
+  String get chatTooltipHistory => 'History';
+
+  @override
+  String get chatTooltipNewChat => 'New conversation';
+
+  @override
+  String get chatWelcomeTitle => 'How can I help you today?';
+
+  @override
+  String get chatWelcomeSubtitle =>
+      'Ask me for recipes, nutrition tips or meal plans.';
+
+  @override
+  String get chatInputHint => 'Message NutriLife...';
+
+  @override
+  String chatRateLimitExhausted(int seconds) {
+    return 'Limit reached · try again in ${seconds}s';
+  }
+
+  @override
+  String chatRateLimitRemaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You have $count messages left this minute',
+      one: 'You have 1 message left this minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatRateLimitReplyMinute =>
+      'Hang on a moment, you\'ve reached the per-minute message limit';
+
+  @override
+  String chatRateLimitReplyMinutes(int minutes) {
+    return 'Please wait about $minutes minutes, you\'ve reached the message limit';
+  }
+
+  @override
+  String get chatGenericError =>
+      'Sorry, something went wrong. Please try again.';
+
+  @override
+  String get chatHistoryTitle => 'Conversations';
+
+  @override
+  String get chatHistoryEmpty => 'No conversations yet';
+
+  @override
+  String get chatSessionFallbackTitle => 'Conversation';
+
+  @override
+  String get chatSessionActive => 'Active';
+
+  @override
+  String chatHistoryToday(String time) {
+    return 'Today, $time';
+  }
+
+  @override
+  String chatHistoryYesterday(String time) {
+    return 'Yesterday, $time';
+  }
+
+  @override
+  String chatHistoryDate(int day, String month) {
+    return '$month $day';
+  }
+
+  @override
+  String chatStepsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count steps',
+      one: '1 step',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String chatStepNumber(int number) {
+    return 'Step $number';
+  }
+
+  @override
+  String get chatStepByStep => 'Step by step';
+
+  @override
+  String get chatViewStepByStep => 'See step by step';
+
+  @override
+  String get chatChefTip => 'Chef\'s tip';
+
+  @override
+  String chatServingsShort(int count) {
+    return '$count SERV.';
+  }
+
+  @override
+  String chatServingsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count servings',
+      one: '1 serving',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatSeeMore => 'See more';
+
+  @override
+  String get chatSeeLess => 'See less';
+
+  @override
+  String get chatViewFullRecipe => 'View full recipe';
+
+  @override
+  String get chatLogMeal => 'Log meal';
+
+  @override
+  String chatStepProgress(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get chatTipsTab => 'Tips';
+
+  @override
+  String get chatPrevious => 'Back';
+
+  @override
+  String get chatNext => 'Next';
+
+  @override
+  String get chatSwipeHint => 'Swipe to continue';
+
+  @override
+  String get chatChefTips => 'Chef\'s tips';
+
+  @override
+  String get chatPickerTitle => 'Add foods';
+
+  @override
+  String get chatPickerIntro =>
+      'My fridge: what you have at home. Common: the general catalog.';
+
+  @override
+  String get chatPickerTabFridge => 'My fridge';
+
+  @override
+  String get chatPickerTabCommon => 'Common';
+
+  @override
+  String get chatPickerSearchFridge => 'Search your fridge';
+
+  @override
+  String get chatPickerSearchCommon => 'Search common foods';
+
+  @override
+  String chatPickerAddCount(int count) {
+    return 'Add $count to message';
+  }
+
+  @override
+  String get chatPickerErrorTitle => 'We couldn\'t read your fridge';
+
+  @override
+  String get chatPickerNoResults => 'No results';
+
+  @override
+  String chatPickerNoResultsFridge(String query) {
+    return 'We couldn\'t find \"$query\" in your fridge.';
+  }
+
+  @override
+  String chatPickerNoResultsCommon(String query) {
+    return 'We couldn\'t find \"$query\" in common foods.';
+  }
+
+  @override
+  String chatPickerSeeInFridge(int count) {
+    return 'See in My fridge ($count)';
+  }
+
+  @override
+  String chatPickerSeeInCommon(int count) {
+    return 'See in Common ($count)';
+  }
+
+  @override
+  String get chatPickerCommonEmptyTitle => 'No common foods';
+
+  @override
+  String get chatPickerCommonEmptyBody =>
+      'We couldn\'t load the catalog. Please try again later.';
+
+  @override
+  String get chatPickerFridgeEmptyTitle => 'Your fridge is empty';
+
+  @override
+  String get chatPickerFridgeEmptyBody =>
+      'Add foods from the Foods tab or pick from Common.';
+
+  @override
+  String get chatPickerNoAmount => 'No amount';
+
+  @override
+  String get chatErrorTimeout =>
+      'The chef is taking a while. Please try again.';
+
+  @override
+  String get chatErrorServerConnection => 'Couldn\'t connect to the server';
+
+  @override
+  String get chatErrorUnexpectedResponse =>
+      'Unexpected response from the server';
+
+  @override
+  String chatErrorReadReply(String error) {
+    return 'Couldn\'t read the chef\'s reply: $error';
+  }
+
+  @override
+  String get chatErrorLoadHistory => 'Couldn\'t load your history';
+
+  @override
+  String chatErrorUnexpected(String error) {
+    return 'Something unexpected happened: $error';
+  }
+
+  @override
+  String get chatErrorLoadSession => 'Couldn\'t load the session';
+
+  @override
+  String get chatErrorLoadConversation => 'Couldn\'t load the conversation';
+
+  @override
+  String get chatErrorOpenConversation => 'Couldn\'t open the conversation';
+
+  @override
+  String get chatErrorCloseSession => 'Couldn\'t close the session';
+
+  @override
+  String get chatNoReply => 'No reply';
 }

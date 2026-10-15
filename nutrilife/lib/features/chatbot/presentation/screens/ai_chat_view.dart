@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/state/bot_mood_state.dart';
 import '../../../bot/domain/bot_mood.dart';
@@ -73,7 +74,7 @@ class _AiChatViewState extends State<AiChatView> {
     unawaited(showGeneralDialog(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Cerrar historial',
+      barrierLabel: context.l10n.chatHistoryBarrierLabel,
       barrierColor: Colors.black.withValues(alpha: 0.4),
       transitionDuration: const Duration(milliseconds: 280),
       transitionBuilder: (ctx, animation, _, child) => SlideTransition(
@@ -117,7 +118,7 @@ class _AiChatViewState extends State<AiChatView> {
 
   Future<void> _handleOpenSession(int sessionId) async {
     if (_viewModel.isLoading) {
-      _showSnack('Espera a que el chef termine de responder');
+      _showSnack(context.l10n.chatWaitForReply);
       return;
     }
     await _viewModel.openSession(sessionId);
@@ -150,21 +151,22 @@ class _AiChatViewState extends State<AiChatView> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'Eliminar chat',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          ctx.l10n.chatDeleteTitle,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
-        content: const Text('¿Seguro que quieres eliminar esta conversación?'),
+        content: Text(ctx.l10n.chatDeleteConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar',
-                style: TextStyle(color: Color(0xFF64748B))),
+            child: Text(ctx.l10n.commonCancel,
+                style: const TextStyle(color: Color(0xFF64748B))),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Eliminar',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700)),
+            child: Text(ctx.l10n.chatDeleteButton,
+                style: const TextStyle(
+                    color: Colors.red, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -184,19 +186,19 @@ class _AiChatViewState extends State<AiChatView> {
             children: [
               _TopBarButton(
                 icon: Icons.menu_rounded,
-                tooltip: 'Historial',
+                tooltip: context.l10n.chatTooltipHistory,
                 onTap: _openDrawer,
               ),
               const Spacer(),
               _TopBarButton(
                 icon: Icons.chat_bubble_outline_rounded,
-                tooltip: 'Nueva conversación',
+                tooltip: context.l10n.chatTooltipNewChat,
                 onTap: _handleNewChat,
               ),
               const SizedBox(width: 8),
               _TopBarButton(
                 icon: Icons.delete_outline_rounded,
-                tooltip: 'Eliminar chat',
+                tooltip: context.l10n.chatDeleteTitle,
                 onTap: _handleDeleteChat,
                 color: Colors.red,
               ),

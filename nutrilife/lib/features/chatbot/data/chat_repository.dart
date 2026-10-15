@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/network/rate_limit_state.dart';
@@ -80,10 +81,10 @@ class ChatRepository {
       }
       if (e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.connectionTimeout) {
-        throw Exception('El chef se está tomando su tiempo. Intenta de nuevo.');
+        throw Exception(currentL10n.chatErrorTimeout);
       }
       final msg = e.response?.data?['message'] ??
-          'Error de conexión con el servidor';
+          currentL10n.chatErrorServerConnection;
       throw Exception(msg);
     }
 
@@ -91,13 +92,13 @@ class ChatRepository {
     // { success, message, data: { type, message, recipe, media, session } }
     final envelope = response.data?['data'];
     if (envelope is! Map) {
-      throw Exception('Respuesta inesperada del servidor');
+      throw Exception(currentL10n.chatErrorUnexpectedResponse);
     }
 
     try {
       return _parseEnvelope(envelope);
     } catch (e) {
-      throw Exception('No se pudo leer la respuesta del chef: $e');
+      throw Exception(currentL10n.chatErrorReadReply(e.toString()));
     }
   }
 
@@ -110,10 +111,11 @@ class ChatRepository {
           .map(ChatSessionModel.fromMap)
           .toList();
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? 'Error al obtener el historial';
+      final msg =
+          e.response?.data?['message'] ?? currentL10n.chatErrorLoadHistory;
       throw Exception(msg);
     } catch (e) {
-      throw Exception('Ocurrió un error inesperado: $e');
+      throw Exception(currentL10n.chatErrorUnexpected(e.toString()));
     }
   }
 
@@ -126,7 +128,8 @@ class ChatRepository {
       if (data?['hasActiveSession'] != true) return null;
       return ((data?['session'] as Map?)?['sessionId'] as num?)?.toInt();
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? 'Error al obtener la sesión';
+      final msg =
+          e.response?.data?['message'] ?? currentL10n.chatErrorLoadSession;
       throw Exception(msg);
     }
   }
@@ -145,8 +148,8 @@ class ChatRepository {
       );
       data = response.data?['data'] as Map?;
     } on DioException catch (e) {
-      final msg =
-          e.response?.data?['message'] ?? 'Error al cargar la conversación';
+      final msg = e.response?.data?['message'] ??
+          currentL10n.chatErrorLoadConversation;
       throw Exception(msg);
     }
 
@@ -191,7 +194,8 @@ class ChatRepository {
     try {
       await _dio.put<void>(ApiRoutes.chatSessionActivate(sessionId));
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? 'Error al abrir la conversación';
+      final msg = e.response?.data?['message'] ??
+          currentL10n.chatErrorOpenConversation;
       throw Exception(msg);
     }
   }
@@ -200,10 +204,11 @@ class ChatRepository {
     try {
       await _dio.put<void>(ApiRoutes.chatSessionClose);
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? 'Error al cerrar la sesión';
+      final msg =
+          e.response?.data?['message'] ?? currentL10n.chatErrorCloseSession;
       throw Exception(msg);
     } catch (e) {
-      throw Exception('Ocurrió un error inesperado: $e');
+      throw Exception(currentL10n.chatErrorUnexpected(e.toString()));
     }
   }
 
@@ -216,7 +221,7 @@ class ChatRepository {
     if (recipeMap is! Map) {
       return ChatResponse(
         type: type,
-        text: message.isEmpty ? 'Sin respuesta' : message,
+        text: message.isEmpty ? currentL10n.chatNoReply : message,
         actions: ChatActions.fromMap(envelope['actions']),
       );
     }

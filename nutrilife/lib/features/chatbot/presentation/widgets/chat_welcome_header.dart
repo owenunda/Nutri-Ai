@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 
 class ChatWelcomeHeader extends StatelessWidget {
   const ChatWelcomeHeader({super.key});
@@ -32,9 +33,9 @@ class ChatWelcomeHeader extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         // Welcome Text
-        const Text(
-          '¿Cómo puedo ayudarte hoy?',
-          style: TextStyle(
+        Text(
+          context.l10n.chatWelcomeTitle,
+          style: const TextStyle(
             color: Color(0xFF2C2F31), // on_surface per DESIGN.md
             fontSize: 22,
             fontWeight: FontWeight.w800,
@@ -43,10 +44,10 @@ class ChatWelcomeHeader extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Pídeme recetas, consejos de nutrición o planes de alimentación.',
+        Text(
+          context.l10n.chatWelcomeSubtitle,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             color: Color(0xFF64748B),
             fontSize: 14,
             height: 1.4,

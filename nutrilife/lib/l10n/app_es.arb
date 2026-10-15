@@ -774,5 +774,206 @@
         "type": "num"
       }
     }
-  }
+  },
+  "commonDone": "Listo",
+  "chatHistoryBarrierLabel": "Cerrar historial",
+  "chatWaitForReply": "Espera a que el chef termine de responder",
+  "chatDeleteTitle": "Eliminar chat",
+  "chatDeleteConfirm": "¿Seguro que quieres eliminar esta conversación?",
+  "chatDeleteButton": "Eliminar",
+  "chatTooltipHistory": "Historial",
+  "chatTooltipNewChat": "Nueva conversación",
+  "chatWelcomeTitle": "¿Cómo puedo ayudarte hoy?",
+  "chatWelcomeSubtitle": "Pídeme recetas, consejos de nutrición o planes de alimentación.",
+  "chatInputHint": "Mensaje a NutriLife...",
+  "chatRateLimitExhausted": "Límite alcanzado · reintenta en {seconds}s",
+  "@chatRateLimitExhausted": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "chatRateLimitRemaining": "{count, plural, =1{Te queda 1 mensaje este minuto} other{Te quedan {count} mensajes este minuto}}",
+  "@chatRateLimitRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatRateLimitReplyMinute": "Espera un momento, alcanzaste el límite de mensajes por minuto",
+  "chatRateLimitReplyMinutes": "Espera unos {minutes} minutos, alcanzaste el límite de mensajes",
+  "@chatRateLimitReplyMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "chatGenericError": "Lo siento, ocurrió un error. Intenta de nuevo.",
+  "chatHistoryTitle": "Conversaciones",
+  "chatHistoryEmpty": "Sin conversaciones aún",
+  "chatSessionFallbackTitle": "Conversación",
+  "chatSessionActive": "Activa",
+  "chatHistoryToday": "Hoy, {time}",
+  "@chatHistoryToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chatHistoryYesterday": "Ayer, {time}",
+  "@chatHistoryYesterday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chatHistoryDate": "{day} {month}",
+  "@chatHistoryDate": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "chatStepsCount": "{count, plural, =1{1 paso} other{{count} pasos}}",
+  "@chatStepsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatStepNumber": "Paso {number}",
+  "@chatStepNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "chatStepByStep": "Paso a paso",
+  "chatViewStepByStep": "Ver paso a paso",
+  "chatChefTip": "Tip del chef",
+  "chatServingsShort": "{count} PORC.",
+  "@chatServingsShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatServingsCount": "{count, plural, =1{1 porción} other{{count} porciones}}",
+  "@chatServingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSeeMore": "Ver más",
+  "chatSeeLess": "Ver menos",
+  "chatViewFullRecipe": "Ver receta completa",
+  "chatLogMeal": "Registrar comida",
+  "chatStepProgress": "Paso {current} de {total}",
+  "@chatStepProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "chatTipsTab": "Tips",
+  "chatPrevious": "Anterior",
+  "chatNext": "Siguiente",
+  "chatSwipeHint": "Desliza para continuar",
+  "chatChefTips": "Tips del chef",
+  "chatPickerTitle": "Agregar alimentos",
+  "chatPickerIntro": "Mi nevera: lo que tienes en casa. Comunes: catálogo general.",
+  "chatPickerTabFridge": "Mi nevera",
+  "chatPickerTabCommon": "Comunes",
+  "chatPickerSearchFridge": "Buscar en tu nevera",
+  "chatPickerSearchCommon": "Buscar en comunes",
+  "chatPickerAddCount": "Agregar {count} al mensaje",
+  "@chatPickerAddCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatPickerErrorTitle": "No pudimos leer tu nevera",
+  "chatPickerNoResults": "Sin resultados",
+  "chatPickerNoResultsFridge": "No encontramos \"{query}\" en tu nevera.",
+  "@chatPickerNoResultsFridge": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "chatPickerNoResultsCommon": "No encontramos \"{query}\" en los alimentos comunes.",
+  "@chatPickerNoResultsCommon": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "chatPickerSeeInFridge": "Ver en Mi nevera ({count})",
+  "@chatPickerSeeInFridge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatPickerSeeInCommon": "Ver en Comunes ({count})",
+  "@chatPickerSeeInCommon": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatPickerCommonEmptyTitle": "Sin alimentos comunes",
+  "chatPickerCommonEmptyBody": "No pudimos cargar el catálogo. Intenta de nuevo más tarde.",
+  "chatPickerFridgeEmptyTitle": "Tu nevera está vacía",
+  "chatPickerFridgeEmptyBody": "Agrega alimentos desde la pestaña Alimentos o elige de Comunes.",
+  "chatPickerNoAmount": "Sin cantidad",
+  "chatErrorTimeout": "El chef se está tomando su tiempo. Intenta de nuevo.",
+  "chatErrorServerConnection": "Error de conexión con el servidor",
+  "chatErrorUnexpectedResponse": "Respuesta inesperada del servidor",
+  "chatErrorReadReply": "No se pudo leer la respuesta del chef: {error}",
+  "@chatErrorReadReply": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "chatErrorLoadHistory": "Error al obtener el historial",
+  "chatErrorUnexpected": "Ocurrió un error inesperado: {error}",
+  "@chatErrorUnexpected": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "chatErrorLoadSession": "Error al obtener la sesión",
+  "chatErrorLoadConversation": "Error al cargar la conversación",
+  "chatErrorOpenConversation": "Error al abrir la conversación",
+  "chatErrorCloseSession": "Error al cerrar la sesión",
+  "chatNoReply": "Sin respuesta"
 }

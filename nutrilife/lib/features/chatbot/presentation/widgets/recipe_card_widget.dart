@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../meals/presentation/widgets/register_recipe_sheet.dart';
@@ -80,6 +81,7 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
   @override
   Widget build(BuildContext context) {
     final recipe = widget.recipe;
+    final l10n = context.l10n;
 
     return Container(
       margin: widget.margin,
@@ -142,10 +144,10 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
                   spacing: 6,
                   runSpacing: 4,
                   children: [
-                    _Tag(recipe.mealType.toUpperCase(), _green),
+                    _Tag(_mealTypeTag(recipe, l10n), _green),
                     _Tag(recipe.difficulty.toUpperCase(),
                         const Color(0xFF0284C7)),
-                    _Tag('${recipe.servings} PORC.',
+                    _Tag(l10n.chatServingsShort(recipe.servings),
                         const Color(0xFF7C3AED)),
                   ],
                 ),
@@ -172,7 +174,7 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
                       child: Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
-                          _expandSummary ? 'Ver menos' : 'Ver más',
+                          _expandSummary ? l10n.chatSeeLess : l10n.chatSeeMore,
                           style: const TextStyle(
                             color: _green,
                             fontSize: 12,
@@ -195,7 +197,7 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
                   child: ElevatedButton.icon(
                     onPressed: () => _openStepsModal(context),
                     icon: const Icon(Icons.receipt_long_outlined, size: 18),
-                    label: const Text('Ver receta completa'),
+                    label: Text(l10n.chatViewFullRecipe),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _green,
                       foregroundColor: Colors.white,
@@ -216,7 +218,7 @@ class _RecipeCardWidgetState extends State<RecipeCardWidget> {
                     child: OutlinedButton.icon(
                       onPressed: () => showRegisterRecipeSheet(context, recipe),
                       icon: const Icon(Icons.add_rounded, size: 18),
-                      label: const Text('Registrar comida'),
+                      label: Text(l10n.chatLogMeal),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: _lightGreen,
                         side: const BorderSide(color: _lightGreen),
@@ -298,6 +300,7 @@ class _RecipeStepsModalState extends State<_RecipeStepsModal> {
   @override
   Widget build(BuildContext context) {
     final recipe = widget.recipe;
+    final l10n = context.l10n;
     final isLastPage = _currentPage == _totalPages - 1;
 
     return Container(
@@ -341,8 +344,9 @@ class _RecipeStepsModalState extends State<_RecipeStepsModal> {
                 const SizedBox(width: 12),
                 Text(
                   _currentPage < recipe.steps.length
-                      ? 'Paso ${_currentPage + 1} de ${recipe.steps.length}'
-                      : 'Tips',
+                      ? l10n.chatStepProgress(
+                          _currentPage + 1, recipe.steps.length)
+                      : l10n.chatTipsTab,
                   style: const TextStyle(
                     fontSize: 13,
                     color: Color(0xFF64748B),
@@ -405,7 +409,7 @@ class _RecipeStepsModalState extends State<_RecipeStepsModal> {
                     child: OutlinedButton.icon(
                       onPressed: _prev,
                       icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                      label: const Text('Anterior'),
+                      label: Text(l10n.chatPrevious),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: _green,
                         side: const BorderSide(color: Color(0xFFCBD5E1)),
@@ -430,7 +434,7 @@ class _RecipeStepsModalState extends State<_RecipeStepsModal> {
                       size: 18,
                     ),
                     label:
-                        Text(isLastPage ? 'Listo' : 'Siguiente'),
+                        Text(isLastPage ? l10n.commonDone : l10n.chatNext),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _green,
                       foregroundColor: Colors.white,
@@ -507,7 +511,7 @@ class _StepPage extends StatelessWidget {
                     size: 14, color: Color(0xFFCBD5E1)),
                 const SizedBox(width: 5),
                 Text(
-                  'Desliza para continuar',
+                  context.l10n.chatSwipeHint,
                   style: TextStyle(
                     fontSize: 11,
                     color: const Color(0xFF64748B).withValues(alpha: 0.7),
@@ -534,13 +538,13 @@ class _TipsPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.tips_and_updates_rounded,
+            children: [
+              const Icon(Icons.tips_and_updates_rounded,
                   color: Color(0xFF0A6B3F), size: 22),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
-                'Tips del chef',
-                style: TextStyle(
+                context.l10n.chatChefTips,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF1A1A2E),
@@ -597,6 +601,14 @@ class _TipsPage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Etiqueta del tipo de comida de la receta. El chef lo escribe en español
+/// ("desayuno"); si es uno conocido se muestra en el idioma de la app y, si no,
+/// tal cual lo devolvió.
+String _mealTypeTag(RecipeModel recipe, AppLocalizations l10n) {
+  final type = mealTypeOfRecipe(recipe);
+  return (type?.label(l10n) ?? recipe.mealType).toUpperCase();
 }
 
 // ── Card sub-widgets ──────────────────────────────────────────────────────────
@@ -712,7 +724,7 @@ class _HeaderSection extends StatelessWidget {
                       color: Colors.white70, size: 14),
                   const SizedBox(width: 4),
                   Text(
-                    '${recipe.servings} porciones',
+                    context.l10n.chatServingsCount(recipe.servings),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,

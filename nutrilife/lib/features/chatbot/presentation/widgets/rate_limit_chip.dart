@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/dio_client.dart';
 
 class RateLimitChip extends StatelessWidget {
@@ -25,8 +26,8 @@ class RateLimitChip extends StatelessWidget {
         final icon = exhausted ? Icons.block : Icons.timer_outlined;
 
         final text = exhausted
-            ? 'Límite alcanzado · reintenta en ${reset}s'
-            : 'Te quedan $remaining mensajes este minuto';
+            ? context.l10n.chatRateLimitExhausted(reset)
+            : context.l10n.chatRateLimitRemaining(remaining);
 
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),

@@ -11,6 +11,8 @@ import 'package:nutrilife/features/chatbot/data/models/recipe_model.dart';
 import 'package:nutrilife/features/chatbot/presentation/controllers/chat_view_model.dart';
 import 'package:nutrilife/features/chatbot/presentation/widgets/answer_actions.dart';
 
+import '../../helpers/l10n_app.dart';
+
 class _RoutingAdapter implements HttpClientAdapter {
   _RoutingAdapter(this.routes);
 
@@ -171,8 +173,8 @@ void main() {
   group('AnswerActions', () {
     Future<void> pump(WidgetTester tester, ChatActions actions,
         {RecipeModel? recipe}) {
-      return tester.pumpWidget(MaterialApp(
-        home: Scaffold(body: AnswerActions(actions: actions, recipe: recipe)),
+      return tester.pumpWidget(l10nApp(
+        Scaffold(body: AnswerActions(actions: actions, recipe: recipe)),
       ));
     }
 

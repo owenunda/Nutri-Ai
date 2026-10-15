@@ -2089,6 +2089,420 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{count, plural, =1{rebanada} other{rebanadas}}'**
   String nutritionUnitNameSlice(num count);
+
+  /// No description provided for @commonDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Listo'**
+  String get commonDone;
+
+  /// No description provided for @chatHistoryBarrierLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar historial'**
+  String get chatHistoryBarrierLabel;
+
+  /// No description provided for @chatWaitForReply.
+  ///
+  /// In es, this message translates to:
+  /// **'Espera a que el chef termine de responder'**
+  String get chatWaitForReply;
+
+  /// No description provided for @chatDeleteTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar chat'**
+  String get chatDeleteTitle;
+
+  /// No description provided for @chatDeleteConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Seguro que quieres eliminar esta conversación?'**
+  String get chatDeleteConfirm;
+
+  /// No description provided for @chatDeleteButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get chatDeleteButton;
+
+  /// No description provided for @chatTooltipHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial'**
+  String get chatTooltipHistory;
+
+  /// No description provided for @chatTooltipNewChat.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva conversación'**
+  String get chatTooltipNewChat;
+
+  /// No description provided for @chatWelcomeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cómo puedo ayudarte hoy?'**
+  String get chatWelcomeTitle;
+
+  /// No description provided for @chatWelcomeSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Pídeme recetas, consejos de nutrición o planes de alimentación.'**
+  String get chatWelcomeSubtitle;
+
+  /// No description provided for @chatInputHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje a NutriLife...'**
+  String get chatInputHint;
+
+  /// No description provided for @chatRateLimitExhausted.
+  ///
+  /// In es, this message translates to:
+  /// **'Límite alcanzado · reintenta en {seconds}s'**
+  String chatRateLimitExhausted(int seconds);
+
+  /// No description provided for @chatRateLimitRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{Te queda 1 mensaje este minuto} other{Te quedan {count} mensajes este minuto}}'**
+  String chatRateLimitRemaining(int count);
+
+  /// No description provided for @chatRateLimitReplyMinute.
+  ///
+  /// In es, this message translates to:
+  /// **'Espera un momento, alcanzaste el límite de mensajes por minuto'**
+  String get chatRateLimitReplyMinute;
+
+  /// No description provided for @chatRateLimitReplyMinutes.
+  ///
+  /// In es, this message translates to:
+  /// **'Espera unos {minutes} minutos, alcanzaste el límite de mensajes'**
+  String chatRateLimitReplyMinutes(int minutes);
+
+  /// No description provided for @chatGenericError.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo siento, ocurrió un error. Intenta de nuevo.'**
+  String get chatGenericError;
+
+  /// No description provided for @chatHistoryTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Conversaciones'**
+  String get chatHistoryTitle;
+
+  /// No description provided for @chatHistoryEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conversaciones aún'**
+  String get chatHistoryEmpty;
+
+  /// No description provided for @chatSessionFallbackTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Conversación'**
+  String get chatSessionFallbackTitle;
+
+  /// No description provided for @chatSessionActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Activa'**
+  String get chatSessionActive;
+
+  /// No description provided for @chatHistoryToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy, {time}'**
+  String chatHistoryToday(String time);
+
+  /// No description provided for @chatHistoryYesterday.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayer, {time}'**
+  String chatHistoryYesterday(String time);
+
+  /// No description provided for @chatHistoryDate.
+  ///
+  /// In es, this message translates to:
+  /// **'{day} {month}'**
+  String chatHistoryDate(int day, String month);
+
+  /// No description provided for @chatStepsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 paso} other{{count} pasos}}'**
+  String chatStepsCount(int count);
+
+  /// No description provided for @chatStepNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Paso {number}'**
+  String chatStepNumber(int number);
+
+  /// No description provided for @chatStepByStep.
+  ///
+  /// In es, this message translates to:
+  /// **'Paso a paso'**
+  String get chatStepByStep;
+
+  /// No description provided for @chatViewStepByStep.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver paso a paso'**
+  String get chatViewStepByStep;
+
+  /// No description provided for @chatChefTip.
+  ///
+  /// In es, this message translates to:
+  /// **'Tip del chef'**
+  String get chatChefTip;
+
+  /// No description provided for @chatServingsShort.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} PORC.'**
+  String chatServingsShort(int count);
+
+  /// No description provided for @chatServingsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 porción} other{{count} porciones}}'**
+  String chatServingsCount(int count);
+
+  /// No description provided for @chatSeeMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver más'**
+  String get chatSeeMore;
+
+  /// No description provided for @chatSeeLess.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver menos'**
+  String get chatSeeLess;
+
+  /// No description provided for @chatViewFullRecipe.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver receta completa'**
+  String get chatViewFullRecipe;
+
+  /// No description provided for @chatLogMeal.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar comida'**
+  String get chatLogMeal;
+
+  /// No description provided for @chatStepProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Paso {current} de {total}'**
+  String chatStepProgress(int current, int total);
+
+  /// No description provided for @chatTipsTab.
+  ///
+  /// In es, this message translates to:
+  /// **'Tips'**
+  String get chatTipsTab;
+
+  /// No description provided for @chatPrevious.
+  ///
+  /// In es, this message translates to:
+  /// **'Anterior'**
+  String get chatPrevious;
+
+  /// No description provided for @chatNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente'**
+  String get chatNext;
+
+  /// No description provided for @chatSwipeHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Desliza para continuar'**
+  String get chatSwipeHint;
+
+  /// No description provided for @chatChefTips.
+  ///
+  /// In es, this message translates to:
+  /// **'Tips del chef'**
+  String get chatChefTips;
+
+  /// No description provided for @chatPickerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar alimentos'**
+  String get chatPickerTitle;
+
+  /// No description provided for @chatPickerIntro.
+  ///
+  /// In es, this message translates to:
+  /// **'Mi nevera: lo que tienes en casa. Comunes: catálogo general.'**
+  String get chatPickerIntro;
+
+  /// No description provided for @chatPickerTabFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Mi nevera'**
+  String get chatPickerTabFridge;
+
+  /// No description provided for @chatPickerTabCommon.
+  ///
+  /// In es, this message translates to:
+  /// **'Comunes'**
+  String get chatPickerTabCommon;
+
+  /// No description provided for @chatPickerSearchFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar en tu nevera'**
+  String get chatPickerSearchFridge;
+
+  /// No description provided for @chatPickerSearchCommon.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar en comunes'**
+  String get chatPickerSearchCommon;
+
+  /// No description provided for @chatPickerAddCount.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar {count} al mensaje'**
+  String chatPickerAddCount(int count);
+
+  /// No description provided for @chatPickerErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos leer tu nevera'**
+  String get chatPickerErrorTitle;
+
+  /// No description provided for @chatPickerNoResults.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin resultados'**
+  String get chatPickerNoResults;
+
+  /// No description provided for @chatPickerNoResultsFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'No encontramos \"{query}\" en tu nevera.'**
+  String chatPickerNoResultsFridge(String query);
+
+  /// No description provided for @chatPickerNoResultsCommon.
+  ///
+  /// In es, this message translates to:
+  /// **'No encontramos \"{query}\" en los alimentos comunes.'**
+  String chatPickerNoResultsCommon(String query);
+
+  /// No description provided for @chatPickerSeeInFridge.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver en Mi nevera ({count})'**
+  String chatPickerSeeInFridge(int count);
+
+  /// No description provided for @chatPickerSeeInCommon.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver en Comunes ({count})'**
+  String chatPickerSeeInCommon(int count);
+
+  /// No description provided for @chatPickerCommonEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin alimentos comunes'**
+  String get chatPickerCommonEmptyTitle;
+
+  /// No description provided for @chatPickerCommonEmptyBody.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar el catálogo. Intenta de nuevo más tarde.'**
+  String get chatPickerCommonEmptyBody;
+
+  /// No description provided for @chatPickerFridgeEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu nevera está vacía'**
+  String get chatPickerFridgeEmptyTitle;
+
+  /// No description provided for @chatPickerFridgeEmptyBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Agrega alimentos desde la pestaña Alimentos o elige de Comunes.'**
+  String get chatPickerFridgeEmptyBody;
+
+  /// No description provided for @chatPickerNoAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin cantidad'**
+  String get chatPickerNoAmount;
+
+  /// No description provided for @chatErrorTimeout.
+  ///
+  /// In es, this message translates to:
+  /// **'El chef se está tomando su tiempo. Intenta de nuevo.'**
+  String get chatErrorTimeout;
+
+  /// No description provided for @chatErrorServerConnection.
+  ///
+  /// In es, this message translates to:
+  /// **'Error de conexión con el servidor'**
+  String get chatErrorServerConnection;
+
+  /// No description provided for @chatErrorUnexpectedResponse.
+  ///
+  /// In es, this message translates to:
+  /// **'Respuesta inesperada del servidor'**
+  String get chatErrorUnexpectedResponse;
+
+  /// No description provided for @chatErrorReadReply.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo leer la respuesta del chef: {error}'**
+  String chatErrorReadReply(String error);
+
+  /// No description provided for @chatErrorLoadHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al obtener el historial'**
+  String get chatErrorLoadHistory;
+
+  /// No description provided for @chatErrorUnexpected.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un error inesperado: {error}'**
+  String chatErrorUnexpected(String error);
+
+  /// No description provided for @chatErrorLoadSession.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al obtener la sesión'**
+  String get chatErrorLoadSession;
+
+  /// No description provided for @chatErrorLoadConversation.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cargar la conversación'**
+  String get chatErrorLoadConversation;
+
+  /// No description provided for @chatErrorOpenConversation.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al abrir la conversación'**
+  String get chatErrorOpenConversation;
+
+  /// No description provided for @chatErrorCloseSession.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cerrar la sesión'**
+  String get chatErrorCloseSession;
+
+  /// No description provided for @chatNoReply.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin respuesta'**
+  String get chatNoReply;
 }
 
 class _AppLocalizationsDelegate
