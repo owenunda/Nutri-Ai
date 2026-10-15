@@ -2887,6 +2887,486 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Guardar peso'**
   String get progressSheetSave;
+
+  /// No description provided for @profileLoadError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar tu perfil.'**
+  String get profileLoadError;
+
+  /// No description provided for @profileLoadErrorRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar tu perfil. Inténtalo de nuevo.'**
+  String get profileLoadErrorRetry;
+
+  /// No description provided for @profileUpdateError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo actualizar tu perfil.'**
+  String get profileUpdateError;
+
+  /// No description provided for @profileUpdateErrorRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo actualizar tu perfil. Inténtalo de nuevo.'**
+  String get profileUpdateErrorRetry;
+
+  /// No description provided for @profileDeleteError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo eliminar tu cuenta.'**
+  String get profileDeleteError;
+
+  /// No description provided for @profileDeleteErrorRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo eliminar tu cuenta. Inténtalo de nuevo.'**
+  String get profileDeleteErrorRetry;
+
+  /// No description provided for @profileDeleteWrongPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña no es correcta.'**
+  String get profileDeleteWrongPassword;
+
+  /// No description provided for @profileDeleteGoogleMismatch.
+  ///
+  /// In es, this message translates to:
+  /// **'Esa cuenta de Google no corresponde a este perfil.'**
+  String get profileDeleteGoogleMismatch;
+
+  /// No description provided for @profileDeleteGoogleFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo confirmar con Google. Inténtalo de nuevo.'**
+  String get profileDeleteGoogleFailed;
+
+  /// No description provided for @profileMemberDefault.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro de NutriLife'**
+  String get profileMemberDefault;
+
+  /// No description provided for @profileMemberSince.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro desde {year}'**
+  String profileMemberSince(String year);
+
+  /// No description provided for @profileMemberPlan.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro {plan}'**
+  String profileMemberPlan(String plan);
+
+  /// No description provided for @profileMemberPlanSince.
+  ///
+  /// In es, this message translates to:
+  /// **'Miembro {plan} desde {year}'**
+  String profileMemberPlanSince(String plan, String year);
+
+  /// No description provided for @profileStatAge.
+  ///
+  /// In es, this message translates to:
+  /// **'EDAD'**
+  String get profileStatAge;
+
+  /// No description provided for @profileStatWeight.
+  ///
+  /// In es, this message translates to:
+  /// **'PESO'**
+  String get profileStatWeight;
+
+  /// No description provided for @profileStatHeight.
+  ///
+  /// In es, this message translates to:
+  /// **'ALTURA'**
+  String get profileStatHeight;
+
+  /// No description provided for @profileGoalHeading.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo nutricional'**
+  String get profileGoalHeading;
+
+  /// No description provided for @profileGoalActive.
+  ///
+  /// In es, this message translates to:
+  /// **'ACTIVO'**
+  String get profileGoalActive;
+
+  /// No description provided for @profileGoalPillLose.
+  ///
+  /// In es, this message translates to:
+  /// **'Bajar peso'**
+  String get profileGoalPillLose;
+
+  /// No description provided for @profileGoalPillMaintain.
+  ///
+  /// In es, this message translates to:
+  /// **'Mantener'**
+  String get profileGoalPillMaintain;
+
+  /// No description provided for @profileGoalPillGain.
+  ///
+  /// In es, this message translates to:
+  /// **'Subir masa'**
+  String get profileGoalPillGain;
+
+  /// No description provided for @profileSettingsHeading.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustes y recordatorios'**
+  String get profileSettingsHeading;
+
+  /// No description provided for @premiumTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'NutriLife Premium'**
+  String get premiumTitle;
+
+  /// No description provided for @profilePremiumSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Planes y beneficios'**
+  String get profilePremiumSubtitle;
+
+  /// No description provided for @profileRemindersTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorios de comida'**
+  String get profileRemindersTitle;
+
+  /// No description provided for @profileRemindersSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Alertas diarias para 4 comidas'**
+  String get profileRemindersSubtitle;
+
+  /// No description provided for @profileNotificationsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración de notificaciones'**
+  String get profileNotificationsTitle;
+
+  /// No description provided for @profileNotificationsSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Push, correo y SMS'**
+  String get profileNotificationsSubtitle;
+
+  /// No description provided for @profileConfigTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración'**
+  String get profileConfigTitle;
+
+  /// No description provided for @profileConfigSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Edad, altura, sexo, objetivo y correo'**
+  String get profileConfigSubtitle;
+
+  /// No description provided for @profileLegalHeading.
+  ///
+  /// In es, this message translates to:
+  /// **'Legal'**
+  String get profileLegalHeading;
+
+  /// No description provided for @profileTermsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos y condiciones'**
+  String get profileTermsTitle;
+
+  /// No description provided for @profileTermsSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Reglas de uso de NutriLife'**
+  String get profileTermsSubtitle;
+
+  /// No description provided for @profilePrivacyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Política de privacidad'**
+  String get profilePrivacyTitle;
+
+  /// No description provided for @profilePrivacySubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cómo tratamos tus datos'**
+  String get profilePrivacySubtitle;
+
+  /// No description provided for @profileLogout.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get profileLogout;
+
+  /// No description provided for @profileDeleteAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar cuenta'**
+  String get profileDeleteAccount;
+
+  /// No description provided for @profileLoadErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar tu perfil'**
+  String get profileLoadErrorTitle;
+
+  /// No description provided for @profileRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Intentar de nuevo'**
+  String get profileRetry;
+
+  /// No description provided for @profileDeleteDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu cuenta y tus datos fueron eliminados.'**
+  String get profileDeleteDone;
+
+  /// No description provided for @profileDeleteDialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar tu cuenta?'**
+  String get profileDeleteDialogTitle;
+
+  /// No description provided for @profileDeleteDialogBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Se borrarán para siempre tu perfil, historial de peso, comidas, nevera, recetas y conversaciones. Esta acción no se puede deshacer.'**
+  String get profileDeleteDialogBody;
+
+  /// No description provided for @profileDeletePasswordRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe tu contraseña para confirmar.'**
+  String get profileDeletePasswordRequired;
+
+  /// No description provided for @profileDeletePasswordLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get profileDeletePasswordLabel;
+
+  /// No description provided for @profileDeleteGoogleHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Para confirmar, elige tu cuenta de Google.'**
+  String get profileDeleteGoogleHint;
+
+  /// No description provided for @profileDeleting.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminando...'**
+  String get profileDeleting;
+
+  /// No description provided for @profileDeleteConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get profileDeleteConfirm;
+
+  /// No description provided for @profileDeleteConfirmGoogle.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar con Google'**
+  String get profileDeleteConfirmGoogle;
+
+  /// No description provided for @profileEditHeading.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos nutricionales'**
+  String get profileEditHeading;
+
+  /// No description provided for @profileEditSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualiza tus datos para que NutriLife ajuste mejor tu plan.'**
+  String get profileEditSubtitle;
+
+  /// No description provided for @profileEditAge.
+  ///
+  /// In es, this message translates to:
+  /// **'Edad'**
+  String get profileEditAge;
+
+  /// No description provided for @profileEditYearsUnit.
+  ///
+  /// In es, this message translates to:
+  /// **'años'**
+  String get profileEditYearsUnit;
+
+  /// No description provided for @profileEditHeight.
+  ///
+  /// In es, this message translates to:
+  /// **'Altura'**
+  String get profileEditHeight;
+
+  /// No description provided for @profileEditWeight.
+  ///
+  /// In es, this message translates to:
+  /// **'Peso'**
+  String get profileEditWeight;
+
+  /// No description provided for @profileEditSex.
+  ///
+  /// In es, this message translates to:
+  /// **'Sexo'**
+  String get profileEditSex;
+
+  /// No description provided for @profileEditGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo'**
+  String get profileEditGoal;
+
+  /// No description provided for @profileEditAccountHeading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta'**
+  String get profileEditAccountHeading;
+
+  /// No description provided for @profileEditEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Email'**
+  String get profileEditEmail;
+
+  /// No description provided for @profileEditEmailMissing.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo no disponible'**
+  String get profileEditEmailMissing;
+
+  /// No description provided for @profileEditSaving.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando...'**
+  String get profileEditSaving;
+
+  /// No description provided for @profileEditSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar cambios'**
+  String get profileEditSave;
+
+  /// No description provided for @profileEditSelectAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona todos los datos para continuar.'**
+  String get profileEditSelectAll;
+
+  /// No description provided for @profileEditHeightInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona una altura válida entre 1.50 cm y 2.50 cm.'**
+  String get profileEditHeightInvalid;
+
+  /// No description provided for @profileEditWeightDialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Vas a actualizar tu peso'**
+  String get profileEditWeightDialogTitle;
+
+  /// No description provided for @profileEditWeightDialogBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Este cambio puede afectar tus ajustes actuales, como tu meta calórica diaria y tu plan nutricional. NutriLife recalculará tus objetivos con el nuevo valor.'**
+  String get profileEditWeightDialogBody;
+
+  /// No description provided for @premiumSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Lleva tu alimentación al siguiente nivel'**
+  String get premiumSubtitle;
+
+  /// No description provided for @premiumBenefitChat.
+  ///
+  /// In es, this message translates to:
+  /// **'Chef IA sin límite de mensajes'**
+  String get premiumBenefitChat;
+
+  /// No description provided for @premiumBenefitProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial de progreso completo'**
+  String get premiumBenefitProgress;
+
+  /// No description provided for @premiumBenefitPlans.
+  ///
+  /// In es, this message translates to:
+  /// **'Planes de comida semanales'**
+  String get premiumBenefitPlans;
+
+  /// No description provided for @premiumBenefitRecipes.
+  ///
+  /// In es, this message translates to:
+  /// **'Recetas guardadas sin límite'**
+  String get premiumBenefitRecipes;
+
+  /// No description provided for @premiumPlanYearly.
+  ///
+  /// In es, this message translates to:
+  /// **'Anual'**
+  String get premiumPlanYearly;
+
+  /// No description provided for @premiumPlanMonthly.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensual'**
+  String get premiumPlanMonthly;
+
+  /// No description provided for @premiumPricePerYear.
+  ///
+  /// In es, this message translates to:
+  /// **'{price} / año'**
+  String premiumPricePerYear(String price);
+
+  /// No description provided for @premiumPricePerMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'{price} / mes'**
+  String premiumPricePerMonth(String price);
+
+  /// No description provided for @premiumSaveBadge.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahorra 50%'**
+  String get premiumSaveBadge;
+
+  /// No description provided for @premiumStartTrial.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar 7 días gratis'**
+  String get premiumStartTrial;
+
+  /// No description provided for @premiumRestore.
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar compras'**
+  String get premiumRestore;
+
+  /// No description provided for @premiumTerms.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos'**
+  String get premiumTerms;
+
+  /// No description provided for @premiumPaymentsSoon.
+  ///
+  /// In es, this message translates to:
+  /// **'Los pagos llegan pronto'**
+  String get premiumPaymentsSoon;
+
+  /// No description provided for @premiumPromoTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Desbloquea tu progreso completo'**
+  String get premiumPromoTitle;
 }
 
 class _AppLocalizationsDelegate

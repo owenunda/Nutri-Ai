@@ -1747,4 +1747,265 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get progressSheetSave => 'Save weight';
+
+  @override
+  String get profileLoadError => 'We couldn\'t load your profile.';
+
+  @override
+  String get profileLoadErrorRetry =>
+      'We couldn\'t load your profile. Please try again.';
+
+  @override
+  String get profileUpdateError => 'We couldn\'t update your profile.';
+
+  @override
+  String get profileUpdateErrorRetry =>
+      'We couldn\'t update your profile. Please try again.';
+
+  @override
+  String get profileDeleteError => 'We couldn\'t delete your account.';
+
+  @override
+  String get profileDeleteErrorRetry =>
+      'We couldn\'t delete your account. Please try again.';
+
+  @override
+  String get profileDeleteWrongPassword => 'That password isn\'t correct.';
+
+  @override
+  String get profileDeleteGoogleMismatch =>
+      'That Google account doesn\'t match this profile.';
+
+  @override
+  String get profileDeleteGoogleFailed =>
+      'We couldn\'t confirm with Google. Please try again.';
+
+  @override
+  String get profileMemberDefault => 'NutriLife member';
+
+  @override
+  String profileMemberSince(String year) {
+    return 'Member since $year';
+  }
+
+  @override
+  String profileMemberPlan(String plan) {
+    return '$plan member';
+  }
+
+  @override
+  String profileMemberPlanSince(String plan, String year) {
+    return '$plan member since $year';
+  }
+
+  @override
+  String get profileStatAge => 'AGE';
+
+  @override
+  String get profileStatWeight => 'WEIGHT';
+
+  @override
+  String get profileStatHeight => 'HEIGHT';
+
+  @override
+  String get profileGoalHeading => 'Nutrition goal';
+
+  @override
+  String get profileGoalActive => 'ACTIVE';
+
+  @override
+  String get profileGoalPillLose => 'Lose weight';
+
+  @override
+  String get profileGoalPillMaintain => 'Maintain';
+
+  @override
+  String get profileGoalPillGain => 'Build muscle';
+
+  @override
+  String get profileSettingsHeading => 'Settings & reminders';
+
+  @override
+  String get premiumTitle => 'NutriLife Premium';
+
+  @override
+  String get profilePremiumSubtitle => 'Plans and benefits';
+
+  @override
+  String get profileRemindersTitle => 'Meal reminders';
+
+  @override
+  String get profileRemindersSubtitle => 'Daily alerts for 4 meals';
+
+  @override
+  String get profileNotificationsTitle => 'Notification settings';
+
+  @override
+  String get profileNotificationsSubtitle => 'Push, email and SMS';
+
+  @override
+  String get profileConfigTitle => 'Settings';
+
+  @override
+  String get profileConfigSubtitle => 'Age, height, sex, goal and email';
+
+  @override
+  String get profileLegalHeading => 'Legal';
+
+  @override
+  String get profileTermsTitle => 'Terms and conditions';
+
+  @override
+  String get profileTermsSubtitle => 'Rules for using NutriLife';
+
+  @override
+  String get profilePrivacyTitle => 'Privacy policy';
+
+  @override
+  String get profilePrivacySubtitle => 'How we handle your data';
+
+  @override
+  String get profileLogout => 'Log out';
+
+  @override
+  String get profileDeleteAccount => 'Delete account';
+
+  @override
+  String get profileLoadErrorTitle => 'We couldn\'t load your profile';
+
+  @override
+  String get profileRetry => 'Try again';
+
+  @override
+  String get profileDeleteDone => 'Your account and data have been deleted.';
+
+  @override
+  String get profileDeleteDialogTitle => 'Delete your account?';
+
+  @override
+  String get profileDeleteDialogBody =>
+      'Your profile, weight history, meals, fridge, recipes and conversations will be permanently deleted. This can\'t be undone.';
+
+  @override
+  String get profileDeletePasswordRequired => 'Enter your password to confirm.';
+
+  @override
+  String get profileDeletePasswordLabel => 'Password';
+
+  @override
+  String get profileDeleteGoogleHint =>
+      'To confirm, choose your Google account.';
+
+  @override
+  String get profileDeleting => 'Deleting...';
+
+  @override
+  String get profileDeleteConfirm => 'Delete';
+
+  @override
+  String get profileDeleteConfirmGoogle => 'Confirm with Google';
+
+  @override
+  String get profileEditHeading => 'Nutrition details';
+
+  @override
+  String get profileEditSubtitle =>
+      'Update your details so NutriLife can fine-tune your plan.';
+
+  @override
+  String get profileEditAge => 'Age';
+
+  @override
+  String get profileEditYearsUnit => 'years';
+
+  @override
+  String get profileEditHeight => 'Height';
+
+  @override
+  String get profileEditWeight => 'Weight';
+
+  @override
+  String get profileEditSex => 'Sex';
+
+  @override
+  String get profileEditGoal => 'Goal';
+
+  @override
+  String get profileEditAccountHeading => 'Account';
+
+  @override
+  String get profileEditEmail => 'Email';
+
+  @override
+  String get profileEditEmailMissing => 'Email not available';
+
+  @override
+  String get profileEditSaving => 'Saving...';
+
+  @override
+  String get profileEditSave => 'Save changes';
+
+  @override
+  String get profileEditSelectAll => 'Select all your details to continue.';
+
+  @override
+  String get profileEditHeightInvalid =>
+      'Select a valid height between 1.50 cm and 2.50 cm.';
+
+  @override
+  String get profileEditWeightDialogTitle =>
+      'You\'re about to update your weight';
+
+  @override
+  String get profileEditWeightDialogBody =>
+      'This change may affect your current settings, like your daily calorie target and your nutrition plan. NutriLife will recalculate your goals with the new value.';
+
+  @override
+  String get premiumSubtitle => 'Take your nutrition to the next level';
+
+  @override
+  String get premiumBenefitChat => 'AI Chef with unlimited messages';
+
+  @override
+  String get premiumBenefitProgress => 'Full progress history';
+
+  @override
+  String get premiumBenefitPlans => 'Weekly meal plans';
+
+  @override
+  String get premiumBenefitRecipes => 'Unlimited saved recipes';
+
+  @override
+  String get premiumPlanYearly => 'Yearly';
+
+  @override
+  String get premiumPlanMonthly => 'Monthly';
+
+  @override
+  String premiumPricePerYear(String price) {
+    return '$price / year';
+  }
+
+  @override
+  String premiumPricePerMonth(String price) {
+    return '$price / month';
+  }
+
+  @override
+  String get premiumSaveBadge => 'Save 50%';
+
+  @override
+  String get premiumStartTrial => 'Start 7 days free';
+
+  @override
+  String get premiumRestore => 'Restore purchases';
+
+  @override
+  String get premiumTerms => 'Terms';
+
+  @override
+  String get premiumPaymentsSoon => 'Payments are coming soon';
+
+  @override
+  String get premiumPromoTitle => 'Unlock your full progress';
 }

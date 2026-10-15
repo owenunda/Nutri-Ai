@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 
@@ -42,7 +43,7 @@ class UserProfile {
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
-      name: json['name']?.toString().trim() ?? 'Usuario',
+      name: json['name']?.toString().trim() ?? currentL10n.commonUser,
       email: json['email']?.toString().trim() ?? '',
       age: _toInt(json['age']),
       weight: _toDouble(json['weight']),
@@ -81,17 +82,19 @@ class UserProfile {
     );
   }
 
-  String get membershipText {
+  String membershipText(AppLocalizations l10n) {
     final currentPlan = plan;
     final year = createdAt?.year;
 
     if (currentPlan == null || currentPlan.isEmpty) {
-      return year == null ? 'Miembro de NutriLife' : 'Miembro desde $year';
+      return year == null
+          ? l10n.profileMemberDefault
+          : l10n.profileMemberSince('$year');
     }
 
     return year == null
-        ? 'Miembro $currentPlan'
-        : 'Miembro $currentPlan desde $year';
+        ? l10n.profileMemberPlan(currentPlan)
+        : l10n.profileMemberPlanSince(currentPlan, '$year');
   }
 }
 
@@ -115,7 +118,7 @@ class ProfileRepository {
       }
 
       throw ProfileException(
-        _extractFriendlyMessage(body) ?? 'No se pudo cargar tu perfil.',
+        _extractFriendlyMessage(body) ?? currentL10n.profileLoadError,
       );
     } on DioException catch (error) {
       throw ProfileException(
@@ -124,9 +127,7 @@ class ProfileRepository {
     } on ProfileException {
       rethrow;
     } catch (_) {
-      throw const ProfileException(
-        'No se pudo cargar tu perfil. Inténtalo de nuevo.',
-      );
+      throw ProfileException(currentL10n.profileLoadErrorRetry);
     }
   }
 
@@ -156,7 +157,7 @@ class ProfileRepository {
       }
 
       throw ProfileException(
-        _extractFriendlyMessage(body) ?? 'No se pudo actualizar tu perfil.',
+        _extractFriendlyMessage(body) ?? currentL10n.profileUpdateError,
       );
     } on DioException catch (error) {
       throw ProfileException(
@@ -165,9 +166,7 @@ class ProfileRepository {
     } on ProfileException {
       rethrow;
     } catch (_) {
-      throw const ProfileException(
-        'No se pudo actualizar tu perfil. Inténtalo de nuevo.',
-      );
+      throw ProfileException(currentL10n.profileUpdateErrorRetry);
     }
   }
 
@@ -202,24 +201,20 @@ class ProfileRepository {
       }
 
       throw ProfileException(
-        _extractFriendlyMessage(body) ?? 'No se pudo eliminar tu cuenta.',
+        _extractFriendlyMessage(body) ?? currentL10n.profileDeleteError,
       );
     } on DioException catch (error) {
       final data = error.response?.data;
       final errorInfo = data is Map ? data['error'] : null;
       final code = errorInfo is Map ? errorInfo['code'] : null;
       if (code == 'INVALID_PASSWORD') {
-        throw const ProfileException('La contraseña no es correcta.');
+        throw ProfileException(currentL10n.profileDeleteWrongPassword);
       }
       if (code == 'GOOGLE_ACCOUNT_MISMATCH') {
-        throw const ProfileException(
-          'Esa cuenta de Google no corresponde a este perfil.',
-        );
+        throw ProfileException(currentL10n.profileDeleteGoogleMismatch);
       }
       if (code == 'INVALID_GOOGLE_TOKEN') {
-        throw const ProfileException(
-          'No se pudo confirmar con Google. Inténtalo de nuevo.',
-        );
+        throw ProfileException(currentL10n.profileDeleteGoogleFailed);
       }
       throw ProfileException(
         _extractFriendlyMessage(data) ?? _fallbackMessage(error),
@@ -227,9 +222,7 @@ class ProfileRepository {
     } on ProfileException {
       rethrow;
     } catch (_) {
-      throw const ProfileException(
-        'No se pudo eliminar tu cuenta. Inténtalo de nuevo.',
-      );
+      throw ProfileException(currentL10n.profileDeleteErrorRetry);
     }
   }
 
@@ -256,11 +249,11 @@ class ProfileRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return 'La conexión con el servidor tardó demasiado. Inténtalo de nuevo.';
+        return currentL10n.commonErrorTimeout;
       case DioExceptionType.connectionError:
-        return 'No se pudo conectar con el servidor. Verifica que el backend esté activo.';
+        return currentL10n.commonErrorConnection;
       default:
-        return 'No se pudo cargar tu perfil. Inténtalo de nuevo.';
+        return currentL10n.profileLoadErrorRetry;
     }
   }
 

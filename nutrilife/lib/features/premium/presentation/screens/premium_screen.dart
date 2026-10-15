@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 
 // Precios y textos de ejemplo: todavía no hay cobro.
 const kPremiumMonthlyPrice = '\$4.99';
 const kPremiumYearlyPrice = '\$29.99';
-const kPremiumBenefits = [
-  'Chef IA sin límite de mensajes',
-  'Historial de progreso completo',
-  'Planes de comida semanales',
-  'Recetas guardadas sin límite',
-];
+
+List<String> premiumBenefits(AppLocalizations l10n) => [
+      l10n.premiumBenefitChat,
+      l10n.premiumBenefitProgress,
+      l10n.premiumBenefitPlans,
+      l10n.premiumBenefitRecipes,
+    ];
 
 enum _Plan { monthly, yearly }
 
@@ -28,11 +30,12 @@ class _PremiumScreenState extends State<PremiumScreen> {
   void _soon() {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Los pagos llegan pronto')));
+      ..showSnackBar(SnackBar(content: Text(context.l10n.premiumPaymentsSoon)));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7F9),
       appBar: AppBar(
@@ -50,19 +53,19 @@ class _PremiumScreenState extends State<PremiumScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'NutriLife Premium',
+          Text(
+            l10n.premiumTitle,
             textAlign: TextAlign.center,
             style: TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -0.5),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Lleva tu alimentación al siguiente nivel',
+          Text(
+            l10n.premiumSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 14),
           ),
           const SizedBox(height: 24),
-          for (final benefit in kPremiumBenefits)
+          for (final benefit in premiumBenefits(l10n))
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(
@@ -75,17 +78,17 @@ class _PremiumScreenState extends State<PremiumScreen> {
             ),
           const SizedBox(height: 12),
           _PlanCard(
-            title: 'Anual',
-            price: '$kPremiumYearlyPrice / año',
-            badge: 'Ahorra 50%',
+            title: l10n.premiumPlanYearly,
+            price: l10n.premiumPricePerYear(kPremiumYearlyPrice),
+            badge: l10n.premiumSaveBadge,
             selected: _plan == _Plan.yearly,
             selectedKey: const ValueKey('plan-yearly-selected'),
             onTap: () => setState(() => _plan = _Plan.yearly),
           ),
           const SizedBox(height: 12),
           _PlanCard(
-            title: 'Mensual',
-            price: '$kPremiumMonthlyPrice / mes',
+            title: l10n.premiumPlanMonthly,
+            price: l10n.premiumPricePerMonth(kPremiumMonthlyPrice),
             selected: _plan == _Plan.monthly,
             selectedKey: const ValueKey('plan-monthly-selected'),
             onTap: () => setState(() => _plan = _Plan.monthly),
@@ -101,17 +104,17 @@ class _PremiumScreenState extends State<PremiumScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
               textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
             ),
-            child: const Text('Empezar 7 días gratis'),
+            child: Text(l10n.premiumStartTrial),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextButton(onPressed: _soon, child: const Text('Restaurar compras')),
+              TextButton(onPressed: _soon, child: Text(l10n.premiumRestore)),
               const Text('·'),
               TextButton(
                 onPressed: () => openLegalDocument(context, LegalDocuments.terms),
-                child: const Text('Términos'),
+                child: Text(l10n.premiumTerms),
               ),
             ],
           ),

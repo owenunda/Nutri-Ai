@@ -3,7 +3,9 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilife/core/state/locale_state.dart';
 import 'package:nutrilife/features/profile/data/profile_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeAdapter implements HttpClientAdapter {
   _FakeAdapter(this.statusCode, this.body);
@@ -39,6 +41,16 @@ ProfileRepository _repoWith(_FakeAdapter adapter) {
 }
 
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    // Los mensajes locales salen en el idioma de la app: aquí, español.
+    await LocaleState.instance.setPreference(LanguagePreference.es);
+  });
+
+  tearDown(() async {
+    await LocaleState.instance.setPreference(LanguagePreference.system);
+  });
+
   test('hasPassword viene del backend y si falta se asume true', () {
     expect(UserProfile.fromJson({'hasPassword': false}).hasPassword, isFalse);
     expect(UserProfile.fromJson({}).hasPassword, isTrue);
