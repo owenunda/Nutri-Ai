@@ -3367,6 +3367,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Desbloquea tu progreso completo'**
   String get premiumPromoTitle;
+
+  /// No description provided for @legalLastUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Última actualización: {date}'**
+  String legalLastUpdated(String date);
 }
 
 class _AppLocalizationsDelegate

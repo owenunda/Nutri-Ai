@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/legal_documents.dart';
 
@@ -41,9 +42,13 @@ class LegalDocumentScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Última actualización: $kLegalUpdatedAt',
-              style: TextStyle(
+            Text(
+              context.l10n.legalLastUpdated(
+                Localizations.localeOf(context).languageCode == 'en'
+                    ? kLegalUpdatedAtEn
+                    : kLegalUpdatedAtEs,
+              ),
+              style: const TextStyle(
                 fontFamily: 'Inter',
                 color: AppTheme.onSurfaceVariant,
                 fontSize: 13,

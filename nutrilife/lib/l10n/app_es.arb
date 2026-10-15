@@ -1241,5 +1241,7 @@
   "premiumRestore": "Restaurar compras",
   "premiumTerms": "Términos",
   "premiumPaymentsSoon": "Los pagos llegan pronto",
-  "premiumPromoTitle": "Desbloquea tu progreso completo"
+  "premiumPromoTitle": "Desbloquea tu progreso completo",
+  "legalLastUpdated": "Última actualización: {date}",
+  "@legalLastUpdated": { "placeholders": { "date": { "type": "String" } } }
 }

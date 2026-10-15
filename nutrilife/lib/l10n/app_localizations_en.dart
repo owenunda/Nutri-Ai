@@ -2008,4 +2008,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumPromoTitle => 'Unlock your full progress';
+
+  @override
+  String legalLastUpdated(String date) {
+    return 'Last updated: $date';
+  }
 }

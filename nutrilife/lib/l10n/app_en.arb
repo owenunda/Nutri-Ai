@@ -957,5 +957,6 @@
   "premiumRestore": "Restore purchases",
   "premiumTerms": "Terms",
   "premiumPaymentsSoon": "Payments are coming soon",
-  "premiumPromoTitle": "Unlock your full progress"
+  "premiumPromoTitle": "Unlock your full progress",
+  "legalLastUpdated": "Last updated: {date}"
 }
