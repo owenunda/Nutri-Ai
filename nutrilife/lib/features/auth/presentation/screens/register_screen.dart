@@ -5,11 +5,12 @@ import 'package:flutter/services.dart';
 import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
 
-import '../../../../core/network/dio_client.dart';
 import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/session_service.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../setup/presentation/screens/profile_setup_screen.dart';
 import '../../data/auth_repository.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -83,9 +84,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _passwordController.text,
       );
 
-      if (loginResult['success'] == true) {
-        DioClient.authToken = loginResult['token'];
+      if (loginResult['success'] != true) {
+        if (!mounted) return;
+        await showDialog<void>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Cuenta creada'),
+            content: const Text(
+              'No pudimos iniciar tu sesión automáticamente. Inicia sesión con tu nueva cuenta para continuar.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Continuar'),
+              ),
+            ],
+          ),
+        );
+        if (!mounted) return;
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+        return;
       }
+
+      final token = loginResult['token'];
+      final user = loginResult['user'];
+      if (token is! String || token.isEmpty || user is! Map<String, dynamic>) {
+        throw const AuthException(
+          'La cuenta se creó, pero el servidor no devolvió una sesión válida. Inicia sesión para continuar.',
+        );
+      }
+      await SessionService.save(token: token, user: user);
 
       if (!mounted) return;
 
@@ -97,9 +128,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) => ProfileSetupScreen(
-            userName: _nameController.text.trim(),
-          ),
+          builder: (_) =>
+              ProfileSetupScreen(userName: _nameController.text.trim()),
         ),
         (route) => false,
       );
@@ -129,26 +159,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final Color accentColor = isSuccess
         ? _RegisterPalette.primary
         : isDuplicate
-            ? const Color(0xFFD97706)
-            : isWarning
-                ? const Color(0xFFD97706)
-                : const Color(0xFFB42318);
+        ? const Color(0xFFD97706)
+        : isWarning
+        ? const Color(0xFFD97706)
+        : const Color(0xFFB42318);
 
     final IconData icon = isSuccess
         ? Icons.check_circle_rounded
         : isDuplicate
-            ? Icons.mark_email_unread_rounded
-            : isWarning
-                ? Icons.warning_amber_rounded
-                : Icons.error_outline_rounded;
+        ? Icons.mark_email_unread_rounded
+        : isWarning
+        ? Icons.warning_amber_rounded
+        : Icons.error_outline_rounded;
 
     final String title = isSuccess
         ? 'Registro exitoso'
         : isDuplicate
-            ? 'Correo ya registrado'
-            : isWarning
-                ? 'Falta confirmar'
-                : 'Registro no completado';
+        ? 'Correo ya registrado'
+        : isWarning
+        ? 'Falta confirmar'
+        : 'Registro no completado';
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -165,9 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           decoration: BoxDecoration(
             color: _RegisterPalette.surface,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: accentColor.withValues(alpha: 0.18),
-            ),
+            border: Border.all(color: accentColor.withValues(alpha: 0.18)),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF1E2A24).withValues(alpha: 0.10),
@@ -186,11 +214,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: accentColor.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  color: accentColor,
-                  size: 22,
-                ),
+                child: Icon(icon, color: accentColor, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -430,9 +454,7 @@ class _RegisterCard extends StatelessWidget {
               icon: Icons.person_outline_rounded,
               hintText: '',
               keyboardType: TextInputType.name,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(30),
-              ],
+              inputFormatters: [LengthLimitingTextInputFormatter(30)],
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
               enabled: !isSubmitting,
@@ -788,74 +810,6 @@ class _RegisterField extends StatelessWidget {
   }
 }
 
-class _BrandFooter extends StatelessWidget {
-  const _BrandFooter();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
-            decoration: BoxDecoration(
-              color: _RegisterPalette.primarySoft,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ClipOval(
-                  child: Image.asset(
-                    'assets/images/nutria_feliz.png',
-                    width: 26,
-                    height: 26,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'NutriLife',
-                  style: TextStyle(
-                    color: _RegisterPalette.primary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 18),
-
-          const Text.rich(
-            TextSpan(
-              style: TextStyle(
-                color: _RegisterPalette.title,
-                fontSize: 26,
-                height: 1.02,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
-              ),
-              children: [
-                TextSpan(text: 'Comienza tu '),
-                TextSpan(
-                  text: 'viaje',
-                  style: TextStyle(color: _RegisterPalette.primary),
-                ),
-                TextSpan(text: '\nconsciente.'),
-              ],
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _GlowCircle extends StatelessWidget {
   const _GlowCircle({required this.color, required this.size});
 
@@ -898,7 +852,4 @@ class _RegisterPalette {
   static const Color primary = Color(0xFF0A6B3F);
 
   static const Color primaryDark = Color(0xFF085531);
-
-  static const Color primarySoft = Color(0xFFDDF3E8);
-
 }

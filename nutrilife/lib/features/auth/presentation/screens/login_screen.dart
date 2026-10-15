@@ -5,7 +5,6 @@ import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
-import 'auth_flow_navigator.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -70,19 +69,6 @@ class LoginScreen extends StatelessWidget {
                                   ),
                                 );
                               },
-                            ),
-
-                            // TODO: remove — solo para previsualizar onboarding
-                            TextButton(
-                              onPressed: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const AuthFlowNavigator(),
-                                ),
-                              ),
-                              child: const Text(
-                                'Ver onboarding',
-                                style: TextStyle(fontSize: 11, color: Color(0xFFADB5BD)),
-                              ),
                             ),
 
                             SizedBox(

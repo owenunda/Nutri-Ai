@@ -7,10 +7,11 @@ import 'package:nutrilife/features/nutrition/data/fridge_repository.dart';
 
 /// Devuelve siempre la misma respuesta canned, sin tocar la red.
 class _FakeAdapter implements HttpClientAdapter {
-  _FakeAdapter(this.body, {this.statusCode = 200});
+  _FakeAdapter(this.body, {this.statusCode = 200, this.requests});
 
   final Object body;
   final int statusCode;
+  final List<RequestOptions>? requests;
 
   @override
   Future<ResponseBody> fetch(
@@ -18,6 +19,7 @@ class _FakeAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    requests?.add(options);
     return ResponseBody.fromString(
       jsonEncode(body),
       statusCode,
@@ -95,6 +97,57 @@ void main() {
       expect(
         repo.getFridgeItems(),
         throwsA(predicate((e) => e.toString().contains('No se encontró la nevera'))),
+      );
+    });
+  });
+
+  group('FridgeRepository fridge item changes', () {
+    test('updates the item quantity with PUT', () async {
+      final requests = <RequestOptions>[];
+      final dio = Dio(BaseOptions(
+        baseUrl: 'https://test.local',
+        validateStatus: (_) => true,
+      ))
+        ..httpClientAdapter = _FakeAdapter(
+          {'success': true, 'data': {}},
+          requests: requests,
+        );
+      final repo = FridgeRepository(dio: dio);
+
+      await repo.updateItem(fridgeItemId: 12, quantity: 4.5);
+
+      expect(requests.single.method, 'PUT');
+      expect(requests.single.path, '/fridge/items/12');
+      expect(requests.single.data, {'quantity': 4.5});
+    });
+
+    test('deletes the fridge item by its id', () async {
+      final requests = <RequestOptions>[];
+      final dio = Dio(BaseOptions(
+        baseUrl: 'https://test.local',
+        validateStatus: (_) => true,
+      ))
+        ..httpClientAdapter = _FakeAdapter(
+          {'success': true, 'data': {}},
+          requests: requests,
+        );
+      final repo = FridgeRepository(dio: dio);
+
+      await repo.deleteItem(fridgeItemId: 12);
+
+      expect(requests.single.method, 'DELETE');
+      expect(requests.single.path, '/fridge/items/12');
+    });
+
+    test('propagates the backend error when updating fails', () async {
+      final repo = repoReturning({
+        'success': false,
+        'message': 'No se pudo actualizar',
+      });
+
+      expect(
+        repo.updateItem(fridgeItemId: 12, quantity: 4),
+        throwsA(predicate((error) => error.toString().contains('No se pudo actualizar'))),
       );
     });
   });

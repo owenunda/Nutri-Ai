@@ -5,6 +5,7 @@ import '../../../nutrition/data/food_repository.dart';
 import '../../../nutrition/data/fridge_repository.dart';
 import '../../../nutrition/data/models/food_model.dart';
 import '../../../nutrition/data/models/fridge_item_model.dart';
+import '../../../nutrition/domain/food_units.dart';
 
 /// Hoja para elegir qué alimentos se adjuntan al mensaje: los de la nevera o
 /// los alimentos comunes del catálogo, cada grupo en su pestaña.
@@ -397,7 +398,7 @@ class _FoodRow extends StatelessWidget {
             if (item.isFromFridge)
               item.quantity > 0
                   ? Text(
-                      '${formatFridgeQuantity(item.quantity)} ${item.unit}',
+                      formatQuantityWithUnit(item.quantity, item.unit),
                       style: const TextStyle(
                         fontSize: 13,
                         color: Color(0xFF2C2F31),
@@ -418,10 +419,6 @@ class _FoodRow extends StatelessWidget {
     );
   }
 }
-
-/// Sin esto las cantidades enteras se ven como "200.0 g".
-String formatFridgeQuantity(double quantity) =>
-    quantity % 1 == 0 ? quantity.toInt().toString() : quantity.toString();
 
 class _Message extends StatelessWidget {
   final IconData icon;

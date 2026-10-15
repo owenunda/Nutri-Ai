@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/api_base_url.dart';
 import '../navigation/navigator_key.dart';
+import 'api_routes.dart';
 import '../services/session_service.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import 'rate_limit_state.dart';
@@ -29,7 +30,10 @@ class DioClient {
         ..interceptors.add(
           InterceptorsWrapper(
             onRequest: (options, handler) {
-              if (authToken != null) {
+              final isPublicAuthRequest =
+                  options.path == ApiRoutes.authLogin ||
+                  options.path == ApiRoutes.authRegister;
+              if (!isPublicAuthRequest && authToken != null) {
                 options.headers['Authorization'] = 'Bearer $authToken';
               }
               return handler.next(options);
@@ -65,7 +69,11 @@ class DioClient {
                   ),
                 );
               }
-              if (error.response?.statusCode == 401) {
+              final authorization =
+                  error.requestOptions.headers['Authorization'];
+              if (error.response?.statusCode == 401 &&
+                  authorization is String &&
+                  authorization.startsWith('Bearer ')) {
                 _redirectToLogin();
               }
               return handler.next(error);
