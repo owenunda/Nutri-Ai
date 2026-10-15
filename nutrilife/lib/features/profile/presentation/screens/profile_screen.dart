@@ -6,6 +6,7 @@ import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
 import '../../data/profile_repository.dart';
+import '../widgets/profile_streaks_card.dart';
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -13,10 +14,12 @@ class ProfileScreen extends StatefulWidget {
     super.key,
     required this.userName,
     required this.onLogout,
+    this.accountId = 'default',
   });
 
   final String userName;
   final VoidCallback onLogout;
+  final String accountId;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -161,6 +164,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 18),
+                ProfileStreaksCard(
+                  accountId: profile.email.isEmpty
+                      ? widget.accountId
+                      : profile.email,
                 ),
                 const SizedBox(height: 42),
                 Row(

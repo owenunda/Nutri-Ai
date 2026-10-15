@@ -10,6 +10,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/custom_bottom_nav_bar.dart';
 import '../../../../features/chatbot/presentation/screens/ai_chat_view.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
+import '../../../hydration/presentation/screens/water_streak_screen.dart';
 import '../../../meals/presentation/screens/meal_history_screen.dart';
 import '../../../nutrition/presentation/screens/foods_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
@@ -17,6 +18,7 @@ import '../../../progress/presentation/screens/progress_screen.dart';
 import '../widgets/ai_suggestion_card.dart';
 import '../widgets/home_header.dart';
 import '../widgets/today_meals_section.dart';
+import '../widgets/water_streak_home_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key, this.user});
@@ -33,11 +35,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _currentTab = 0;
   int _progressRefreshToken = 0;
   late final String _userName;
+  late final String _hydrationAccountId;
 
   @override
   void initState() {
     super.initState();
     _userName = widget.user?['name'] ?? 'Usuario';
+    final email = widget.user?['email']?.toString().trim();
+    final id = widget.user?['id']?.toString().trim();
+    _hydrationAccountId = email != null && email.isNotEmpty
+        ? email.toLowerCase()
+        : id != null && id.isNotEmpty
+        ? id
+        : 'default';
     AdsService.instance.setPlan(widget.user?['plan']?.toString());
   }
 
@@ -103,6 +113,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Future<void> _openWaterTracker() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => WaterStreakScreen(accountId: _hydrationAccountId),
+      ),
+    );
+  }
+
   /// Convierte un puntero en pantalla (down o move) en coordenadas
   /// normalizadas del bot (1.0 = radio de la bola) y lo empuja a
   /// BotMoodState. El centro del bot se calcula desde MediaQuery segun la
@@ -162,10 +180,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          AiSuggestionCard(
-            onTap: () => _onTabSelected(2),
+          WaterStreakHomeCard(
+            accountId: _hydrationAccountId,
+            onTap: _openWaterTracker,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
+          AiSuggestionCard(onTap: () => _onTabSelected(2)),
+          const SizedBox(height: 28),
           TodayMealsSection(
             onOpenHistory: () => Navigator.push(
               context,
@@ -181,6 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildProfileTab() {
     return ProfileScreen(
       userName: _userName,
+      accountId: _hydrationAccountId,
       onLogout: () async {
         await SessionService.clear();
         if (!mounted) return;

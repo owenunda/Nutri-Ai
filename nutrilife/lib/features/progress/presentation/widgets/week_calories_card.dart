@@ -38,12 +38,12 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
     ).clamp(1, 1 << 31);
 
     final footer = limit == null
-        ? 'Promedio: ${formatKcal(week.average)} kcal/día'
-        : 'Promedio: ${formatKcal(week.average)} kcal/día · ${week.daysOnTarget} de 7 días en tu meta';
+        ? 'Promedio diario · ${formatKcal(week.average)} kcal'
+        : 'Promedio diario · ${formatKcal(week.average)} kcal · ${week.daysOnTarget} de 7 días en tu meta';
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 15),
       decoration: BoxDecoration(
         color: AppTheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
@@ -56,10 +56,33 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
             children: [
               const Expanded(
                 child: Text(
-                  'Esta semana',
-                  style: TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 18, fontWeight: FontWeight.w900),
+                  'Consumo semanal',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
+              if (limit != null && _selected == null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _green.withValues(alpha: 0.09),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    '${week.daysOnTarget}/7 en meta',
+                    style: const TextStyle(
+                      color: _green,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
               if (_selected != null)
                 Text(
                   '${_weekdays[_selected!.date.weekday - 1]} ${_selected!.date.day} · '
@@ -68,7 +91,7 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
                 ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 10),
           SizedBox(
             height: 140,
             child: Stack(
@@ -122,10 +145,14 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 9),
           Text(
             footer,
-            style: const TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: AppTheme.onSurfaceVariant,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           if (limit == null)
             TextButton(
