@@ -110,12 +110,6 @@ abstract class AppLocalizations {
   /// **'Cancelar'**
   String get commonCancel;
 
-  /// No description provided for @commonSave.
-  ///
-  /// In es, this message translates to:
-  /// **'Guardar'**
-  String get commonSave;
-
   /// No description provided for @commonRetry.
   ///
   /// In es, this message translates to:
@@ -127,12 +121,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Continuar'**
   String get commonContinue;
-
-  /// No description provided for @commonClose.
-  ///
-  /// In es, this message translates to:
-  /// **'Cerrar'**
-  String get commonClose;
 
   /// No description provided for @commonErrorTimeout.
   ///

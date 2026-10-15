@@ -15,16 +15,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonCancel => 'Cancel';
 
   @override
-  String get commonSave => 'Save';
-
-  @override
   String get commonRetry => 'Try again';
 
   @override
   String get commonContinue => 'Continue';
-
-  @override
-  String get commonClose => 'Close';
 
   @override
   String get commonErrorTimeout =>
