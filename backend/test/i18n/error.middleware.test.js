@@ -9,6 +9,7 @@ mock.module(src('modules/events/events.service.js'), {
 
 const { AppError } = await import(src('utils/AppError.js'));
 const { errorHandler, notFoundHandler } = await import(src('middleware/error.middleware.js'));
+const { config } = await import(src('config/env_config.js'));
 
 const fakeRes = () => {
   const res = { statusCode: null, body: null };
@@ -45,6 +46,23 @@ test('usa los params del error', () => {
   const err = new AppError('Espera 30 segundos para pedir otro código.', 429, 'CODE_RECENTLY_SENT', [], { seconds: 30 });
   errorHandler(err, { lang: 'en' }, res, () => {});
   assert.equal(res.body.message, 'Wait 30 seconds before asking for another code.');
+});
+
+test('un error inesperado en producción responde un mensaje genérico en el idioma pedido', () => {
+  const previousEnv = config.node_env;
+  config.node_env = 'production';
+  try {
+    const en = fakeRes();
+    errorHandler(new Error('boom interno'), { lang: 'en' }, en, () => {});
+    assert.equal(en.statusCode, 500);
+    assert.equal(en.body.message, 'Something went wrong. Please try again.');
+
+    const es = fakeRes();
+    errorHandler(new Error('boom interno'), { lang: 'es' }, es, () => {});
+    assert.equal(es.body.message, 'Algo salió mal');
+  } finally {
+    config.node_env = previousEnv;
+  }
 });
 
 test('la ruta inexistente sigue llegando al manejador', () => {

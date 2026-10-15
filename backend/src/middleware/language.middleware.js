@@ -1,6 +1,7 @@
 // Idioma de la respuesta según Accept-Language. La app lo manda en cada
-// petición; sin header (apps viejas, panel de admin con otro idioma) queda en
-// español, que es como respondía el backend antes.
+// petición. Sin el header (apps viejas, clientes sin idioma) responde en
+// español, como respondía antes; los navegadores (p. ej. el panel de admin)
+// siempre lo envían, así que reciben su idioma si es es/en.
 export const SUPPORTED_LANGS = ['es', 'en'];
 export const DEFAULT_LANG = 'es';
 

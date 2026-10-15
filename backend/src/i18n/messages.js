@@ -71,6 +71,8 @@ export const SOURCE_MESSAGES = {
   'quantity must be a number greater than or equal to 0': { es: 'La cantidad debe ser un número mayor o igual a 0.' },
   'unit cannot be empty': { es: 'La unidad no puede estar vacía.' },
   'Bad request': { es: 'Falta el mensaje.', en: 'The message is missing.' },
+  // Respuesta genérica de errorHandler para errores no previstos en producción
+  'Algo salió mal': { en: 'Something went wrong. Please try again.' },
 
   // Detalles de validación ({ field, message }) de src/modules/*/*.validation.js
   'Age must be an integer between 16 and 120': {
