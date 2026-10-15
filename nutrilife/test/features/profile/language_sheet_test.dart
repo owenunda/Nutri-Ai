@@ -35,4 +35,40 @@ void main() {
     expect(state.preference, LanguagePreference.en);
     expect(find.text('Elige el idioma'), findsNothing);
   });
+
+  testWidgets('marca con check la opción actual y permite volver a "Usar el del teléfono"',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({'app_language': 'en'});
+    final state = LocaleState(deviceLocale: () => const Locale('es'));
+    await state.load();
+    expect(state.preference, LanguagePreference.en);
+
+    await tester.pumpWidget(l10nApp(Builder(
+      builder: (context) => Scaffold(
+        body: TextButton(
+          onPressed: () => showLanguageSheet(context, state: state),
+          child: const Text('abrir'),
+        ),
+      ),
+    )));
+
+    await tester.tap(find.text('abrir'));
+    await tester.pumpAndSettle();
+
+    // Solo la opción actual (English) muestra el check.
+    expect(find.byIcon(Icons.check_rounded), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.ancestor(of: find.text('English'), matching: find.byType(Container)).first,
+        matching: find.byIcon(Icons.check_rounded),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Usar el del teléfono'));
+    await tester.pumpAndSettle();
+
+    expect(state.preference, LanguagePreference.system);
+    expect(find.text('Elige el idioma'), findsNothing);
+  });
 }
