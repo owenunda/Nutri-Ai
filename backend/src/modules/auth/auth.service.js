@@ -10,7 +10,7 @@ import {
   findUserByProvider,
   getAuthRepositoryStatus,
   getDefaultRoleAndPlanIds,
-  linkProviderToExistingUser,
+  linkAuthProvider,
 } from './auth.repository.js';
 import { verifyGoogleIdToken } from './google.verifier.js';
 import { createFridgeService } from '../fridge/fridge.service.js';
@@ -192,10 +192,52 @@ export const registerUser = async ({ name, email, password, goal }) => {
   }
 };
 
+const verifiedGoogleProfile = async (idToken) => {
+  const profile = await verifyGoogleIdToken(idToken);
+
+  if (!profile.emailVerified) {
+    throw new AppError('Tu correo de Google no está verificado.', 403, 'GOOGLE_EMAIL_NOT_VERIFIED');
+  }
+
+  return profile;
+};
+
+// Otra cuenta de Google con el mismo email (p. ej. borrada y recreada): no se
+// sobrescribe el vínculo.
+const assertNoOtherGoogleAccount = async (userId) => {
+  if (await findProviderLink(userId, GOOGLE)) {
+    throw new AppError(
+      'Este correo ya está vinculado a otra cuenta de Google.',
+      409,
+      'GOOGLE_ACCOUNT_CONFLICT'
+    );
+  }
+};
+
+const linkGoogleToUser = async (user, { sub, email }) => {
+  await linkAuthProvider({ userId: user.userId, provider: GOOGLE, providerUserId: sub, email });
+  await logEventService({
+    eventType: 'ACCOUNT_LINKED',
+    category: 'AUTH',
+    userId: user.userId,
+    metadata: { provider: GOOGLE },
+  });
+};
+
+const logGoogleLogin = (user) =>
+  logEventService({
+    eventType: 'LOGIN',
+    category: 'AUTH',
+    userId: user.userId,
+    metadata: { email: user.email, role: user.role, method: GOOGLE },
+  });
+
 // Busca al usuario de Google por su `sub`; si no existe, lo vincula a la
 // cuenta con el mismo email o crea una nueva. `isFirstGoogleLogin` es true
 // cuando esta llamada creó o vinculó la cuenta.
-const resolveGoogleUser = async ({ sub, email, name }) => {
+const resolveGoogleUser = async (profile) => {
+  const { sub, email, name } = profile;
+
   const linkedUser = await findUserByProvider(GOOGLE, sub);
   if (linkedUser) {
     return { user: linkedUser, isFirstGoogleLogin: false };
@@ -203,35 +245,21 @@ const resolveGoogleUser = async ({ sub, email, name }) => {
 
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
-    // Otra cuenta de Google con el mismo email (p. ej. borrada y recreada):
-    // no se sobrescribe el vínculo.
-    if (await findProviderLink(existingUser.userId, GOOGLE)) {
+    await assertNoOtherGoogleAccount(existingUser.userId);
+
+    // El registro con email no verifica el correo: sin la contraseña no se
+    // sabe si la cuenta es de quien entra con Google. La app la pide y vincula
+    // con POST /auth/google/link.
+    if (existingUser.passwordHash) {
       throw new AppError(
-        'Este correo ya está vinculado a otra cuenta de Google.',
+        'Ya tienes una cuenta con este correo. Escribe tu contraseña para vincularla con Google.',
         409,
-        'GOOGLE_ACCOUNT_CONFLICT'
+        'GOOGLE_LINK_REQUIRES_PASSWORD'
       );
     }
 
-    // Los ADMIN conservan la contraseña: el panel de admin solo entra con
-    // ella, y como el rol se asigna a mano no pueden ser una cuenta que otra
-    // persona registró con su correo.
-    const clearPassword = existingUser.role !== 'ADMIN';
-    await linkProviderToExistingUser({
-      userId: existingUser.userId,
-      provider: GOOGLE,
-      providerUserId: sub,
-      email,
-      clearPassword,
-    });
-    await logEventService({
-      eventType: 'ACCOUNT_LINKED',
-      category: 'AUTH',
-      userId: existingUser.userId,
-      metadata: { provider: GOOGLE },
-    });
-    const user = clearPassword ? { ...existingUser, passwordHash: null } : existingUser;
-    return { user, isFirstGoogleLogin: true };
+    await linkGoogleToUser(existingUser, profile);
+    return { user: existingUser, isFirstGoogleLogin: true };
   }
 
   const displayName = name?.trim() || email.split('@')[0];
@@ -252,13 +280,12 @@ const resolveGoogleUser = async ({ sub, email, name }) => {
   return { user: await findUserByProvider(GOOGLE, sub), isFirstGoogleLogin: true };
 };
 
+const toAuthError = (error) =>
+  error instanceof AppError ? error : new AppError(error.message, 500, 'AUTH_SERVICE_ERROR');
+
 export const loginWithGoogle = async ({ idToken }) => {
   try {
-    const profile = await verifyGoogleIdToken(idToken);
-
-    if (!profile.emailVerified) {
-      throw new AppError('Tu correo de Google no está verificado.', 403, 'GOOGLE_EMAIL_NOT_VERIFIED');
-    }
+    const profile = await verifiedGoogleProfile(idToken);
 
     let resolved;
     try {
@@ -273,26 +300,55 @@ export const loginWithGoogle = async ({ idToken }) => {
     }
     const { user, isFirstGoogleLogin } = resolved;
 
-    // Solo en el primer login con Google y si la cuenta quedó sin contraseña:
+    // Solo en el primer login con Google y si la cuenta no tiene contraseña:
     // la app le ofrece crear una para poder entrar también con email.
     const session = {
       ...buildSession(user),
       offerPasswordSetup: isFirstGoogleLogin && !user.passwordHash,
     };
 
-    await logEventService({
-      eventType: 'LOGIN',
-      category: 'AUTH',
-      userId: user.userId,
-      metadata: { email: user.email, role: user.role, method: GOOGLE },
-    });
-
+    await logGoogleLogin(user);
     return session;
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
+    throw toAuthError(error);
+  }
+};
+
+// Vincula Google a una cuenta existente cuando quien entra demuestra que es
+// dueño del correo (idToken de Google) y de la cuenta (su contraseña). La
+// contraseña se conserva: después puede entrar de las dos formas.
+export const linkGoogleAccount = async ({ idToken, password }) => {
+  try {
+    const profile = await verifiedGoogleProfile(idToken);
+
+    // Reintento de una vinculación que ya se hizo: Google basta.
+    let user = await findUserByProvider(GOOGLE, profile.sub);
+
+    if (!user) {
+      user = await findUserByEmail(profile.email);
+      if (!user) {
+        throw new AppError('No hay ninguna cuenta con este correo.', 404, 'USER_NOT_FOUND');
+      }
+
+      await assertNoOtherGoogleAccount(user.userId);
+
+      if (user.passwordHash && !(await bcrypt.compare(password, user.passwordHash))) {
+        await logEventService({
+          eventType: 'LOGIN_FAILED',
+          category: 'AUTH',
+          userId: user.userId,
+          metadata: { email: user.email, reason: 'INVALID_PASSWORD', method: 'google-link' },
+        });
+        throw new AppError('Contraseña incorrecta', 401, 'INVALID_PASSWORD');
+      }
+
+      await linkGoogleToUser(user, profile);
     }
 
-    throw new AppError(error.message, 500, 'AUTH_SERVICE_ERROR');
+    const session = { ...buildSession(user), offerPasswordSetup: false };
+    await logGoogleLogin(user);
+    return session;
+  } catch (error) {
+    throw toAuthError(error);
   }
 };

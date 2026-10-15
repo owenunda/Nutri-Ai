@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { getAuthHealth, googleLogin, login, register } from './auth.controller.js';
+import { getAuthHealth, googleLink, googleLogin, login, register } from './auth.controller.js';
 import {
   validateAuthHealthRequest,
+  validateGoogleLinkRequest,
   validateGoogleLoginRequest,
   validateLoginRequest,
   validateRegisterRequest,
@@ -162,10 +163,48 @@ router.post('/register', validateRegisterRequest, register);
  *       403:
  *         description: Email de Google no verificado (code GOOGLE_EMAIL_NOT_VERIFIED)
  *       409:
- *         description: El email ya está vinculado a otra cuenta de Google (code GOOGLE_ACCOUNT_CONFLICT)
+ *         description: El email ya está vinculado a otra cuenta de Google (code GOOGLE_ACCOUNT_CONFLICT), o ya tiene una cuenta con contraseña y hay que vincularla con POST /auth/google/link (code GOOGLE_LINK_REQUIRES_PASSWORD)
  *       429:
  *         description: Demasiados intentos
  */
 router.post('/google', strictAuthRateLimit, validateGoogleLoginRequest, googleLogin);
+
+/**
+ * @openapi
+ * /api/v1/auth/google/link:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Vincular Google a una cuenta existente confirmando su contraseña
+ *     description: Se usa cuando POST /auth/google responde GOOGLE_LINK_REQUIRES_PASSWORD. El idToken prueba que el correo es de quien entra y la contraseña que la cuenta es suya. La contraseña se conserva.
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [idToken, password]
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Cuenta vinculada; misma respuesta que POST /auth/google
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         description: idToken inválido (code INVALID_GOOGLE_TOKEN) o contraseña incorrecta (code INVALID_PASSWORD)
+ *       403:
+ *         description: Email de Google no verificado (code GOOGLE_EMAIL_NOT_VERIFIED)
+ *       404:
+ *         description: No hay ninguna cuenta con ese correo (code USER_NOT_FOUND)
+ *       409:
+ *         description: El email ya está vinculado a otra cuenta de Google (code GOOGLE_ACCOUNT_CONFLICT)
+ *       429:
+ *         description: Demasiados intentos
+ */
+router.post('/google/link', strictAuthRateLimit, validateGoogleLinkRequest, googleLink);
 
 export default router;

@@ -1,5 +1,11 @@
 import { successResponse } from '../../utils/response.js';
-import { getAuthModuleStatus, loginUser, loginWithGoogle, registerUser } from './auth.service.js';
+import {
+  getAuthModuleStatus,
+  linkGoogleAccount,
+  loginUser,
+  loginWithGoogle,
+  registerUser,
+} from './auth.service.js';
 
 export const getAuthHealth = async (req, res, next) => {
   try {
@@ -32,6 +38,15 @@ export const googleLogin = async (req, res, next) => {
   try {
     const authData = await loginWithGoogle(req.googleLoginData);
     return successResponse(res, authData, 'Login successful', 200);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleLink = async (req, res, next) => {
+  try {
+    const authData = await linkGoogleAccount(req.googleLinkData);
+    return successResponse(res, authData, 'Account linked successfully', 200);
   } catch (error) {
     next(error);
   }

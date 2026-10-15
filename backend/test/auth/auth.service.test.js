@@ -13,7 +13,7 @@ const REPO_EXPORTS = [
   'findUserByProvider',
   'getAuthRepositoryStatus',
   'getDefaultRoleAndPlanIds',
-  'linkProviderToExistingUser',
+  'linkAuthProvider',
 ];
 
 const repo = {};
@@ -40,7 +40,9 @@ mock.module(src('modules/auth/google.verifier.js'), {
 });
 
 const { config } = await import(src('config/env_config.js'));
-const { loginUser, loginWithGoogle } = await import(src('modules/auth/auth.service.js'));
+const { linkGoogleAccount, loginUser, loginWithGoogle } = await import(
+  src('modules/auth/auth.service.js')
+);
 
 const ana = {
   userId: 7,
@@ -69,7 +71,7 @@ beforeEach(() => {
     findUserByProvider: async () => null,
     getAuthRepositoryStatus: async () => ({}),
     getDefaultRoleAndPlanIds: async () => ({ roleId: 2, planId: 1 }),
-    linkProviderToExistingUser: fail('linkProviderToExistingUser'),
+    linkAuthProvider: fail('linkAuthProvider'),
   });
 });
 
@@ -93,47 +95,32 @@ test('Google: usuario ya vinculado entra sin crear ni vincular nada', async () =
   assert.equal(events[0].metadata.method, 'google');
 });
 
-test('Google: email ya registrado con contraseña se vincula y la contraseña se borra', async () => {
-  const links = [];
+test('Google: email ya registrado con contraseña pide la contraseña y no vincula', async () => {
   repo.findUserByEmail = async () => ana;
-  repo.linkProviderToExistingUser = async (link) => {
-    links.push(link);
-  };
 
-  const session = await loginWithGoogle({ idToken: 'tok' });
-
-  // Una sola llamada que vincula y deja la cuenta sin contraseña: quien la
-  // hubiera registrado con el correo de otro pierde el acceso.
-  assert.deepEqual(links, [
-    {
-      userId: 7,
-      provider: 'google',
-      providerUserId: 'sub-1',
-      email: 'ana@gmail.com',
-      clearPassword: true,
-    },
-  ]);
-  assert.equal(session.user.userId, 7);
-  // Se quedó sin contraseña: la app le ofrece crear una nueva.
-  assert.equal(session.offerPasswordSetup, true);
-  assert.deepEqual(eventTypes(), ['ACCOUNT_LINKED', 'LOGIN']);
+  // Sin la contraseña no se sabe si la cuenta es de quien entra con Google:
+  // el registro con email no verifica el correo.
+  await assert.rejects(loginWithGoogle({ idToken: 'tok' }), {
+    status: 409,
+    code: 'GOOGLE_LINK_REQUIRES_PASSWORD',
+  });
+  assert.deepEqual(eventTypes(), []);
 });
 
-test('Google: una cuenta ADMIN se vincula sin perder la contraseña', async () => {
+test('Google: una cuenta sin contraseña ni Google se vincula directo', async () => {
   const links = [];
-  repo.findUserByEmail = async () => ({ ...ana, role: 'ADMIN' });
-  repo.linkProviderToExistingUser = async (link) => {
+  repo.findUserByEmail = async () => ({ ...ana, passwordHash: null });
+  repo.linkAuthProvider = async (link) => {
     links.push(link);
   };
 
   const session = await loginWithGoogle({ idToken: 'tok' });
 
-  // El panel de admin solo entra con contraseña, y los ADMIN se asignan a
-  // mano: no los puede haber creado alguien con el correo de otro.
-  assert.equal(links.length, 1);
-  assert.equal(links[0].clearPassword, false);
-  assert.equal(session.user.role, 'ADMIN');
-  assert.equal(session.offerPasswordSetup, false);
+  assert.deepEqual(links, [
+    { userId: 7, provider: 'google', providerUserId: 'sub-1', email: 'ana@gmail.com' },
+  ]);
+  assert.equal(session.user.userId, 7);
+  assert.equal(session.offerPasswordSetup, true);
   assert.deepEqual(eventTypes(), ['ACCOUNT_LINKED', 'LOGIN']);
 });
 
@@ -245,4 +232,81 @@ test('Google: una cuenta solo de Google que vuelve a entrar no recibe la oferta 
   const session = await loginWithGoogle({ idToken: 'tok' });
 
   assert.equal(session.offerPasswordSetup, false);
+});
+
+const anaWithPassword = async () => ({
+  ...ana,
+  passwordHash: await bcrypt.hash('secreto123', 4),
+});
+
+test('Vincular: con la contraseña correcta vincula sin borrarla', async () => {
+  const links = [];
+  const user = await anaWithPassword();
+  repo.findUserByEmail = async () => user;
+  repo.linkAuthProvider = async (link) => {
+    links.push(link);
+  };
+
+  const session = await linkGoogleAccount({ idToken: 'tok', password: 'secreto123' });
+
+  assert.deepEqual(links, [
+    { userId: 7, provider: 'google', providerUserId: 'sub-1', email: 'ana@gmail.com' },
+  ]);
+  assert.equal(jwt.verify(session.token, 'test_secret').userId, 7);
+  assert.equal(session.user.passwordHash, undefined);
+  assert.equal(session.offerPasswordSetup, false);
+  assert.deepEqual(eventTypes(), ['ACCOUNT_LINKED', 'LOGIN']);
+  assert.equal(events[1].metadata.method, 'google');
+});
+
+test('Vincular: contraseña incorrecta responde 401 y no vincula', async () => {
+  const user = await anaWithPassword();
+  repo.findUserByEmail = async () => user;
+
+  await assert.rejects(linkGoogleAccount({ idToken: 'tok', password: 'otra' }), {
+    status: 401,
+    code: 'INVALID_PASSWORD',
+  });
+  assert.deepEqual(eventTypes(), ['LOGIN_FAILED']);
+  assert.deepEqual(events[0].metadata, {
+    email: 'ana@gmail.com',
+    reason: 'INVALID_PASSWORD',
+    method: 'google-link',
+  });
+});
+
+test('Vincular: si el sub ya está vinculado inicia sesión sin pedir nada más', async () => {
+  repo.findUserByProvider = async () => ana;
+
+  const session = await linkGoogleAccount({ idToken: 'tok', password: 'loquesea' });
+
+  assert.equal(session.user.userId, 7);
+  assert.deepEqual(eventTypes(), ['LOGIN']);
+});
+
+test('Vincular: sin cuenta con ese correo responde 404', async () => {
+  await assert.rejects(linkGoogleAccount({ idToken: 'tok', password: 'secreto123' }), {
+    status: 404,
+    code: 'USER_NOT_FOUND',
+  });
+});
+
+test('Vincular: correo con otra cuenta de Google responde 409', async () => {
+  const user = await anaWithPassword();
+  repo.findUserByEmail = async () => user;
+  repo.findProviderLink = async () => ({ providerUserId: 'otro-sub' });
+
+  await assert.rejects(linkGoogleAccount({ idToken: 'tok', password: 'secreto123' }), {
+    status: 409,
+    code: 'GOOGLE_ACCOUNT_CONFLICT',
+  });
+});
+
+test('Vincular: correo de Google no verificado responde 403', async () => {
+  googleProfile = { ...googleProfile, emailVerified: false };
+
+  await assert.rejects(linkGoogleAccount({ idToken: 'tok', password: 'secreto123' }), {
+    status: 403,
+    code: 'GOOGLE_EMAIL_NOT_VERIFIED',
+  });
 });

@@ -89,3 +89,22 @@ export const validateGoogleLoginRequest = (req, res, next) => {
   req.googleLoginData = { idToken: idToken.trim() };
   next();
 };
+
+export const validateGoogleLinkRequest = (req, res, next) => {
+  const { idToken, password } = req.body ?? {};
+  const details = [];
+
+  if (typeof idToken !== 'string' || !idToken.trim()) {
+    details.push({ field: 'idToken', message: 'Google idToken is required' });
+  }
+  if (typeof password !== 'string' || password.length === 0) {
+    details.push({ field: 'password', message: 'Password is required' });
+  }
+
+  if (details.length > 0) {
+    return next(new AppError('Validation error', 400, 'VALIDATION_ERROR', details));
+  }
+
+  req.googleLinkData = { idToken: idToken.trim(), password };
+  next();
+};
