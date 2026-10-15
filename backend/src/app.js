@@ -16,6 +16,7 @@ import adminRoutes from './modules/admin/admin.routes.js';
 import authenticateToken from './middleware/auth.middleware.js';
 import { chatRateLimit } from './middleware/rateLimit.middleware.js';
 import { activityLogger } from './middleware/activityLogger.middleware.js';
+import { languageMiddleware } from './middleware/language.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 import { errorResponse, successResponse } from './utils/response.js';
 import { sendChatN8n } from './utils/n8n.service.js';
@@ -32,6 +33,9 @@ app.set('trust proxy', 1);
 // Middlewares globales
 app.use(cors());
 app.use(express.json());
+
+// Idioma de la respuesta (errores, correos, chat) según Accept-Language.
+app.use(languageMiddleware);
 
 // Captura automática de eventos de actividad (best-effort, no bloqueante)
 app.use(activityLogger);
