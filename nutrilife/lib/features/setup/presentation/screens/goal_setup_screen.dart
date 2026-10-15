@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
@@ -12,12 +13,16 @@ class GoalSetupScreen extends StatefulWidget {
     this.age,
     this.weight,
     this.height,
+    this.repository,
   });
 
   final String? userName;
   final int? age;
   final double? weight;
   final double? height;
+
+  /// Permite inyectar el repositorio en las pruebas.
+  final SetupRepository? repository;
 
   @override
   State<GoalSetupScreen> createState() => _GoalSetupScreenState();
@@ -30,7 +35,8 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
   static const double _minWeightLossCalories = 1200;
   static const int _minSafeDailyCalories = 1200;
 
-  final SetupRepository _setupRepository = SetupRepository();
+  late final SetupRepository _setupRepository =
+      widget.repository ?? SetupRepository();
   _GoalType _selectedGoal = _GoalType.maintainWeight;
   bool _isSaving = false;
 
@@ -105,7 +111,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (_) =>
-              DashboardScreen(user: {'name': widget.userName ?? 'Usuario'}),
+              DashboardScreen(
+                user: {'name': widget.userName ?? context.l10n.commonUser},
+              ),
         ),
         (route) => false,
       );
@@ -115,7 +123,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
       }
     } catch (_) {
       if (mounted) {
-        _showSnackBar('No se pudo guardar tu meta. Inténtalo de nuevo.');
+        _showSnackBar(context.l10n.setupGoalSaveError);
       }
     } finally {
       if (mounted) {
@@ -175,9 +183,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'No se pudo guardar',
-                      style: TextStyle(
+                    Text(
+                      context.l10n.setupSaveErrorTitle,
+                      style: const TextStyle(
                         color: Color(0xFF2C2F31),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -261,11 +269,11 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                               height: 44,
                             ),
                           ),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'NutriLife',
+                              context.l10n.appTitle,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: AppTheme.primaryStart,
                                 fontSize: 30,
                                 fontWeight: FontWeight.w800,
@@ -277,9 +285,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                         ],
                       ),
                       const SizedBox(height: 28),
-                      const Text(
-                        'Define tu objetivo',
-                        style: TextStyle(
+                      Text(
+                        context.l10n.setupGoalHeading,
+                        style: const TextStyle(
                           color: Color(0xFF2C2F31),
                           fontSize: 32,
                           fontWeight: FontWeight.w800,
@@ -289,7 +297,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Calcularemos tu plan según lo que\nquieras lograr.',
+                        context.l10n.setupGoalSubtitle,
                         style: TextStyle(
                           color: const Color(
                             0xFF595C5E,
@@ -355,18 +363,18 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                                       ),
                                     ],
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.auto_awesome_rounded,
                                         color: AppTheme.primaryStart,
                                         size: 13,
                                       ),
-                                      SizedBox(width: 5),
+                                      const SizedBox(width: 5),
                                       Text(
-                                        'PLAN PERSONALIZADO',
-                                        style: TextStyle(
+                                        context.l10n.setupGoalPlanBadge,
+                                        style: const TextStyle(
                                           color: Color(0xFF2C2F31),
                                           fontSize: 10,
                                           fontWeight: FontWeight.w700,
@@ -419,7 +427,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                'CALORÍAS DIARIAS RECOMENDADAS',
+                                context.l10n.setupGoalCaloriesLabel,
                                 style: TextStyle(
                                   color: const Color(
                                     0xFF595C5E,
@@ -467,7 +475,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'Basado en tu metabolismo basal y\nnivel de actividad actual.',
+                              context.l10n.setupGoalCaloriesNote,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: const Color(
@@ -486,7 +494,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'PROGRESO DE REGISTRO',
+                            context.l10n.setupProgressLabel,
                             style: TextStyle(
                               color: const Color(
                                 0xFF595C5E,
@@ -528,8 +536,8 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                       const SizedBox(height: 26),
                       PrimaryButton(
                         textButton: _isSaving
-                            ? 'Guardando meta...'
-                            : 'Empieza tu meta',
+                            ? context.l10n.setupGoalSaving
+                            : context.l10n.setupGoalStart,
                         width: double.infinity,
                         height: 58,
                         icon: _isSaving
@@ -564,6 +572,7 @@ class _GoalOptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final info = goalType.info;
+    final l10n = context.l10n;
 
     return Material(
       color: Colors.transparent,
@@ -608,7 +617,7 @@ class _GoalOptionCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      info.title,
+                      goalType.title(l10n),
                       style: const TextStyle(
                         color: Color(0xFF2C2F31),
                         fontSize: 22,
@@ -618,7 +627,7 @@ class _GoalOptionCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      info.subtitle,
+                      goalType.subtitle(l10n),
                       style: TextStyle(
                         color: const Color(0xFF595C5E).withValues(alpha: 0.95),
                         fontSize: 15,
@@ -658,13 +667,35 @@ class _GoalOptionCard extends StatelessWidget {
 enum _GoalType { loseWeight, maintainWeight, gainWeight }
 
 extension _GoalTypeInfoX on _GoalType {
+  /// Texto que ve el usuario. Lo que se manda al backend es `info.backendGoal`
+  /// y no cambia con el idioma.
+  String title(AppLocalizations l10n) {
+    switch (this) {
+      case _GoalType.loseWeight:
+        return l10n.setupGoalLoseTitle;
+      case _GoalType.maintainWeight:
+        return l10n.setupGoalMaintainTitle;
+      case _GoalType.gainWeight:
+        return l10n.setupGoalGainTitle;
+    }
+  }
+
+  String subtitle(AppLocalizations l10n) {
+    switch (this) {
+      case _GoalType.loseWeight:
+        return l10n.setupGoalLoseSubtitle;
+      case _GoalType.maintainWeight:
+        return l10n.setupGoalMaintainSubtitle;
+      case _GoalType.gainWeight:
+        return l10n.setupGoalGainSubtitle;
+    }
+  }
+
   _GoalTypeInfo get info {
     switch (this) {
       case _GoalType.loseWeight:
         return const _GoalTypeInfo(
-          title: 'Bajar de peso',
           backendGoal: 'Perder peso',
-          subtitle: 'Déficit calórico saludable',
           calories: 2100,
           icon: Icons.trending_down_rounded,
           iconColor: Color(0xFF14532D),
@@ -672,9 +703,7 @@ extension _GoalTypeInfoX on _GoalType {
         );
       case _GoalType.maintainWeight:
         return const _GoalTypeInfo(
-          title: 'Mantener peso',
           backendGoal: 'Mantener peso',
-          subtitle: 'Estabilidad y nutrición diaria',
           calories: 2450,
           icon: Icons.scale_rounded,
           iconColor: Color(0xFF1D4ED8),
@@ -682,9 +711,7 @@ extension _GoalTypeInfoX on _GoalType {
         );
       case _GoalType.gainWeight:
         return const _GoalTypeInfo(
-          title: 'Subir de peso',
           backendGoal: 'Ganar peso',
-          subtitle: 'Superávit para masa muscular',
           calories: 2800,
           icon: Icons.trending_up_rounded,
           iconColor: Color(0xFF0E7490),
@@ -696,18 +723,15 @@ extension _GoalTypeInfoX on _GoalType {
 
 class _GoalTypeInfo {
   const _GoalTypeInfo({
-    required this.title,
     required this.backendGoal,
-    required this.subtitle,
     required this.calories,
     required this.icon,
     required this.iconColor,
     required this.iconBackground,
   });
 
-  final String title;
+  /// Valor que se guarda en la base. No se traduce.
   final String backendGoal;
-  final String subtitle;
   final int calories;
   final IconData icon;
   final Color iconColor;

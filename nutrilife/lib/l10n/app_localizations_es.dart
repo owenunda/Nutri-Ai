@@ -356,4 +356,144 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get authErrorGoogleNoData =>
       'Google no devolvió tus datos. Inténtalo de nuevo.';
+
+  @override
+  String get commonUser => 'Usuario';
+
+  @override
+  String get setupProgressLabel => 'PROGRESO DE REGISTRO';
+
+  @override
+  String get setupSaveErrorTitle => 'No se pudo guardar';
+
+  @override
+  String get setupGoalHeading => 'Define tu objetivo';
+
+  @override
+  String get setupGoalSubtitle =>
+      'Calcularemos tu plan según lo que\nquieras lograr.';
+
+  @override
+  String get setupGoalLoseTitle => 'Bajar de peso';
+
+  @override
+  String get setupGoalLoseSubtitle => 'Déficit calórico saludable';
+
+  @override
+  String get setupGoalMaintainTitle => 'Mantener peso';
+
+  @override
+  String get setupGoalMaintainSubtitle => 'Estabilidad y nutrición diaria';
+
+  @override
+  String get setupGoalGainTitle => 'Subir de peso';
+
+  @override
+  String get setupGoalGainSubtitle => 'Superávit para masa muscular';
+
+  @override
+  String get setupGoalPlanBadge => 'PLAN PERSONALIZADO';
+
+  @override
+  String get setupGoalCaloriesLabel => 'CALORÍAS DIARIAS RECOMENDADAS';
+
+  @override
+  String get setupGoalCaloriesNote =>
+      'Basado en tu metabolismo basal y\nnivel de actividad actual.';
+
+  @override
+  String get setupGoalSaving => 'Guardando meta...';
+
+  @override
+  String get setupGoalStart => 'Empieza tu meta';
+
+  @override
+  String get setupGoalSaveError =>
+      'No se pudo guardar tu meta. Inténtalo de nuevo.';
+
+  @override
+  String get setupProfileHeading => 'Completa tu perfil';
+
+  @override
+  String get setupProfileSubtitle =>
+      'Estos datos nos ayudan a personalizar tu\nplan nutricional.';
+
+  @override
+  String get setupAgeLabel => 'EDAD';
+
+  @override
+  String get setupWeightLabel => 'PESO (KG)';
+
+  @override
+  String get setupHeightLabel => 'ALTURA (CM)';
+
+  @override
+  String get setupSexLabel => 'SEXO';
+
+  @override
+  String get setupSexMale => 'Hombre';
+
+  @override
+  String get setupSexFemale => 'Mujer';
+
+  @override
+  String get setupUnitYears => 'años';
+
+  @override
+  String get setupPrecisionTitle => 'Precisión NutriLife';
+
+  @override
+  String get setupPrecisionBody =>
+      'Tu metabolismo basal se calculará\nautomáticamente.';
+
+  @override
+  String get setupProfileSaving => 'Guardando...';
+
+  @override
+  String get setupProfileSave => 'Guardar perfil';
+
+  @override
+  String get setupAgeRequired => 'La edad es obligatoria.';
+
+  @override
+  String get setupAgeInvalid => 'Ingresa una edad válida.';
+
+  @override
+  String get setupAgeTooYoung => 'Debes tener al menos 16 años.';
+
+  @override
+  String get setupWeightRequired => 'El peso es obligatorio.';
+
+  @override
+  String get setupWeightInvalid => 'Ingresa un peso válido.';
+
+  @override
+  String get setupWeightOutOfRange => 'Selecciona un peso válido.';
+
+  @override
+  String get setupHeightRequired => 'La altura es obligatoria.';
+
+  @override
+  String get setupHeightInvalid => 'Ingresa una altura válida.';
+
+  @override
+  String get setupHeightOutOfRange =>
+      'La altura debe estar entre 1.50 cm y 2.50 cm.';
+
+  @override
+  String get setupSexRequired => 'Selecciona tu sexo para continuar.';
+
+  @override
+  String get setupSnackMissingTitle => 'Falta un dato';
+
+  @override
+  String get setupProfileSaveError =>
+      'No se pudo guardar tu perfil. Inténtalo de nuevo.';
+
+  @override
+  String get setupErrorNothingToSave => 'No hay datos para guardar.';
+
+  @override
+  String get setupErrorSave =>
+      'No se pudo guardar la información. Inténtalo de nuevo.';
 }

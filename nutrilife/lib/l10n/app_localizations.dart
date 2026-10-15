@@ -727,6 +727,270 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Google no devolvió tus datos. Inténtalo de nuevo.'**
   String get authErrorGoogleNoData;
+
+  /// No description provided for @commonUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario'**
+  String get commonUser;
+
+  /// No description provided for @setupProgressLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'PROGRESO DE REGISTRO'**
+  String get setupProgressLabel;
+
+  /// No description provided for @setupSaveErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar'**
+  String get setupSaveErrorTitle;
+
+  /// No description provided for @setupGoalHeading.
+  ///
+  /// In es, this message translates to:
+  /// **'Define tu objetivo'**
+  String get setupGoalHeading;
+
+  /// No description provided for @setupGoalSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Calcularemos tu plan según lo que\nquieras lograr.'**
+  String get setupGoalSubtitle;
+
+  /// No description provided for @setupGoalLoseTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Bajar de peso'**
+  String get setupGoalLoseTitle;
+
+  /// No description provided for @setupGoalLoseSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Déficit calórico saludable'**
+  String get setupGoalLoseSubtitle;
+
+  /// No description provided for @setupGoalMaintainTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Mantener peso'**
+  String get setupGoalMaintainTitle;
+
+  /// No description provided for @setupGoalMaintainSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estabilidad y nutrición diaria'**
+  String get setupGoalMaintainSubtitle;
+
+  /// No description provided for @setupGoalGainTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Subir de peso'**
+  String get setupGoalGainTitle;
+
+  /// No description provided for @setupGoalGainSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Superávit para masa muscular'**
+  String get setupGoalGainSubtitle;
+
+  /// No description provided for @setupGoalPlanBadge.
+  ///
+  /// In es, this message translates to:
+  /// **'PLAN PERSONALIZADO'**
+  String get setupGoalPlanBadge;
+
+  /// No description provided for @setupGoalCaloriesLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'CALORÍAS DIARIAS RECOMENDADAS'**
+  String get setupGoalCaloriesLabel;
+
+  /// No description provided for @setupGoalCaloriesNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Basado en tu metabolismo basal y\nnivel de actividad actual.'**
+  String get setupGoalCaloriesNote;
+
+  /// No description provided for @setupGoalSaving.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando meta...'**
+  String get setupGoalSaving;
+
+  /// No description provided for @setupGoalStart.
+  ///
+  /// In es, this message translates to:
+  /// **'Empieza tu meta'**
+  String get setupGoalStart;
+
+  /// No description provided for @setupGoalSaveError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar tu meta. Inténtalo de nuevo.'**
+  String get setupGoalSaveError;
+
+  /// No description provided for @setupProfileHeading.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa tu perfil'**
+  String get setupProfileHeading;
+
+  /// No description provided for @setupProfileSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estos datos nos ayudan a personalizar tu\nplan nutricional.'**
+  String get setupProfileSubtitle;
+
+  /// No description provided for @setupAgeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'EDAD'**
+  String get setupAgeLabel;
+
+  /// No description provided for @setupWeightLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'PESO (KG)'**
+  String get setupWeightLabel;
+
+  /// No description provided for @setupHeightLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'ALTURA (CM)'**
+  String get setupHeightLabel;
+
+  /// No description provided for @setupSexLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'SEXO'**
+  String get setupSexLabel;
+
+  /// No description provided for @setupSexMale.
+  ///
+  /// In es, this message translates to:
+  /// **'Hombre'**
+  String get setupSexMale;
+
+  /// No description provided for @setupSexFemale.
+  ///
+  /// In es, this message translates to:
+  /// **'Mujer'**
+  String get setupSexFemale;
+
+  /// No description provided for @setupUnitYears.
+  ///
+  /// In es, this message translates to:
+  /// **'años'**
+  String get setupUnitYears;
+
+  /// No description provided for @setupPrecisionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Precisión NutriLife'**
+  String get setupPrecisionTitle;
+
+  /// No description provided for @setupPrecisionBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu metabolismo basal se calculará\nautomáticamente.'**
+  String get setupPrecisionBody;
+
+  /// No description provided for @setupProfileSaving.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando...'**
+  String get setupProfileSaving;
+
+  /// No description provided for @setupProfileSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar perfil'**
+  String get setupProfileSave;
+
+  /// No description provided for @setupAgeRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'La edad es obligatoria.'**
+  String get setupAgeRequired;
+
+  /// No description provided for @setupAgeInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa una edad válida.'**
+  String get setupAgeInvalid;
+
+  /// No description provided for @setupAgeTooYoung.
+  ///
+  /// In es, this message translates to:
+  /// **'Debes tener al menos 16 años.'**
+  String get setupAgeTooYoung;
+
+  /// No description provided for @setupWeightRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'El peso es obligatorio.'**
+  String get setupWeightRequired;
+
+  /// No description provided for @setupWeightInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa un peso válido.'**
+  String get setupWeightInvalid;
+
+  /// No description provided for @setupWeightOutOfRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un peso válido.'**
+  String get setupWeightOutOfRange;
+
+  /// No description provided for @setupHeightRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'La altura es obligatoria.'**
+  String get setupHeightRequired;
+
+  /// No description provided for @setupHeightInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa una altura válida.'**
+  String get setupHeightInvalid;
+
+  /// No description provided for @setupHeightOutOfRange.
+  ///
+  /// In es, this message translates to:
+  /// **'La altura debe estar entre 1.50 cm y 2.50 cm.'**
+  String get setupHeightOutOfRange;
+
+  /// No description provided for @setupSexRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona tu sexo para continuar.'**
+  String get setupSexRequired;
+
+  /// No description provided for @setupSnackMissingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Falta un dato'**
+  String get setupSnackMissingTitle;
+
+  /// No description provided for @setupProfileSaveError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar tu perfil. Inténtalo de nuevo.'**
+  String get setupProfileSaveError;
+
+  /// No description provided for @setupErrorNothingToSave.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay datos para guardar.'**
+  String get setupErrorNothingToSave;
+
+  /// No description provided for @setupErrorSave.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar la información. Inténtalo de nuevo.'**
+  String get setupErrorSave;
 }
 
 class _AppLocalizationsDelegate

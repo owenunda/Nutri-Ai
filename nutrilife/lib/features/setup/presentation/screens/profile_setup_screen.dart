@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -7,9 +8,12 @@ import '../../data/setup_repository.dart';
 import 'goal_setup_screen.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key, this.userName});
+  const ProfileSetupScreen({super.key, this.userName, this.repository});
 
   final String? userName;
+
+  /// Permite inyectar el repositorio en las pruebas.
+  final SetupRepository? repository;
 
   @override
   State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
@@ -20,7 +24,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
-  final SetupRepository _setupRepository = SetupRepository();
+  late final SetupRepository _setupRepository =
+      widget.repository ?? SetupRepository();
   final List<String> _ageOptions = List.generate(101, (index) => '$index');
   final List<String> _weightOptions = List.generate(
     76,
@@ -31,7 +36,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     (index) => (1.50 + (index / 100)).toStringAsFixed(2),
   );
 
-  String? _selectedSex;
+  _Sex? _selectedSex;
   bool _isSaving = false;
 
   @override
@@ -74,40 +79,40 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final text = value?.trim() ?? '';
 
     if (text.isEmpty) {
-      return 'La edad es obligatoria.';
+      return context.l10n.setupAgeRequired;
     }
 
     final age = int.tryParse(text);
     if (age == null) {
-      return 'Ingresa una edad válida.';
+      return context.l10n.setupAgeInvalid;
     }
 
     if (age < 16) {
-      return 'Debes tener al menos 16 años.';
+      return context.l10n.setupAgeTooYoung;
     }
 
     if (age > 100) {
-      return 'Ingresa una edad válida.';
+      return context.l10n.setupAgeInvalid;
     }
 
     return null;
   }
 
-  String? _validateWeight(String? value, String label) {
+  String? _validateWeight(String? value) {
     final text = value?.trim() ?? '';
 
     if (text.isEmpty) {
-      return 'El peso es obligatorio.';
+      return context.l10n.setupWeightRequired;
     }
 
     final normalized = text.replaceAll(',', '.');
     final parsed = double.tryParse(normalized);
     if (parsed == null) {
-      return 'Ingresa un $label válido.';
+      return context.l10n.setupWeightInvalid;
     }
 
     if (parsed < 45 || parsed > 120) {
-      return 'Selecciona un peso valido.';
+      return context.l10n.setupWeightOutOfRange;
     }
 
     return null;
@@ -117,17 +122,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final text = value?.trim() ?? '';
 
     if (text.isEmpty) {
-      return 'La altura es obligatoria.';
+      return context.l10n.setupHeightRequired;
     }
 
     final normalized = text.replaceAll(',', '.');
     final parsed = double.tryParse(normalized);
     if (parsed == null) {
-      return 'Ingresa una altura valida.';
+      return context.l10n.setupHeightInvalid;
     }
 
     if (parsed < 1.50 || parsed > 2.50) {
-      return 'La altura debe estar entre 1.50 cm y 2.50 cm.';
+      return context.l10n.setupHeightOutOfRange;
     }
 
     return null;
@@ -139,7 +144,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final isFormValid = _formKey.currentState?.validate() ?? false;
     if (!isFormValid || _selectedSex == null) {
       if (_selectedSex == null) {
-        _showSnackBar('Selecciona tu sexo para continuar.');
+        _showSnackBar(
+          context.l10n.setupSexRequired,
+          isWarning: true,
+        );
       }
       return;
     }
@@ -184,7 +192,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       }
     } catch (_) {
       if (mounted) {
-        _showSnackBar('No se pudo guardar tu perfil. Inténtalo de nuevo.');
+        _showSnackBar(context.l10n.setupProfileSaveError);
       }
     } finally {
       if (mounted) {
@@ -195,28 +203,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
-  void _showSnackBar(String message) {
-    final lowerMessage = message.toLowerCase();
-    final isSuccess = lowerMessage.contains('guardado');
-    final isWarning = lowerMessage.contains('sexo');
-
-    final Color accentColor = isSuccess
-        ? AppTheme.primaryStart
-        : isWarning
+  void _showSnackBar(String message, {bool isWarning = false}) {
+    final Color accentColor = isWarning
         ? const Color(0xFFD97706)
         : const Color(0xFFB42318);
 
-    final IconData icon = isSuccess
-        ? Icons.check_circle_rounded
-        : isWarning
+    final IconData icon = isWarning
         ? Icons.info_outline_rounded
         : Icons.error_outline_rounded;
 
-    final String title = isSuccess
-        ? 'Perfil listo'
-        : isWarning
-        ? 'Falta un dato'
-        : 'No se pudo guardar';
+    final String title = isWarning
+        ? context.l10n.setupSnackMissingTitle
+        : context.l10n.setupSaveErrorTitle;
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -348,10 +346,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const SizedBox(height: 6),
-                      const Text(
-                        'NutriLife',
+                      Text(
+                        context.l10n.appTitle,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppTheme.primaryStart,
                           fontSize: 30,
                           fontWeight: FontWeight.w800,
@@ -359,9 +357,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      const Text(
-                        'Completa tu perfil',
-                        style: TextStyle(
+                      Text(
+                        context.l10n.setupProfileHeading,
+                        style: const TextStyle(
                           color: Color(0xFF2C2F31),
                           fontSize: 32,
                           fontWeight: FontWeight.w800,
@@ -371,7 +369,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Estos datos nos ayudan a personalizar tu\nplan nutricional.',
+                        context.l10n.setupProfileSubtitle,
                         style: TextStyle(
                           color: const Color(
                             0xFF595C5E,
@@ -388,32 +386,31 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             _FieldBlock(
-                              label: 'EDAD',
+                              label: context.l10n.setupAgeLabel,
                               child: _PickerField(
                                 controller: _ageController,
                                 icon: Icons.calendar_month_outlined,
                                 options: _ageOptions,
-                                unit: 'años',
+                                unit: context.l10n.setupUnitYears,
                                 validator: _validateAge,
                                 onChanged: () => setState(() {}),
                               ),
                             ),
                             const SizedBox(height: 16),
                             _FieldBlock(
-                              label: 'PESO (KG)',
+                              label: context.l10n.setupWeightLabel,
                               child: _PickerField(
                                 controller: _weightController,
                                 icon: Icons.monitor_weight_outlined,
                                 options: _weightOptions,
                                 unit: 'kg',
-                                validator: (value) =>
-                                    _validateWeight(value, 'peso'),
+                                validator: _validateWeight,
                                 onChanged: () => setState(() {}),
                               ),
                             ),
                             const SizedBox(height: 16),
                             _FieldBlock(
-                              label: 'ALTURA (CM)',
+                              label: context.l10n.setupHeightLabel,
                               child: _PickerField(
                                 controller: _heightController,
                                 icon: Icons.height_rounded,
@@ -425,16 +422,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             ),
                             const SizedBox(height: 16),
                             _FieldBlock(
-                              label: 'SEXO',
+                              label: context.l10n.setupSexLabel,
                               child: Row(
                                 children: [
                                   Expanded(
                                     child: _SexOption(
-                                      label: 'Hombre',
-                                      selected: _selectedSex == 'Hombre',
+                                      label: context.l10n.setupSexMale,
+                                      selected: _selectedSex == _Sex.male,
                                       onTap: () {
                                         setState(() {
-                                          _selectedSex = 'Hombre';
+                                          _selectedSex = _Sex.male;
                                         });
                                       },
                                     ),
@@ -442,11 +439,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: _SexOption(
-                                      label: 'Mujer',
-                                      selected: _selectedSex == 'Mujer',
+                                      label: context.l10n.setupSexFemale,
+                                      selected: _selectedSex == _Sex.female,
                                       onTap: () {
                                         setState(() {
-                                          _selectedSex = 'Mujer';
+                                          _selectedSex = _Sex.female;
                                         });
                                       },
                                     ),
@@ -484,9 +481,9 @@ Container(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Text(
-                                          'Precisión NutriLife',
-                                          style: TextStyle(
+                                        Text(
+                                          context.l10n.setupPrecisionTitle,
+                                          style: const TextStyle(
                                             color: AppTheme.primaryStart,
                                             fontSize: 15,
                                             fontWeight: FontWeight.w800,
@@ -494,7 +491,7 @@ Container(
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Tu metabolismo basal se calculará\nautomáticamente.',
+                                          context.l10n.setupPrecisionBody,
                                           style: TextStyle(
                                             color: const Color(
                                               0xFF2C2F31,
@@ -515,7 +512,7 @@ Container(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'PROGRESO DE REGISTRO',
+                                  context.l10n.setupProgressLabel,
                                   style: TextStyle(
                                     color: const Color(
                                       0xFF595C5E,
@@ -558,8 +555,8 @@ Container(
                             const SizedBox(height: 28),
                             PrimaryButton(
                               textButton: _isSaving
-                                  ? 'Guardando...'
-                                  : 'Guardar perfil',
+                                  ? context.l10n.setupProfileSaving
+                                  : context.l10n.setupProfileSave,
                               width: double.infinity,
                               height: 58,
                               icon: _isSaving
@@ -582,6 +579,9 @@ Container(
     );
   }
 }
+
+/// Sexo elegido. Solo se usa en pantalla; no se manda al backend.
+enum _Sex { male, female }
 
 class _FieldBlock extends StatelessWidget {
   const _FieldBlock({required this.label, required this.child});
