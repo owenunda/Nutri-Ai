@@ -94,21 +94,34 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
             ),
           ),
           SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: EdgeInsets.fromLTRB(
-                18,
-                16,
-                18,
-                MediaQuery.of(context).viewInsets.bottom + 20,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 560),
-                  child: _buildCard(),
-                ),
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                const verticalPadding = 16.0 + 20.0;
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: EdgeInsets.fromLTRB(
+                    18,
+                    16,
+                    18,
+                    MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
+                  // Alto mínimo = pantalla, para que la tarjeta quede centrada
+                  // y siga pudiendo desplazarse cuando aparece el teclado.
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight - verticalPadding,
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 560),
+                        child: _buildCard(),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -162,7 +175,8 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Así también podrás entrar con tu correo, además de con Google.',
+              '¡Ya estás dentro! Si quieres, crea una contraseña para '
+              'entrar también con tu correo cuando no tengas Google a mano.',
               style: TextStyle(
                 color: AuthPalette.subtitle,
                 fontSize: 16,
