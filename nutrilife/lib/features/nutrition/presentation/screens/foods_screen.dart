@@ -3,6 +3,7 @@ import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/segmented_tabs.dart';
+import '../../../meals/data/meal_repository.dart';
 import '../../../meals/domain/meal_type.dart';
 import '../../data/food_repository.dart';
 import '../../data/models/food_model.dart';
@@ -19,7 +20,15 @@ class FoodsScreen extends StatefulWidget {
   @visibleForTesting
   final FoodRepository? foodRepository;
 
-  const FoodsScreen({super.key, this.user, this.foodRepository});
+  @visibleForTesting
+  final MealRepository? mealRepository;
+
+  const FoodsScreen({
+    super.key,
+    this.user,
+    this.foodRepository,
+    this.mealRepository,
+  });
 
   @override
   State<FoodsScreen> createState() => _FoodsScreenState();
@@ -54,7 +63,10 @@ class _FoodsScreenState extends State<FoodsScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = FoodsViewModel(foodRepository: widget.foodRepository);
+    _viewModel = FoodsViewModel(
+      foodRepository: widget.foodRepository,
+      mealRepository: widget.mealRepository,
+    );
     _searchFocusNode.addListener(() {
       setState(() {});
       if (_isSearching) _clearCommonSelection();
@@ -85,6 +97,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
     final quantityController = TextEditingController(text: '1');
     var unit = kDefaultFoodUnit;
     MealType mealType = MealType.forTime(DateTime.now());
+    FoodModel? selectedExistingFood;
 
     final isInFridge = intent == _FoodEntryIntent.inFridge;
     final title = isInFridge ? 'Agregar a mi nevera' : 'Registrar consumido';
@@ -101,345 +114,486 @@ class _FoodsScreenState extends State<FoodsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
-            left: 24,
-            right: 24,
-            top: 24,
-          ),
-          child: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 48,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFCBD5E1),
-                        borderRadius: BorderRadius.circular(2.5),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
+        return StatefulBuilder(
+          builder: (sheetContext, setSheetState) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+              left: 24,
+              right: 24,
+              top: 24,
+            ),
+            child: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 48,
+                        height: 5,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFDFF6EA),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Icon(
-                          isInFridge
-                              ? Icons.kitchen_outlined
-                              : Icons.restaurant_outlined,
-                          color: const Color(0xFF0A6B3F),
-                          size: 22,
+                          color: const Color(0xFFCBD5E1),
+                          borderRadius: BorderRadius.circular(2.5),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: const TextStyle(
-                            color: Color(0xFF2C2F31),
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.4,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 13.5,
-                      height: 1.4,
                     ),
-                  ),
-                  const SizedBox(height: 18),
-                  TextFormField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Nombre del alimento',
-                      hintText: 'Ej. Banana',
-                      filled: true,
-                      fillColor: const Color(0xFFF1F5F9),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Por favor ingresa un nombre';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: caloriesController,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Calorías (Kcal)',
-                            hintText: 'Ej. 105',
-                            filled: true,
-                            fillColor: const Color(0xFFF1F5F9),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Ingresa calorías';
-                            }
-                            final numVal = double.tryParse(value);
-                            if (numVal == null || numVal <= 0) {
-                              return 'Debe ser > 0';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          key: const ValueKey('unit-field'),
-                          initialValue: unit,
-                          isExpanded: true,
-                          borderRadius: BorderRadius.circular(16),
-                          dropdownColor: Colors.white,
-                          icon: const Icon(
-                            Icons.expand_more_rounded,
-                            color: Color(0xFF64748B),
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Porción',
-                            filled: true,
-                            fillColor: const Color(0xFFF1F5F9),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                          ),
-                          items: [
-                            for (final option in kFoodUnits)
-                              DropdownMenuItem(
-                                value: option.value,
-                                child: Text(option.label),
-                              ),
-                          ],
-                          onChanged: (value) =>
-                              unit = value ?? kDefaultFoodUnit,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: quantityController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: isInFridge
-                          ? 'Cantidad que tienes'
-                          : 'Cantidad consumida',
-                      hintText: '1',
-                      filled: true,
-                      fillColor: const Color(0xFFF1F5F9),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Ingresa cantidad';
-                      }
-                      final v = double.tryParse(value.replaceAll(',', '.'));
-                      if (v == null || v <= 0) return 'Debe ser > 0';
-                      return null;
-                    },
-                  ),
-                  if (!isInFridge) ...[
-                    const SizedBox(height: 14),
-                    const Text(
-                      'Comida del día',
-                      style: TextStyle(
-                        color: Color(0xFF2C2F31),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                    const SizedBox(height: 20),
+                    Row(
                       children: [
-                        for (final t in MealType.values)
-                          ChoiceChip(
-                            label: Text('${t.emoji} ${t.label}'),
-                            selected: t == mealType,
-                            onSelected: (_) => mealType = t,
-                            selectedColor: const Color(0xFFDFF6EA),
-                            backgroundColor: const Color(0xFFF1F5F9),
-                            side: BorderSide(
-                              color: t == mealType
-                                  ? const Color(0xFF0A6B3F)
-                                  : const Color(0xFFE2E8F0),
-                            ),
-                            labelStyle: TextStyle(
-                              color: t == mealType
-                                  ? const Color(0xFF0A6B3F)
-                                  : const Color(0xFF2C2F31),
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(999),
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDFF6EA),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(
+                            isInFridge
+                                ? Icons.kitchen_outlined
+                                : Icons.restaurant_outlined,
+                            color: const Color(0xFF0A6B3F),
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              color: Color(0xFF2C2F31),
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.4,
                             ),
                           ),
+                        ),
                       ],
                     ),
-                  ],
-                  const SizedBox(height: 24),
-                  ListenableBuilder(
-                    listenable: _viewModel,
-                    builder: (context, _) {
-                      return PrimaryButton(
-                        textButton: _viewModel.isLoading
-                            ? 'Guardando...'
-                            : (isInFridge
-                                  ? 'Guardar en nevera'
-                                  : 'Registrar consumo'),
-                        width: double.infinity,
-                        icon: Icons.check,
-                        iconSize: 18,
-                        textSize: 14,
-                        spacing: 6,
-                        onPressed: _viewModel.isLoading
-                            ? null
-                            : () async {
-                                if (formKey.currentState?.validate() ?? false) {
-                                  final name = nameController.text.trim();
-                                  final calories = double.parse(
-                                    caloriesController.text,
-                                  );
-                                  final quantity = double.parse(
-                                    quantityController.text.replaceAll(
-                                      ',',
-                                      '.',
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 13.5,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    TextFormField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Nombre del alimento',
+                        hintText: 'Ej. Banana',
+                        filled: true,
+                        fillColor: const Color(0xFFF1F5F9),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Por favor ingresa un nombre';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        final existingFood = selectedExistingFood;
+                        if (existingFood != null &&
+                            value.trim().toLowerCase() !=
+                                existingFood.name.toLowerCase()) {
+                          setSheetState(() => selectedExistingFood = null);
+                        }
+                      },
+                    ),
+                    ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: nameController,
+                      builder: (context, value, _) {
+                        final query = value.text.trim().toLowerCase();
+                        if (query.isEmpty || selectedExistingFood != null) {
+                          return const SizedBox.shrink();
+                        }
+                        final matches =
+                            _viewModel.allFoods
+                                .where(
+                                  (food) =>
+                                      food.name.toLowerCase().contains(query),
+                                )
+                                .toList()
+                              ..sort((a, b) {
+                                final aExact = a.name.toLowerCase() == query;
+                                final bExact = b.name.toLowerCase() == query;
+                                if (aExact != bExact) return aExact ? -1 : 1;
+                                final aStartsWith = a.name
+                                    .toLowerCase()
+                                    .startsWith(query);
+                                final bStartsWith = b.name
+                                    .toLowerCase()
+                                    .startsWith(query);
+                                if (aStartsWith != bStartsWith) {
+                                  return aStartsWith ? -1 : 1;
+                                }
+                                return a.name.compareTo(b.name);
+                              });
+                        if (matches.isEmpty) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Ya existe un alimento parecido. Elige uno para usarlo:',
+                                style: TextStyle(
+                                  color: Color(0xFF64748B),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              for (final food in matches.take(4))
+                                ListTile(
+                                  key: ValueKey('existing-food-${food.foodId}'),
+                                  dense: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  tileColor: const Color(0xFFF1F5F9),
+                                  title: Text(
+                                    food.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
                                     ),
-                                  );
-
-                                  // Paso 1: crear el alimento en el catálogo.
-                                  final foodCreated = await _viewModel
-                                      .addCustomFood(
-                                        name: name,
-                                        calories: calories,
-                                        baseUnit: unit,
-                                      );
-                                  if (!sheetContext.mounted) return;
-                                  if (!foodCreated) {
-                                    ScaffoldMessenger.of(
-                                      sheetContext,
-                                    ).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          _viewModel.errorMessage ?? 'Error',
-                                        ),
-                                        backgroundColor: Colors.redAccent,
+                                  ),
+                                  subtitle: Text(
+                                    '${food.caloriesPerUnit.toStringAsFixed(0)} kcal · ${prettyUnitLabel(food.baseUnit)}',
+                                  ),
+                                  trailing: const Icon(
+                                    Icons.add_circle_outline_rounded,
+                                    color: Color(0xFF0A6B3F),
+                                  ),
+                                  onTap: () {
+                                    setSheetState(() {
+                                      selectedExistingFood = food;
+                                      nameController.text = food.name;
+                                      unit = food.baseUnit;
+                                    });
+                                    FocusScope.of(sheetContext).unfocus();
+                                  },
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    if (selectedExistingFood != null) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        key: const ValueKey('selected-existing-food'),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDFF6EA),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.check_circle_rounded,
+                              color: Color(0xFF0A6B3F),
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Usar ${selectedExistingFood!.name}',
+                                style: const TextStyle(
+                                  color: Color(0xFF0A6B3F),
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => setSheetState(
+                                () => selectedExistingFood = null,
+                              ),
+                              child: const Text('Cambiar'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    if (selectedExistingFood == null) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: caloriesController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              decoration: InputDecoration(
+                                labelText: 'Calorías (Kcal)',
+                                hintText: 'Ej. 105',
+                                filled: true,
+                                fillColor: const Color(0xFFF1F5F9),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide.none,
+                                ),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Ingresa calorías';
+                                }
+                                final numVal = double.tryParse(value);
+                                if (numVal == null || numVal <= 0) {
+                                  return 'Debe ser > 0';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              key: const ValueKey('unit-field'),
+                              initialValue: unit,
+                              isExpanded: true,
+                              borderRadius: BorderRadius.circular(16),
+                              dropdownColor: Colors.white,
+                              icon: const Icon(
+                                Icons.expand_more_rounded,
+                                color: Color(0xFF64748B),
+                              ),
+                              decoration: InputDecoration(
+                                labelText: 'Porción',
+                                filled: true,
+                                fillColor: const Color(0xFFF1F5F9),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide.none,
+                                ),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                              ),
+                              items: [
+                                for (final option in kFoodUnits)
+                                  DropdownMenuItem(
+                                    value: option.value,
+                                    child: Text(option.label),
+                                  ),
+                              ],
+                              onChanged: (value) =>
+                                  unit = value ?? kDefaultFoodUnit,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    TextFormField(
+                      key: const ValueKey('manual-food-quantity'),
+                      controller: quantityController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: isInFridge
+                            ? 'Cantidad que tienes'
+                            : 'Cantidad consumida',
+                        hintText: '1',
+                        filled: true,
+                        fillColor: const Color(0xFFF1F5F9),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Ingresa cantidad';
+                        }
+                        final v = double.tryParse(value.replaceAll(',', '.'));
+                        if (v == null || v <= 0) return 'Debe ser > 0';
+                        return null;
+                      },
+                    ),
+                    if (!isInFridge) ...[
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Comida del día',
+                        style: TextStyle(
+                          color: Color(0xFF2C2F31),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final t in MealType.values)
+                            ChoiceChip(
+                              key: ValueKey('meal-type-${t.apiValue}'),
+                              label: Text('${t.emoji} ${t.label}'),
+                              selected: t == mealType,
+                              onSelected: (_) =>
+                                  setSheetState(() => mealType = t),
+                              selectedColor: const Color(0xFFDFF6EA),
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              side: BorderSide(
+                                color: t == mealType
+                                    ? const Color(0xFF0A6B3F)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                              labelStyle: TextStyle(
+                                color: t == mealType
+                                    ? const Color(0xFF0A6B3F)
+                                    : const Color(0xFF2C2F31),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    ListenableBuilder(
+                      listenable: _viewModel,
+                      builder: (context, _) {
+                        return PrimaryButton(
+                          textButton: _viewModel.isLoading
+                              ? 'Guardando...'
+                              : (isInFridge
+                                    ? 'Guardar en nevera'
+                                    : 'Registrar consumo'),
+                          width: double.infinity,
+                          icon: Icons.check,
+                          iconSize: 18,
+                          textSize: 14,
+                          spacing: 6,
+                          onPressed: _viewModel.isLoading
+                              ? null
+                              : () async {
+                                  if (formKey.currentState?.validate() ??
+                                      false) {
+                                    final name = nameController.text.trim();
+                                    final quantity = double.parse(
+                                      quantityController.text.replaceAll(
+                                        ',',
+                                        '.',
                                       ),
                                     );
-                                    return;
-                                  }
 
-                                  // Paso 2: agregarlo a la nevera o registrarlo
-                                  // como consumido con la cantidad dada.
-                                  // `addCustomFood` ya refrescó la lista desde el
-                                  // backend, así que `findFoodIdByName` es fiable.
-                                  final newFoodId = _viewModel.findFoodIdByName(
-                                    name,
-                                  );
+                                    var foodId =
+                                        selectedExistingFood?.foodId ?? 0;
+                                    if (selectedExistingFood == null) {
+                                      final calories = double.parse(
+                                        caloriesController.text,
+                                      );
+                                      final foodCreated = await _viewModel
+                                          .addCustomFood(
+                                            name: name,
+                                            calories: calories,
+                                            baseUnit: unit,
+                                          );
+                                      if (!sheetContext.mounted) return;
+                                      if (!foodCreated) {
+                                        ScaffoldMessenger.of(
+                                          sheetContext,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              _viewModel.errorMessage ??
+                                                  'Error',
+                                            ),
+                                            backgroundColor: Colors.redAccent,
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                      foodId = _viewModel.findFoodIdByName(
+                                        name,
+                                      );
+                                    }
 
-                                  if (newFoodId == 0) {
-                                    if (sheetContext.mounted) {
+                                    if (foodId == 0) {
+                                      if (sheetContext.mounted) {
+                                        ScaffoldMessenger.of(
+                                          sheetContext,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'No se pudo obtener el identificador del alimento. Inténtalo de nuevo.',
+                                            ),
+                                            backgroundColor: Colors.redAccent,
+                                          ),
+                                        );
+                                      }
+                                      return;
+                                    }
+
+                                    final secondOk = isInFridge
+                                        ? await _viewModel.addToFridge(
+                                            foodId: foodId,
+                                            quantity: quantity,
+                                            unit: unit,
+                                          )
+                                        : await _viewModel.consumeFood(
+                                            foodId: foodId,
+                                            quantity: quantity,
+                                            mealType: mealType,
+                                          );
+
+                                    if (!sheetContext.mounted) return;
+                                    if (secondOk) {
+                                      Navigator.pop(sheetContext);
+                                      await _viewModel.fetchFoods();
+                                      if (sheetContext.mounted) {
+                                        setState(() {});
+                                        _showPostAddSheet(
+                                          isInFridge: isInFridge,
+                                        );
+                                      }
+                                    } else {
+                                      // Mantenemos la hoja abierta para que el
+                                      // usuario pueda reintentar tras ver el error.
                                       ScaffoldMessenger.of(
                                         sheetContext,
                                       ).showSnackBar(
-                                        const SnackBar(
+                                        SnackBar(
                                           content: Text(
-                                            'No se pudo obtener el identificador del alimento. Inténtalo de nuevo.',
+                                            _viewModel.errorMessage ??
+                                                'No se pudo completar el registro. Inténtalo de nuevo.',
                                           ),
                                           backgroundColor: Colors.redAccent,
                                         ),
                                       );
                                     }
-                                    return;
                                   }
-
-                                  final secondOk = isInFridge
-                                      ? await _viewModel.addToFridge(
-                                          foodId: newFoodId,
-                                          quantity: quantity,
-                                          unit: unit,
-                                        )
-                                      : await _viewModel.consumeFood(
-                                          foodId: newFoodId,
-                                          quantity: quantity,
-                                          mealType: mealType,
-                                        );
-
-                                  if (!sheetContext.mounted) return;
-                                  if (secondOk) {
-                                    Navigator.pop(sheetContext);
-                                    await _viewModel.fetchFoods();
-                                    if (sheetContext.mounted) {
-                                      setState(() {});
-                                      _showPostAddSheet(isInFridge: isInFridge);
-                                    }
-                                  } else {
-                                    // Mantenemos la hoja abierta para que el
-                                    // usuario pueda reintentar tras ver el error.
-                                    ScaffoldMessenger.of(
-                                      sheetContext,
-                                    ).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          _viewModel.errorMessage ??
-                                              'No se pudo completar el registro. Inténtalo de nuevo.',
-                                        ),
-                                        backgroundColor: Colors.redAccent,
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                      );
-                    },
-                  ),
-                ],
+                                },
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -766,8 +920,6 @@ class _FoodsScreenState extends State<FoodsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildTitle(),
-                        const SizedBox(height: 14),
                         FoodSearchField(
                           controller: _searchController,
                           focusNode: _searchFocusNode,
@@ -782,6 +934,9 @@ class _FoodsScreenState extends State<FoodsScreen> {
                                 )
                               : _buildCustomFoodCard(),
                         ),
+                        const SizedBox(height: 8),
+                        _buildTitle(),
+                        const SizedBox(height: 14),
                         if (!_isSearching && _viewModel.foods.isNotEmpty) ...[
                           SegmentedTabs(
                             labels: const ['Mi nevera', 'Comunes'],

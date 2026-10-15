@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilife/features/meals/data/meal_repository.dart';
+import 'package:nutrilife/features/meals/domain/meal_type.dart';
 import 'package:nutrilife/features/nutrition/data/food_repository.dart';
 import 'package:nutrilife/features/nutrition/data/models/food_model.dart';
 import 'package:nutrilife/features/nutrition/domain/food_units.dart';
@@ -44,11 +47,33 @@ class _RepoFalso extends FoodRepository {
   }
 }
 
+class _MealRepoFalso extends MealRepository {
+  _MealRepoFalso() : super(dio: Dio());
+
+  int? foodId;
+  double? portions;
+  MealType? mealType;
+
+  @override
+  Future<int> addFood({
+    required int foodId,
+    required double portions,
+    required MealType type,
+    DateTime? now,
+  }) async {
+    this.foodId = foodId;
+    this.portions = portions;
+    mealType = type;
+    return 1;
+  }
+}
+
 Future<_RepoFalso> _pump(
   WidgetTester tester, [
   List<FoodModel>? foods,
   Size physicalSize = const Size(1080, 3200),
   double devicePixelRatio = 2.5,
+  MealRepository? mealRepository,
 ]) async {
   final repo = _RepoFalso(foods);
   tester.view.physicalSize = physicalSize;
@@ -57,7 +82,9 @@ Future<_RepoFalso> _pump(
 
   await tester.pumpWidget(
     MaterialApp(
-      home: Scaffold(body: FoodsScreen(foodRepository: repo)),
+      home: Scaffold(
+        body: FoodsScreen(foodRepository: repo, mealRepository: mealRepository),
+      ),
     ),
   );
   await tester.pumpAndSettle();
@@ -141,6 +168,76 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.created.single, ('Arepa', 180.0, '1 UNIDAD'));
+  });
+
+  testWidgets('sugiere reutilizar un alimento existente al registrar consumo', (
+    tester,
+  ) async {
+    final mealRepository = _MealRepoFalso();
+    final foodRepository = await _pump(
+      tester,
+      _foods,
+      const Size(1080, 3200),
+      2.5,
+      mealRepository,
+    );
+
+    await tester.tap(find.text('Lo consumí'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Nombre del alimento'),
+      'tila',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Ya existe un alimento parecido. Elige uno para usarlo:'),
+      findsOneWidget,
+    );
+    final lunchChip = find.byKey(const ValueKey('meal-type-LUNCH'));
+    await tester.ensureVisible(lunchChip);
+    await tester.tap(lunchChip);
+    await tester.pump();
+    expect(tester.widget<ChoiceChip>(lunchChip).selected, isTrue);
+
+    final existingFood = find.byKey(const ValueKey('existing-food-1'));
+    await tester.ensureVisible(existingFood);
+    await tester.tap(existingFood);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('selected-existing-food')),
+      findsOneWidget,
+    );
+    expect(find.text('Calorías (Kcal)'), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('manual-food-quantity')),
+      '2',
+    );
+    await tester.ensureVisible(find.text('Registrar consumo'));
+    await tester.tap(find.text('Registrar consumo'));
+    await tester.pumpAndSettle();
+
+    expect(foodRepository.created, isEmpty);
+    expect(mealRepository.foodId, 1);
+    expect(mealRepository.portions, 2);
+    expect(mealRepository.mealType, MealType.lunch);
+  });
+
+  testWidgets('muestra primero el buscador y la tarjeta personalizada', (
+    tester,
+  ) async {
+    await _pump(tester);
+
+    final searchTop = tester.getTopLeft(_search).dy;
+    final customCardTop = tester
+        .getTopLeft(find.text('Agregar personalizado'))
+        .dy;
+    final titleTop = tester.getTopLeft(find.text('Mi nevera').first).dy;
+
+    expect(searchTop, lessThan(customCardTop));
+    expect(customCardTop, lessThan(titleTop));
   });
 
   group('pestañas', () {

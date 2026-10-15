@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/state/meal_log_state.dart';
 import '../../../meals/data/meal_repository.dart';
 import '../../../meals/domain/meal_type.dart';
 import '../../data/food_repository.dart';
@@ -15,9 +16,9 @@ class FoodsViewModel extends ChangeNotifier {
     FoodRepository? foodRepository,
     FridgeRepository? fridgeRepository,
     MealRepository? mealRepository,
-  })  : _foodRepository = foodRepository ?? FoodRepository(),
-        _fridgeRepository = fridgeRepository ?? FridgeRepository(),
-        _mealRepository = mealRepository ?? MealRepository();
+  }) : _foodRepository = foodRepository ?? FoodRepository(),
+       _fridgeRepository = fridgeRepository ?? FridgeRepository(),
+       _mealRepository = mealRepository ?? MealRepository();
 
   List<FoodModel> _allFoods = [];
   List<FoodModel> _filteredFoods = [];
@@ -27,6 +28,7 @@ class FoodsViewModel extends ChangeNotifier {
   String _searchQuery = '';
 
   List<FoodModel> get foods => _filteredFoods;
+  List<FoodModel> get allFoods => _allFoods;
   List<FridgeItemModel> get fridgeItems => _fridgeItems;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -66,16 +68,22 @@ class FoodsViewModel extends ChangeNotifier {
   Future<void> refreshAll() async {
     _isLoading = true;
     notifyListeners();
-    final foodsFuture = _foodRepository.getFoods().then((v) {
-      _allFoods = v;
-      _applyFilter();
-    }).catchError((_) {
-      // Si falla, mantenemos la lista anterior; el snackbar se ve en
-      // `_fetchAllWithErrors` si lo prefieres mostrar.
-    });
-    final fridgeFuture = _fridgeRepository.getFridgeItems().then((v) {
-      _fridgeItems = v;
-    }).catchError((_) {});
+    final foodsFuture = _foodRepository
+        .getFoods()
+        .then((v) {
+          _allFoods = v;
+          _applyFilter();
+        })
+        .catchError((_) {
+          // Si falla, mantenemos la lista anterior; el snackbar se ve en
+          // `_fetchAllWithErrors` si lo prefieres mostrar.
+        });
+    final fridgeFuture = _fridgeRepository
+        .getFridgeItems()
+        .then((v) {
+          _fridgeItems = v;
+        })
+        .catchError((_) {});
     await Future.wait([foodsFuture, fridgeFuture]);
     _isLoading = false;
     notifyListeners();
@@ -166,7 +174,9 @@ class FoodsViewModel extends ChangeNotifier {
       // Refresca la nevera para mostrar el ítem recién agregado.
       try {
         _fridgeItems = await _fridgeRepository.getFridgeItems();
-      } catch (_) {/* ignore: la próxima pantalla refrescará */}
+      } catch (_) {
+        /* ignore: la próxima pantalla refrescará */
+      }
       _isLoading = false;
       notifyListeners();
       return true;
@@ -185,11 +195,9 @@ class FoodsViewModel extends ChangeNotifier {
   ) async {
     final results = await _fridgeRepository.addItems(
       entries
-          .map((e) => (
-                foodId: e.food.foodId,
-                quantity: e.quantity,
-                unit: e.unit,
-              ))
+          .map(
+            (e) => (foodId: e.food.foodId, quantity: e.quantity, unit: e.unit),
+          )
           .toList(),
     );
     final ok = results.values.where((m) => m.isEmpty).length;
@@ -224,6 +232,7 @@ class FoodsViewModel extends ChangeNotifier {
         portions: quantity,
         type: mealType,
       );
+      MealLogState.instance.bump();
       _isLoading = false;
       notifyListeners();
       return true;
@@ -254,6 +263,7 @@ class FoodsViewModel extends ChangeNotifier {
         failed.add(e.food.name);
       }
     }
+    if (ok > 0) MealLogState.instance.bump();
     return (ok: ok, failed: failed);
   }
 }
