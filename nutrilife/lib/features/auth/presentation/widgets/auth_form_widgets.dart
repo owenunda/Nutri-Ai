@@ -344,3 +344,22 @@ class AuthErrorText extends StatelessWidget {
     );
   }
 }
+
+/// Mensaje de éxito o aviso dentro de la tarjeta (p. ej. "código reenviado").
+class AuthInfoText extends StatelessWidget {
+  const AuthInfoText(this.message, {super.key});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      message,
+      style: const TextStyle(
+        color: AuthPalette.primary,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}

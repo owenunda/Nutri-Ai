@@ -82,21 +82,56 @@ class AuthRepository {
   /// Lanza [GoogleLinkRequiredException] si el correo ya tiene una cuenta con
   /// contraseña: hay que pedirla y llamar a [linkGoogle].
   Future<GoogleLoginResult> loginWithGoogle(String idToken) =>
-      _postGoogleSession(ApiRoutes.authGoogle, {'idToken': idToken});
+      _postSession(ApiRoutes.authGoogle, {'idToken': idToken}, _googleFallback);
 
   /// Vincula Google a la cuenta existente con ese correo, confirmando su
   /// contraseña. La contraseña se conserva.
   Future<GoogleLoginResult> linkGoogle(String idToken, String password) =>
-      _postGoogleSession(ApiRoutes.authGoogleLink, {
+      _postSession(ApiRoutes.authGoogleLink, {
         'idToken': idToken,
         'password': password,
-      });
+      }, _googleFallback);
 
-  Future<GoogleLoginResult> _postGoogleSession(
+  /// Verifica el correo con el código enviado y devuelve la sesión.
+  Future<GoogleLoginResult> verifyEmail(String email, String code) =>
+      _postSession(
+        ApiRoutes.authVerifyEmail,
+        {'email': email, 'code': code},
+        'No se pudo verificar tu correo. Inténtalo de nuevo.',
+      );
+
+  /// Reenvía el código para verificar el correo.
+  Future<void> resendVerification(String email) => _post(
+    ApiRoutes.authVerifyEmailResend,
+    {'email': email},
+    'No se pudo reenviar el código. Inténtalo de nuevo.',
+  );
+
+  /// Envía un código para restablecer la contraseña.
+  Future<void> forgotPassword(String email) => _post(
+    ApiRoutes.authPasswordForgot,
+    {'email': email},
+    'No se pudo enviar el código. Inténtalo de nuevo.',
+  );
+
+  /// Pone una contraseña nueva usando el código enviado al correo.
+  Future<void> resetPassword(String email, String code, String password) =>
+      _post(
+        ApiRoutes.authPasswordReset,
+        {'email': email, 'code': code, 'password': password},
+        'No se pudo cambiar tu contraseña. Inténtalo de nuevo.',
+      );
+
+  static const _googleFallback =
+      'No se pudo iniciar sesión con Google. Inténtalo de nuevo.';
+
+  /// POST que responde una sesión (`token`, `user`, banderas). También la usa
+  /// la verificación del correo.
+  Future<GoogleLoginResult> _postSession(
     String path,
     Map<String, dynamic> payload,
+    String fallback,
   ) async {
-    const fallback = 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.';
     try {
       final response = await _dio.post<Map<String, dynamic>>(path, data: payload);
 
@@ -124,7 +159,7 @@ class AuthRepository {
     } on AuthException {
       rethrow;
     } catch (_) {
-      throw const AuthException(fallback);
+      throw AuthException(fallback);
     }
   }
 
@@ -135,13 +170,20 @@ class AuthRepository {
   }
 
   /// Crea la contraseña de la cuenta en sesión, que solo entraba con Google.
-  Future<void> setPassword(String password) async {
-    const fallback = 'No se pudo guardar tu contraseña. Inténtalo de nuevo.';
+  Future<void> setPassword(String password) => _post(
+    ApiRoutes.userPassword,
+    {'password': password},
+    'No se pudo guardar tu contraseña. Inténtalo de nuevo.',
+  );
+
+  /// POST sin datos de respuesta: solo importa si salió bien.
+  Future<void> _post(
+    String path,
+    Map<String, dynamic> payload,
+    String fallback,
+  ) async {
     try {
-      final response = await _dio.post<Map<String, dynamic>>(
-        ApiRoutes.userPassword,
-        data: {'password': password},
-      );
+      final response = await _dio.post<Map<String, dynamic>>(path, data: payload);
 
       final body = response.data;
       if (body != null && body['success'] == true) {
@@ -157,7 +199,7 @@ class AuthRepository {
     } on AuthException {
       rethrow;
     } catch (_) {
-      throw const AuthException(fallback);
+      throw AuthException(fallback);
     }
   }
 

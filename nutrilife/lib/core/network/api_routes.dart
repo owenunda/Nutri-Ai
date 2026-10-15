@@ -3,6 +3,10 @@ class ApiRoutes {
   static const String authRegister = '/auth/register';
   static const String authGoogle = '/auth/google';
   static const String authGoogleLink = '/auth/google/link';
+  static const String authVerifyEmail = '/auth/verify-email';
+  static const String authVerifyEmailResend = '/auth/verify-email/resend';
+  static const String authPasswordForgot = '/auth/password/forgot';
+  static const String authPasswordReset = '/auth/password/reset';
   static const String authHealth = '/auth/health';
   static const String userProfile = '/user/profile';
   static const String userAccount = '/user/account';

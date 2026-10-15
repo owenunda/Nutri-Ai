@@ -182,4 +182,81 @@ void main() {
       ),
     );
   });
+
+  test('verifyEmail manda correo y código y devuelve la sesión', () async {
+    final adapter = _FakeAdapter(200, {
+      'success': true,
+      'data': {
+        'token': 'jwt-789',
+        'user': {'userId': 11, 'name': 'Ana'},
+        'needsProfileSetup': true,
+      },
+    });
+
+    final result = await _repoWith(adapter).verifyEmail('ana@gmail.com', '482913');
+
+    expect(adapter.lastRequest!.path, ApiRoutes.authVerifyEmail);
+    expect(adapter.lastRequest!.data, {'email': 'ana@gmail.com', 'code': '482913'});
+    expect(result.token, 'jwt-789');
+    expect(result.needsProfileSetup, isTrue);
+  });
+
+  test('verifyEmail con código equivocado lanza el mensaje del backend', () async {
+    final adapter = _FakeAdapter(400, {
+      'success': false,
+      'message': 'El código no es correcto.',
+      'error': {'code': 'INVALID_CODE', 'details': <Object>[]},
+    });
+
+    expect(
+      () => _repoWith(adapter).verifyEmail('ana@gmail.com', '000000'),
+      throwsA(
+        isA<AuthException>().having(
+          (error) => error.message,
+          'message',
+          'El código no es correcto.',
+        ),
+      ),
+    );
+  });
+
+  test('resendVerification, forgotPassword y resetPassword llaman a su ruta', () async {
+    final adapter = _FakeAdapter(200, {'success': true, 'data': null});
+    final repo = _repoWith(adapter);
+
+    await repo.resendVerification('ana@gmail.com');
+    expect(adapter.lastRequest!.path, ApiRoutes.authVerifyEmailResend);
+    expect(adapter.lastRequest!.data, {'email': 'ana@gmail.com'});
+
+    await repo.forgotPassword('ana@gmail.com');
+    expect(adapter.lastRequest!.path, ApiRoutes.authPasswordForgot);
+    expect(adapter.lastRequest!.data, {'email': 'ana@gmail.com'});
+
+    await repo.resetPassword('ana@gmail.com', '482913', 'nueva123');
+    expect(adapter.lastRequest!.path, ApiRoutes.authPasswordReset);
+    expect(adapter.lastRequest!.data, {
+      'email': 'ana@gmail.com',
+      'code': '482913',
+      'password': 'nueva123',
+    });
+  });
+
+  test('pedir un código antes de tiempo muestra la espera del backend', () async {
+    final adapter = _FakeAdapter(429, {
+      'success': false,
+      'message': 'Espera 42 segundos para pedir otro código.',
+      'error': {'code': 'CODE_RECENTLY_SENT', 'details': <Object>[]},
+    });
+
+    expect(
+      () => _repoWith(adapter).forgotPassword('ana@gmail.com'),
+      throwsA(
+        isA<AuthException>().having(
+          (error) => error.message,
+          'message',
+          'Espera 42 segundos para pedir otro código.',
+        ),
+      ),
+    );
+  });
 }

@@ -5,14 +5,12 @@ import 'package:flutter/services.dart';
 import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
 
-import '../../../../core/network/dio_client.dart';
-import '../../../../core/services/auth_service.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../setup/presentation/screens/profile_setup_screen.dart';
 import '../../data/auth_repository.dart';
 import '../google_sign_in_flow.dart';
 import '../widgets/auth_form_widgets.dart';
 import '../widgets/google_sign_in_button.dart';
+import 'verify_email_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -80,31 +78,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
       );
 
-      // Auto login to retrieve JWT auth token
-      final loginResult = await AuthService.login(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-
-      if (loginResult['success'] == true) {
-        DioClient.authToken = loginResult['token'];
-      }
-
       if (!mounted) return;
 
-      _showSnackBar('Cuenta creada correctamente. ¡Bienvenido!');
-
-      await Future<void>.delayed(const Duration(milliseconds: 700));
-
-      if (!mounted) return;
-
-      Navigator.of(context).pushAndRemoveUntil(
+      // La cuenta queda sin verificar: el backend envió un código al correo y
+      // la sesión empieza al verificarlo. "Volver" desde ahí lleva al login.
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => ProfileSetupScreen(
-            userName: _nameController.text.trim(),
-          ),
+          builder: (_) =>
+              VerifyEmailScreen(email: _emailController.text.trim()),
         ),
-        (route) => false,
       );
     } on AuthException catch (error) {
       if (!mounted) return;

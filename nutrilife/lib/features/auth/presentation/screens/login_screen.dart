@@ -11,6 +11,7 @@ import '../google_sign_in_flow.dart';
 import '../widgets/google_sign_in_button.dart';
 import 'auth_flow_navigator.dart';
 import 'register_screen.dart';
+import 'verify_email_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -241,6 +242,19 @@ class _LoginPanelState extends State<_LoginPanel> {
           needsProfileSetup: result['needsProfileSetup'] == true,
         );
 
+        return;
+      }
+
+      final error = result['error'];
+      if (error is Map && error['code'] == 'EMAIL_NOT_VERIFIED') {
+        // El backend ya envió un código nuevo al correo.
+        setState(() => _isLoading = false);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) =>
+                VerifyEmailScreen(email: _emailController.text.trim()),
+          ),
+        );
         return;
       }
 
