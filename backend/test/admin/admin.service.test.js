@@ -22,6 +22,9 @@ mock.module(src('modules/admin/admin.repository.js'), {
     ...Object.fromEntries(REPO_EXPORTS.map((name) => [name, (...args) => repo[name](...args)])),
   },
 });
+mock.module(src('modules/user/user.repository.js'), {
+  exports: { deleteUserAccountData: (...args) => repo.deleteUserAccountData(...args) },
+});
 mock.module(src('modules/events/events.service.js'), {
   exports: {
     logEventService: async (event) => {
@@ -30,7 +33,7 @@ mock.module(src('modules/events/events.service.js'), {
   },
 });
 
-const { updateUserPasswordService, updateUserRoleService } = await import(
+const { deleteUserService, updateUserPasswordService, updateUserRoleService } = await import(
   src('modules/admin/admin.service.js')
 );
 
@@ -96,4 +99,40 @@ test('rol: usuario inexistente responde 404', async () => {
     status: 404,
     code: 'USER_NOT_FOUND',
   });
+});
+
+test('eliminar: borra la cuenta y deja el evento sin datos del usuario', async () => {
+  const deleted = [];
+  repo.deleteUserAccountData = async (userId) => {
+    deleted.push(userId);
+    return true;
+  };
+
+  await deleteUserService(ADMIN_ID, 9);
+
+  assert.deepEqual(deleted, [9]);
+  assert.equal(events[0].eventType, 'ACCOUNT_DELETED');
+  assert.equal(events[0].userId, null);
+  assert.deepEqual(events[0].metadata, { by: ADMIN_ID });
+});
+
+test('eliminar: un admin no puede borrar su propia cuenta desde el panel', async () => {
+  repo.deleteUserAccountData = async () => {
+    throw new Error('deleteUserAccountData no debería llamarse');
+  };
+
+  await assert.rejects(deleteUserService(ADMIN_ID, ADMIN_ID), {
+    status: 409,
+    code: 'CANNOT_DELETE_SELF',
+  });
+});
+
+test('eliminar: usuario inexistente responde 404', async () => {
+  repo.deleteUserAccountData = async () => false;
+
+  await assert.rejects(deleteUserService(ADMIN_ID, 99), {
+    status: 404,
+    code: 'USER_NOT_FOUND',
+  });
+  assert.deepEqual(events, []);
 });

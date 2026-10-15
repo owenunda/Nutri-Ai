@@ -5,6 +5,7 @@ import {
   updateUserPlanService,
   updateUserPasswordService,
   updateUserRoleService,
+  deleteUserService,
 } from './admin.service.js';
 import { successResponse } from '../../utils/response.js';
 
@@ -57,6 +58,15 @@ export const updateUserRole = async (req, res, next) => {
   try {
     const result = await updateUserRoleService(req.user.userId, req.targetUserId, req.body.role);
     return successResponse(res, result, 'Rol actualizado con éxito');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    await deleteUserService(req.user.userId, req.targetUserId);
+    return successResponse(res, null, 'Cuenta eliminada con éxito');
   } catch (error) {
     next(error);
   }

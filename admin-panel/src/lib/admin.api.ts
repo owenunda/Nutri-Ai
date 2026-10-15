@@ -43,3 +43,7 @@ export async function updateUserRole(userId: number, role: Role): Promise<{ user
   );
   return data.data;
 }
+
+export async function deleteUser(userId: number): Promise<void> {
+  await api.delete(`/admin/users/${userId}`);
+}

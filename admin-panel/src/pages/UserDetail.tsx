@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   Apple,
   ArrowLeft,
@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   ShieldOff,
   Sparkles,
+  Trash2,
   UtensilsCrossed,
 } from 'lucide-react';
 import {
@@ -28,7 +29,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { fetchUserDetail, updateUserPassword, updateUserPlan, updateUserRole } from '../lib/admin.api';
+import {
+  deleteUser,
+  fetchUserDetail,
+  updateUserPassword,
+  updateUserPlan,
+  updateUserRole,
+} from '../lib/admin.api';
 import { getErrorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { cn, formatAxisDay, formatDate, formatDay, formatNumber, formatRelative } from '../lib/utils';
@@ -54,7 +61,9 @@ export default function UserDetail() {
   const [planDialog, setPlanDialog] = useState(false);
   const [passwordDialog, setPasswordDialog] = useState(false);
   const [roleDialog, setRoleDialog] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState(false);
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -163,6 +172,16 @@ export default function UserDetail() {
           >
             Ver todos sus eventos <ArrowRight className="h-4 w-4" />
           </Link>
+          <Button
+            size="sm"
+            onClick={() => setDeleteDialog(true)}
+            disabled={isSelf}
+            title={isSelf ? 'No puedes eliminar tu propia cuenta desde el panel' : undefined}
+            className="bg-red-600 text-white hover:bg-red-700"
+          >
+            <Trash2 className="h-4 w-4" />
+            Eliminar cuenta
+          </Button>
         </div>
       </section>
 
@@ -316,6 +335,15 @@ export default function UserDetail() {
         name={profile.name}
         isAdmin={isAdmin}
         onChanged={(role) => setData((d) => (d ? { ...d, profile: { ...d.profile, role } } : d))}
+      />
+
+      <DeleteUserDialog
+        open={deleteDialog}
+        onClose={() => setDeleteDialog(false)}
+        userId={profile.userId}
+        name={profile.name}
+        email={profile.email}
+        onDeleted={() => navigate('/users', { replace: true })}
       />
     </div>
   );
@@ -545,6 +573,80 @@ function RoleDialog({
         <Button onClick={confirm} disabled={saving} variant={next === 'ADMIN' ? 'default' : 'destructive'}>
           {saving && <Loader2 className="h-4 w-4 animate-spin" />}
           {next === 'ADMIN' ? 'Hacer admin' : 'Quitar admin'}
+        </Button>
+      </div>
+    </Dialog>
+  );
+}
+
+function DeleteUserDialog({
+  open,
+  onClose,
+  userId,
+  name,
+  email,
+  onDeleted,
+}: {
+  open: boolean;
+  onClose: () => void;
+  userId: number;
+  name: string;
+  email: string;
+  onDeleted: () => void;
+}) {
+  const [typed, setTyped] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Escribir el correo evita borrar a alguien por un clic accidental.
+  const matches = typed.trim().toLowerCase() === email.toLowerCase();
+
+  const close = () => {
+    setTyped('');
+    setError(null);
+    onClose();
+  };
+
+  const confirm = async () => {
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteUser(userId);
+      onDeleted();
+    } catch (err) {
+      setError(getErrorMessage(err));
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={close} title="Eliminar cuenta">
+      <div className="flex items-center gap-4">
+        <Nutria mood="triste" className="h-20 w-20 shrink-0" />
+        <p className="text-sm text-muted-foreground">
+          Se borrarán para siempre la cuenta de {name} y todos sus datos: comidas, nevera, registros de peso,
+          chats y recetas. Esta acción no se puede deshacer.
+        </p>
+      </div>
+      <div className="mt-4 space-y-2">
+        <Label htmlFor="confirm-email">
+          Para confirmar, escribe <span className="font-semibold text-foreground">{email}</span>
+        </Label>
+        <Input
+          id="confirm-email"
+          autoComplete="off"
+          value={typed}
+          onChange={(e) => setTyped(e.target.value)}
+          disabled={deleting}
+        />
+      </div>
+      {error && <p className="mt-4 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+      <div className="mt-6 flex justify-end gap-2">
+        <Button variant="outline" onClick={close} disabled={deleting}>
+          Cancelar
+        </Button>
+        <Button variant="destructive" onClick={confirm} disabled={!matches || deleting}>
+          {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
+          Eliminar cuenta
         </Button>
       </div>
     </Dialog>

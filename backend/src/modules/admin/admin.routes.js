@@ -7,6 +7,7 @@ import {
   updateUserPlan,
   updateUserPassword,
   updateUserRole,
+  deleteUser,
 } from './admin.controller.js';
 import {
   validateOverviewQuery,
@@ -209,5 +210,29 @@ router.patch('/users/:userId/role',
   validateRoleBody,
   updateUserRole
 );
+
+/**
+ * @openapi
+ * /api/v1/admin/users/{userId}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Eliminar la cuenta de un usuario y todos sus datos (solo ADMIN)
+ *     description: Borra de forma permanente el usuario, sus comidas, nevera, registros físicos, chats, recetas y alimentos personalizados. Un admin no puede borrar su propia cuenta desde aquí.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: Cuenta eliminada
+ *       404:
+ *         description: Usuario no encontrado
+ *       409:
+ *         description: Un admin no puede borrar su propia cuenta (code CANNOT_DELETE_SELF)
+ */
+router.delete('/users/:userId', authenticateToken(['ADMIN']), validateUserIdParam, deleteUser);
 
 export default router;
