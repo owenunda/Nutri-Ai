@@ -1518,4 +1518,233 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatNoReply => 'No reply';
+
+  @override
+  String get progressKicker => 'WEEKLY PROGRESS';
+
+  @override
+  String progressGreeting(String name) {
+    return 'Great progress,\n$name!';
+  }
+
+  @override
+  String progressGoalPill(String goal) {
+    return 'Goal:\n$goal';
+  }
+
+  @override
+  String get progressGoalLose => 'Lose weight';
+
+  @override
+  String get progressGoalGain => 'Gain weight';
+
+  @override
+  String get progressGoalMaintain => 'Maintain weight';
+
+  @override
+  String get progressGoalNone => 'No goal';
+
+  @override
+  String get progressStatusNoData => 'No data';
+
+  @override
+  String get progressStatusExceeded => 'EXCEEDED';
+
+  @override
+  String get progressErrorTitle => 'Couldn\'t load your progress';
+
+  @override
+  String get progressErrorLoadShort => 'Couldn\'t load your progress.';
+
+  @override
+  String get progressErrorLoad =>
+      'Couldn\'t load your progress. Please try again.';
+
+  @override
+  String get progressErrorLoadDailyGoal =>
+      'Couldn\'t load your daily goal. Please try again.';
+
+  @override
+  String get progressErrorSaveWeight => 'Couldn\'t save your weight.';
+
+  @override
+  String get progressErrorInvalidData => 'The server sent back invalid data.';
+
+  @override
+  String get progressErrorLoadInfo => 'Couldn\'t load the information.';
+
+  @override
+  String get progressRetry => 'Try again';
+
+  @override
+  String get progressWeightSummaryTitle => 'Weight summary';
+
+  @override
+  String progressWeightDown(String amount) {
+    return 'Your weight dropped\n$amount since your last entry';
+  }
+
+  @override
+  String progressWeightUp(String amount) {
+    return 'Your weight went up\n$amount since your last entry';
+  }
+
+  @override
+  String progressWeightChanged(String amount) {
+    return 'Your weight changed\n$amount since your last entry';
+  }
+
+  @override
+  String get progressCurrentWeight => 'Current weight';
+
+  @override
+  String get progressNoRecord => 'No entries yet';
+
+  @override
+  String get progressCompareHint => 'Compared with your previous entry.';
+
+  @override
+  String get progressAddAnotherHint =>
+      'Log another weight later to see how you\'re doing.';
+
+  @override
+  String get progressRegisterWeight => 'Log weight';
+
+  @override
+  String get progressSummaryWeek => 'Weekly summary';
+
+  @override
+  String get progressSummaryNutrition => 'Nutrition summary';
+
+  @override
+  String get progressTodayCaloriesTitle => 'Today\'s calories';
+
+  @override
+  String get progressKcalConsumed => 'kcal consumed';
+
+  @override
+  String progressKcalOfLimit(String limit) {
+    return 'of $limit kcal';
+  }
+
+  @override
+  String get progressCompleteDataHint =>
+      'Fill in your body stats and goal to work out your daily limit.';
+
+  @override
+  String progressGoalAndRemaining(String limit, String remaining) {
+    return 'Daily goal: $limit kcal. You have $remaining kcal left today.';
+  }
+
+  @override
+  String get progressHistoryTitle => 'Weight history';
+
+  @override
+  String get progressHistoryNoCurrent => 'No current weight';
+
+  @override
+  String progressHistoryCurrent(String weight) {
+    return '${weight}kg Current';
+  }
+
+  @override
+  String get progressHistoryEmpty =>
+      'You don\'t have any body stats history yet.';
+
+  @override
+  String get progressAxisStart => 'START';
+
+  @override
+  String get progressAxisToday => 'TODAY';
+
+  @override
+  String get progressTileConsumed => 'CONSUMED';
+
+  @override
+  String get progressTileLoggedToday => 'Logged today';
+
+  @override
+  String get progressTileDailyGoal => 'DAILY GOAL';
+
+  @override
+  String get progressTileRemaining => 'REMAINING';
+
+  @override
+  String get progressTileStatus => 'STATUS';
+
+  @override
+  String get progressTileDailyAverage => 'DAILY AVERAGE';
+
+  @override
+  String get progressTileDaysOnTarget => 'DAYS ON TARGET';
+
+  @override
+  String get progressTileWeekTotal => 'WEEK TOTAL';
+
+  @override
+  String progressDaysOfSeven(int count) {
+    return '$count of 7';
+  }
+
+  @override
+  String get progressWeekTitle => 'This week';
+
+  @override
+  String progressWeekAverage(String average) {
+    return 'Average: $average kcal/day';
+  }
+
+  @override
+  String progressWeekAverageOnTarget(String average, int days) {
+    return 'Average: $average kcal/day · $days of 7 days on target';
+  }
+
+  @override
+  String progressWeekDaySelected(String weekday, int day, String kcal) {
+    return '$weekday $day · $kcal kcal';
+  }
+
+  @override
+  String get progressCompleteProfile => 'Complete your profile';
+
+  @override
+  String get progressSheetHintNoLast =>
+      'Type your weight or adjust it with − and +';
+
+  @override
+  String progressSheetLastEntry(String weight) {
+    return 'Last entry: $weight kg';
+  }
+
+  @override
+  String get progressSheetSame => 'Same as last time';
+
+  @override
+  String progressSheetIncrease(String weight) {
+    return '+$weight kg since last time';
+  }
+
+  @override
+  String progressSheetDecrease(String weight) {
+    return '−$weight kg since last time';
+  }
+
+  @override
+  String get progressSheetSubtract => 'Subtract 0.1 kg';
+
+  @override
+  String get progressSheetAdd => 'Add 0.1 kg';
+
+  @override
+  String get progressSheetHeightLabel => 'Height (cm)';
+
+  @override
+  String get progressSheetWeightRangeError =>
+      'Weight must be between 30 and 300 kg';
+
+  @override
+  String get progressSheetHeightRequired => 'Enter your height in cm';
+
+  @override
+  String get progressSheetSave => 'Save weight';
 }

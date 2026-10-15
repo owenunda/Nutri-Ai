@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/features/progress/data/week_stats.dart';
 import 'package:nutrilife/features/progress/presentation/widgets/week_calories_card.dart';
 
+import '../../helpers/l10n_app.dart';
+
 WeekStats _week({int? limit = 2000}) => WeekStats.fromJson({
       'dailyLimit': limit,
       'average': 1850,
@@ -13,8 +15,10 @@ WeekStats _week({int? limit = 2000}) => WeekStats.fromJson({
       ],
     });
 
-Future<void> _pump(WidgetTester tester, WeekStats week) => tester.pumpWidget(MaterialApp(
-      home: Scaffold(body: WeekCaloriesCard(week: week, clock: () => DateTime(2026, 10, 12, 9))),
+Future<void> _pump(WidgetTester tester, WeekStats week, {Locale locale = const Locale('es')}) =>
+    tester.pumpWidget(l10nApp(
+      locale: locale,
+      Scaffold(body: WeekCaloriesCard(week: week, clock: () => DateTime(2026, 10, 12, 9))),
     ));
 
 void main() {
@@ -39,5 +43,26 @@ void main() {
     await _pump(tester, _week(limit: null));
     expect(find.text('Promedio: 1.850 kcal/día'), findsOneWidget);
     expect(find.text('Completa tu perfil'), findsOneWidget);
+  });
+
+  testWidgets('en inglés: iniciales, miles con coma y textos en inglés', (tester) async {
+    await _pump(tester, _week(), locale: const Locale('en'));
+
+    // Tue Wed Thu Fri Sat Sun Mon
+    for (final initial in ['M', 'T', 'W', 'F', 'S']) {
+      expect(find.text(initial), findsWidgets);
+    }
+    expect(find.text('This week'), findsOneWidget);
+    expect(find.text('Average: 1,850 kcal/day · 4 of 7 days on target'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('week-bar-2026-10-08')));
+    await tester.pump();
+    expect(find.text('Thu 8 · 1,900 kcal'), findsOneWidget);
+  });
+
+  testWidgets('en inglés sin meta pide completar el perfil', (tester) async {
+    await _pump(tester, _week(limit: null), locale: const Locale('en'));
+    expect(find.text('Average: 1,850 kcal/day'), findsOneWidget);
+    expect(find.text('Complete your profile'), findsOneWidget);
   });
 }

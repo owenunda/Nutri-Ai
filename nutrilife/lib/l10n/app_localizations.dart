@@ -2503,6 +2503,390 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sin respuesta'**
   String get chatNoReply;
+
+  /// No description provided for @progressKicker.
+  ///
+  /// In es, this message translates to:
+  /// **'PROGRESO SEMANAL'**
+  String get progressKicker;
+
+  /// No description provided for @progressGreeting.
+  ///
+  /// In es, this message translates to:
+  /// **'Buen progreso,\n{name}!'**
+  String progressGreeting(String name);
+
+  /// No description provided for @progressGoalPill.
+  ///
+  /// In es, this message translates to:
+  /// **'Meta:\n{goal}'**
+  String progressGoalPill(String goal);
+
+  /// No description provided for @progressGoalLose.
+  ///
+  /// In es, this message translates to:
+  /// **'Bajar peso'**
+  String get progressGoalLose;
+
+  /// No description provided for @progressGoalGain.
+  ///
+  /// In es, this message translates to:
+  /// **'Subir peso'**
+  String get progressGoalGain;
+
+  /// No description provided for @progressGoalMaintain.
+  ///
+  /// In es, this message translates to:
+  /// **'Mantener peso'**
+  String get progressGoalMaintain;
+
+  /// No description provided for @progressGoalNone.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin meta'**
+  String get progressGoalNone;
+
+  /// No description provided for @progressStatusNoData.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin datos'**
+  String get progressStatusNoData;
+
+  /// No description provided for @progressStatusExceeded.
+  ///
+  /// In es, this message translates to:
+  /// **'EXCEDIDO'**
+  String get progressStatusExceeded;
+
+  /// No description provided for @progressErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar tu progreso'**
+  String get progressErrorTitle;
+
+  /// No description provided for @progressErrorLoadShort.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar tu progreso.'**
+  String get progressErrorLoadShort;
+
+  /// No description provided for @progressErrorLoad.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar tu progreso. Inténtalo de nuevo.'**
+  String get progressErrorLoad;
+
+  /// No description provided for @progressErrorLoadDailyGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar tu meta diaria. Inténtalo de nuevo.'**
+  String get progressErrorLoadDailyGoal;
+
+  /// No description provided for @progressErrorSaveWeight.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar tu peso.'**
+  String get progressErrorSaveWeight;
+
+  /// No description provided for @progressErrorInvalidData.
+  ///
+  /// In es, this message translates to:
+  /// **'El servidor respondió con datos inválidos.'**
+  String get progressErrorInvalidData;
+
+  /// No description provided for @progressErrorLoadInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar la información.'**
+  String get progressErrorLoadInfo;
+
+  /// No description provided for @progressRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Intentar de nuevo'**
+  String get progressRetry;
+
+  /// No description provided for @progressWeightSummaryTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen de peso'**
+  String get progressWeightSummaryTitle;
+
+  /// No description provided for @progressWeightDown.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu peso bajó\n{amount} desde el registro anterior'**
+  String progressWeightDown(String amount);
+
+  /// No description provided for @progressWeightUp.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu peso subió\n{amount} desde el registro anterior'**
+  String progressWeightUp(String amount);
+
+  /// No description provided for @progressWeightChanged.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu peso cambió\n{amount} desde el registro anterior'**
+  String progressWeightChanged(String amount);
+
+  /// No description provided for @progressCurrentWeight.
+  ///
+  /// In es, this message translates to:
+  /// **'Peso actual'**
+  String get progressCurrentWeight;
+
+  /// No description provided for @progressNoRecord.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin registro'**
+  String get progressNoRecord;
+
+  /// No description provided for @progressCompareHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Comparado con tu registro físico anterior.'**
+  String get progressCompareHint;
+
+  /// No description provided for @progressAddAnotherHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Registra otro peso más adelante para ver tu evolución.'**
+  String get progressAddAnotherHint;
+
+  /// No description provided for @progressRegisterWeight.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar peso'**
+  String get progressRegisterWeight;
+
+  /// No description provided for @progressSummaryWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen de la semana'**
+  String get progressSummaryWeek;
+
+  /// No description provided for @progressSummaryNutrition.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen nutricional'**
+  String get progressSummaryNutrition;
+
+  /// No description provided for @progressTodayCaloriesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Calorías de hoy'**
+  String get progressTodayCaloriesTitle;
+
+  /// No description provided for @progressKcalConsumed.
+  ///
+  /// In es, this message translates to:
+  /// **'kcal consumidas'**
+  String get progressKcalConsumed;
+
+  /// No description provided for @progressKcalOfLimit.
+  ///
+  /// In es, this message translates to:
+  /// **'de {limit} kcal'**
+  String progressKcalOfLimit(String limit);
+
+  /// No description provided for @progressCompleteDataHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa tus datos físicos y tu meta para calcular tu límite diario.'**
+  String get progressCompleteDataHint;
+
+  /// No description provided for @progressGoalAndRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'Meta diaria: {limit} kcal. Te quedan {remaining} kcal disponibles hoy.'**
+  String progressGoalAndRemaining(String limit, String remaining);
+
+  /// No description provided for @progressHistoryTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial de peso'**
+  String get progressHistoryTitle;
+
+  /// No description provided for @progressHistoryNoCurrent.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin peso actual'**
+  String get progressHistoryNoCurrent;
+
+  /// No description provided for @progressHistoryCurrent.
+  ///
+  /// In es, this message translates to:
+  /// **'{weight}kg Actual'**
+  String progressHistoryCurrent(String weight);
+
+  /// No description provided for @progressHistoryEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no tienes historial físico.'**
+  String get progressHistoryEmpty;
+
+  /// No description provided for @progressAxisStart.
+  ///
+  /// In es, this message translates to:
+  /// **'INICIO'**
+  String get progressAxisStart;
+
+  /// No description provided for @progressAxisToday.
+  ///
+  /// In es, this message translates to:
+  /// **'HOY'**
+  String get progressAxisToday;
+
+  /// No description provided for @progressTileConsumed.
+  ///
+  /// In es, this message translates to:
+  /// **'CONSUMIDAS'**
+  String get progressTileConsumed;
+
+  /// No description provided for @progressTileLoggedToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Registradas hoy'**
+  String get progressTileLoggedToday;
+
+  /// No description provided for @progressTileDailyGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'META DIARIA'**
+  String get progressTileDailyGoal;
+
+  /// No description provided for @progressTileRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'RESTANTES'**
+  String get progressTileRemaining;
+
+  /// No description provided for @progressTileStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'ESTADO'**
+  String get progressTileStatus;
+
+  /// No description provided for @progressTileDailyAverage.
+  ///
+  /// In es, this message translates to:
+  /// **'PROMEDIO DIARIO'**
+  String get progressTileDailyAverage;
+
+  /// No description provided for @progressTileDaysOnTarget.
+  ///
+  /// In es, this message translates to:
+  /// **'DÍAS EN META'**
+  String get progressTileDaysOnTarget;
+
+  /// No description provided for @progressTileWeekTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'TOTAL SEMANA'**
+  String get progressTileWeekTotal;
+
+  /// No description provided for @progressDaysOfSeven.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} de 7'**
+  String progressDaysOfSeven(int count);
+
+  /// No description provided for @progressWeekTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta semana'**
+  String get progressWeekTitle;
+
+  /// No description provided for @progressWeekAverage.
+  ///
+  /// In es, this message translates to:
+  /// **'Promedio: {average} kcal/día'**
+  String progressWeekAverage(String average);
+
+  /// No description provided for @progressWeekAverageOnTarget.
+  ///
+  /// In es, this message translates to:
+  /// **'Promedio: {average} kcal/día · {days} de 7 días en tu meta'**
+  String progressWeekAverageOnTarget(String average, int days);
+
+  /// No description provided for @progressWeekDaySelected.
+  ///
+  /// In es, this message translates to:
+  /// **'{weekday} {day} · {kcal} kcal'**
+  String progressWeekDaySelected(String weekday, int day, String kcal);
+
+  /// No description provided for @progressCompleteProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa tu perfil'**
+  String get progressCompleteProfile;
+
+  /// No description provided for @progressSheetHintNoLast.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe tu peso o ajústalo con − y +'**
+  String get progressSheetHintNoLast;
+
+  /// No description provided for @progressSheetLastEntry.
+  ///
+  /// In es, this message translates to:
+  /// **'Último registro: {weight} kg'**
+  String progressSheetLastEntry(String weight);
+
+  /// No description provided for @progressSheetSame.
+  ///
+  /// In es, this message translates to:
+  /// **'Igual que el último'**
+  String get progressSheetSame;
+
+  /// No description provided for @progressSheetIncrease.
+  ///
+  /// In es, this message translates to:
+  /// **'+{weight} kg desde el último'**
+  String progressSheetIncrease(String weight);
+
+  /// No description provided for @progressSheetDecrease.
+  ///
+  /// In es, this message translates to:
+  /// **'−{weight} kg desde el último'**
+  String progressSheetDecrease(String weight);
+
+  /// No description provided for @progressSheetSubtract.
+  ///
+  /// In es, this message translates to:
+  /// **'Restar 0,1 kg'**
+  String get progressSheetSubtract;
+
+  /// No description provided for @progressSheetAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Sumar 0,1 kg'**
+  String get progressSheetAdd;
+
+  /// No description provided for @progressSheetHeightLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Altura (cm)'**
+  String get progressSheetHeightLabel;
+
+  /// No description provided for @progressSheetWeightRangeError.
+  ///
+  /// In es, this message translates to:
+  /// **'El peso debe estar entre 30 y 300 kg'**
+  String get progressSheetWeightRangeError;
+
+  /// No description provided for @progressSheetHeightRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa tu altura en cm'**
+  String get progressSheetHeightRequired;
+
+  /// No description provided for @progressSheetSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar peso'**
+  String get progressSheetSave;
 }
 
 class _AppLocalizationsDelegate

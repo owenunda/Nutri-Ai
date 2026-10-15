@@ -1,11 +1,17 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/date_labels.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/week_stats.dart';
 
-String formatKcal(int value) => value
-    .toString()
-    .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]}.');
+/// Miles separados: punto en español (1.850) y coma en inglés (1,850).
+String formatKcal(int value, AppLocalizations l10n) {
+  final separator = l10n.localeName == 'es' ? '.' : ',';
+  return value
+      .toString()
+      .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]}$separator');
+}
 
 class WeekCaloriesCard extends StatefulWidget {
   final WeekStats week;
@@ -19,8 +25,6 @@ class WeekCaloriesCard extends StatefulWidget {
 }
 
 class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
-  static const _initials = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  static const _weekdays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   static const _green = AppTheme.primaryStart;
   static const _amber = Color(0xFFF59E0B);
 
@@ -28,6 +32,7 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final week = widget.week;
     final now = (widget.clock ?? DateTime.now)();
     final today = DateTime(now.year, now.month, now.day);
@@ -38,8 +43,8 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
     ).clamp(1, 1 << 31);
 
     final footer = limit == null
-        ? 'Promedio: ${formatKcal(week.average)} kcal/día'
-        : 'Promedio: ${formatKcal(week.average)} kcal/día · ${week.daysOnTarget} de 7 días en tu meta';
+        ? l10n.progressWeekAverage(formatKcal(week.average, l10n))
+        : l10n.progressWeekAverageOnTarget(formatKcal(week.average, l10n), week.daysOnTarget);
 
     return Container(
       width: double.infinity,
@@ -54,16 +59,19 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Esta semana',
-                  style: TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 18, fontWeight: FontWeight.w900),
+                  l10n.progressWeekTitle,
+                  style: const TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 18, fontWeight: FontWeight.w900),
                 ),
               ),
               if (_selected != null)
                 Text(
-                  '${_weekdays[_selected!.date.weekday - 1]} ${_selected!.date.day} · '
-                  '${formatKcal(_selected!.totalConsumed)} kcal',
+                  l10n.progressWeekDaySelected(
+                    shortWeekday(_selected!.date, l10n.localeName),
+                    _selected!.date.day,
+                    formatKcal(_selected!.totalConsumed, l10n),
+                  ),
                   style: const TextStyle(color: _green, fontWeight: FontWeight.w800, fontSize: 13),
                 ),
             ],
@@ -106,7 +114,8 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                _initials[day.date.weekday - 1],
+                                // Inicial del día: L M M J V S D / M T W T F S S.
+                                shortWeekday(day.date, l10n.localeName)[0],
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: day.date == today ? FontWeight.w900 : FontWeight.w600,
@@ -131,7 +140,7 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
             TextButton(
               onPressed: widget.onCompleteProfile,
               style: TextButton.styleFrom(padding: EdgeInsets.zero),
-              child: const Text('Completa tu perfil'),
+              child: Text(l10n.progressCompleteProfile),
             ),
         ],
       ),

@@ -975,5 +975,186 @@
   "chatErrorLoadConversation": "Error al cargar la conversación",
   "chatErrorOpenConversation": "Error al abrir la conversación",
   "chatErrorCloseSession": "Error al cerrar la sesión",
-  "chatNoReply": "Sin respuesta"
+  "chatNoReply": "Sin respuesta",
+  "progressKicker": "PROGRESO SEMANAL",
+  "progressGreeting": "Buen progreso,\n{name}!",
+  "@progressGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "progressGoalPill": "Meta:\n{goal}",
+  "@progressGoalPill": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "progressGoalLose": "Bajar peso",
+  "progressGoalGain": "Subir peso",
+  "progressGoalMaintain": "Mantener peso",
+  "progressGoalNone": "Sin meta",
+  "progressStatusNoData": "Sin datos",
+  "progressStatusExceeded": "EXCEDIDO",
+  "progressErrorTitle": "No se pudo cargar tu progreso",
+  "progressErrorLoadShort": "No se pudo cargar tu progreso.",
+  "progressErrorLoad": "No se pudo cargar tu progreso. Inténtalo de nuevo.",
+  "progressErrorLoadDailyGoal": "No se pudo cargar tu meta diaria. Inténtalo de nuevo.",
+  "progressErrorSaveWeight": "No se pudo guardar tu peso.",
+  "progressErrorInvalidData": "El servidor respondió con datos inválidos.",
+  "progressErrorLoadInfo": "No se pudo cargar la información.",
+  "progressRetry": "Intentar de nuevo",
+  "progressWeightSummaryTitle": "Resumen de peso",
+  "progressWeightDown": "Tu peso bajó\n{amount} desde el registro anterior",
+  "@progressWeightDown": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWeightUp": "Tu peso subió\n{amount} desde el registro anterior",
+  "@progressWeightUp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWeightChanged": "Tu peso cambió\n{amount} desde el registro anterior",
+  "@progressWeightChanged": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "progressCurrentWeight": "Peso actual",
+  "progressNoRecord": "Sin registro",
+  "progressCompareHint": "Comparado con tu registro físico anterior.",
+  "progressAddAnotherHint": "Registra otro peso más adelante para ver tu evolución.",
+  "progressRegisterWeight": "Registrar peso",
+  "progressSummaryWeek": "Resumen de la semana",
+  "progressSummaryNutrition": "Resumen nutricional",
+  "progressTodayCaloriesTitle": "Calorías de hoy",
+  "progressKcalConsumed": "kcal consumidas",
+  "progressKcalOfLimit": "de {limit} kcal",
+  "@progressKcalOfLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "progressCompleteDataHint": "Completa tus datos físicos y tu meta para calcular tu límite diario.",
+  "progressGoalAndRemaining": "Meta diaria: {limit} kcal. Te quedan {remaining} kcal disponibles hoy.",
+  "@progressGoalAndRemaining": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "progressHistoryTitle": "Historial de peso",
+  "progressHistoryNoCurrent": "Sin peso actual",
+  "progressHistoryCurrent": "{weight}kg Actual",
+  "@progressHistoryCurrent": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "progressHistoryEmpty": "Aún no tienes historial físico.",
+  "progressAxisStart": "INICIO",
+  "progressAxisToday": "HOY",
+  "progressTileConsumed": "CONSUMIDAS",
+  "progressTileLoggedToday": "Registradas hoy",
+  "progressTileDailyGoal": "META DIARIA",
+  "progressTileRemaining": "RESTANTES",
+  "progressTileStatus": "ESTADO",
+  "progressTileDailyAverage": "PROMEDIO DIARIO",
+  "progressTileDaysOnTarget": "DÍAS EN META",
+  "progressTileWeekTotal": "TOTAL SEMANA",
+  "progressDaysOfSeven": "{count} de 7",
+  "@progressDaysOfSeven": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWeekTitle": "Esta semana",
+  "progressWeekAverage": "Promedio: {average} kcal/día",
+  "@progressWeekAverage": {
+    "placeholders": {
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWeekAverageOnTarget": "Promedio: {average} kcal/día · {days} de 7 días en tu meta",
+  "@progressWeekAverageOnTarget": {
+    "placeholders": {
+      "average": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWeekDaySelected": "{weekday} {day} · {kcal} kcal",
+  "@progressWeekDaySelected": {
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "progressCompleteProfile": "Completa tu perfil",
+  "progressSheetHintNoLast": "Escribe tu peso o ajústalo con − y +",
+  "progressSheetLastEntry": "Último registro: {weight} kg",
+  "@progressSheetLastEntry": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSheetSame": "Igual que el último",
+  "progressSheetIncrease": "+{weight} kg desde el último",
+  "@progressSheetIncrease": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSheetDecrease": "−{weight} kg desde el último",
+  "@progressSheetDecrease": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSheetSubtract": "Restar 0,1 kg",
+  "progressSheetAdd": "Sumar 0,1 kg",
+  "progressSheetHeightLabel": "Altura (cm)",
+  "progressSheetWeightRangeError": "El peso debe estar entre 30 y 300 kg",
+  "progressSheetHeightRequired": "Ingresa tu altura en cm",
+  "progressSheetSave": "Guardar peso"
 }

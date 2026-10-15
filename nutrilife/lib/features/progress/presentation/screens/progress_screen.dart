@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/date_labels.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -96,7 +98,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         final data = snapshot.data;
         if (data == null) {
           return _ProgressErrorView(
-            message: 'No se pudo cargar tu progreso.',
+            message: context.l10n.progressErrorLoadShort,
             onRetry: _refreshProgress,
           );
         }
@@ -118,6 +120,7 @@ class _ProgressContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),
@@ -134,7 +137,7 @@ class _ProgressContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'PROGRESO SEMANAL',
+                      l10n.progressKicker,
                       style: TextStyle(fontFamily: 'Inter', 
                         color: ProgressScreen._green,
                         fontSize: 11,
@@ -144,7 +147,7 @@ class _ProgressContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 7),
                     Text(
-                      'Buen progreso,\n${data.firstName}!',
+                      l10n.progressGreeting(data.firstName),
                       style: TextStyle(fontFamily: 'PlusJakartaSans', 
                         color: ProgressScreen._text,
                         fontSize: 28,
@@ -184,7 +187,7 @@ class _ProgressContent extends StatelessWidget {
           ),
           const SizedBox(height: 28),
           Text(
-            data.week != null ? 'Resumen de la semana' : 'Resumen nutricional',
+            data.week != null ? l10n.progressSummaryWeek : l10n.progressSummaryNutrition,
             style: TextStyle(fontFamily: 'PlusJakartaSans', 
               color: ProgressScreen._text,
               fontSize: 18,
@@ -231,6 +234,7 @@ class _ProgressErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),
@@ -257,7 +261,7 @@ class _ProgressErrorView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No se pudo cargar tu progreso',
+                  l10n.progressErrorTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: ProgressScreen._text,
@@ -278,7 +282,7 @@ class _ProgressErrorView extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 PrimaryButton(
-                  textButton: 'Intentar de nuevo',
+                  textButton: l10n.progressRetry,
                   icon: Icons.refresh_rounded,
                   height: 48,
                   onPressed: onRetry,
@@ -307,7 +311,7 @@ class _GoalPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
       ),
       child: Text(
-        'Meta:\n$goal',
+        context.l10n.progressGoalPill(goal),
         style: TextStyle(fontFamily: 'Inter', 
           color: const Color(0xFF064D31),
           fontSize: 12,
@@ -326,6 +330,7 @@ class _WeightInsightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final change = data.latestWeightChange;
     final hasChange = change != null;
     final currentWeight = data.currentWeight;
@@ -336,10 +341,10 @@ class _WeightInsightCard extends StatelessWidget {
         : isUp
         ? Icons.trending_up_rounded
         : Icons.trending_flat_rounded;
-    final mainText = _weightInsightText(change);
     final highlightedText = hasChange
         ? '${change.abs().toStringAsFixed(1)}kg'
         : '';
+    final mainText = _weightInsightText(change, l10n);
 
     return Container(
       width: double.infinity,
@@ -380,7 +385,7 @@ class _WeightInsightCard extends StatelessWidget {
                   Icon(icon, color: ProgressScreen._green, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'Resumen de peso',
+                    l10n.progressWeightSummaryTitle,
                     style: TextStyle(fontFamily: 'PlusJakartaSans', 
                       color: ProgressScreen._green,
                       fontSize: 15,
@@ -413,10 +418,10 @@ class _WeightInsightCard extends StatelessWidget {
                 Text.rich(
                   TextSpan(
                     children: [
-                      const TextSpan(text: 'Peso actual\n'),
+                      TextSpan(text: '${l10n.progressCurrentWeight}\n'),
                       TextSpan(
                         text: currentWeight == null
-                            ? 'Sin registro'
+                            ? l10n.progressNoRecord
                             : '${_formatDouble(currentWeight)}kg',
                         style: const TextStyle(color: ProgressScreen._green),
                       ),
@@ -432,8 +437,8 @@ class _WeightInsightCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 hasChange
-                    ? 'Comparado con tu registro físico anterior.'
-                    : 'Registra otro peso más adelante para ver tu evolución.',
+                    ? l10n.progressCompareHint
+                    : l10n.progressAddAnotherHint,
                 style: TextStyle(fontFamily: 'Inter',
                   color: ProgressScreen._muted.withValues(alpha: 0.88),
                   fontSize: 13,
@@ -449,7 +454,7 @@ class _WeightInsightCard extends StatelessWidget {
                   height: data.currentHeight,
                 ),
                 icon: const Icon(Icons.monitor_weight_outlined, size: 18),
-                label: const Text('Registrar peso'),
+                label: Text(l10n.progressRegisterWeight),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: ProgressScreen._green,
                   side: const BorderSide(color: Color(0xFFD1E7DA)),
@@ -463,20 +468,21 @@ class _WeightInsightCard extends StatelessWidget {
     );
   }
 
-  (String, String) _weightInsightText(double? change) {
+  /// Texto antes y después del número resaltado. La frase completa se traduce
+  /// con una marca en el lugar del número, así cada idioma ordena como quiera.
+  (String, String) _weightInsightText(double? change, AppLocalizations l10n) {
     if (change == null) {
       return ('', '');
     }
 
-    if (change < 0) {
-      return ('Tu peso bajo\n', ' desde el registro anterior');
-    }
-
-    if (change > 0) {
-      return ('Tu peso subio\n', ' desde el registro anterior');
-    }
-
-    return ('Tu peso cambio\n', ' desde el registro anterior');
+    const marker = '\u0001';
+    final sentence = change < 0
+        ? l10n.progressWeightDown(marker)
+        : change > 0
+        ? l10n.progressWeightUp(marker)
+        : l10n.progressWeightChanged(marker);
+    final parts = sentence.split(marker);
+    return (parts.first, parts.last);
   }
 }
 
@@ -487,6 +493,7 @@ class _TodayCaloriesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final dailyLimit = data.dailyLimit;
     final remaining = data.remaining;
 
@@ -498,7 +505,7 @@ class _TodayCaloriesCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Calorias de hoy',
+                  l10n.progressTodayCaloriesTitle,
                   style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: ProgressScreen._text,
                     fontSize: 17,
@@ -506,7 +513,7 @@ class _TodayCaloriesCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _StatusChip(status: data.status),
+              _StatusChip(status: data.statusLabel, isExceeded: data.isExceeded),
             ],
           ),
           const SizedBox(height: 22),
@@ -514,7 +521,7 @@ class _TodayCaloriesCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                _formatInt(data.totalConsumed),
+                formatKcal(data.totalConsumed, l10n),
                 style: TextStyle(fontFamily: 'PlusJakartaSans', 
                   color: ProgressScreen._green,
                   fontSize: 44,
@@ -528,8 +535,8 @@ class _TodayCaloriesCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
                   dailyLimit == null
-                      ? 'kcal consumidas'
-                      : 'de ${_formatInt(dailyLimit)} kcal',
+                      ? l10n.progressKcalConsumed
+                      : l10n.progressKcalOfLimit(formatKcal(dailyLimit, l10n)),
                   style: TextStyle(fontFamily: 'Inter', 
                     color: ProgressScreen._muted.withValues(alpha: 0.9),
                     fontSize: 13,
@@ -547,7 +554,7 @@ class _TodayCaloriesCard extends StatelessWidget {
               minHeight: 12,
               backgroundColor: const Color(0xFFDDE4E8),
               valueColor: AlwaysStoppedAnimation<Color>(
-                data.status.toUpperCase() == 'EXCEDIDO'
+                data.isExceeded
                     ? const Color(0xFFB42318)
                     : ProgressScreen._green,
               ),
@@ -556,8 +563,11 @@ class _TodayCaloriesCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             dailyLimit == null || remaining == null
-                ? 'Completa tus datos físicos y tu meta para calcular tu límite diario.'
-                : 'Meta diaria: ${_formatInt(dailyLimit)} kcal. Te quedan ${_formatInt(remaining)} kcal disponibles hoy.',
+                ? l10n.progressCompleteDataHint
+                : l10n.progressGoalAndRemaining(
+                    formatKcal(dailyLimit, l10n),
+                    formatKcal(remaining, l10n),
+                  ),
             style: TextStyle(fontFamily: 'Inter', 
               color: ProgressScreen._muted.withValues(alpha: 0.9),
               fontSize: 13,
@@ -572,13 +582,13 @@ class _TodayCaloriesCard extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
+  const _StatusChip({required this.status, required this.isExceeded});
 
   final String status;
+  final bool isExceeded;
 
   @override
   Widget build(BuildContext context) {
-    final isExceeded = status.toUpperCase() == 'EXCEDIDO';
     final color = isExceeded ? const Color(0xFFB42318) : ProgressScreen._green;
 
     return Container(
@@ -610,6 +620,7 @@ class _WeightHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final validRecords = records
         .where((record) => record.weight != null)
         .toList();
@@ -622,7 +633,7 @@ class _WeightHistoryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Historial de peso',
+                  l10n.progressHistoryTitle,
                   style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: ProgressScreen._text,
                     fontSize: 17,
@@ -641,8 +652,8 @@ class _WeightHistoryCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 currentWeight == null
-                    ? 'Sin peso actual'
-                    : '${_formatDouble(currentWeight!)}kg Actual',
+                    ? l10n.progressHistoryNoCurrent
+                    : l10n.progressHistoryCurrent(_formatDouble(currentWeight!)),
                 style: TextStyle(fontFamily: 'Inter', 
                   color: ProgressScreen._muted,
                   fontSize: 11,
@@ -667,6 +678,7 @@ class _WeightHistoryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: _historyLabels(
                 validRecords,
+                l10n,
               ).map((label) => _AxisLabel(label)).toList(),
             ),
           ],
@@ -683,7 +695,7 @@ class _EmptyHistoryState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        'Aún no tienes historial físico.',
+        context.l10n.progressHistoryEmpty,
         textAlign: TextAlign.center,
         style: TextStyle(fontFamily: 'Inter', 
           color: ProgressScreen._muted.withValues(alpha: 0.85),
@@ -702,6 +714,7 @@ class _NutritionAveragesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final dailyLimit = data.dailyLimit;
     final remaining = data.remaining;
 
@@ -711,9 +724,9 @@ class _NutritionAveragesGrid extends StatelessWidget {
           children: [
             Expanded(
               child: _AverageTile(
-                label: 'CONSUMIDAS',
-                value: '${_formatInt(data.totalConsumed)} kcal',
-                detail: 'Registradas hoy',
+                label: l10n.progressTileConsumed,
+                value: '${formatKcal(data.totalConsumed, l10n)} kcal',
+                detail: l10n.progressTileLoggedToday,
                 accent: ProgressScreen._green,
                 progress: data.calorieProgress,
                 highlighted: true,
@@ -722,10 +735,10 @@ class _NutritionAveragesGrid extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: _AverageTile(
-                label: 'META DIARIA',
+                label: l10n.progressTileDailyGoal,
                 value: dailyLimit == null
                     ? '--'
-                    : '${_formatInt(dailyLimit)} kcal',
+                    : '${formatKcal(dailyLimit, l10n)} kcal',
                 accent: ProgressScreen._green,
                 progress: 1,
               ),
@@ -737,10 +750,10 @@ class _NutritionAveragesGrid extends StatelessWidget {
           children: [
             Expanded(
               child: _AverageTile(
-                label: 'RESTANTES',
+                label: l10n.progressTileRemaining,
                 value: remaining == null
                     ? '--'
-                    : '${_formatInt(remaining)} kcal',
+                    : '${formatKcal(remaining, l10n)} kcal',
                 accent: const Color(0xFF0F7C86),
                 progress: 1 - data.calorieProgress,
               ),
@@ -748,12 +761,12 @@ class _NutritionAveragesGrid extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: _AverageTile(
-                label: 'ESTADO',
-                value: data.status,
-                accent: data.status.toUpperCase() == 'EXCEDIDO'
+                label: l10n.progressTileStatus,
+                value: data.statusLabel,
+                accent: data.isExceeded
                     ? const Color(0xFFB42318)
                     : ProgressScreen._blue,
-                progress: data.status.toUpperCase() == 'EXCEDIDO'
+                progress: data.isExceeded
                     ? 1
                     : data.calorieProgress,
               ),
@@ -955,17 +968,17 @@ class _WeightHistoryPainter extends CustomPainter {
   }
 }
 
-List<String> _historyLabels(List<PhysicalRecord> records) {
+List<String> _historyLabels(List<PhysicalRecord> records, AppLocalizations l10n) {
   final recordsWithDate = records
       .where((record) => record.recordDate != null)
       .toList();
   if (recordsWithDate.isEmpty) {
-    return const ['INICIO', 'HOY'];
+    return [l10n.progressAxisStart, l10n.progressAxisToday];
   }
 
   if (recordsWithDate.length <= 5) {
     return recordsWithDate
-        .map((record) => _formatDate(record.recordDate!))
+        .map((record) => _formatDate(record.recordDate!, l10n))
         .toList();
   }
 
@@ -982,27 +995,13 @@ List<String> _historyLabels(List<PhysicalRecord> records) {
         (index) =>
             recordsWithDate[index.clamp(0, recordsWithDate.length - 1).toInt()],
       )
-      .map((record) => _formatDate(record.recordDate!))
+      .map((record) => _formatDate(record.recordDate!, l10n))
       .toList();
 }
 
-String _formatDate(DateTime date) {
-  const months = [
-    'ENE',
-    'FEB',
-    'MAR',
-    'ABR',
-    'MAY',
-    'JUN',
-    'JUL',
-    'AGO',
-    'SEP',
-    'OCT',
-    'NOV',
-    'DIC',
-  ];
-
-  return '${months[date.month - 1]} ${date.day}';
+/// "ENE 5" / "JAN 5": mes abreviado en mayúsculas y día.
+String _formatDate(DateTime date, AppLocalizations l10n) {
+  return '${shortMonth(date, l10n.localeName).toUpperCase()} ${date.day}';
 }
 
 String _formatDouble(double value) {
@@ -1012,5 +1011,3 @@ String _formatDouble(double value) {
 
   return value.toStringAsFixed(1);
 }
-
-String _formatInt(int value) => formatKcal(value);

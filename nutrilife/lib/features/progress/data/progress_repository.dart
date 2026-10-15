@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/utils/local_date.dart';
@@ -57,42 +58,52 @@ class ProgressData {
   String get firstName {
     final name = profile['name']?.toString().trim();
     if (name == null || name.isEmpty) {
-      return 'Usuario';
+      return currentL10n.commonUser;
     }
 
     return name.split(RegExp(r'\s+')).first;
   }
 
-  String get goal {
+  /// Meta tal como la guarda el backend ('Perder peso', 'Mantener peso'...).
+  /// Es `null` si el perfil no tiene meta.
+  String? get goal {
     final value =
         consumptionValidation?['goal']?.toString() ??
         profile['goal']?.toString();
     if (value == null || value.trim().isEmpty) {
-      return 'Sin meta';
+      return null;
     }
 
     return value.trim();
   }
 
+  /// Meta para mostrar. Los valores del backend se traducen; uno desconocido
+  /// se muestra tal cual.
   String get goalLabel {
-    final normalized = goal.toLowerCase();
+    final l10n = currentL10n;
+    final value = goal;
+    if (value == null) {
+      return l10n.progressGoalNone;
+    }
+
+    final normalized = value.toLowerCase();
     if (normalized.contains('perder') ||
         normalized.contains('bajar') ||
         normalized.contains('lose')) {
-      return 'Bajar peso';
+      return l10n.progressGoalLose;
     }
 
     if (normalized.contains('ganar') ||
         normalized.contains('subir') ||
         normalized.contains('gain')) {
-      return 'Subir peso';
+      return l10n.progressGoalGain;
     }
 
     if (normalized.contains('mantener') || normalized.contains('maintain')) {
-      return 'Mantener peso';
+      return l10n.progressGoalMaintain;
     }
 
-    return goal;
+    return value;
   }
 
   double? get currentWeight {
@@ -135,13 +146,27 @@ class ProgressData {
     return value < 0 ? 0 : value;
   }
 
-  String get status {
+  /// Estado que manda el backend ('OK', 'EXCEDIDO'). `null` si no hay datos.
+  String? get status {
     final value = consumptionValidation?['status']?.toString();
     if (value == null || value.trim().isEmpty) {
-      return 'Sin datos';
+      return null;
     }
 
     return value.trim();
+  }
+
+  bool get isExceeded => status?.toUpperCase() == 'EXCEDIDO';
+
+  /// Estado para mostrar: el código 'EXCEDIDO' se traduce, 'OK' queda igual.
+  String get statusLabel {
+    final l10n = currentL10n;
+    final value = status;
+    if (value == null) {
+      return l10n.progressStatusNoData;
+    }
+
+    return isExceeded ? l10n.progressStatusExceeded : value;
   }
 
   List<PhysicalRecord> get orderedHistory {
@@ -201,7 +226,7 @@ class ProgressData {
     final heightInCentimeters = height <= 3 ? height * 100 : height;
     final bmr = (10 * weight) + (6.25 * heightInCentimeters) - (5 * age) - 80;
     final maintenanceCalories = bmr * _activityFactor;
-    final normalizedGoal = goal.toLowerCase();
+    final normalizedGoal = (goal ?? '').toLowerCase();
     var dailyCalories = maintenanceCalories;
 
     if (normalizedGoal.contains('perder') ||
@@ -259,9 +284,7 @@ class ProgressRepository {
     } on DioException catch (error) {
       throw ProgressException(_fallbackMessage(error));
     } catch (_) {
-      throw const ProgressException(
-        'No se pudo cargar tu meta diaria. Inténtalo de nuevo.',
-      );
+      throw ProgressException(currentL10n.progressErrorLoadDailyGoal);
     }
   }
 
@@ -298,9 +321,7 @@ class ProgressRepository {
     } on DioException catch (error) {
       throw ProgressException(_fallbackMessage(error));
     } catch (_) {
-      throw const ProgressException(
-        'No se pudo cargar tu progreso. Inténtalo de nuevo.',
-      );
+      throw ProgressException(currentL10n.progressErrorLoad);
     }
   }
 
@@ -312,7 +333,7 @@ class ProgressRepository {
       );
     } on DioException catch (error) {
       throw ProgressException(
-        error.response?.data?['message']?.toString() ?? 'No se pudo guardar tu peso.',
+        error.response?.data?['message']?.toString() ?? currentL10n.progressErrorSaveWeight,
       );
     }
   }
@@ -323,7 +344,7 @@ class ProgressRepository {
       return data;
     }
 
-    throw const ProgressException('El servidor respondió con datos inválidos.');
+    throw ProgressException(currentL10n.progressErrorInvalidData);
   }
 
   Future<List<dynamic>> _getList(String route) async {
@@ -363,7 +384,7 @@ class ProgressRepository {
     }
 
     throw ProgressException(
-      _extractFriendlyMessage(body) ?? 'No se pudo cargar la información.',
+      _extractFriendlyMessage(body) ?? currentL10n.progressErrorLoadInfo,
     );
   }
 
@@ -372,11 +393,11 @@ class ProgressRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return 'La conexión con el servidor tardó demasiado. Inténtalo de nuevo.';
+        return currentL10n.commonErrorTimeout;
       case DioExceptionType.connectionError:
-        return 'No se pudo conectar con el servidor. Verifica que el backend esté activo.';
+        return currentL10n.commonErrorConnection;
       default:
-        return 'No se pudo cargar tu progreso. Inténtalo de nuevo.';
+        return currentL10n.progressErrorLoad;
     }
   }
 
