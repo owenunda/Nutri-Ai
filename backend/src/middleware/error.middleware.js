@@ -1,5 +1,6 @@
 import { AppError } from '../utils/AppError.js';
 import { errorResponse } from '../utils/response.js';
+import { localizeError } from '../i18n/localize.js';
 import { config } from '../config/env_config.js';
 import { logEventService } from '../modules/events/events.service.js';
 
@@ -33,7 +34,8 @@ export const errorHandler = (err, req, res, next) => {
   // Si el error es una instancia de AppError, usamos sus propiedades
   if (err instanceof AppError) {
     logSystemError(err, req, err.status, err.code);
-    return errorResponse(res, err.message, err.code, err.status, err.details);
+    const { message, details } = localizeError(err, req.lang);
+    return errorResponse(res, message, err.code, err.status, details);
   }
 
   // Determinar el entorno
@@ -50,7 +52,8 @@ export const errorHandler = (err, req, res, next) => {
 
   logSystemError(err, req, status, code);
 
-  return errorResponse(res, message, code, status, details);
+  const localized = localizeError({ code, message, details }, req.lang);
+  return errorResponse(res, localized.message, code, status, localized.details);
 };
 
 /*

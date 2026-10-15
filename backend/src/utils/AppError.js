@@ -5,12 +5,14 @@ export class AppError extends Error {
     status: number - http codigo de estado
     code: string - codigo de error de la aplicacion
     details: Array - detalles adicionales del error
+    params: Object - datos variables del mensaje, para traducirlo (ej: { seconds })
   */
-  constructor(message, status = 500, code = 'INTERNAL_ERROR', details = []) {
+  constructor(message, status = 500, code = 'INTERNAL_ERROR', details = [], params = {}) {
     super(message);
     this.status = status;
     this.code = code;
     this.details = details;
+    this.params = params;
     this.name = this.constructor.name;
     
     // Captura el stack trace, excluyendo la llamada al constructor

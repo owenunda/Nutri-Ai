@@ -22,6 +22,7 @@ import { errorResponse, successResponse } from './utils/response.js';
 import { sendChatN8n } from './utils/n8n.service.js';
 import { getFridgeItemsByIdsService } from './modules/fridge/fridge.service.js';
 import { AppError } from './utils/AppError.js';
+import { localizeError } from './i18n/localize.js';
 
 const app = express();
 
@@ -123,7 +124,8 @@ app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), chatRateLimit
     const result = await sendChatN8n(message, userId, name, token, attachedFoods);
     return successResponse(res, result, 'Mensaje enviado correctamente a n8n');
   } catch (error) {
-    errorResponse(res, error.message, error.code, error.status, error.details);
+    const { message, details } = localizeError(error, req.lang);
+    errorResponse(res, message, error.code, error.status, details);
   }
 });
 

@@ -33,7 +33,9 @@ export const sendCode = async (user, purpose) => {
       throw new AppError(
         `Espera ${seconds} segundos para pedir otro código.`,
         429,
-        'CODE_RECENTLY_SENT'
+        'CODE_RECENTLY_SENT',
+        [],
+        { seconds }
       );
     }
   }
