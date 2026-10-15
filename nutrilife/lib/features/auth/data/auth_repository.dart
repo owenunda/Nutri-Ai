@@ -1,12 +1,17 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 
 class AuthException implements Exception {
-  const AuthException(this.message);
+  const AuthException(this.message, {this.code});
 
   final String message;
+
+  /// Código de error del backend (p. ej. `EMAIL_ALREADY_EXISTS`), si lo mandó.
+  /// Sirve para decidir qué mostrar sin depender del idioma del mensaje.
+  final String? code;
 
   @override
   String toString() => message;
@@ -63,26 +68,29 @@ class AuthRepository {
       }
 
       throw AuthException(
-        _extractFriendlyMessage(data) ?? 'No se pudo completar el registro.',
+        _extractFriendlyMessage(data) ?? currentL10n.authErrorRegister,
       );
     } on DioException catch (error) {
       throw AuthException(
         _extractFriendlyMessage(error.response?.data) ??
             _fallbackMessage(error),
+        code: _errorCode(error.response?.data),
       );
     } on AuthException {
       rethrow;
     } catch (_) {
-      throw const AuthException(
-        'No se pudo completar el registro. Inténtalo de nuevo.',
-      );
+      throw AuthException(currentL10n.authErrorRegister);
     }
   }
 
   /// Lanza [GoogleLinkRequiredException] si el correo ya tiene una cuenta con
   /// contraseña: hay que pedirla y llamar a [linkGoogle].
   Future<GoogleLoginResult> loginWithGoogle(String idToken) =>
-      _postSession(ApiRoutes.authGoogle, {'idToken': idToken}, _googleFallback);
+      _postSession(
+        ApiRoutes.authGoogle,
+        {'idToken': idToken},
+        currentL10n.authErrorGoogle,
+      );
 
   /// Vincula Google a la cuenta existente con ese correo, confirmando su
   /// contraseña. La contraseña se conserva.
@@ -90,28 +98,28 @@ class AuthRepository {
       _postSession(ApiRoutes.authGoogleLink, {
         'idToken': idToken,
         'password': password,
-      }, _googleFallback);
+      }, currentL10n.authErrorGoogle);
 
   /// Verifica el correo con el código enviado y devuelve la sesión.
   Future<GoogleLoginResult> verifyEmail(String email, String code) =>
       _postSession(
         ApiRoutes.authVerifyEmail,
         {'email': email, 'code': code},
-        'No se pudo verificar tu correo. Inténtalo de nuevo.',
+        currentL10n.authErrorVerifyEmail,
       );
 
   /// Reenvía el código para verificar el correo.
   Future<void> resendVerification(String email) => _post(
     ApiRoutes.authVerifyEmailResend,
     {'email': email},
-    'No se pudo reenviar el código. Inténtalo de nuevo.',
+    currentL10n.authErrorResendCode,
   );
 
   /// Envía un código para restablecer la contraseña.
   Future<void> forgotPassword(String email) => _post(
     ApiRoutes.authPasswordForgot,
     {'email': email},
-    'No se pudo enviar el código. Inténtalo de nuevo.',
+    currentL10n.authErrorSendCode,
   );
 
   /// Pone una contraseña nueva usando el código enviado al correo.
@@ -119,11 +127,8 @@ class AuthRepository {
       _post(
         ApiRoutes.authPasswordReset,
         {'email': email, 'code': code, 'password': password},
-        'No se pudo cambiar tu contraseña. Inténtalo de nuevo.',
+        currentL10n.authErrorResetPassword,
       );
-
-  static const _googleFallback =
-      'No se pudo iniciar sesión con Google. Inténtalo de nuevo.';
 
   /// POST que responde una sesión (`token`, `user`, banderas). También la usa
   /// la verificación del correo.
@@ -173,7 +178,7 @@ class AuthRepository {
   Future<void> setPassword(String password) => _post(
     ApiRoutes.userPassword,
     {'password': password},
-    'No se pudo guardar tu contraseña. Inténtalo de nuevo.',
+    currentL10n.authErrorSetPassword,
   );
 
   /// POST sin datos de respuesta: solo importa si salió bien.
@@ -203,20 +208,16 @@ class AuthRepository {
     }
   }
 
-  String _fallbackMessage(
-    DioException error, {
-    String defaultMessage =
-        'No se pudo completar el registro. Inténtalo de nuevo.',
-  }) {
+  String _fallbackMessage(DioException error, {String? defaultMessage}) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return 'La conexión con el servidor tardó demasiado. Inténtalo de nuevo.';
+        return currentL10n.commonErrorTimeout;
       case DioExceptionType.connectionError:
-        return 'No se pudo conectar con el servidor. Verifica que el backend esté activo.';
+        return currentL10n.commonErrorConnection;
       default:
-        return defaultMessage;
+        return defaultMessage ?? currentL10n.authErrorRegister;
     }
   }
 
@@ -233,7 +234,6 @@ class AuthRepository {
             .whereType<Map>()
             .map((item) => item['message'])
             .whereType<String>()
-            .map(_translateMessage)
             .toList();
 
         if (messages.isNotEmpty) {
@@ -244,30 +244,9 @@ class AuthRepository {
 
     final message = data['message'];
     if (message is String && message.trim().isNotEmpty) {
-      return _translateMessage(message);
+      return message;
     }
 
     return null;
-  }
-
-  String _translateMessage(String message) {
-    const translations = {
-      'Validation error': 'Revisa los campos marcados e inténtalo de nuevo.',
-      'Name is required': 'El nombre es obligatorio.',
-      'Email is required': 'El correo electrónico es obligatorio.',
-      'Email format is invalid': 'El formato del correo electrónico no es válido.',
-      'Password is required': 'La contraseña es obligatoria.',
-      'Password must be at least 6 characters':
-          'La contraseña debe tener al menos 6 caracteres.',
-      'Email is already registered': 'Ese correo ya está registrado.',
-      'Default role or plan is not configured':
-          'Falta configurar el rol o plan por defecto.',
-      'Invalid credentials': 'Correo o contraseña inválidos.',
-      'Contraseña incorrecta': 'La contraseña no es correcta.',
-      'JWT secret is not configured':
-          'Falta configurar el secreto JWT en el backend.',
-    };
-
-    return translations[message] ?? message;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../constants/google_auth_config.dart';
+import '../l10n/l10n.dart';
 
 class GoogleAuthException implements Exception {
   const GoogleAuthException(this.message);
@@ -34,9 +35,7 @@ class GoogleAuthService {
   /// Devuelve el idToken, o null si el usuario cierra el selector.
   static Future<String?> getIdToken() async {
     if (GoogleAuthConfig.serverClientId.isEmpty) {
-      throw const GoogleAuthException(
-        'El inicio de sesión con Google no está configurado.',
-      );
+      throw GoogleAuthException(currentL10n.authErrorGoogleNotConfigured);
     }
 
     try {
@@ -44,24 +43,18 @@ class GoogleAuthService {
       final account = await GoogleSignIn.instance.authenticate();
       final idToken = account.authentication.idToken;
       if (idToken == null) {
-        throw const GoogleAuthException(
-          'Google no devolvió tus datos. Inténtalo de nuevo.',
-        );
+        throw GoogleAuthException(currentL10n.authErrorGoogleNoData);
       }
       return idToken;
     } on GoogleSignInException catch (error) {
       if (error.code == GoogleSignInExceptionCode.canceled) {
         return null;
       }
-      throw const GoogleAuthException(
-        'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
-      );
+      throw GoogleAuthException(currentL10n.authErrorGoogle);
     } on GoogleAuthException {
       rethrow;
     } catch (_) {
-      throw const GoogleAuthException(
-        'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
-      );
+      throw GoogleAuthException(currentL10n.authErrorGoogle);
     }
   }
 

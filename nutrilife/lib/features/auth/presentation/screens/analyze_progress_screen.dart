@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 class AnalyzeProgressScreen extends StatefulWidget {
   const AnalyzeProgressScreen({super.key});
 
@@ -212,21 +214,21 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
                             ],
                           ),
 
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
 
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.check_circle,
                                 color: Color(0xFF0A6B3F),
                                 size: 18,
                               ),
 
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
 
                               Text(
-                                'META CUMPLIDA',
-                                style: TextStyle(
+                                context.l10n.authAnalyzeGoalReached,
+                                style: const TextStyle(
                                   color: Color(0xFF2C2F31),
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -246,16 +248,16 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
                 // =========================
                 // Textos inferiores
                 // =========================
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
 
                   child: Column(
                     children: [
                       Text(
-                        'Analiza tu Progreso',
+                        context.l10n.authAnalyzeTitle,
                         textAlign: TextAlign.center,
 
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF2C2F31),
                           fontSize: 32,
                           fontWeight: FontWeight.w800,
@@ -263,13 +265,13 @@ class _AnalyzeProgressScreenState extends State<AnalyzeProgressScreen>
                         ),
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       Text(
-                        'Mantente motivado con información detallada sobre tus hábitos. Revisa tus tendencias y celebra cada logro en tu camino.',
+                        context.l10n.authAnalyzeBody,
                         textAlign: TextAlign.center,
 
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF595C5E),
                           fontSize: 16,
                           height: 1.5,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../data/auth_repository.dart';
 import '../widgets/auth_form_widgets.dart';
@@ -71,16 +72,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthCardScaffold(
-      title: 'Recupera tu contraseña',
-      subtitle:
-          'Escribe el correo de tu cuenta y te enviaremos un código para '
-          'crear una contraseña nueva.',
+      title: context.l10n.authForgotTitle,
+      subtitle: context.l10n.authForgotSubtitle,
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AuthFieldLabel('CORREO ELECTRÓNICO'),
+            AuthFieldLabel(context.l10n.authEmailLabel),
             const SizedBox(height: 10),
             AuthTextField(
               controller: _emailController,
@@ -90,7 +89,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               textInputAction: TextInputAction.done,
               enabled: !_isSubmitting,
               onFieldSubmitted: (_) => _sendCode(),
-              validator: validateEmail,
+              validator: (value) => validateEmail(context.l10n, value),
             ),
             if (_errorMessage != null) ...[
               const SizedBox(height: 16),
@@ -98,7 +97,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ],
             const SizedBox(height: 24),
             PrimaryButton(
-              textButton: _isSubmitting ? 'Enviando...' : 'Enviar código',
+              textButton: _isSubmitting
+                  ? context.l10n.authForgotSending
+                  : context.l10n.authForgotSend,
               width: double.infinity,
               height: 56,
               icon: _isSubmitting
@@ -114,8 +115,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             Center(
               child: TextButton(
                 onPressed: _isSubmitting ? null : () => Navigator.pop(context),
-                child: const Text(
-                  'Volver',
+                child: Text(
+                  context.l10n.commonBack,
                   style: TextStyle(
                     color: AuthPalette.body,
                     fontSize: 15,

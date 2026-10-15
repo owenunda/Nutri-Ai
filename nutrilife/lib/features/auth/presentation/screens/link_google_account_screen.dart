@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../data/auth_repository.dart';
@@ -94,24 +95,21 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
     if (email == null || !mounted) return;
     setState(() {
       _errorMessage = null;
-      _infoMessage = 'Contraseña actualizada. Escríbela para vincular tu cuenta.';
+      _infoMessage = context.l10n.authLinkPasswordUpdated;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return AuthCardScaffold(
-      title: 'Vincula tu cuenta',
-      subtitle:
-          'Ya tienes una cuenta de NutriLife con este correo. Escribe tu '
-          'contraseña para vincularla con Google; después podrás entrar de '
-          'las dos formas.',
+      title: context.l10n.authLinkTitle,
+      subtitle: context.l10n.authLinkSubtitle,
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AuthFieldLabel('CONTRASEÑA'),
+            AuthFieldLabel(context.l10n.authPasswordLabel),
             const SizedBox(height: 10),
             AuthTextField(
               controller: _passwordController,
@@ -128,7 +126,7 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
               enabled: !_isSubmitting,
               onFieldSubmitted: (_) => _link(),
               validator: (value) => (value == null || value.isEmpty)
-                  ? 'Escribe tu contraseña.'
+                  ? context.l10n.authLinkPasswordRequired
                   : null,
             ),
             if (_errorMessage != null) ...[
@@ -141,7 +139,9 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
             ],
             const SizedBox(height: 24),
             PrimaryButton(
-              textButton: _isSubmitting ? 'Vinculando...' : 'Vincular',
+              textButton: _isSubmitting
+                  ? context.l10n.authLinking
+                  : context.l10n.authLinkButton,
               width: double.infinity,
               height: 56,
               icon: _isSubmitting
@@ -157,8 +157,8 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
             Center(
               child: TextButton(
                 onPressed: _isSubmitting ? null : _openForgotPassword,
-                child: const Text(
-                  '¿Olvidaste tu contraseña?',
+                child: Text(
+                  context.l10n.authForgotPasswordLink,
                   style: TextStyle(
                     color: AuthPalette.primary,
                     fontSize: 15,
@@ -170,8 +170,8 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
             Center(
               child: TextButton(
                 onPressed: _isSubmitting ? null : () => Navigator.pop(context),
-                child: const Text(
-                  'Cancelar',
+                child: Text(
+                  context.l10n.commonCancel,
                   style: TextStyle(
                     color: AuthPalette.body,
                     fontSize: 15,

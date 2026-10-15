@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 /// Colores de las pantallas de registro y creación de contraseña.
 class AuthPalette {
   static const Color background = Color(0xFFF8FAFC);
@@ -163,15 +165,15 @@ class AuthGlowCircle extends StatelessWidget {
 
 final _emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 
-String? validateEmail(String? value) {
+String? validateEmail(AppLocalizations l10n, String? value) {
   final email = value?.trim() ?? '';
 
   if (email.isEmpty) {
-    return 'El correo electrónico es obligatorio.';
+    return l10n.authEmailRequired;
   }
 
   if (!_emailRegex.hasMatch(email)) {
-    return 'Ingresa un correo electrónico válido.';
+    return l10n.authEmailInvalid;
   }
 
   return null;
@@ -179,29 +181,33 @@ String? validateEmail(String? value) {
 
 /// Validaciones de contraseña compartidas por el registro, la creación de
 /// contraseña tras entrar con Google y el restablecimiento.
-String? validateNewPassword(String? value) {
+String? validateNewPassword(AppLocalizations l10n, String? value) {
   final password = value ?? '';
 
   if (password.isEmpty) {
-    return 'La contraseña es obligatoria.';
+    return l10n.authPasswordRequired;
   }
 
   if (password.length < 6) {
-    return 'La contraseña debe tener al menos 6 caracteres.';
+    return l10n.authPasswordTooShort;
   }
 
   return null;
 }
 
-String? validatePasswordConfirmation(String? value, String password) {
+String? validatePasswordConfirmation(
+  AppLocalizations l10n,
+  String? value,
+  String password,
+) {
   final confirmPassword = value ?? '';
 
   if (confirmPassword.isEmpty) {
-    return 'Confirma tu contraseña.';
+    return l10n.authPasswordConfirmRequired;
   }
 
   if (confirmPassword != password) {
-    return 'Las contraseñas no coinciden.';
+    return l10n.authPasswordMismatch;
   }
 
   return null;

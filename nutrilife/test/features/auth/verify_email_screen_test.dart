@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/core/network/api_routes.dart';
+import '../../helpers/l10n_app.dart';
 import 'package:nutrilife/features/auth/data/auth_repository.dart';
 import 'package:nutrilife/features/auth/presentation/screens/verify_email_screen.dart';
 
@@ -66,8 +67,8 @@ Future<List<GoogleLoginResult>> _open(
   final dio = Dio(BaseOptions(baseUrl: 'https://test.local'))
     ..httpClientAdapter = adapter;
   await tester.pumpWidget(
-    MaterialApp(
-      home: VerifyEmailScreen(
+    l10nApp(
+      VerifyEmailScreen(
         email: 'ana@gmail.com',
         repository: AuthRepository(dio: dio),
         onVerified: (_, result) => verified.add(result),

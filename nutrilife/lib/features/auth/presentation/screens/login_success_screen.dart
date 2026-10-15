@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 
@@ -37,27 +38,27 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(
+              children: [
+                const Icon(
                   Icons.check_circle_outline,
                   color: AppTheme.primaryStart,
                   size: 96,
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 Text(
-                  'Iniciaste sesión con éxito',
+                  context.l10n.authLoginSuccessTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFF1E2A24),
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
-                  'Bienvenido de nuevo. Has ingresado correctamente a tu cuenta.',
+                  context.l10n.authLoginSuccessBody,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFF595C5E),
                     fontSize: 15,
                     height: 1.5,

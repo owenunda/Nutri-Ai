@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import 'auth_form_widgets.dart';
 
 /// "Reenviar código" con cuenta regresiva: el backend acepta uno por minuto, y
@@ -65,7 +66,9 @@ class _ResendCodeButtonState extends State<ResendCodeButton> {
     return TextButton(
       onPressed: waiting || _sending || !widget.enabled ? null : _resend,
       child: Text(
-        waiting ? 'Reenviar código en $_secondsLeft s' : 'Reenviar código',
+        waiting
+            ? context.l10n.authResendCodeIn(_secondsLeft)
+            : context.l10n.authResendCode,
         style: TextStyle(
           color: waiting ? AuthPalette.hint : AuthPalette.primary,
           fontSize: 15,

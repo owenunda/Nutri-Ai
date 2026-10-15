@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/core/network/api_routes.dart';
+import '../../helpers/l10n_app.dart';
 import 'package:nutrilife/features/auth/data/auth_repository.dart';
 import 'package:nutrilife/features/auth/presentation/screens/link_google_account_screen.dart';
 
@@ -56,8 +57,8 @@ Future<List<GoogleLoginResult>> _open(
     ..httpClientAdapter = adapter;
 
   await tester.pumpWidget(
-    MaterialApp(
-      home: Builder(
+    l10nApp(
+      Builder(
         builder: (context) => Scaffold(
           body: TextButton(
             onPressed: () => Navigator.of(context).push(
@@ -100,7 +101,7 @@ void main() {
   testWidgets('contraseña incorrecta muestra el error y no vincula', (tester) async {
     final adapter = _FakeAdapter(401, {
       'success': false,
-      'message': 'Contraseña incorrecta',
+      'message': 'La contraseña no es correcta.',
       'error': {'code': 'INVALID_PASSWORD', 'details': <Object>[]},
     });
     final linked = await _open(tester, adapter);

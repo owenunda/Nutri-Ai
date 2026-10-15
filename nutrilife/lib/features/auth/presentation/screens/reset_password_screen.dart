@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../data/auth_repository.dart';
 import '../widgets/auth_form_widgets.dart';
@@ -75,7 +76,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     });
     try {
       await _authRepository.forgotPassword(widget.email);
-      if (mounted) setState(() => _infoMessage = 'Te enviamos un código nuevo.');
+      if (mounted) setState(() => _infoMessage = context.l10n.authCodeResent);
     } on AuthException catch (error) {
       if (mounted) setState(() => _errorMessage = error.message);
       rethrow;
@@ -85,20 +86,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthCardScaffold(
-      title: 'Nueva contraseña',
-      subtitle:
-          'Si ${widget.email} tiene una cuenta, te enviamos un código de 6 '
-          'dígitos. Escríbelo y elige tu contraseña nueva.',
+      title: context.l10n.authResetTitle,
+      subtitle: context.l10n.authResetSubtitle(widget.email),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AuthFieldLabel('CÓDIGO'),
+            AuthFieldLabel(context.l10n.authCodeLabel),
             const SizedBox(height: 10),
             AuthCodeField(controller: _codeController, enabled: !_isSubmitting),
             const SizedBox(height: 18),
-            const AuthFieldLabel('CONTRASEÑA NUEVA'),
+            AuthFieldLabel(context.l10n.authNewPasswordLabel),
             const SizedBox(height: 10),
             AuthTextField(
               controller: _passwordController,
@@ -113,10 +112,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               keyboardType: TextInputType.visiblePassword,
               textInputAction: TextInputAction.next,
               enabled: !_isSubmitting,
-              validator: validateNewPassword,
+              validator: (value) => validateNewPassword(context.l10n, value),
             ),
             const SizedBox(height: 18),
-            const AuthFieldLabel('CONFIRMAR'),
+            AuthFieldLabel(context.l10n.authConfirmLabel),
             const SizedBox(height: 10),
             AuthTextField(
               controller: _confirmPasswordController,
@@ -133,8 +132,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               textInputAction: TextInputAction.done,
               enabled: !_isSubmitting,
               onFieldSubmitted: (_) => _save(),
-              validator: (value) =>
-                  validatePasswordConfirmation(value, _passwordController.text),
+              validator: (value) => validatePasswordConfirmation(
+                context.l10n,
+                value,
+                _passwordController.text,
+              ),
             ),
             if (_errorMessage != null) ...[
               const SizedBox(height: 16),
@@ -146,7 +148,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             ],
             const SizedBox(height: 24),
             PrimaryButton(
-              textButton: _isSubmitting ? 'Guardando...' : 'Guardar contraseña',
+              textButton: _isSubmitting
+                  ? context.l10n.authSaving
+                  : context.l10n.authSavePassword,
               width: double.infinity,
               height: 56,
               icon: _isSubmitting

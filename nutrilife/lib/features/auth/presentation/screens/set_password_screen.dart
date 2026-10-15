@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../data/auth_repository.dart';
 import '../widgets/auth_form_widgets.dart';
@@ -73,16 +74,14 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthCardScaffold(
-      title: 'Crea tu contraseña',
-      subtitle:
-          '¡Ya estás dentro! Si quieres, crea una contraseña para '
-          'entrar también con tu correo cuando no tengas Google a mano.',
+      title: context.l10n.authSetPasswordTitle,
+      subtitle: context.l10n.authSetPasswordSubtitle,
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AuthFieldLabel('CONTRASEÑA'),
+            AuthFieldLabel(context.l10n.authPasswordLabel),
             const SizedBox(height: 10),
             AuthTextField(
               controller: _passwordController,
@@ -97,10 +96,10 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
               keyboardType: TextInputType.visiblePassword,
               textInputAction: TextInputAction.next,
               enabled: !_isSubmitting,
-              validator: validateNewPassword,
+              validator: (value) => validateNewPassword(context.l10n, value),
             ),
             const SizedBox(height: 18),
-            const AuthFieldLabel('CONFIRMAR'),
+            AuthFieldLabel(context.l10n.authConfirmLabel),
             const SizedBox(height: 10),
             AuthTextField(
               controller: _confirmPasswordController,
@@ -117,8 +116,11 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
               textInputAction: TextInputAction.done,
               enabled: !_isSubmitting,
               onFieldSubmitted: (_) => _save(),
-              validator: (value) =>
-                  validatePasswordConfirmation(value, _passwordController.text),
+              validator: (value) => validatePasswordConfirmation(
+                context.l10n,
+                value,
+                _passwordController.text,
+              ),
             ),
             if (_errorMessage != null) ...[
               const SizedBox(height: 16),
@@ -126,7 +128,9 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
             ],
             const SizedBox(height: 24),
             PrimaryButton(
-              textButton: _isSubmitting ? 'Guardando...' : 'Guardar contraseña',
+              textButton: _isSubmitting
+                  ? context.l10n.authSaving
+                  : context.l10n.authSavePassword,
               width: double.infinity,
               height: 56,
               icon: _isSubmitting
@@ -142,8 +146,8 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
             Center(
               child: TextButton(
                 onPressed: _isSubmitting ? null : _continue,
-                child: const Text(
-                  'Ahora no',
+                child: Text(
+                  context.l10n.authSetPasswordSkip,
                   style: TextStyle(
                     color: AuthPalette.body,
                     fontSize: 15,

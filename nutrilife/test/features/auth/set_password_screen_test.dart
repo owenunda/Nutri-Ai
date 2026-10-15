@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/core/network/api_routes.dart';
+import '../../helpers/l10n_app.dart';
 import 'package:nutrilife/features/auth/data/auth_repository.dart';
 import 'package:nutrilife/features/auth/presentation/screens/set_password_screen.dart';
 
@@ -39,8 +40,8 @@ class _FakeAdapter implements HttpClientAdapter {
 Widget _screenWith(_FakeAdapter adapter) {
   final dio = Dio(BaseOptions(baseUrl: 'https://test.local'))
     ..httpClientAdapter = adapter;
-  return MaterialApp(
-    home: SetPasswordScreen(
+  return l10nApp(
+    SetPasswordScreen(
       nextScreen: () => const Scaffold(body: Text('siguiente pantalla')),
       repository: AuthRepository(dio: dio),
     ),

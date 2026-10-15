@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/core/network/api_routes.dart';
+import '../../helpers/l10n_app.dart';
 import 'package:nutrilife/features/auth/data/auth_repository.dart';
 import 'package:nutrilife/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:nutrilife/features/auth/presentation/screens/reset_password_screen.dart';
@@ -53,8 +54,8 @@ Future<void> _openOverLogin(WidgetTester tester, Widget screen) async {
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
-    MaterialApp(
-      home: Builder(
+    l10nApp(
+      Builder(
         builder: (context) => Scaffold(
           body: _LoginStub(screen: screen),
         ),

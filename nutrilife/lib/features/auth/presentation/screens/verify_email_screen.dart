@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../data/auth_repository.dart';
@@ -91,7 +92,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     });
     try {
       await _authRepository.resendVerification(widget.email);
-      if (mounted) setState(() => _infoMessage = 'Te enviamos un código nuevo.');
+      if (mounted) setState(() => _infoMessage = context.l10n.authCodeResent);
     } on AuthException catch (error) {
       if (mounted) setState(() => _errorMessage = error.message);
       rethrow;
@@ -101,16 +102,14 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthCardScaffold(
-      title: 'Verifica tu correo',
-      subtitle:
-          'Te enviamos un código de 6 dígitos a ${widget.email}. '
-          'Escríbelo aquí para activar tu cuenta.',
+      title: context.l10n.authVerifyTitle,
+      subtitle: context.l10n.authVerifySubtitle(widget.email),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AuthFieldLabel('CÓDIGO'),
+            AuthFieldLabel(context.l10n.authCodeLabel),
             const SizedBox(height: 10),
             AuthCodeField(
               controller: _codeController,
@@ -127,7 +126,9 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
             ],
             const SizedBox(height: 24),
             PrimaryButton(
-              textButton: _isSubmitting ? 'Verificando...' : 'Verificar',
+              textButton: _isSubmitting
+                  ? context.l10n.authVerifying
+                  : context.l10n.authVerifyButton,
               width: double.infinity,
               height: 56,
               icon: _isSubmitting
@@ -149,8 +150,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
             Center(
               child: TextButton(
                 onPressed: _isSubmitting ? null : () => Navigator.pop(context),
-                child: const Text(
-                  'Volver',
+                child: Text(
+                  context.l10n.commonBack,
                   style: TextStyle(
                     color: AuthPalette.body,
                     fontSize: 15,
@@ -195,7 +196,7 @@ class AuthCodeField extends StatelessWidget {
       onFieldSubmitted: onSubmitted == null ? null : (_) => onSubmitted!(),
       validator: (value) => (value ?? '').length == 6
           ? null
-          : 'Escribe los 6 dígitos del código.',
+          : context.l10n.authCodeInvalid,
     );
   }
 }

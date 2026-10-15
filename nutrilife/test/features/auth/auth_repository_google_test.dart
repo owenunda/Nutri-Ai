@@ -167,7 +167,7 @@ void main() {
   test('linkGoogle con contraseña incorrecta lanza AuthException', () async {
     final adapter = _FakeAdapter(401, {
       'success': false,
-      'message': 'Contraseña incorrecta',
+      'message': 'La contraseña no es correcta.',
       'error': {'code': 'INVALID_PASSWORD', 'details': <Object>[]},
     });
 
@@ -256,6 +256,31 @@ void main() {
           'message',
           'Espera 42 segundos para pedir otro código.',
         ),
+      ),
+    );
+  });
+
+  test('registro duplicado: muestra el mensaje del backend tal cual y su código', () async {
+    final adapter = _FakeAdapter(409, {
+      'success': false,
+      'message': 'That email is already registered.',
+      'error': {'code': 'EMAIL_ALREADY_EXISTS', 'details': <Object>[]},
+    });
+
+    expect(
+      () => _repoWith(adapter).register(
+        name: 'Ana',
+        email: 'ana@gmail.com',
+        password: 'secreto123',
+      ),
+      throwsA(
+        isA<AuthException>()
+            .having(
+              (error) => error.message,
+              'message',
+              'That email is already registered.',
+            )
+            .having((error) => error.code, 'code', 'EMAIL_ALREADY_EXISTS'),
       ),
     );
   });

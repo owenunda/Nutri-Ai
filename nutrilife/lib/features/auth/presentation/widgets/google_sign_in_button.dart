@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 /// Botón "Continuar con Google" del login y del registro.
 class GoogleSignInButton extends StatelessWidget {
   const GoogleSignInButton({super.key, required this.onPressed});
@@ -21,7 +23,7 @@ class GoogleSignInButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14),
         ),
         child: Semantics(
-          label: 'Continuar con Google',
+          label: context.l10n.authContinueWithGoogle,
           excludeSemantics: true,
           child: SvgPicture.asset(
             'assets/images/google_wordmark.svg',

@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/services/auth_service.dart';
@@ -132,7 +133,7 @@ class _BrandHeader extends StatelessWidget {
         const SizedBox(height: 10),
 
         Text(
-          'Tu camino inteligente hacia el bienestar.',
+          context.l10n.authBrandTagline,
           style: TextStyle(
             color: const Color(0xFF595C5E).withValues(alpha: 0.76),
 
@@ -218,9 +219,7 @@ class _LoginPanelState extends State<_LoginPanel> {
       _errorMessage = null;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Contraseña actualizada. Ya puedes iniciar sesión.'),
-      ),
+      SnackBar(content: Text(context.l10n.authPasswordUpdatedSignIn)),
     );
   }
 
@@ -268,7 +267,7 @@ class _LoginPanelState extends State<_LoginPanel> {
       }
 
       setState(() {
-        _errorMessage = result['message'] ?? 'Login failed';
+        _errorMessage = result['message'] ?? context.l10n.authErrorLogin;
 
         _isLoading = false;
       });
@@ -312,8 +311,8 @@ class _LoginPanelState extends State<_LoginPanel> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                const Text(
-                  'Bienvenido de nuevo',
+                Text(
+                  context.l10n.authLoginTitle,
                   style: TextStyle(
                     color: Color(0xFF2C2F31),
                     fontSize: 21,
@@ -324,7 +323,7 @@ class _LoginPanelState extends State<_LoginPanel> {
                 const SizedBox(height: 8),
 
                 Text(
-                  'Ingresa tus credenciales para acceder a tu espacio de bienestar.',
+                  context.l10n.authLoginSubtitle,
                   style: TextStyle(
                     color: const Color(0xFF595C5E).withValues(alpha: 0.78),
 
@@ -336,7 +335,7 @@ class _LoginPanelState extends State<_LoginPanel> {
 
                 const SizedBox(height: 24),
 
-                const _FieldLabel('CORREO ELECTRONICO'),
+                _FieldLabel(context.l10n.authLoginEmailLabel),
 
                 const SizedBox(height: 9),
 
@@ -358,13 +357,13 @@ class _LoginPanelState extends State<_LoginPanel> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                   children: [
-                    const _FieldLabel('CONTRASENA'),
+                    _FieldLabel(context.l10n.authLoginPasswordLabel),
 
                     GestureDetector(
                       onTap: _isLoading ? null : _openForgotPassword,
 
-                      child: const Text(
-                        '¿Olvidaste tu contraseña?',
+                      child: Text(
+                        context.l10n.authForgotPasswordLink,
                         style: TextStyle(
                           color: AppTheme.primaryStart,
 
@@ -434,7 +433,9 @@ class _LoginPanelState extends State<_LoginPanel> {
                 const SizedBox(height: 22),
 
                 PrimaryButton(
-                  textButton: _isLoading ? 'Iniciando...' : 'Iniciar sesion',
+                  textButton: _isLoading
+                      ? context.l10n.authLoginLoading
+                      : context.l10n.authLoginButton,
 
                   width: double.infinity,
                   height: 56,
@@ -448,7 +449,7 @@ class _LoginPanelState extends State<_LoginPanel> {
 
                 Center(
                   child: Text(
-                    'O CONTINUA CON',
+                    context.l10n.authLoginOrContinueWith,
 
                     style: TextStyle(
                       color: const Color(0xFF595C5E).withValues(alpha: 0.72),
@@ -479,18 +480,18 @@ class _LoginPanelState extends State<_LoginPanel> {
                       fontWeight: FontWeight.w500,
                     ),
                     children: [
-                      const TextSpan(text: 'Al continuar con Google aceptas los '),
+                      TextSpan(text: context.l10n.authGoogleTermsPrefix),
                       TextSpan(
-                        text: 'Términos del Servicio',
+                        text: context.l10n.authTermsOfService,
                         recognizer: _termsTap,
                         style: const TextStyle(
                           color: AppTheme.primaryStart,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const TextSpan(text: ' y la '),
+                      TextSpan(text: context.l10n.authTermsAnd),
                       TextSpan(
-                        text: 'Política de Privacidad',
+                        text: context.l10n.authPrivacyPolicy,
                         recognizer: _privacyTap,
                         style: const TextStyle(
                           color: AppTheme.primaryStart,
@@ -659,7 +660,7 @@ class _CreateAccountPrompt extends StatelessWidget {
 
       children: [
         Text(
-          'No tienes una cuenta? ',
+          context.l10n.authLoginNoAccount,
 
           style: TextStyle(
             color: const Color(0xFF595C5E).withValues(alpha: 0.76),
@@ -672,8 +673,8 @@ class _CreateAccountPrompt extends StatelessWidget {
         GestureDetector(
           onTap: onTap,
 
-          child: const Text(
-            'Crea una',
+          child: Text(
+            context.l10n.authLoginCreateOne,
 
             style: TextStyle(
               color: AppTheme.primaryStart,
