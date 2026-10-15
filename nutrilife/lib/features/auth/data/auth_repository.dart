@@ -17,6 +17,7 @@ class GoogleLoginResult {
     required this.token,
     required this.user,
     required this.needsProfileSetup,
+    required this.offerPasswordSetup,
   });
 
   final String token;
@@ -24,6 +25,10 @@ class GoogleLoginResult {
 
   /// true si el usuario no completó su perfil: hay que mandarlo al setup.
   final bool needsProfileSetup;
+
+  /// true en el primer login con Google de una cuenta sin contraseña: se le
+  /// ofrece crear una para poder entrar también con email.
+  final bool offerPasswordSetup;
 }
 
 class AuthRepository {
@@ -82,6 +87,7 @@ class AuthRepository {
           token: data['token'] as String,
           user: Map<String, dynamic>.from(data['user'] as Map),
           needsProfileSetup: data['needsProfileSetup'] == true,
+          offerPasswordSetup: data['offerPasswordSetup'] == true,
         );
       }
 
@@ -104,6 +110,33 @@ class AuthRepository {
       throw const AuthException(
         'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
       );
+    }
+  }
+
+  /// Crea la contraseña de la cuenta en sesión, que solo entraba con Google.
+  Future<void> setPassword(String password) async {
+    const fallback = 'No se pudo guardar tu contraseña. Inténtalo de nuevo.';
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiRoutes.userPassword,
+        data: {'password': password},
+      );
+
+      final body = response.data;
+      if (body != null && body['success'] == true) {
+        return;
+      }
+
+      throw AuthException(_extractFriendlyMessage(body) ?? fallback);
+    } on DioException catch (error) {
+      throw AuthException(
+        _extractFriendlyMessage(error.response?.data) ??
+            _fallbackMessage(error, defaultMessage: fallback),
+      );
+    } on AuthException {
+      rethrow;
+    } catch (_) {
+      throw const AuthException(fallback);
     }
   }
 

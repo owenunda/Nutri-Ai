@@ -49,11 +49,13 @@ void main() {
         'token': 'jwt-123',
         'user': {'userId': 9, 'name': 'Ana'},
         'needsProfileSetup': true,
+        'offerPasswordSetup': true,
       },
     });
 
     final result = await _repoWith(adapter).loginWithGoogle('google-token');
 
+    expect(result.offerPasswordSetup, isTrue);
     expect(adapter.lastRequest!.path, ApiRoutes.authGoogle);
     expect(adapter.lastRequest!.method, 'POST');
     expect(adapter.lastRequest!.data, {'idToken': 'google-token'});
@@ -62,7 +64,7 @@ void main() {
     expect(result.needsProfileSetup, isTrue);
   });
 
-  test('sin needsProfileSetup cuenta como false', () async {
+  test('sin needsProfileSetup ni offerPasswordSetup cuentan como false', () async {
     final adapter = _FakeAdapter(200, {
       'success': true,
       'data': {
@@ -74,6 +76,36 @@ void main() {
     final result = await _repoWith(adapter).loginWithGoogle('google-token');
 
     expect(result.needsProfileSetup, isFalse);
+    expect(result.offerPasswordSetup, isFalse);
+  });
+
+  test('setPassword manda la contraseña a /user/password', () async {
+    final adapter = _FakeAdapter(200, {'success': true, 'data': null});
+
+    await _repoWith(adapter).setPassword('nueva123');
+
+    expect(adapter.lastRequest!.path, ApiRoutes.userPassword);
+    expect(adapter.lastRequest!.method, 'POST');
+    expect(adapter.lastRequest!.data, {'password': 'nueva123'});
+  });
+
+  test('setPassword: error del backend lanza AuthException con su mensaje', () async {
+    final adapter = _FakeAdapter(409, {
+      'success': false,
+      'message': 'Tu cuenta ya tiene contraseña.',
+      'error': {'code': 'PASSWORD_ALREADY_SET', 'details': <Object>[]},
+    });
+
+    expect(
+      () => _repoWith(adapter).setPassword('nueva123'),
+      throwsA(
+        isA<AuthException>().having(
+          (error) => error.message,
+          'message',
+          'Tu cuenta ya tiene contraseña.',
+        ),
+      ),
+    );
   });
 
   test('error del backend: lanza AuthException con su mensaje', () async {

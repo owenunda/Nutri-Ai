@@ -10,6 +10,9 @@ import '../../../../core/services/auth_service.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../setup/presentation/screens/profile_setup_screen.dart';
 import '../../data/auth_repository.dart';
+import '../google_sign_in_flow.dart';
+import '../widgets/auth_form_widgets.dart';
+import '../widgets/google_sign_in_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -120,6 +123,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  Future<void> _signUpWithGoogle() async {
+    FocusScope.of(context).unfocus();
+
+    // Registrarse con Google también crea una cuenta: mismos términos.
+    if (!_acceptedTerms) {
+      _showSnackBar(
+        'Debes aceptar los términos del servicio y la política de privacidad.',
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final error = await signInWithGoogle(
+      context,
+      repository: _authRepository,
+    );
+    if (!mounted) return;
+
+    setState(() {
+      _isSubmitting = false;
+    });
+    if (error != null) {
+      _showSnackBar(error);
+    }
+  }
+
   void _showSnackBar(String message) {
     final lowerMessage = message.toLowerCase();
     final isSuccess = lowerMessage.contains('correctamente');
@@ -127,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final isWarning = lowerMessage.contains('debes aceptar');
 
     final Color accentColor = isSuccess
-        ? _RegisterPalette.primary
+        ? AuthPalette.primary
         : isDuplicate
             ? const Color(0xFFD97706)
             : isWarning
@@ -163,7 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: _RegisterPalette.surface,
+            color: AuthPalette.surface,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: accentColor.withValues(alpha: 0.18),
@@ -201,7 +233,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Text(
                       title,
                       style: TextStyle(
-                        color: _RegisterPalette.title,
+                        color: AuthPalette.title,
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         height: 1.1,
@@ -211,7 +243,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Text(
                       message,
                       style: TextStyle(
-                        color: _RegisterPalette.body.withValues(alpha: 0.95),
+                        color: AuthPalette.body.withValues(alpha: 0.95),
                         fontSize: 13,
                         height: 1.35,
                         fontWeight: FontWeight.w500,
@@ -230,15 +262,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _RegisterPalette.background,
+      backgroundColor: AuthPalette.background,
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           Positioned(
             top: -90,
             right: -90,
-            child: _GlowCircle(
-              color: _RegisterPalette.primary.withValues(alpha: 0.10),
+            child: AuthGlowCircle(
+              color: AuthPalette.primary.withValues(alpha: 0.10),
               size: 240,
             ),
           ),
@@ -246,7 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Positioned(
             bottom: -120,
             left: -120,
-            child: _GlowCircle(
+            child: AuthGlowCircle(
               color: const Color(0xFFBCEED9).withValues(alpha: 0.22),
               size: 260,
             ),
@@ -301,6 +333,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               });
                             },
                             onSubmit: _submitRegister,
+                            onGoogleSignUp: _signUpWithGoogle,
                             onLoginTap: () => Navigator.pop(context),
                           ),
 
@@ -338,6 +371,7 @@ class _RegisterCard extends StatelessWidget {
     required this.onTogglePasswordVisibility,
     required this.onToggleConfirmVisibility,
     required this.onSubmit,
+    required this.onGoogleSignUp,
     required this.onLoginTap,
   });
 
@@ -359,6 +393,7 @@ class _RegisterCard extends StatelessWidget {
   final VoidCallback onTogglePasswordVisibility;
   final VoidCallback onToggleConfirmVisibility;
   final VoidCallback onSubmit;
+  final VoidCallback onGoogleSignUp;
   final VoidCallback onLoginTap;
 
   @override
@@ -367,7 +402,7 @@ class _RegisterCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
       decoration: BoxDecoration(
-        color: _RegisterPalette.surface,
+        color: AuthPalette.surface,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
@@ -389,7 +424,7 @@ class _RegisterCard extends StatelessWidget {
                   child: Text(
                     'Crear cuenta',
                     style: TextStyle(
-                      color: _RegisterPalette.title,
+                      color: AuthPalette.title,
                       fontSize: 30,
                       height: 1.02,
                       fontWeight: FontWeight.w800,
@@ -412,7 +447,7 @@ class _RegisterCard extends StatelessWidget {
             const Text(
               'Comienza tu camino hacia una alimentación inteligente.',
               style: TextStyle(
-                color: _RegisterPalette.subtitle,
+                color: AuthPalette.subtitle,
                 fontSize: 16,
                 height: 1.4,
                 fontWeight: FontWeight.w500,
@@ -421,11 +456,11 @@ class _RegisterCard extends StatelessWidget {
 
             const SizedBox(height: 26),
 
-            const _FieldLabel('NOMBRE COMPLETO'),
+            const AuthFieldLabel('NOMBRE COMPLETO'),
 
             const SizedBox(height: 10),
 
-            _RegisterField(
+            AuthTextField(
               controller: nameController,
               icon: Icons.person_outline_rounded,
               hintText: '',
@@ -447,11 +482,11 @@ class _RegisterCard extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            const _FieldLabel('CORREO ELECTRÓNICO'),
+            const AuthFieldLabel('CORREO ELECTRÓNICO'),
 
             const SizedBox(height: 10),
 
-            _RegisterField(
+            AuthTextField(
               controller: emailController,
               icon: Icons.mail_outline_rounded,
               hintText: '',
@@ -477,11 +512,11 @@ class _RegisterCard extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            const _FieldLabel('CONTRASEÑA'),
+            const AuthFieldLabel('CONTRASEÑA'),
 
             const SizedBox(height: 10),
 
-            _RegisterField(
+            AuthTextField(
               controller: passwordController,
               icon: Icons.lock_outline_rounded,
               hintText: '',
@@ -493,28 +528,16 @@ class _RegisterCard extends StatelessWidget {
               keyboardType: TextInputType.visiblePassword,
               textInputAction: TextInputAction.next,
               enabled: !isSubmitting,
-              validator: (value) {
-                final password = value ?? '';
-
-                if (password.isEmpty) {
-                  return 'La contraseña es obligatoria.';
-                }
-
-                if (password.length < 6) {
-                  return 'La contraseña debe tener al menos 6 caracteres.';
-                }
-
-                return null;
-              },
+              validator: validateNewPassword,
             ),
 
             const SizedBox(height: 18),
 
-            const _FieldLabel('CONFIRMAR'),
+            const AuthFieldLabel('CONFIRMAR'),
 
             const SizedBox(height: 10),
 
-            _RegisterField(
+            AuthTextField(
               controller: confirmPasswordController,
               icon: Icons.verified_user_outlined,
               hintText: '',
@@ -527,19 +550,8 @@ class _RegisterCard extends StatelessWidget {
               textInputAction: TextInputAction.done,
               enabled: !isSubmitting,
               onFieldSubmitted: (_) => onSubmit(),
-              validator: (value) {
-                final confirmPassword = value ?? '';
-
-                if (confirmPassword.isEmpty) {
-                  return 'Confirma tu contraseña.';
-                }
-
-                if (confirmPassword != passwordController.text) {
-                  return 'Las contraseñas no coinciden.';
-                }
-
-                return null;
-              },
+              validator: (value) =>
+                  validatePasswordConfirmation(value, passwordController.text),
             ),
 
             const SizedBox(height: 22),
@@ -557,12 +569,12 @@ class _RegisterCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: acceptedTerms
-                          ? _RegisterPalette.primary.withValues(alpha: 0.10)
+                          ? AuthPalette.primary.withValues(alpha: 0.10)
                           : Colors.transparent,
                       border: Border.all(
                         color: acceptedTerms
-                            ? _RegisterPalette.primary
-                            : _RegisterPalette.outline,
+                            ? AuthPalette.primary
+                            : AuthPalette.outline,
                         width: 1.2,
                       ),
                     ),
@@ -570,7 +582,7 @@ class _RegisterCard extends StatelessWidget {
                       Icons.check_rounded,
                       size: 18,
                       color: acceptedTerms
-                          ? _RegisterPalette.primary
+                          ? AuthPalette.primary
                           : Colors.transparent,
                     ),
                   ),
@@ -581,7 +593,7 @@ class _RegisterCard extends StatelessWidget {
                     child: Text.rich(
                       TextSpan(
                         style: const TextStyle(
-                          color: _RegisterPalette.body,
+                          color: AuthPalette.body,
                           fontSize: 15,
                           height: 1.4,
                           fontWeight: FontWeight.w500,
@@ -592,7 +604,7 @@ class _RegisterCard extends StatelessWidget {
                             text: 'Términos del Servicio',
                             recognizer: termsTap,
                             style: const TextStyle(
-                              color: _RegisterPalette.primary,
+                              color: AuthPalette.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -601,7 +613,7 @@ class _RegisterCard extends StatelessWidget {
                             text: 'Política de Privacidad',
                             recognizer: privacyTap,
                             style: const TextStyle(
-                              color: _RegisterPalette.primary,
+                              color: AuthPalette.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -625,9 +637,28 @@ class _RegisterCard extends StatelessWidget {
                   : Icons.arrow_forward_rounded,
               iconSize: 20,
               textSize: 16,
-              startColor: _RegisterPalette.primary,
-              endColor: _RegisterPalette.primaryDark,
+              startColor: AuthPalette.primary,
+              endColor: AuthPalette.primaryDark,
               onPressed: isSubmitting ? null : onSubmit,
+            ),
+
+            const SizedBox(height: 22),
+
+            Center(
+              child: Text(
+                'O REGÍSTRATE CON',
+                style: TextStyle(
+                  color: AuthPalette.body.withValues(alpha: 0.72),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            GoogleSignInButton(
+              onPressed: isSubmitting ? null : onGoogleSignUp,
             ),
 
             const SizedBox(height: 20),
@@ -635,7 +666,7 @@ class _RegisterCard extends StatelessWidget {
             Container(
               height: 1,
               decoration: BoxDecoration(
-                color: _RegisterPalette.divider,
+                color: AuthPalette.divider,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -648,7 +679,7 @@ class _RegisterCard extends StatelessWidget {
                 Text(
                   '¿Ya tienes una cuenta?',
                   style: TextStyle(
-                    color: _RegisterPalette.body.withValues(alpha: 0.82),
+                    color: AuthPalette.body.withValues(alpha: 0.82),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -661,7 +692,7 @@ class _RegisterCard extends StatelessWidget {
                   child: const Text(
                     'Iniciar sesión',
                     style: TextStyle(
-                      color: _RegisterPalette.primary,
+                      color: AuthPalette.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
@@ -670,118 +701,6 @@ class _RegisterCard extends StatelessWidget {
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FieldLabel extends StatelessWidget {
-  const _FieldLabel(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: _RegisterPalette.label,
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1.1,
-      ),
-    );
-  }
-}
-
-class _RegisterField extends StatelessWidget {
-  const _RegisterField({
-    required this.controller,
-    required this.hintText,
-    required this.icon,
-    this.keyboardType,
-    this.textInputAction,
-    this.inputFormatters,
-    this.textCapitalization = TextCapitalization.none,
-    this.obscureText = false,
-    this.trailingIcon,
-    this.onTrailingTap,
-    this.onFieldSubmitted,
-    this.validator,
-    this.enabled = true,
-  });
-
-  final TextEditingController controller;
-  final String hintText;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final TextInputAction? textInputAction;
-  final List<TextInputFormatter>? inputFormatters;
-  final TextCapitalization textCapitalization;
-  final bool obscureText;
-  final IconData? trailingIcon;
-  final VoidCallback? onTrailingTap;
-  final ValueChanged<String>? onFieldSubmitted;
-  final String? Function(String?)? validator;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      enabled: enabled,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      inputFormatters: inputFormatters,
-      textCapitalization: textCapitalization,
-      obscureText: obscureText,
-      validator: validator,
-      onFieldSubmitted: onFieldSubmitted,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      style: const TextStyle(
-        color: _RegisterPalette.title,
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-      ),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: _RegisterPalette.fieldFill,
-        hintText: hintText,
-        hintStyle: const TextStyle(
-          color: _RegisterPalette.hint,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-        prefixIcon: Icon(icon, color: _RegisterPalette.icon, size: 20),
-        suffixIcon: trailingIcon == null
-            ? null
-            : IconButton(
-                onPressed: enabled ? onTrailingTap : null,
-                icon: Icon(
-                  trailingIcon,
-                  color: _RegisterPalette.icon,
-                  size: 20,
-                ),
-              ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 17,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide(
-            color: _RegisterPalette.primary.withValues(alpha: 0.18),
-            width: 1,
-          ),
         ),
       ),
     );
@@ -800,7 +719,7 @@ class _BrandFooter extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
             decoration: BoxDecoration(
-              color: _RegisterPalette.primarySoft,
+              color: AuthPalette.primarySoft,
               borderRadius: BorderRadius.circular(999),
             ),
             child: Row(
@@ -818,7 +737,7 @@ class _BrandFooter extends StatelessWidget {
                 const Text(
                   'NutriLife',
                   style: TextStyle(
-                    color: _RegisterPalette.primary,
+                    color: AuthPalette.primary,
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.1,
@@ -833,7 +752,7 @@ class _BrandFooter extends StatelessWidget {
           const Text.rich(
             TextSpan(
               style: TextStyle(
-                color: _RegisterPalette.title,
+                color: AuthPalette.title,
                 fontSize: 26,
                 height: 1.02,
                 fontWeight: FontWeight.w800,
@@ -843,7 +762,7 @@ class _BrandFooter extends StatelessWidget {
                 TextSpan(text: 'Comienza tu '),
                 TextSpan(
                   text: 'viaje',
-                  style: TextStyle(color: _RegisterPalette.primary),
+                  style: TextStyle(color: AuthPalette.primary),
                 ),
                 TextSpan(text: '\nconsciente.'),
               ],
@@ -856,49 +775,3 @@ class _BrandFooter extends StatelessWidget {
   }
 }
 
-class _GlowCircle extends StatelessWidget {
-  const _GlowCircle({required this.color, required this.size});
-
-  final Color color;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-    );
-  }
-}
-
-class _RegisterPalette {
-  static const Color background = Color(0xFFF8FAFC);
-
-  static const Color surface = Color(0xFFFFFFFF);
-
-  static const Color title = Color(0xFF2C2F31);
-
-  static const Color body = Color(0xFF595C5E);
-
-  static const Color subtitle = Color(0xFF595C5E);
-
-  static const Color label = Color(0xFF6B7280);
-
-  static const Color hint = Color(0xFF97A0AA);
-
-  static const Color icon = Color(0xFF78808A);
-
-  static const Color outline = Color(0xFFD7DEE5);
-
-  static const Color divider = Color(0xFFE7ECF0);
-
-  static const Color fieldFill = Color(0xFFEFF3F5);
-
-  static const Color primary = Color(0xFF0A6B3F);
-
-  static const Color primaryDark = Color(0xFF085531);
-
-  static const Color primarySoft = Color(0xFFDDF3E8);
-
-}

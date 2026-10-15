@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../../core/services/google_auth_service.dart';
 import '../../../../core/services/session_service.dart';
-import '../../../home/presentation/screens/dashboard_screen.dart';
-import '../../../setup/presentation/screens/profile_setup_screen.dart';
-import '../../data/auth_repository.dart';
+import '../google_sign_in_flow.dart';
+import '../widgets/google_sign_in_button.dart';
 import 'auth_flow_navigator.dart';
 import 'register_screen.dart';
 
@@ -171,8 +168,6 @@ class _LoginPanelState extends State<_LoginPanel> {
 
   late final TextEditingController _passwordController;
 
-  final _authRepository = AuthRepository();
-
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   String? _errorMessage;
@@ -193,52 +188,20 @@ class _LoginPanelState extends State<_LoginPanel> {
     super.dispose();
   }
 
-  /// Tras iniciar sesión: al setup del perfil si falta, si no al Dashboard.
-  void _goToApp(Map<String, dynamic> user, {required bool needsProfileSetup}) {
-    final Widget destination = needsProfileSetup
-        ? ProfileSetupScreen(userName: user['name']?.toString())
-        : DashboardScreen(user: user);
-
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => destination),
-      (route) => false,
-    );
-  }
-
-  void _showError(String message) {
-    if (!mounted) return;
-    setState(() {
-      _errorMessage = message;
-      _isLoading = false;
-    });
-  }
-
   Future<void> _handleGoogleLogin() async {
     setState(() {
       _errorMessage = null;
       _isLoading = true;
     });
 
-    try {
-      final idToken = await GoogleAuthService.getIdToken();
-      if (idToken == null) {
-        // El usuario cerró el selector: no es un error.
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
-
-      final result = await _authRepository.loginWithGoogle(idToken);
-      await SessionService.save(token: result.token, user: result.user);
-
-      if (!mounted) return;
-      _goToApp(result.user, needsProfileSetup: result.needsProfileSetup);
-    } on GoogleAuthException catch (error) {
-      _showError(error.message);
-    } on AuthException catch (error) {
-      _showError(error.message);
-    } catch (_) {
-      _showError('No se pudo iniciar sesión con Google. Inténtalo de nuevo.');
-    }
+    // Si sale bien, navega y este panel desaparece; si el usuario cierra el
+    // selector, error es null y solo se quita la carga.
+    final error = await signInWithGoogle(context);
+    if (!mounted) return;
+    setState(() {
+      _errorMessage = error;
+      _isLoading = false;
+    });
   }
 
   Future<void> _handleLogin() async {
@@ -262,7 +225,8 @@ class _LoginPanelState extends State<_LoginPanel> {
         );
 
         if (!mounted) return;
-        _goToApp(
+        openAppAfterLogin(
+          context,
           result['user'] as Map<String, dynamic>,
           needsProfileSetup: result['needsProfileSetup'] == true,
         );
@@ -465,13 +429,8 @@ class _LoginPanelState extends State<_LoginPanel> {
                 const SizedBox(height: 22),
 
                 // Login con Apple retirado temporalmente.
-                _SocialButton(
-                  semanticsLabel: 'Continuar con Google',
+                GoogleSignInButton(
                   onPressed: _isLoading ? null : _handleGoogleLogin,
-                  child: SvgPicture.asset(
-                    'assets/images/google_wordmark.svg',
-                    height: 20,
-                  ),
                 ),
               ],
             ),
@@ -612,46 +571,6 @@ class _LoginInput extends StatelessWidget {
           borderSide: BorderSide(
             color: AppTheme.primaryStart.withValues(alpha: 0.18),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SocialButton extends StatelessWidget {
-  const _SocialButton({
-    required this.semanticsLabel,
-    required this.onPressed,
-    required this.child,
-  });
-
-  final String semanticsLabel;
-  final VoidCallback? onPressed;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
-      width: double.infinity,
-
-      child: TextButton(
-        onPressed: onPressed,
-
-        style: TextButton.styleFrom(
-          backgroundColor: const Color(0xFFF0F3F4),
-
-          foregroundColor: const Color(0xFF2C2F31),
-
-          shape: const StadiumBorder(),
-
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-        ),
-
-        child: Semantics(
-          label: semanticsLabel,
-          excludeSemantics: true,
-          child: child,
         ),
       ),
     );
