@@ -240,5 +240,155 @@
       }
     }
   },
-  "homeGoalReached": "¡Has alcanzado tu objetivo diario!"
+  "homeGoalReached": "¡Has alcanzado tu objetivo diario!",
+  "mealsTypeBreakfast": "Desayuno",
+  "mealsTypeLunch": "Almuerzo",
+  "mealsTypeDinner": "Cena",
+  "mealsTypeSnack": "Snack",
+  "mealsNotLoggedYet": "Aún no registrada",
+  "mealsPortionsOne": "{amount} porción",
+  "@mealsPortionsOne": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsPortionsOther": "{amount} porciones",
+  "@mealsPortionsOther": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsErrorAddFood": "No se pudo registrar la comida",
+  "mealsErrorAddRecipe": "No se pudo registrar la receta",
+  "mealsErrorDeleteRecipe": "No se pudo borrar la receta",
+  "mealsErrorDeleteItem": "No se pudo borrar",
+  "mealsErrorLoadDay": "No se pudieron cargar tus comidas",
+  "mealsHistoryTitle": "Historial de comidas",
+  "mealsPickDate": "Elegir fecha",
+  "mealsPreviousDay": "Día anterior",
+  "mealsNextDay": "Día siguiente",
+  "mealsToday": "Hoy",
+  "mealsYesterday": "Ayer",
+  "mealsDateLabel": "{weekday} {day} {month}",
+  "@mealsDateLabel": {
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsAddedTo": "Agregado a {meal} · {kcal} kcal",
+  "@mealsAddedTo": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsRegisteredIn": "Registrado en {meal} · {kcal} kcal",
+  "@mealsRegisteredIn": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsUndo": "Deshacer",
+  "mealsUndoFailed": "No se pudo deshacer",
+  "mealsKcalPerUnit": "{kcal} kcal por {unit}",
+  "@mealsKcalPerUnit": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLess": "Menos",
+  "mealsMore": "Más",
+  "mealsDetailTitle": "{meal} · {kcal} kcal",
+  "@mealsDetailTitle": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsOtherFoods": "OTROS ALIMENTOS",
+  "mealsDeleteRecipeTitle": "¿Borrar receta?",
+  "mealsDeleteRecipeBody": "Se quitará \"{title}\" con {count, plural, =1{su ingrediente} other{sus {count} ingredientes}} de esta comida.",
+  "@mealsDeleteRecipeBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsDelete": "Borrar",
+  "mealsDeleteRecipe": "Borrar receta",
+  "mealsViewRecipe": "Ver receta",
+  "mealsDeleteItem": "Borrar {name}",
+  "@mealsDeleteItem": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsRegisterNoIngredients": "Esta receta no trae ingredientes para registrar",
+  "mealsRegisterTitle": "Registrar comida",
+  "mealsLessPortions": "Menos porciones",
+  "mealsMorePortions": "Más porciones",
+  "mealsCalculatingCalories": "Calculando calorías… · la receta rinde {servings}",
+  "@mealsCalculatingCalories": {
+    "placeholders": {
+      "servings": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsRecipeYield": "{kcal} kcal · la receta rinde {servings}",
+  "@mealsRecipeYield": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "servings": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsLoadFoodsError": "No pudimos cargar los alimentos de la receta. Intenta de nuevo.",
+  "mealsRegisterIn": "Registrar en {meal}",
+  "@mealsRegisterIn": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      }
+    }
+  }
 }

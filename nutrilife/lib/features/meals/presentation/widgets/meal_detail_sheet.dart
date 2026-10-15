@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -53,12 +54,13 @@ class _MealDetail extends StatelessWidget {
       }
     }
 
+    final l10n = context.l10n;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${group.type.label} · ${group.totalCalories} kcal',
+          l10n.mealsDetailTitle(group.type.label(l10n), group.totalCalories),
           style: const TextStyle(color: Color(0xFF2C2F31), fontSize: 20, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 8),
@@ -75,17 +77,17 @@ class _MealDetail extends StatelessWidget {
           const SizedBox(height: 8),
         ],
         if (byRecipe.isNotEmpty && loose.isNotEmpty)
-          const Padding(
-            padding: EdgeInsets.only(top: 8),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
             child: Text(
-              'OTROS ALIMENTOS',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.8),
+              l10n.mealsOtherFoods,
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.8),
             ),
           ),
         for (final item in loose)
           _ItemTile(
             item: item,
-            subtitle: mealItemLabel(item.quantity, item.baseUnit),
+            subtitle: mealItemLabel(item.quantity, item.baseUnit, l10n),
             repository: repository,
           ),
       ],
@@ -101,17 +103,18 @@ class _RecipeHeader extends StatelessWidget {
   const _RecipeHeader({required this.logged, required this.items, required this.repository});
 
   Future<void> _delete(BuildContext context) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('¿Borrar receta?'),
-        content: Text('Se quitará "${logged.title}" con sus ${items.length} ingredientes de esta comida.'),
+        title: Text(l10n.mealsDeleteRecipeTitle),
+        content: Text(l10n.mealsDeleteRecipeBody(logged.title, items.length)),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: Text(l10n.commonCancel)),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-            child: const Text('Borrar'),
+            child: Text(l10n.mealsDelete),
           ),
         ],
       ),
@@ -132,8 +135,8 @@ class _RecipeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final calories = items.fold<int>(0, (sum, i) => sum + i.calories);
-    final unit = logged.portions <= 1 ? 'porción' : 'porciones';
     return Container(
       margin: const EdgeInsets.only(top: 8, right: 12),
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
@@ -161,7 +164,7 @@ class _RecipeHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${portionsLabel(logged.portions)} $unit · $calories kcal',
+                      '${portionsText(logged.portions, l10n)} · $calories kcal',
                       style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                     ),
                   ],
@@ -176,12 +179,12 @@ class _RecipeHeader extends StatelessWidget {
                 onPressed: () => _delete(context),
                 style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
                 icon: const Icon(Icons.delete_outline_rounded, size: 18),
-                label: const Text('Borrar receta', style: TextStyle(fontWeight: FontWeight.w700)),
+                label: Text(l10n.mealsDeleteRecipe, style: const TextStyle(fontWeight: FontWeight.w700)),
               ),
               TextButton(
                 onPressed: () => showRecipeInfoSheet(context, logged.recipe),
                 style: TextButton.styleFrom(foregroundColor: AppTheme.primaryStart),
-                child: const Text('Ver receta', style: TextStyle(fontWeight: FontWeight.w800)),
+                child: Text(l10n.mealsViewRecipe, style: const TextStyle(fontWeight: FontWeight.w800)),
               ),
             ],
           ),
@@ -212,7 +215,7 @@ class _ItemTile extends StatelessWidget {
           if (!deletable) const SizedBox(width: 12),
           if (deletable)
             IconButton(
-              tooltip: 'Borrar ${item.name}',
+              tooltip: context.l10n.mealsDeleteItem(item.name),
               icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
               onPressed: () async {
                 try {

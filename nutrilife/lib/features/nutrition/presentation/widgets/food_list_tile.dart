@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../meals/data/meal_repository.dart';
 import '../../../meals/domain/meal_type.dart';
 import '../../../meals/presentation/widgets/add_food_sheet.dart';
@@ -547,7 +548,7 @@ class _MealTypePicker extends StatelessWidget {
       children: [
         for (final t in MealType.values)
           ChoiceChip(
-            label: Text('${t.emoji} ${t.label}'),
+            label: Text('${t.emoji} ${t.label(context.l10n)}'),
             selected: t == selected,
             onSelected: (_) => onChanged(t),
             selectedColor: const Color(0xFFDFF6EA),

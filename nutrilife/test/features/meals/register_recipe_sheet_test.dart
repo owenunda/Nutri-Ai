@@ -9,6 +9,8 @@ import 'package:nutrilife/features/meals/presentation/widgets/meal_detail_sheet.
 import 'package:nutrilife/features/meals/presentation/widgets/register_recipe_sheet.dart';
 import 'package:nutrilife/features/nutrition/data/food_repository.dart';
 import 'package:nutrilife/features/nutrition/data/models/food_model.dart';
+import 'package:nutrilife/l10n/app_localizations.dart';
+import '../../helpers/l10n_app.dart';
 
 class _RepoFalso extends MealRepository {
   final added = <(RecipeModel, double, List<({int foodId, double quantity})>, MealType)>[];
@@ -88,8 +90,7 @@ const _ensalada = RecipeModel(
 
 Future<_RepoFalso> _open(WidgetTester tester, RecipeModel recipe, {bool catalogoFalla = false}) async {
   final repo = _RepoFalso();
-  await tester.pumpWidget(MaterialApp(
-    home: Scaffold(
+  await tester.pumpWidget(l10nApp(Scaffold(
       body: Builder(
         builder: (context) => TextButton(
           onPressed: () => showRegisterRecipeSheet(
@@ -102,8 +103,7 @@ Future<_RepoFalso> _open(WidgetTester tester, RecipeModel recipe, {bool catalogo
           child: const Text('abrir'),
         ),
       ),
-    ),
-  ));
+    )));
   await tester.tap(find.text('abrir'));
   await tester.pumpAndSettle();
   return repo;
@@ -204,9 +204,7 @@ void main() {
   });
 
   testWidgets('la tarjeta de receta tiene el botón Registrar comida', (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: Scaffold(body: SingleChildScrollView(child: RecipeCardWidget(recipe: _ensalada))),
-    ));
+    await tester.pumpWidget(l10nApp(Scaffold(body: SingleChildScrollView(child: RecipeCardWidget(recipe: _ensalada)))));
     expect(find.text('Agregar al log diario'), findsNothing);
     await tester.ensureVisible(find.text('Registrar comida'));
     await tester.tap(find.text('Registrar comida'));
@@ -216,16 +214,14 @@ void main() {
 
   testWidgets('los ingredientes de la receta solo se borran con la receta entera', (tester) async {
     final repo = _RepoFalso();
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
+    await tester.pumpWidget(l10nApp(Scaffold(
         body: Builder(
           builder: (context) => TextButton(
             onPressed: () => showMealDetailSheet(context, _cena, repository: repo),
             child: const Text('abrir'),
           ),
         ),
-      ),
-    ));
+      )));
     await tester.tap(find.text('abrir'));
     await tester.pumpAndSettle();
 
@@ -252,16 +248,14 @@ void main() {
   });
 
   testWidgets('el historial agrupa la receta y deja verla', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
+    await tester.pumpWidget(l10nApp(Scaffold(
         body: Builder(
           builder: (context) => TextButton(
             onPressed: () => showMealDetailSheet(context, _cena, repository: _RepoFalso()),
             child: const Text('abrir'),
           ),
         ),
-      ),
-    ));
+      )));
     await tester.tap(find.text('abrir'));
     await tester.pumpAndSettle();
 
@@ -286,6 +280,6 @@ void main() {
   });
 
   test('la tarjeta del día nombra la receta en vez de sus ingredientes', () {
-    expect(_cena.summary, 'Ensalada dulce de banana y pera, Arroz • 160 kcal');
+    expect(_cena.summary(lookupAppLocalizations(const Locale('es'))), 'Ensalada dulce de banana y pera, Arroz • 160 kcal');
   });
 }

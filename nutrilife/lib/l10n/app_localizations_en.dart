@@ -571,4 +571,162 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeGoalReached => 'You\'ve reached your daily goal!';
+
+  @override
+  String get mealsTypeBreakfast => 'Breakfast';
+
+  @override
+  String get mealsTypeLunch => 'Lunch';
+
+  @override
+  String get mealsTypeDinner => 'Dinner';
+
+  @override
+  String get mealsTypeSnack => 'Snack';
+
+  @override
+  String get mealsNotLoggedYet => 'Not logged yet';
+
+  @override
+  String mealsPortionsOne(String amount) {
+    return '$amount serving';
+  }
+
+  @override
+  String mealsPortionsOther(String amount) {
+    return '$amount servings';
+  }
+
+  @override
+  String get mealsErrorAddFood => 'Couldn\'t log the meal';
+
+  @override
+  String get mealsErrorAddRecipe => 'Couldn\'t log the recipe';
+
+  @override
+  String get mealsErrorDeleteRecipe => 'Couldn\'t delete the recipe';
+
+  @override
+  String get mealsErrorDeleteItem => 'Couldn\'t delete it';
+
+  @override
+  String get mealsErrorLoadDay => 'Couldn\'t load your meals';
+
+  @override
+  String get mealsHistoryTitle => 'Meal history';
+
+  @override
+  String get mealsPickDate => 'Pick a date';
+
+  @override
+  String get mealsPreviousDay => 'Previous day';
+
+  @override
+  String get mealsNextDay => 'Next day';
+
+  @override
+  String get mealsToday => 'Today';
+
+  @override
+  String get mealsYesterday => 'Yesterday';
+
+  @override
+  String mealsDateLabel(String weekday, int day, String month) {
+    return '$weekday, $month $day';
+  }
+
+  @override
+  String mealsAddedTo(String meal, int kcal) {
+    return 'Added to $meal · $kcal kcal';
+  }
+
+  @override
+  String mealsRegisteredIn(String meal, int kcal) {
+    return 'Logged in $meal · $kcal kcal';
+  }
+
+  @override
+  String get mealsUndo => 'Undo';
+
+  @override
+  String get mealsUndoFailed => 'Couldn\'t undo';
+
+  @override
+  String mealsKcalPerUnit(int kcal, String unit) {
+    return '$kcal kcal per $unit';
+  }
+
+  @override
+  String get mealsLess => 'Less';
+
+  @override
+  String get mealsMore => 'More';
+
+  @override
+  String mealsDetailTitle(String meal, int kcal) {
+    return '$meal · $kcal kcal';
+  }
+
+  @override
+  String get mealsOtherFoods => 'OTHER FOODS';
+
+  @override
+  String get mealsDeleteRecipeTitle => 'Delete recipe?';
+
+  @override
+  String mealsDeleteRecipeBody(String title, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'its $count ingredients',
+      one: 'its ingredient',
+    );
+    return '\"$title\" will be removed from this meal along with $_temp0.';
+  }
+
+  @override
+  String get mealsDelete => 'Delete';
+
+  @override
+  String get mealsDeleteRecipe => 'Delete recipe';
+
+  @override
+  String get mealsViewRecipe => 'View recipe';
+
+  @override
+  String mealsDeleteItem(String name) {
+    return 'Delete $name';
+  }
+
+  @override
+  String get mealsRegisterNoIngredients =>
+      'This recipe has no ingredients to log';
+
+  @override
+  String get mealsRegisterTitle => 'Log meal';
+
+  @override
+  String get mealsLessPortions => 'Fewer servings';
+
+  @override
+  String get mealsMorePortions => 'More servings';
+
+  @override
+  String mealsCalculatingCalories(int servings) {
+    return 'Calculating calories… · recipe makes $servings';
+  }
+
+  @override
+  String mealsRecipeYield(int kcal, int servings) {
+    return '$kcal kcal · recipe makes $servings';
+  }
+
+  @override
+  String get mealsLoadFoodsError =>
+      'We couldn\'t load the recipe\'s foods. Please try again.';
+
+  @override
+  String mealsRegisterIn(String meal) {
+    return 'Log in $meal';
+  }
 }

@@ -1123,6 +1123,258 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¡Has alcanzado tu objetivo diario!'**
   String get homeGoalReached;
+
+  /// No description provided for @mealsTypeBreakfast.
+  ///
+  /// In es, this message translates to:
+  /// **'Desayuno'**
+  String get mealsTypeBreakfast;
+
+  /// No description provided for @mealsTypeLunch.
+  ///
+  /// In es, this message translates to:
+  /// **'Almuerzo'**
+  String get mealsTypeLunch;
+
+  /// No description provided for @mealsTypeDinner.
+  ///
+  /// In es, this message translates to:
+  /// **'Cena'**
+  String get mealsTypeDinner;
+
+  /// No description provided for @mealsTypeSnack.
+  ///
+  /// In es, this message translates to:
+  /// **'Snack'**
+  String get mealsTypeSnack;
+
+  /// No description provided for @mealsNotLoggedYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no registrada'**
+  String get mealsNotLoggedYet;
+
+  /// No description provided for @mealsPortionsOne.
+  ///
+  /// In es, this message translates to:
+  /// **'{amount} porción'**
+  String mealsPortionsOne(String amount);
+
+  /// No description provided for @mealsPortionsOther.
+  ///
+  /// In es, this message translates to:
+  /// **'{amount} porciones'**
+  String mealsPortionsOther(String amount);
+
+  /// No description provided for @mealsErrorAddFood.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo registrar la comida'**
+  String get mealsErrorAddFood;
+
+  /// No description provided for @mealsErrorAddRecipe.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo registrar la receta'**
+  String get mealsErrorAddRecipe;
+
+  /// No description provided for @mealsErrorDeleteRecipe.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo borrar la receta'**
+  String get mealsErrorDeleteRecipe;
+
+  /// No description provided for @mealsErrorDeleteItem.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo borrar'**
+  String get mealsErrorDeleteItem;
+
+  /// No description provided for @mealsErrorLoadDay.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar tus comidas'**
+  String get mealsErrorLoadDay;
+
+  /// No description provided for @mealsHistoryTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial de comidas'**
+  String get mealsHistoryTitle;
+
+  /// No description provided for @mealsPickDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir fecha'**
+  String get mealsPickDate;
+
+  /// No description provided for @mealsPreviousDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Día anterior'**
+  String get mealsPreviousDay;
+
+  /// No description provided for @mealsNextDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Día siguiente'**
+  String get mealsNextDay;
+
+  /// No description provided for @mealsToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy'**
+  String get mealsToday;
+
+  /// No description provided for @mealsYesterday.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayer'**
+  String get mealsYesterday;
+
+  /// No description provided for @mealsDateLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'{weekday} {day} {month}'**
+  String mealsDateLabel(String weekday, int day, String month);
+
+  /// No description provided for @mealsAddedTo.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregado a {meal} · {kcal} kcal'**
+  String mealsAddedTo(String meal, int kcal);
+
+  /// No description provided for @mealsRegisteredIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrado en {meal} · {kcal} kcal'**
+  String mealsRegisteredIn(String meal, int kcal);
+
+  /// No description provided for @mealsUndo.
+  ///
+  /// In es, this message translates to:
+  /// **'Deshacer'**
+  String get mealsUndo;
+
+  /// No description provided for @mealsUndoFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo deshacer'**
+  String get mealsUndoFailed;
+
+  /// No description provided for @mealsKcalPerUnit.
+  ///
+  /// In es, this message translates to:
+  /// **'{kcal} kcal por {unit}'**
+  String mealsKcalPerUnit(int kcal, String unit);
+
+  /// No description provided for @mealsLess.
+  ///
+  /// In es, this message translates to:
+  /// **'Menos'**
+  String get mealsLess;
+
+  /// No description provided for @mealsMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Más'**
+  String get mealsMore;
+
+  /// No description provided for @mealsDetailTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'{meal} · {kcal} kcal'**
+  String mealsDetailTitle(String meal, int kcal);
+
+  /// No description provided for @mealsOtherFoods.
+  ///
+  /// In es, this message translates to:
+  /// **'OTROS ALIMENTOS'**
+  String get mealsOtherFoods;
+
+  /// No description provided for @mealsDeleteRecipeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Borrar receta?'**
+  String get mealsDeleteRecipeTitle;
+
+  /// No description provided for @mealsDeleteRecipeBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Se quitará \"{title}\" con {count, plural, =1{su ingrediente} other{sus {count} ingredientes}} de esta comida.'**
+  String mealsDeleteRecipeBody(String title, int count);
+
+  /// No description provided for @mealsDelete.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar'**
+  String get mealsDelete;
+
+  /// No description provided for @mealsDeleteRecipe.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar receta'**
+  String get mealsDeleteRecipe;
+
+  /// No description provided for @mealsViewRecipe.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver receta'**
+  String get mealsViewRecipe;
+
+  /// No description provided for @mealsDeleteItem.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar {name}'**
+  String mealsDeleteItem(String name);
+
+  /// No description provided for @mealsRegisterNoIngredients.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta receta no trae ingredientes para registrar'**
+  String get mealsRegisterNoIngredients;
+
+  /// No description provided for @mealsRegisterTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar comida'**
+  String get mealsRegisterTitle;
+
+  /// No description provided for @mealsLessPortions.
+  ///
+  /// In es, this message translates to:
+  /// **'Menos porciones'**
+  String get mealsLessPortions;
+
+  /// No description provided for @mealsMorePortions.
+  ///
+  /// In es, this message translates to:
+  /// **'Más porciones'**
+  String get mealsMorePortions;
+
+  /// No description provided for @mealsCalculatingCalories.
+  ///
+  /// In es, this message translates to:
+  /// **'Calculando calorías… · la receta rinde {servings}'**
+  String mealsCalculatingCalories(int servings);
+
+  /// No description provided for @mealsRecipeYield.
+  ///
+  /// In es, this message translates to:
+  /// **'{kcal} kcal · la receta rinde {servings}'**
+  String mealsRecipeYield(int kcal, int servings);
+
+  /// No description provided for @mealsLoadFoodsError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar los alimentos de la receta. Intenta de nuevo.'**
+  String get mealsLoadFoodsError;
+
+  /// No description provided for @mealsRegisterIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar en {meal}'**
+  String mealsRegisterIn(String meal);
 }
 
 class _AppLocalizationsDelegate

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/date_labels.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/local_date.dart';
@@ -18,9 +20,6 @@ class MealHistoryScreen extends StatefulWidget {
 }
 
 class _MealHistoryScreenState extends State<MealHistoryScreen> {
-  static const _weekdays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-  static const _months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-
   late final MealRepository _repository = widget.repository ?? MealRepository();
   late final DateTime _today = _dateOnly((widget.clock ?? DateTime.now)());
   late DateTime _day = _today;
@@ -58,25 +57,32 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
       initialDate: _day,
       firstDate: DateTime(_today.year - 5),
       lastDate: _today,
-      helpText: 'Elegir fecha',
+      helpText: context.l10n.mealsPickDate,
     );
     if (picked == null || _dateOnly(picked) == _day) return;
     _day = _dateOnly(picked);
     _reload();
   }
 
-  String get _title {
+  String _title(BuildContext context) {
+    final l10n = context.l10n;
+    final languageCode = Localizations.localeOf(context).languageCode;
     // Diferencia en fechas de calendario (en UTC) para no depender del horario de verano.
     final diff = DateTime.utc(_today.year, _today.month, _today.day)
         .difference(DateTime.utc(_day.year, _day.month, _day.day))
         .inDays;
-    if (diff == 0) return 'Hoy';
-    if (diff == 1) return 'Ayer';
-    return '${_weekdays[_day.weekday - 1]} ${_day.day} ${_months[_day.month - 1]}';
+    if (diff == 0) return l10n.mealsToday;
+    if (diff == 1) return l10n.mealsYesterday;
+    return l10n.mealsDateLabel(
+      shortWeekday(_day, languageCode),
+      _day.day,
+      shortMonth(_day, languageCode),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isToday = _day == _today;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7F9),
@@ -85,13 +91,13 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         foregroundColor: const Color(0xFF2C2F31),
-        title: const Text(
-          'Historial de comidas',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3),
+        title: Text(
+          l10n.mealsHistoryTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3),
         ),
         actions: [
           IconButton(
-            tooltip: 'Elegir fecha',
+            tooltip: l10n.mealsPickDate,
             onPressed: _pickDate,
             icon: const Icon(Icons.calendar_month_rounded),
           ),
@@ -104,7 +110,7 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
           Row(
             children: [
               IconButton(
-                tooltip: 'Día anterior',
+                tooltip: l10n.mealsPreviousDay,
                 onPressed: () => _move(-1),
                 icon: const Icon(Icons.chevron_left_rounded),
               ),
@@ -118,7 +124,7 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          _title,
+                          _title(context),
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(width: 4),
@@ -129,7 +135,7 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
                 ),
               ),
               IconButton(
-                tooltip: 'Día siguiente',
+                tooltip: l10n.mealsNextDay,
                 onPressed: isToday ? null : () => _move(1),
                 icon: const Icon(Icons.chevron_right_rounded),
               ),
@@ -149,7 +155,7 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
                 return Column(
                   children: [
                     Text(snapshot.error.toString().replaceFirst('Exception: ', '')),
-                    TextButton(onPressed: _reload, child: const Text('Reintentar')),
+                    TextButton(onPressed: _reload, child: Text(l10n.commonRetry)),
                   ],
                 );
               }

@@ -7,6 +7,7 @@ import 'package:nutrilife/features/nutrition/data/food_repository.dart';
 import 'package:nutrilife/features/nutrition/data/models/food_model.dart';
 import 'package:nutrilife/features/nutrition/domain/food_units.dart';
 import 'package:nutrilife/features/nutrition/presentation/screens/foods_screen.dart';
+import '../../helpers/l10n_app.dart';
 
 FoodModel _food(int id, String name, {bool global = true}) => FoodModel(
   foodId: id,
@@ -81,11 +82,9 @@ Future<_RepoFalso> _pump(
   addTearDown(tester.view.reset);
 
   await tester.pumpWidget(
-    MaterialApp(
-      home: Scaffold(
+    l10nApp(Scaffold(
         body: FoodsScreen(foodRepository: repo, mealRepository: mealRepository),
-      ),
-    ),
+      )),
   );
   await tester.pumpAndSettle();
   return repo;

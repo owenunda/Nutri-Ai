@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../meals/domain/meal_type.dart';
 import '../../data/food_repository.dart';
 import '../../data/fridge_repository.dart';
@@ -148,7 +149,7 @@ class _AllFoodsScreenState extends State<AllFoodsScreen> {
         title: Text(
           widget.title ??
               (widget.mealType != null
-                  ? 'Agregar a ${widget.mealType!.label}'
+                  ? context.l10n.homeAddToMeal(widget.mealType!.label(context.l10n))
                   : (showFridge ? 'Mi nevera' : 'Todos los alimentos')),
           style: const TextStyle(
             fontSize: 18,

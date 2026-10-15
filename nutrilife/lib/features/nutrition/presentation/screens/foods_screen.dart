@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -449,7 +450,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
                           for (final t in MealType.values)
                             ChoiceChip(
                               key: ValueKey('meal-type-${t.apiValue}'),
-                              label: Text('${t.emoji} ${t.label}'),
+                              label: Text('${t.emoji} ${t.label(sheetContext.l10n)}'),
                               selected: t == mealType,
                               onSelected: (_) =>
                                   setSheetState(() => mealType = t),
@@ -1743,7 +1744,7 @@ class _BulkAddComunesSectionState extends State<_BulkAddComunesSection> {
                       style: const TextStyle(fontSize: 22),
                     ),
                     title: Text(
-                      t.label,
+                      t.label(sheetContext.l10n),
                       style: const TextStyle(
                         color: Color(0xFF2C2F31),
                         fontSize: 15,

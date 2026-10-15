@@ -1,3 +1,5 @@
+import '../../../core/l10n/l10n.dart';
+
 const double kMinPortions = 0.5;
 const double kMaxPortions = 10.0;
 const double kPortionStep = 0.5;
@@ -24,6 +26,12 @@ String portionsLabel(double portions) {
   final hasHalf = (portions - whole) >= 0.5;
   if (whole == 0) return hasHalf ? '½' : '0';
   return hasHalf ? '$whole½' : '$whole';
+}
+
+/// "½ porción", "1½ porciones" / "½ serving", "1½ servings".
+String portionsText(double portions, AppLocalizations l10n) {
+  final amount = portionsLabel(portions);
+  return portions <= 1 ? l10n.mealsPortionsOne(amount) : l10n.mealsPortionsOther(amount);
 }
 
 /// "150 g" si la unidad base es numérica (100 G), si no "1½ unidad".
@@ -59,9 +67,8 @@ String ingredientAmountLabel(double quantity, String baseUnit) {
 /// que da la hoja de agregar) se dice "1½ porciones · 150 g"; si no (p. ej.
 /// un ingrediente de receta, 0,75) solo la cantidad: "75 g", para no
 /// redondear 0,75 a "½".
-String mealItemLabel(double quantity, String baseUnit) {
+String mealItemLabel(double quantity, String baseUnit, AppLocalizations l10n) {
   final isHalfStep = (quantity * 2 - (quantity * 2).roundToDouble()).abs() < 0.001;
   if (!isHalfStep) return ingredientAmountLabel(quantity, baseUnit);
-  return '${portionsLabel(quantity)} ${quantity <= 1 ? 'porción' : 'porciones'} · '
-      '${quantityLabel(quantity, baseUnit)}';
+  return '${portionsText(quantity, l10n)} · ${quantityLabel(quantity, baseUnit)}';
 }

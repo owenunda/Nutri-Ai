@@ -1,14 +1,28 @@
+import '../../../core/l10n/l10n.dart';
+
 enum MealType {
-  breakfast('BREAKFAST', 'Desayuno', '🥑'),
-  lunch('LUNCH', 'Almuerzo', '🥗'),
-  dinner('DINNER', 'Cena', '🍽️'),
-  snack('SNACK', 'Snack', '🍎');
+  breakfast('BREAKFAST', 'desayuno', '🥑'),
+  lunch('LUNCH', 'almuerzo', '🥗'),
+  dinner('DINNER', 'cena', '🍽️'),
+  snack('SNACK', 'snack', '🍎');
 
-  const MealType(this.apiValue, this.label, this.emoji);
+  const MealType(this.apiValue, this.recipeCode, this.emoji);
 
+  /// Valor que se manda y se recibe del backend.
   final String apiValue;
-  final String label;
+
+  /// Tipo de comida como lo escribe el chef en las recetas (siempre en
+  /// español, sin importar el idioma de la app).
+  final String recipeCode;
   final String emoji;
+
+  /// Nombre para mostrar, en el idioma de la app.
+  String label(AppLocalizations l10n) => switch (this) {
+        MealType.breakfast => l10n.mealsTypeBreakfast,
+        MealType.lunch => l10n.mealsTypeLunch,
+        MealType.dinner => l10n.mealsTypeDinner,
+        MealType.snack => l10n.mealsTypeSnack,
+      };
 
   static MealType fromApi(String? value) => MealType.values.firstWhere(
         (t) => t.apiValue == value,

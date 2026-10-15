@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/features/chatbot/data/models/recipe_model.dart';
 import 'package:nutrilife/features/meals/data/meal_repository.dart';
 import 'package:nutrilife/features/meals/domain/meal_type.dart';
+import 'package:nutrilife/l10n/app_localizations.dart';
 
 class _Adapter implements HttpClientAdapter {
   _Adapter(this.routes);
@@ -36,6 +38,8 @@ class _Adapter implements HttpClientAdapter {
     adapter,
   );
 }
+
+final _es = lookupAppLocalizations(const Locale('es'));
 
 void main() {
   test('addFood crea el registro del día local y agrega con meal_type', () async {
@@ -150,7 +154,7 @@ void main() {
 
     final day = await repo.getDay('2026-10-12');
     final cena = day.of(MealType.dinner);
-    expect(cena.summary, 'Pollo al ajillo • 124 kcal');
+    expect(cena.summary(_es), 'Pollo al ajillo • 124 kcal');
     final recipe = cena.recipeOf(cena.items.single)!;
     expect(recipe.id, 12);
     expect(recipe.recipe.steps.single.description, 'Cocinar');
@@ -180,7 +184,7 @@ void main() {
 
     expect(adapter.requests.single.queryParameters, {'date': '2026-10-12'});
     expect(day.totalCalories, 240);
-    expect(day.of(MealType.lunch).summary, 'Tilapia, Arroz • 240 kcal');
+    expect(day.of(MealType.lunch).summary(_es), 'Tilapia, Arroz • 240 kcal');
     expect(day.of(MealType.breakfast).isEmpty, isTrue);
   });
 

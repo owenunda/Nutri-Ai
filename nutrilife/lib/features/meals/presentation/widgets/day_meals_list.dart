@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../home/presentation/widgets/meal_card.dart';
 import '../../data/models/day_meals.dart';
 import '../../domain/meal_type.dart';
@@ -18,8 +19,8 @@ class DayMealsList extends StatelessWidget {
         for (final type in MealType.values) ...[
           MealCard(
             emoji: type.emoji,
-            title: type.label,
-            description: day.of(type).summary,
+            title: type.label(context.l10n),
+            description: day.of(type).summary(context.l10n),
             isLogged: !day.of(type).isEmpty,
             onTap: day.of(type).isEmpty ? null : () => onOpen(day.of(type)),
             onAdd: onAdd == null ? null : () => onAdd!(type),
