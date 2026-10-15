@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validateDeleteAccountRequest } from '../../src/modules/user/user.validation.js';
+import {
+  validateDeleteAccountRequest,
+  validateSetPasswordRequest,
+} from '../../src/modules/user/user.validation.js';
 
 const run = (body) => {
   const req = { body };
@@ -31,5 +34,30 @@ for (const body of [{}, { password: '' }, { password: 'a', googleIdToken: 'b' },
 
     assert.equal(nextArg.status, 400);
     assert.equal(nextArg.code, 'VALIDATION_ERROR');
+  });
+}
+
+const runSetPassword = (body) => {
+  const req = { body };
+  let nextArg = 'not-called';
+  validateSetPasswordRequest(req, {}, (arg) => {
+    nextArg = arg;
+  });
+  return { req, nextArg };
+};
+
+test('crear contraseña: acepta 6 caracteres o más', () => {
+  const { req, nextArg } = runSetPassword({ password: 'abc123' });
+
+  assert.equal(nextArg, undefined);
+  assert.deepEqual(req.setPasswordData, { password: 'abc123' });
+});
+
+for (const body of [{}, { password: '' }, { password: 'abc12' }, { password: 123456 }, undefined]) {
+  test(`crear contraseña: rechaza ${JSON.stringify(body)} con 400`, () => {
+    const { nextArg } = runSetPassword(body);
+
+    assert.equal(nextArg.status, 400);
+    assert.equal(nextArg.details[0].field, 'password');
   });
 }

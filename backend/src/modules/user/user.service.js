@@ -8,8 +8,11 @@ import {
   findUserCredentialsById,
   findPhysicalHistoryByUserId,
   findUserProfileById,
+  setPasswordIfMissing,
   updateUserProfileData,
 } from './user.repository.js';
+
+const SALT_ROUNDS = 10;
 
 export const getUserProfile = async (userId) => {
   try {
@@ -147,6 +150,46 @@ export const deleteUserAccount = async (userId, confirmation) => {
       eventType: 'ACCOUNT_DELETED',
       category: 'AUTH',
       userId: null,
+      metadata: {},
+    });
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw new AppError(error.message, 500, 'USER_SERVICE_ERROR');
+  }
+};
+
+// Crea la contraseña de una cuenta que solo entraba con Google. Cambiar una
+// contraseña que ya existe pediría la actual, así que aquí se rechaza.
+export const setUserPassword = async (userId, password) => {
+  try {
+    const credentials = await findUserCredentialsById(userId);
+
+    if (!credentials) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    const alreadySet = new AppError(
+      'Tu cuenta ya tiene contraseña.',
+      409,
+      'PASSWORD_ALREADY_SET'
+    );
+    if (credentials.passwordHash) {
+      throw alreadySet;
+    }
+
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+    const updated = await setPasswordIfMissing(userId, passwordHash);
+    if (!updated) {
+      throw alreadySet;
+    }
+
+    await logEventService({
+      eventType: 'PASSWORD_SET',
+      category: 'AUTH',
+      userId,
       metadata: {},
     });
   } catch (error) {

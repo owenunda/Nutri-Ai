@@ -173,6 +173,18 @@ export const updateUserProfileData = async (userId, { age, goal, height, weight 
   }
 };
 
+// Guarda la contraseña solo si la cuenta no tenía una. Devuelve null si ya la
+// tenía, así dos peticiones a la vez no se pisan.
+export const setPasswordIfMissing = async (userId, passwordHash) => {
+  const { rows } = await pool.query(
+    `UPDATE users SET password = $2, updated_at = CURRENT_TIMESTAMP
+     WHERE user_id = $1 AND password IS NULL
+     RETURNING user_id AS "userId"`,
+    [userId, passwordHash]
+  );
+  return rows[0] ?? null;
+};
+
 // Lo necesario para confirmar el borrado: la contraseña, o la cuenta de
 // Google vinculada si el usuario no tiene contraseña.
 export const findUserCredentialsById = async (userId) => {

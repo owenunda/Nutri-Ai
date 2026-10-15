@@ -88,6 +88,7 @@ test('Google: usuario ya vinculado entra sin crear ni vincular nada', async () =
   assert.equal(session.user.passwordHash, undefined);
   assert.equal(session.user.email, 'ana@gmail.com');
   assert.equal(session.needsProfileSetup, false);
+  assert.equal(session.offerPasswordSetup, false);
   assert.deepEqual(eventTypes(), ['LOGIN']);
   assert.equal(events[0].metadata.method, 'google');
 });
@@ -113,6 +114,8 @@ test('Google: email ya registrado con contraseña se vincula y la contraseña se
     },
   ]);
   assert.equal(session.user.userId, 7);
+  // Se quedó sin contraseña: la app le ofrece crear una nueva.
+  assert.equal(session.offerPasswordSetup, true);
   assert.deepEqual(eventTypes(), ['ACCOUNT_LINKED', 'LOGIN']);
 });
 
@@ -130,6 +133,7 @@ test('Google: una cuenta ADMIN se vincula sin perder la contraseña', async () =
   assert.equal(links.length, 1);
   assert.equal(links[0].clearPassword, false);
   assert.equal(session.user.role, 'ADMIN');
+  assert.equal(session.offerPasswordSetup, false);
   assert.deepEqual(eventTypes(), ['ACCOUNT_LINKED', 'LOGIN']);
 });
 
@@ -171,6 +175,7 @@ test('Google: usuario nuevo se crea sin contraseña y pide el setup', async () =
   ]);
   assert.equal(session.user.userId, 9);
   assert.equal(session.needsProfileSetup, true);
+  assert.equal(session.offerPasswordSetup, true);
   assert.deepEqual(eventTypes(), ['REGISTER', 'LOGIN']);
   assert.equal(events[0].metadata.method, 'google');
 });
@@ -231,4 +236,13 @@ test('Email: la respuesta incluye needsProfileSetup', async () => {
 
   assert.equal(session.needsProfileSetup, true);
   assert.equal(session.user.passwordHash, undefined);
+  assert.equal(session.offerPasswordSetup, undefined);
+});
+
+test('Google: una cuenta solo de Google que vuelve a entrar no recibe la oferta otra vez', async () => {
+  repo.findUserByProvider = async () => ({ ...ana, passwordHash: null });
+
+  const session = await loginWithGoogle({ idToken: 'tok' });
+
+  assert.equal(session.offerPasswordSetup, false);
 });

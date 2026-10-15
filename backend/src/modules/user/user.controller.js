@@ -4,6 +4,7 @@ import {
   getPhysicalHistory,
   getUserProfile,
   savePhysicalRecord,
+  setUserPassword,
   updateUserProfile,
 } from './user.service.js';
 
@@ -47,6 +48,15 @@ export const deleteAccount = async (req, res, next) => {
   try {
     await deleteUserAccount(req.user.userId, req.accountDeletionData);
     return successResponse(res, null, 'User account deleted successfully', 200);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const setPassword = async (req, res, next) => {
+  try {
+    await setUserPassword(req.user.userId, req.setPasswordData.password);
+    return successResponse(res, null, 'Password set successfully', 200);
   } catch (error) {
     next(error);
   }

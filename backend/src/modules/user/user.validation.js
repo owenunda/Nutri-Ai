@@ -109,3 +109,19 @@ export const validateDeleteAccountRequest = (req, res, next) => {
   req.accountDeletionData = hasPassword ? { password } : { googleIdToken: googleIdToken.trim() };
   next();
 };
+
+// Mismo mínimo que el registro con email.
+export const validateSetPasswordRequest = (req, res, next) => {
+  const { password } = req.body ?? {};
+
+  if (typeof password !== 'string' || password.length < 6) {
+    return next(
+      new AppError('Validation error', 400, 'VALIDATION_ERROR', [
+        { field: 'password', message: 'Password must be at least 6 characters' },
+      ])
+    );
+  }
+
+  req.setPasswordData = { password };
+  next();
+};

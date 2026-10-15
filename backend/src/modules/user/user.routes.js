@@ -5,11 +5,13 @@ import {
   deleteAccount,
   getPhysicalHistoryController,
   getProfile,
+  setPassword,
   updateProfile,
 } from './user.controller.js';
 import {
   validateCreatePhysicalRecordRequest,
   validateDeleteAccountRequest,
+  validateSetPasswordRequest,
   validateUpdateProfileRequest,
 } from './user.validation.js';
 
@@ -172,5 +174,37 @@ router.put('/profile', authenticateToken(), validateUpdateProfileRequest, update
  *         description: El usuario ya no existe
  */
 router.delete('/account', authenticateToken(), validateDeleteAccountRequest, deleteAccount);
+
+/**
+ * @openapi
+ * /api/v1/user/password:
+ *   post:
+ *     tags: [User]
+ *     summary: Crear la contraseña de una cuenta que solo entra con Google
+ *     description: Solo funciona si la cuenta no tiene contraseña. Después el usuario puede entrar con Google o con email y contraseña.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [password]
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *     responses:
+ *       200:
+ *         description: Contraseña creada
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       409:
+ *         description: La cuenta ya tiene contraseña (code PASSWORD_ALREADY_SET)
+ */
+router.post('/password', authenticateToken(), validateSetPasswordRequest, setPassword);
 
 export default router;

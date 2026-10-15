@@ -193,11 +193,12 @@ export const registerUser = async ({ name, email, password, goal }) => {
 };
 
 // Busca al usuario de Google por su `sub`; si no existe, lo vincula a la
-// cuenta con el mismo email o crea una nueva.
+// cuenta con el mismo email o crea una nueva. `isFirstGoogleLogin` es true
+// cuando esta llamada creó o vinculó la cuenta.
 const resolveGoogleUser = async ({ sub, email, name }) => {
   const linkedUser = await findUserByProvider(GOOGLE, sub);
   if (linkedUser) {
-    return linkedUser;
+    return { user: linkedUser, isFirstGoogleLogin: false };
   }
 
   const existingUser = await findUserByEmail(email);
@@ -229,7 +230,8 @@ const resolveGoogleUser = async ({ sub, email, name }) => {
       userId: existingUser.userId,
       metadata: { provider: GOOGLE },
     });
-    return clearPassword ? { ...existingUser, passwordHash: null } : existingUser;
+    const user = clearPassword ? { ...existingUser, passwordHash: null } : existingUser;
+    return { user, isFirstGoogleLogin: true };
   }
 
   const displayName = name?.trim() || email.split('@')[0];
@@ -247,7 +249,7 @@ const resolveGoogleUser = async ({ sub, email, name }) => {
   });
 
   // Se relee para tener rol, plan y edad con el mismo formato que el login.
-  return findUserByProvider(GOOGLE, sub);
+  return { user: await findUserByProvider(GOOGLE, sub), isFirstGoogleLogin: true };
 };
 
 export const loginWithGoogle = async ({ idToken }) => {
@@ -258,19 +260,25 @@ export const loginWithGoogle = async ({ idToken }) => {
       throw new AppError('Tu correo de Google no está verificado.', 403, 'GOOGLE_EMAIL_NOT_VERIFIED');
     }
 
-    let user;
+    let resolved;
     try {
-      user = await resolveGoogleUser(profile);
+      resolved = await resolveGoogleUser(profile);
     } catch (error) {
       // Dos primeros logins a la vez: el segundo choca con un UNIQUE y, al
       // repetir la búsqueda, encuentra lo que creó el primero.
       if (error?.code !== UNIQUE_VIOLATION) {
         throw error;
       }
-      user = await resolveGoogleUser(profile);
+      resolved = await resolveGoogleUser(profile);
     }
+    const { user, isFirstGoogleLogin } = resolved;
 
-    const session = buildSession(user);
+    // Solo en el primer login con Google y si la cuenta quedó sin contraseña:
+    // la app le ofrece crear una para poder entrar también con email.
+    const session = {
+      ...buildSession(user),
+      offerPasswordSetup: isFirstGoogleLogin && !user.passwordHash,
+    };
 
     await logEventService({
       eventType: 'LOGIN',

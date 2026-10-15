@@ -12,10 +12,12 @@ const REPO_EXPORTS = [
   'findPhysicalHistoryByUserId',
   'findUserCredentialsById',
   'findUserProfileById',
+  'setPasswordIfMissing',
   'updateUserProfileData',
 ];
 
 const repo = {};
+const events = [];
 let verifyImpl;
 
 mock.module(src('modules/user/user.repository.js'), {
@@ -24,19 +26,24 @@ mock.module(src('modules/user/user.repository.js'), {
   ),
 });
 mock.module(src('modules/events/events.service.js'), {
-  exports: { logEventService: async () => {} },
+  exports: {
+    logEventService: async (event) => {
+      events.push(event);
+    },
+  },
 });
 mock.module(src('modules/auth/google.verifier.js'), {
   exports: { verifyGoogleIdToken: (...args) => verifyImpl(...args) },
 });
 
-const { deleteUserAccount } = await import(src('modules/user/user.service.js'));
+const { deleteUserAccount, setUserPassword } = await import(src('modules/user/user.service.js'));
 
 const passwordHash = await bcrypt.hash('secreto123', 4);
 let deletedIds;
 
 beforeEach(() => {
   deletedIds = [];
+  events.length = 0;
   repo.deleteUserAccountData = async (userId) => {
     deletedIds.push(userId);
     return true;
@@ -116,6 +123,53 @@ test('usuario inexistente responde 404', async () => {
   repo.findUserCredentialsById = async () => null;
 
   await assert.rejects(deleteUserAccount(7, { password: 'secreto123' }), {
+    status: 404,
+    code: 'USER_NOT_FOUND',
+  });
+});
+
+test('crear contraseña: una cuenta solo de Google guarda el hash de la nueva', async () => {
+  const saved = [];
+  repo.findUserCredentialsById = async () => ({ passwordHash: null, googleSub: 'sub-1' });
+  repo.setPasswordIfMissing = async (userId, hash) => {
+    saved.push({ userId, hash });
+    return { userId };
+  };
+
+  await setUserPassword(7, 'nueva123');
+
+  assert.equal(saved[0].userId, 7);
+  assert.equal(await bcrypt.compare('nueva123', saved[0].hash), true);
+  assert.equal(events.at(-1).eventType, 'PASSWORD_SET');
+  assert.equal(events.at(-1).userId, 7);
+});
+
+test('crear contraseña: si ya tiene una responde 409 y no la cambia', async () => {
+  repo.findUserCredentialsById = async () => ({ passwordHash, googleSub: 'sub-1' });
+  repo.setPasswordIfMissing = async () => {
+    throw new Error('setPasswordIfMissing no debería llamarse');
+  };
+
+  await assert.rejects(setUserPassword(7, 'nueva123'), {
+    status: 409,
+    code: 'PASSWORD_ALREADY_SET',
+  });
+});
+
+test('crear contraseña: si otra petición la creó antes responde 409', async () => {
+  repo.findUserCredentialsById = async () => ({ passwordHash: null, googleSub: 'sub-1' });
+  repo.setPasswordIfMissing = async () => null;
+
+  await assert.rejects(setUserPassword(7, 'nueva123'), {
+    status: 409,
+    code: 'PASSWORD_ALREADY_SET',
+  });
+});
+
+test('crear contraseña: usuario inexistente responde 404', async () => {
+  repo.findUserCredentialsById = async () => null;
+
+  await assert.rejects(setUserPassword(7, 'nueva123'), {
     status: 404,
     code: 'USER_NOT_FOUND',
   });
