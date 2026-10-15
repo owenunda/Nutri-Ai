@@ -11,5 +11,7 @@ String shortWeekday(DateTime date, String languageCode) {
 
 /// "ene", "oct" / "Jan", "Oct": en español queda en minúscula como antes.
 String shortMonth(DateTime date, String languageCode) {
-  return _clean(DateFormat.MMM(languageCode).format(date));
+  final raw = _clean(DateFormat.MMM(languageCode).format(date));
+  // intl abrevia septiembre como "sept"; la app siempre mostró "sep".
+  return languageCode == 'es' && raw == 'sept' ? 'sep' : raw;
 }
