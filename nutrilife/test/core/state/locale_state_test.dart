@@ -1,0 +1,49 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilife/core/state/locale_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+LocaleState _state(String device) =>
+    LocaleState(deviceLocale: () => Locale(device));
+
+void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  test('por defecto sigue al teléfono', () async {
+    final s = _state('en');
+    await s.load();
+    expect(s.preference, LanguagePreference.system);
+    expect(s.locale, isNull);
+    expect(s.languageCode, 'en');
+  });
+
+  test('un teléfono en otro idioma cae a español', () async {
+    final s = _state('fr');
+    await s.load();
+    expect(s.languageCode, 'es');
+  });
+
+  test('guardar la preferencia la aplica y la recuerda', () async {
+    final s = _state('es');
+    await s.load();
+    var avisos = 0;
+    s.addListener(() => avisos++);
+
+    await s.setPreference(LanguagePreference.en);
+
+    expect(s.locale, const Locale('en'));
+    expect(s.languageCode, 'en');
+    expect(avisos, 1);
+
+    final otra = _state('es');
+    await otra.load();
+    expect(otra.preference, LanguagePreference.en);
+  });
+
+  test('un valor guardado desconocido vuelve a sistema', () async {
+    SharedPreferences.setMockInitialValues({'app_language': 'klingon'});
+    final s = _state('es');
+    await s.load();
+    expect(s.preference, LanguagePreference.system);
+  });
+}
