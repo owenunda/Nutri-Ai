@@ -1,0 +1,34 @@
+{
+  "name": "racer_boost",
+  "gif": "racer_boost.gif",
+  "spritesheet": "racer_boost.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "postura de salida",
+    "1": "se agacha",
+    "2": "impulso rápido",
+    "3": "frena gradualmente",
+    "4": "celebra",
+    "5": "vuelve a salida"
+  },
+  "source_atlas": "racer_boost_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    58,
+    0,
+    20,
+    42,
+    67,
+    58
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

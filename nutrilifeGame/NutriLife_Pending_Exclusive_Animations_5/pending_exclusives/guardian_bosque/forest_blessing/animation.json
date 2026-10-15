@@ -1,0 +1,34 @@
+{
+  "name": "forest_blessing",
+  "gif": "forest_blessing.gif",
+  "spritesheet": "forest_blessing.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "pose serena",
+    "1": "inclina la cabeza",
+    "2": "abre la mano",
+    "3": "bendición suave",
+    "4": "motas de hojas discretas",
+    "5": "regresa a pose"
+  },
+  "source_atlas": "forest_blessing_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    18,
+    16,
+    10,
+    22,
+    14,
+    1
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

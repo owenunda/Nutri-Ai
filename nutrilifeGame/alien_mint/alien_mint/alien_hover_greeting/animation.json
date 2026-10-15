@@ -1,0 +1,34 @@
+{
+  "name": "alien_hover_greeting",
+  "gif": "alien_hover_greeting.gif",
+  "spritesheet": "alien_hover_greeting.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "mira al usuario",
+    "1": "inclina la cabeza",
+    "2": "empieza a flotar",
+    "3": "saluda con la pata",
+    "4": "rebote suave",
+    "5": "regresa a pose"
+  },
+  "source_atlas": "alien_hover_greeting_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    240,
+    863,
+    684,
+    401,
+    840,
+    246
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

@@ -1,0 +1,34 @@
+{
+  "name": "premium_gold_ascend",
+  "gif": "premium_gold_ascend.gif",
+  "spritesheet": "premium_gold_ascend.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "levita estable",
+    "1": "asciende un poco",
+    "2": "abre las patas",
+    "3": "halo dorado pulsa",
+    "4": "destello premium",
+    "5": "permanece levitando"
+  },
+  "source_atlas": "premium_gold_ascend_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "always_floating": true,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

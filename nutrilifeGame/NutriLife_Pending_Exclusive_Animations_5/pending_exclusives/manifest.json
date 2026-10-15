@@ -1,0 +1,45 @@
+{
+  "notice": "Complemento parcial: incluye solo la animación exclusiva de cada apariencia; no reemplaza los ZIPs completos de 13 animaciones.",
+  "appearances": [
+    {
+      "slug": "dragon_bayas",
+      "label": "Dragona de bayas",
+      "exclusive_animation": "dragon_wing_flap",
+      "frames": 6,
+      "frame_extraction": "connected_silhouette_crops",
+      "always_floating": false
+    },
+    {
+      "slug": "diamante",
+      "label": "Diosa de diamante",
+      "exclusive_animation": "premium_diamond_burst",
+      "frames": 6,
+      "frame_extraction": "connected_silhouette_crops",
+      "always_floating": true
+    },
+    {
+      "slug": "cosmic_pilot",
+      "label": "Piloto cósmico",
+      "exclusive_animation": "pilot_takeoff",
+      "frames": 6,
+      "frame_extraction": "connected_silhouette_crops",
+      "always_floating": false
+    },
+    {
+      "slug": "oro",
+      "label": "Diosa de oro",
+      "exclusive_animation": "premium_gold_ascend",
+      "frames": 6,
+      "frame_extraction": "connected_silhouette_crops",
+      "always_floating": true
+    },
+    {
+      "slug": "guardian_bosque",
+      "label": "Guardiana del bosque",
+      "exclusive_animation": "forest_blessing",
+      "frames": 6,
+      "frame_extraction": "connected_silhouette_crops",
+      "always_floating": false
+    }
+  ]
+}

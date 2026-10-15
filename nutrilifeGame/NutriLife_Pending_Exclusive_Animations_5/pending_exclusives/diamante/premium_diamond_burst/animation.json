@@ -1,0 +1,34 @@
+{
+  "name": "premium_diamond_burst",
+  "gif": "premium_diamond_burst.gif",
+  "spritesheet": "premium_diamond_burst.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "levita estable",
+    "1": "recoge energía",
+    "2": "halo brillante",
+    "3": "estallido cristalino",
+    "4": "destello de diamante",
+    "5": "permanece levitando"
+  },
+  "source_atlas": "premium_diamond_burst_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    252,
+    238,
+    242,
+    244,
+    236,
+    240
+  ],
+  "always_floating": true,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

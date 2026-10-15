@@ -1,0 +1,32 @@
+{
+  "name": "wake",
+  "gif": "wake.gif",
+  "spritesheet": "wake.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "pose dormida",
+    "3": "abre los ojos",
+    "4": "se estira",
+    "5": "vuelve a la pose erguida"
+  },
+  "source_atlas": "wake_atlas.png",
+  "unique_animation": false,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    0,
+    0,
+    0,
+    68,
+    6,
+    69
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

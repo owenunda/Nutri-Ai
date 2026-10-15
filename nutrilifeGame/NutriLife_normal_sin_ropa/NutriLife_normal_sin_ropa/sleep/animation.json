@@ -1,0 +1,40 @@
+{
+  "appearance": "nutria_normal_sin_ropa",
+  "animation": "sleep",
+  "gif": "sleep.gif",
+  "spritesheet": "sleep.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "order": "left to right, one horizontal row; frame files numbered 000–005",
+  "event_frames": {
+    "0": "se prepara para dormir",
+    "1": "empieza a agacharse",
+    "2": "baja el cuerpo",
+    "3": "se sienta sobre las patas",
+    "4": "se recuesta de lado",
+    "5": "queda acurrucada y dormida"
+  },
+  "source_atlas": "sleep_atlas.png",
+  "eye_correction": "black eyes; white highlights removed inside detected eye forms",
+  "pixels_darkened_per_frame": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "alpha": "PNG RGBA; GIF transparency index 255",
+  "adjacent_changed_pixels": [
+    256759,
+    252625,
+    257724,
+    258332,
+    254111
+  ]
+}

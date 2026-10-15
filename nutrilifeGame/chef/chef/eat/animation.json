@@ -1,0 +1,34 @@
+{
+  "name": "eat",
+  "gif": "eat.gif",
+  "spritesheet": "eat.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "atiende al alimento que el jugador mueve fuera del sprite",
+    "1": "abre la boca",
+    "2": "mordida fuera de cuadro",
+    "3": "mastica",
+    "4": "traga",
+    "5": "cierra con satisfacción"
+  },
+  "source_atlas": "eat_atlas.png",
+  "unique_animation": false,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    31,
+    39,
+    64,
+    2,
+    5,
+    0
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

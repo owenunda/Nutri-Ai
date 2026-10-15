@@ -1,0 +1,32 @@
+{
+  "name": "look_around",
+  "gif": "look_around.gif",
+  "spritesheet": "look_around.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": true,
+  "event_frames": {
+    "1": "mira a la izquierda",
+    "3": "vuelve al centro",
+    "4": "mira a la derecha",
+    "5": "parpadea y centra"
+  },
+  "source_atlas": "look_around_atlas.png",
+  "unique_animation": false,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    207,
+    588,
+    589,
+    206,
+    581,
+    0
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

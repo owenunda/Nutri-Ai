@@ -1,0 +1,34 @@
+{
+  "name": "explorer_discovery",
+  "gif": "explorer_discovery.gif",
+  "spritesheet": "explorer_discovery.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "camina atento",
+    "1": "mira abajo",
+    "2": "se agacha",
+    "3": "señala fuera de cuadro",
+    "4": "se alegra",
+    "5": "se incorpora"
+  },
+  "source_atlas": "explorer_discovery_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    21,
+    0,
+    0,
+    0,
+    26,
+    28
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

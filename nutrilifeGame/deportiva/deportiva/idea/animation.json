@@ -1,0 +1,31 @@
+{
+  "name": "idea",
+  "gif": "idea.gif",
+  "spritesheet": "idea.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "2": "pose pensativa",
+    "4": "símbolo de idea",
+    "5": "sonrisa satisfecha"
+  },
+  "source_atlas": "idea_atlas.png",
+  "unique_animation": false,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    59,
+    57,
+    57,
+    47,
+    21,
+    43
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

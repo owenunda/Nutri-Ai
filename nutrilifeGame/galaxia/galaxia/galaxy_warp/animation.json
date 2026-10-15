@@ -1,0 +1,34 @@
+{
+  "name": "galaxy_warp",
+  "gif": "galaxy_warp.gif",
+  "spritesheet": "galaxy_warp.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "prepara el giro",
+    "1": "inclina el cuerpo",
+    "2": "eleva las patas",
+    "3": "rebote de energía",
+    "4": "destellos cósmicos",
+    "5": "regresa a reposo"
+  },
+  "source_atlas": "galaxy_warp_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    14,
+    15,
+    21,
+    22,
+    16,
+    25
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}
