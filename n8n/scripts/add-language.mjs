@@ -20,9 +20,17 @@ const AGENTS = [
 const MARK = '## Idioma';
 const LANGUAGE_SECTION = `${MARK}
 
-Escribe todo el texto que ve el usuario en {{ $('${EXTRACT}').first().json.language === 'en' ? 'inglés' : 'español' }}. Los nombres de alimentos del catálogo pueden quedar como vienen. Las claves del JSON no se traducen.
-
-`;
+Escribe todo el texto que ve el usuario en {{ $('${EXTRACT}').first().json.language === 'en' ? 'inglés' : 'español' }}. Los nombres de alimentos del catálogo pueden quedar como vienen. Las claves del JSON no se traducen.`;
+// Los prompts que piden `meal_type` lo validan el backend: ese valor no se traduce.
+const FIXED_VALUES_NOTE =
+  'Los valores fijos que piden las reglas (como `meal_type`, que debe ser exactamente desayuno, almuerzo o cena) se escriben tal cual, sin traducir.';
+// Reglas que fijaban el español en el prompt; ahora el idioma lo da la sección.
+const LANGUAGE_RULES = [
+  ['- En español, tono cercano.', '- Tono cercano.'],
+  ['- Responde en español, tono cercano y directo.', '- Responde con tono cercano y directo.'],
+];
+// Dónde insertar la sección: antes de la instrucción de salida JSON de cada prompt.
+const ANCHORS = ['## IMPORTANTE', 'El campo answer es un string', 'Responde ÚNICAMENTE en JSON'];
 
 const extract = flow.nodes.find((n) => n.name === EXTRACT);
 if (!extract) throw new Error(`No existe el nodo ${EXTRACT}`);
@@ -41,13 +49,17 @@ for (const name of AGENTS) {
   if (!node) throw new Error(`No existe el nodo ${name}`);
   for (const value of node.parameters.responses.values) {
     if (typeof value.content !== 'string' || value.content.includes(MARK)) continue;
-    // El agente general fija el español en sus reglas; esa línea ahora la da la sección.
-    value.content = value.content.replace('- En español, tono cercano.', '- Tono cercano.');
-    const anchor = value.content.indexOf('Responde ÚNICAMENTE en JSON');
-    value.content =
-      anchor === -1
-        ? `${value.content}\n\n${LANGUAGE_SECTION.trimEnd()}`
-        : value.content.slice(0, anchor) + LANGUAGE_SECTION + value.content.slice(anchor);
+    for (const [from, to] of LANGUAGE_RULES) value.content = value.content.replace(from, to);
+    const section = value.content.includes('meal_type')
+      ? `${LANGUAGE_SECTION} ${FIXED_VALUES_NOTE}
+
+`
+      : `${LANGUAGE_SECTION}
+
+`;
+    const anchor = ANCHORS.map((text) => value.content.indexOf(text)).find((i) => i !== -1);
+    if (anchor === undefined) throw new Error(`No encontré dónde insertar el idioma en ${name}`);
+    value.content = value.content.slice(0, anchor) + section + value.content.slice(anchor);
   }
 }
 
