@@ -161,8 +161,24 @@ class AuthGlowCircle extends StatelessWidget {
   }
 }
 
-/// Validaciones de contraseña compartidas por el registro y la creación de
-/// contraseña tras entrar con Google.
+final _emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+
+String? validateEmail(String? value) {
+  final email = value?.trim() ?? '';
+
+  if (email.isEmpty) {
+    return 'El correo electrónico es obligatorio.';
+  }
+
+  if (!_emailRegex.hasMatch(email)) {
+    return 'Ingresa un correo electrónico válido.';
+  }
+
+  return null;
+}
+
+/// Validaciones de contraseña compartidas por el registro, la creación de
+/// contraseña tras entrar con Google y el restablecimiento.
 String? validateNewPassword(String? value) {
   final password = value ?? '';
 

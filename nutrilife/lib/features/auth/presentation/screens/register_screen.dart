@@ -475,21 +475,7 @@ class _RegisterCard extends StatelessWidget {
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               enabled: !isSubmitting,
-              validator: (value) {
-                final email = value?.trim() ?? '';
-
-                final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-
-                if (email.isEmpty) {
-                  return 'El correo electrónico es obligatorio.';
-                }
-
-                if (!emailRegex.hasMatch(email)) {
-                  return 'Ingresa un correo electrónico válido.';
-                }
-
-                return null;
-              },
+              validator: validateEmail,
             ),
 
             const SizedBox(height: 18),

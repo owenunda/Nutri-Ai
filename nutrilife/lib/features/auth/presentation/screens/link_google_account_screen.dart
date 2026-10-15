@@ -5,6 +5,7 @@ import '../../../../core/widgets/primary_button.dart';
 import '../../data/auth_repository.dart';
 import '../google_sign_in_flow.dart';
 import '../widgets/auth_form_widgets.dart';
+import 'forgot_password_screen.dart';
 
 /// Se abre cuando alguien entra con Google y su correo ya tiene una cuenta con
 /// contraseña: la pide para vincular Google sin perder ninguna de las dos
@@ -52,6 +53,7 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
   bool _obscurePassword = true;
   bool _isSubmitting = false;
   String? _errorMessage;
+  String? _infoMessage;
 
   @override
   void dispose() {
@@ -66,6 +68,7 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
     setState(() {
       _isSubmitting = true;
       _errorMessage = null;
+      _infoMessage = null;
     });
 
     try {
@@ -82,6 +85,17 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
         _errorMessage = error.message;
       });
     }
+  }
+
+  Future<void> _openForgotPassword() async {
+    final email = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+    );
+    if (email == null || !mounted) return;
+    setState(() {
+      _errorMessage = null;
+      _infoMessage = 'Contraseña actualizada. Escríbela para vincular tu cuenta.';
+    });
   }
 
   @override
@@ -121,6 +135,10 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
               const SizedBox(height: 16),
               AuthErrorText(_errorMessage!),
             ],
+            if (_infoMessage != null) ...[
+              const SizedBox(height: 16),
+              AuthInfoText(_infoMessage!),
+            ],
             const SizedBox(height: 24),
             PrimaryButton(
               textButton: _isSubmitting ? 'Vinculando...' : 'Vincular',
@@ -136,6 +154,19 @@ class _LinkGoogleAccountScreenState extends State<LinkGoogleAccountScreen> {
               onPressed: _isSubmitting ? null : _link,
             ),
             const SizedBox(height: 12),
+            Center(
+              child: TextButton(
+                onPressed: _isSubmitting ? null : _openForgotPassword,
+                child: const Text(
+                  '¿Olvidaste tu contraseña?',
+                  style: TextStyle(
+                    color: AuthPalette.primary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
             Center(
               child: TextButton(
                 onPressed: _isSubmitting ? null : () => Navigator.pop(context),

@@ -10,6 +10,7 @@ import '../../../legal/presentation/screens/legal_document_screen.dart';
 import '../google_sign_in_flow.dart';
 import '../widgets/google_sign_in_button.dart';
 import 'auth_flow_navigator.dart';
+import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 import 'verify_email_screen.dart';
 
@@ -215,6 +216,28 @@ class _LoginPanelState extends State<_LoginPanel> {
     });
   }
 
+  /// Al volver con la contraseña cambiada, deja el correo escrito para entrar.
+  Future<void> _openForgotPassword() async {
+    final email = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) =>
+            ForgotPasswordScreen(initialEmail: _emailController.text.trim()),
+      ),
+    );
+    if (email == null || !mounted) return;
+
+    setState(() {
+      _emailController.text = email;
+      _passwordController.clear();
+      _errorMessage = null;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Contraseña actualizada. Ya puedes iniciar sesión.'),
+      ),
+    );
+  }
+
   Future<void> _handleLogin() async {
     setState(() {
       _errorMessage = null;
@@ -389,6 +412,21 @@ class _LoginPanelState extends State<_LoginPanel> {
                       _isPasswordVisible = !_isPasswordVisible;
                     });
                   },
+                ),
+
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _isLoading ? null : _openForgotPassword,
+                    child: const Text(
+                      '¿Olvidaste tu contraseña?',
+                      style: TextStyle(
+                        color: AppTheme.primaryStart,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 ),
 
                 if (_errorMessage != null) ...[
