@@ -375,10 +375,10 @@ class _LoginPanelState extends State<_LoginPanel> {
                     const _FieldLabel('CONTRASENA'),
 
                     GestureDetector(
-                      onTap: () {},
+                      onTap: _isLoading ? null : _openForgotPassword,
 
                       child: const Text(
-                        'Olvidaste tu contrasena?',
+                        '¿Olvidaste tu contraseña?',
                         style: TextStyle(
                           color: AppTheme.primaryStart,
 
@@ -412,21 +412,6 @@ class _LoginPanelState extends State<_LoginPanel> {
                       _isPasswordVisible = !_isPasswordVisible;
                     });
                   },
-                ),
-
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: _isLoading ? null : _openForgotPassword,
-                    child: const Text(
-                      '¿Olvidaste tu contraseña?',
-                      style: TextStyle(
-                        color: AppTheme.primaryStart,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
                 ),
 
                 if (_errorMessage != null) ...[
