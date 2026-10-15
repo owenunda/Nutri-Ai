@@ -150,27 +150,26 @@ void main() {
       _food(3, 'Arroz'),
     ];
 
-    testWidgets('abre en mis alimentos y separa los comunes', (tester) async {
+    testWidgets('abre en comunes si la nevera está vacía', (tester) async {
       await _pump(tester, mixed);
 
-      expect(find.text('Mi batido'), findsOneWidget);
-      expect(find.text('Tilapia'), findsNothing);
+      expect(find.text('Tilapia'), findsOneWidget);
+      expect(find.text('Mi batido'), findsNothing);
 
-      await tester.tap(find.text('Comunes'));
+      await tester.tap(find.text('Mi nevera').last);
       await tester.pumpAndSettle();
 
-      expect(find.text('Tilapia'), findsOneWidget);
-      expect(find.text('Arroz'), findsOneWidget);
+      expect(find.text('Tu nevera está vacía'), findsOneWidget);
       expect(find.text('Mi batido'), findsNothing);
     });
 
-    testWidgets('sin alimentos propios abre en comunes', (tester) async {
+    testWidgets('permite abrir la nevera vacía desde comunes', (tester) async {
       await _pump(tester);
       expect(find.text('Tilapia'), findsOneWidget);
 
-      await tester.tap(find.text('Mis alimentos'));
+      await tester.tap(find.text('Mi nevera').last);
       await tester.pumpAndSettle();
-      expect(find.textContaining('Aún no agregaste'), findsOneWidget);
+      expect(find.text('Tu nevera está vacía'), findsOneWidget);
     });
 
     testWidgets('al buscar mezcla las dos', (tester) async {

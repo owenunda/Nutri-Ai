@@ -41,14 +41,10 @@ class _FoodsScreenState extends State<FoodsScreen> {
   Set<int> _selectedCommonFoodIds = {};
   bool _bulkLoading = false;
 
-  List<FoodModel> get _mine =>
-      _viewModel.foods.where((f) => !f.isGlobal).toList();
   List<FoodModel> get _common =>
       _viewModel.foods.where((f) => f.isGlobal).toList();
   bool get _showMine =>
-      (_tab ??
-          (_viewModel.fridgeItems.isNotEmpty || _mine.isNotEmpty ? 0 : 1)) ==
-      0;
+      (_tab ?? (_viewModel.fridgeItems.isNotEmpty ? 0 : 1)) == 0;
 
   /// Buscando, la tarjeta y el consejo se esconden para que el teclado no
   /// tape los resultados.
