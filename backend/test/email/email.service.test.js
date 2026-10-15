@@ -72,6 +72,17 @@ test('sin configuración: 500 EMAIL_CONFIG_ERROR y no llama a Resend', async () 
   assert.equal(calls.length, 0);
 });
 
+test('envía las imágenes inline cuando las hay', async () => {
+  fakeFetch(new Response('{"id":"1"}', { status: 200 }));
+  const attachments = [
+    { filename: 'n.png', content: 'AAAA', content_type: 'image/png', content_id: 'nutria' },
+  ];
+
+  await sendEmail({ to: 'ana@gmail.com', subject: 's', html: 'h', text: 't', attachments });
+
+  assert.deepEqual(JSON.parse(calls[0].options.body).attachments, attachments);
+});
+
 test('plantillas: el código aparece en el HTML y en el texto', () => {
   for (const purpose of ['verify_email', 'reset_password']) {
     const email = codeEmail({ purpose, code: '482913', name: 'Ana' });
@@ -81,4 +92,19 @@ test('plantillas: el código aparece en el HTML y en el texto', () => {
     assert.match(email.text, /482913/);
     assert.match(email.text, /Ana/);
   }
+});
+
+test('plantillas: llevan la nutria como imagen inline, distinta para cada correo', () => {
+  const verify = codeEmail({ purpose: 'verify_email', code: '482913', name: 'Ana' });
+  const reset = codeEmail({ purpose: 'reset_password', code: '482913', name: 'Ana' });
+
+  for (const email of [verify, reset]) {
+    const [image] = email.attachments;
+    assert.equal(image.content_id, 'nutria');
+    assert.equal(image.content_type, 'image/png');
+    assert.match(email.html, /src="cid:nutria"/);
+    // PNG en base64 empieza por la firma "iVBORw0KGgo".
+    assert.ok(image.content.startsWith('iVBORw0KGgo'));
+  }
+  assert.notEqual(verify.attachments[0].content, reset.attachments[0].content);
 });
