@@ -176,6 +176,25 @@ void main() {
       expect(prettyUnitLabel('2 grandes', en), '2 grandes');
     });
 
+    test('prettyUnitLabel conserva la cantidad de unidades no listadas', () {
+      expect(prettyUnitLabel('200 G', es), '200 g');
+      expect(prettyUnitLabel('200 G', en), '200 g');
+      expect(prettyUnitLabel('250 ML', es), '250 ml');
+      expect(prettyUnitLabel('250 ML', en), '250 ml');
+      expect(prettyUnitLabel('100 gramos', en), '100 g');
+      expect(prettyUnitLabel('2 UNIDADES', es), '2 unidades');
+      expect(prettyUnitLabel('2 UNIDADES', en), '2 units');
+      expect(prettyUnitLabel('1.5 TAZAS', en), '1.5 cups');
+      expect(prettyUnitLabel('0,5 TAZAS', es), '0,5 tazas');
+    });
+
+    test('prettyUnitLabel no capitaliza g ni ml sueltos', () {
+      expect(prettyUnitLabel('g', es), 'g');
+      expect(prettyUnitLabel('ml', en), 'ml');
+      expect(prettyUnitLabel('Gramos', es), 'g');
+      expect(prettyUnitLabel('mililitros', en), 'ml');
+    });
+
     test('cantidad con unidad: plural según el idioma', () {
       expect(formatQuantityWithUnit(1, '1 UNIDAD', en), '1 unit');
       expect(formatQuantityWithUnit(2, '1 UNIDAD', en), '2 units');

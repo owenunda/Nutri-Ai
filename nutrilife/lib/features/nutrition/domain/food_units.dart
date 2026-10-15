@@ -46,13 +46,24 @@ String prettyUnitLabel(String value, AppLocalizations l10n) {
   final normalized = value.trim().toLowerCase();
   if (const {'g', 'kg', 'ml', 'l'}.contains(normalized)) return normalized;
   if (normalized.isEmpty) return normalized;
-  // Palabra suelta de una unidad conocida (ej. "unidad" de la BD vieja): se
-  // muestra traducida.
   final known = _knownUnit(normalized);
-  final name = known == null ? normalized : _unitWord(known, l10n, null);
+  if (known != null) {
+    final amount = _leadingNumber.firstMatch(normalized)?.group(0)?.trim();
+    // Con cantidad ("200 G", "2 UNIDADES") se conserva y solo se traduce la
+    // unidad, concordando con la cantidad.
+    if (amount != null) {
+      final count = num.tryParse(amount.replaceAll(',', '.'));
+      return '$amount ${_unitWord(known, l10n, count)}';
+    }
+    // Palabra suelta de una unidad conocida (ej. "unidad" de la BD vieja): se
+    // muestra traducida. g y ml quedan en minúsculas.
+    final word = _unitWord(known, l10n, null);
+    if (known == _KnownUnit.gram || known == _KnownUnit.milliliter) return word;
+    return word[0].toUpperCase() + word.substring(1);
+  }
   // Si el valor no está en la lista, al menos capitalizamos la primera letra
   // para que se vea mejor.
-  return name[0].toUpperCase() + name.substring(1);
+  return normalized[0].toUpperCase() + normalized.substring(1);
 }
 
 enum _KnownUnit { unit, serving, cup, tablespoon, slice, gram, milliliter }
