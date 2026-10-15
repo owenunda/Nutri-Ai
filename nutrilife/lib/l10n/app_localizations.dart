@@ -145,6 +145,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo conectar con el servidor. Revisa tu conexión a internet.'**
   String get commonErrorConnection;
+
+  /// No description provided for @profileLanguage.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma'**
+  String get profileLanguage;
+
+  /// No description provided for @profileLanguageSystem.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar el del teléfono'**
+  String get profileLanguageSystem;
+
+  /// No description provided for @profileLanguageSheetTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige el idioma'**
+  String get profileLanguageSheetTitle;
 }
 
 class _AppLocalizationsDelegate

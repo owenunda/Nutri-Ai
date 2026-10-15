@@ -33,4 +33,13 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get commonErrorConnection =>
       'No se pudo conectar con el servidor. Revisa tu conexión a internet.';
+
+  @override
+  String get profileLanguage => 'Idioma';
+
+  @override
+  String get profileLanguageSystem => 'Usar el del teléfono';
+
+  @override
+  String get profileLanguageSheetTitle => 'Elige el idioma';
 }

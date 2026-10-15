@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/services/google_auth_service.dart';
+import '../../../../core/state/locale_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
 import '../../data/profile_repository.dart';
+import '../widgets/language_sheet.dart';
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -614,6 +617,25 @@ class _SettingsCard extends StatelessWidget {
               Icons.chevron_right_rounded,
               color: Color(0xFFADB4BC),
               size: 30,
+            ),
+          ),
+          ListenableBuilder(
+            listenable: LocaleState.instance,
+            builder: (context, _) => _SettingsRow(
+              icon: Icons.translate_rounded,
+              iconColor: const Color(0xFF066D82),
+              iconBackground: const Color(0xFFA8F1F6),
+              title: context.l10n.profileLanguage,
+              subtitle: languagePreferenceLabel(
+                context.l10n,
+                LocaleState.instance.preference,
+              ),
+              trailing: const Icon(
+                Icons.chevron_right_rounded,
+                color: Color(0xFFADB4BC),
+                size: 30,
+              ),
+              onTap: () => showLanguageSheet(context),
             ),
           ),
           _SettingsRow(

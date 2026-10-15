@@ -7,5 +7,8 @@
   "commonContinue": "Continuar",
   "commonClose": "Cerrar",
   "commonErrorTimeout": "La conexión con el servidor tardó demasiado. Inténtalo de nuevo.",
-  "commonErrorConnection": "No se pudo conectar con el servidor. Revisa tu conexión a internet."
+  "commonErrorConnection": "No se pudo conectar con el servidor. Revisa tu conexión a internet.",
+  "profileLanguage": "Idioma",
+  "profileLanguageSystem": "Usar el del teléfono",
+  "profileLanguageSheetTitle": "Elige el idioma"
 }

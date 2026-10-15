@@ -7,5 +7,8 @@
   "commonContinue": "Continue",
   "commonClose": "Close",
   "commonErrorTimeout": "The server took too long to respond. Please try again.",
-  "commonErrorConnection": "We couldn't reach the server. Check your internet connection."
+  "commonErrorConnection": "We couldn't reach the server. Check your internet connection.",
+  "profileLanguage": "Language",
+  "profileLanguageSystem": "Use phone language",
+  "profileLanguageSheetTitle": "Choose a language"
 }
