@@ -1,0 +1,11 @@
+{
+  "@@locale": "es",
+  "appTitle": "NutriLife",
+  "commonCancel": "Cancelar",
+  "commonSave": "Guardar",
+  "commonRetry": "Reintentar",
+  "commonContinue": "Continuar",
+  "commonClose": "Cerrar",
+  "commonErrorTimeout": "La conexión con el servidor tardó demasiado. Inténtalo de nuevo.",
+  "commonErrorConnection": "No se pudo conectar con el servidor. Revisa tu conexión a internet."
+}
