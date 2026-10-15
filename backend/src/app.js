@@ -121,7 +121,7 @@ app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), chatRateLimit
     // autenticado: lo que el cliente mande y no sea suyo nunca llega a n8n.
     const attachedFoods = await getFridgeItemsByIdsService(userId, fridgeItemIds, foodIds);
 
-    const result = await sendChatN8n(message, userId, name, token, attachedFoods);
+    const result = await sendChatN8n(message, userId, name, token, attachedFoods, req.lang);
     return successResponse(res, result, 'Mensaje enviado correctamente a n8n');
   } catch (error) {
     const { message, details } = localizeError(error, req.lang);
