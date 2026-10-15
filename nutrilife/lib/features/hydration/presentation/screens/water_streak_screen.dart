@@ -240,30 +240,20 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                 WaterProgressIllustration(
                   glasses: snapshot.glassesToday,
                   height: 220,
+                  showDrinkingOtter: true,
                 ),
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/images/nutria tomando agua.png',
-                      width: 56,
-                      height: 60,
-                      fit: BoxFit.contain,
-                      semanticLabel: 'Nutria tomando agua',
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    _dialogue(snapshot.glassesToday),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF45626C),
+                      fontSize: 14,
+                      height: 1.4,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _dialogue(snapshot.glassesToday),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Color(0xFF45626C),
-                          fontSize: 14,
-                          height: 1.4,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 20),
                 SizedBox(

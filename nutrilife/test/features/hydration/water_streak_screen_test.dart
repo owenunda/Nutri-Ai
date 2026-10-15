@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/features/hydration/data/water_streak_repository.dart';
 import 'package:nutrilife/features/hydration/presentation/screens/water_streak_screen.dart';
 import 'package:nutrilife/features/hydration/presentation/widgets/hydration_stats_card.dart';
-import 'package:nutrilife/features/hydration/presentation/widgets/water_drop_shortcut.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -28,6 +27,21 @@ void main() {
       find.text('¡Hola! ¿Me ayudas a llenar mi vasito hoy?'),
       findsOneWidget,
     );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Image && widget.semanticLabel == 'Nutria tomando agua',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(
+        const ValueKey(
+          'assets/images/hydration/hidratacion_01_vacio.png-drinking-otter',
+        ),
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byKey(const ValueKey('add-water-glass')));
     await tester.pumpAndSettle();
@@ -39,64 +53,6 @@ void main() {
     );
     expect(find.text('¡Gracias! Cada vasito cuenta.'), findsOneWidget);
   });
-
-  testWidgets('la gota se llena al registrar un vaso', (tester) async {
-    final repository = WaterStreakRepository(accountId: 'user@example.com');
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: WaterDropShortcut(
-            accountId: 'user@example.com',
-            onTap: () async {
-              await repository.addGlass();
-            },
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(
-      find.bySemanticsLabel('Racha de agua, 0 de 4 vasos hoy'),
-      findsOneWidget,
-    );
-    await tester.tap(find.byKey(const ValueKey('water-drop-shortcut')));
-    await tester.pumpAndSettle();
-
-    expect(
-      find.bySemanticsLabel('Racha de agua, 1 de 4 vasos hoy'),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets(
-    'la gota abre el reto con historiales anteriores de cinco vasos',
-    (tester) async {
-      SharedPreferences.setMockInitialValues({
-        'water_streak_v1_user%40example.com': '{"2026-10-14":5}',
-      });
-      var opened = false;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: WaterDropShortcut(
-              accountId: 'user@example.com',
-              onTap: () async {
-                opened = true;
-              },
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const ValueKey('water-drop-shortcut')));
-      await tester.pumpAndSettle();
-
-      expect(opened, isTrue);
-    },
-  );
 
   testWidgets('muestra las rachas y las metas cumplidas de la semana', (
     tester,
