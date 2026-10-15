@@ -122,9 +122,9 @@ const startSession = async (user) => {
 
 // Envía el código de verificación sin cortar el flujo si falla (correo caído
 // o un código enviado hace menos de un minuto): el usuario puede reenviarlo.
-const sendVerificationCodeQuietly = async (user) => {
+const sendVerificationCodeQuietly = async (user, lang) => {
   try {
-    await sendCode(user, CODE_PURPOSE.VERIFY_EMAIL);
+    await sendCode(user, CODE_PURPOSE.VERIFY_EMAIL, lang);
   } catch (error) {
     if (error?.code !== 'CODE_RECENTLY_SENT') {
       console.error('[auth] No se pudo enviar el código de verificación:', error.message);
@@ -136,7 +136,7 @@ const sendVerificationCodeQuietly = async (user) => {
 // qué correos tienen cuenta.
 const invalidCode = () => new AppError('El código no es correcto.', 400, 'INVALID_CODE');
 
-export const loginUser = async ({ email, password }) => {
+export const loginUser = async ({ email, password, lang }) => {
   try {
     const user = await findUserByEmail(email);
 
@@ -177,7 +177,7 @@ export const loginUser = async ({ email, password }) => {
     }
 
     if (!user.emailVerifiedAt) {
-      await sendVerificationCodeQuietly(user);
+      await sendVerificationCodeQuietly(user, lang);
       await logEventService({
         eventType: 'LOGIN_FAILED',
         category: 'AUTH',
@@ -201,7 +201,7 @@ export const loginUser = async ({ email, password }) => {
   }
 };
 
-export const registerUser = async ({ name, email, password, goal }) => {
+export const registerUser = async ({ name, email, password, goal, lang }) => {
   try {
     const existingUser = await findUserByEmail(email);
 
@@ -220,7 +220,7 @@ export const registerUser = async ({ name, email, password, goal }) => {
     });
 
     // Si el correo falla, la cuenta queda creada: la app permite reenviarlo.
-    await sendVerificationCodeQuietly({ ...newUser, name, email });
+    await sendVerificationCodeQuietly({ ...newUser, name, email }, lang);
 
     return {
       ...newUser,
@@ -422,11 +422,11 @@ export const verifyEmail = async ({ email, code }) => {
 };
 
 // Reenvía el código a una cuenta sin verificar. No dice si el correo existe.
-export const resendVerification = async ({ email }) => {
+export const resendVerification = async ({ email, lang }) => {
   try {
     const user = await findUserByEmail(email);
     if (user && !user.emailVerifiedAt) {
-      await sendCode(user, CODE_PURPOSE.VERIFY_EMAIL);
+      await sendCode(user, CODE_PURPOSE.VERIFY_EMAIL, lang);
     }
   } catch (error) {
     throw toAuthError(error);
@@ -434,11 +434,11 @@ export const resendVerification = async ({ email }) => {
 };
 
 // Envía el código para restablecer la contraseña. No dice si el correo existe.
-export const forgotPassword = async ({ email }) => {
+export const forgotPassword = async ({ email, lang }) => {
   try {
     const user = await findUserByEmail(email);
     if (user) {
-      await sendCode(user, CODE_PURPOSE.RESET_PASSWORD);
+      await sendCode(user, CODE_PURPOSE.RESET_PASSWORD, lang);
     }
   } catch (error) {
     throw toAuthError(error);

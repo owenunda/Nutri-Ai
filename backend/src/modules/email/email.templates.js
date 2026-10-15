@@ -10,16 +10,37 @@ const NUTRIA_CID = 'nutria';
 const loadImage = (file) =>
   readFileSync(new URL(`./assets/${file}`, import.meta.url)).toString('base64');
 
+const IMAGES = {
+  verify_email: { file: 'nutria-saludando.png', content: loadImage('nutria-saludando.png') },
+  reset_password: { file: 'nutria-pensando.png', content: loadImage('nutria-pensando.png') },
+};
+
 const COPY = {
-  verify_email: {
-    subject: 'Tu código para verificar tu correo en NutriLife',
-    intro: 'Usa este código para verificar tu correo en NutriLife:',
-    image: { file: 'nutria-saludando.png', content: loadImage('nutria-saludando.png') },
+  es: {
+    verify_email: {
+      subject: 'Tu código para verificar tu correo en NutriLife',
+      intro: 'Usa este código para verificar tu correo en NutriLife:',
+    },
+    reset_password: {
+      subject: 'Tu código para restablecer tu contraseña de NutriLife',
+      intro: 'Usa este código para crear una contraseña nueva en NutriLife:',
+    },
+    greeting: (name) => `Hola ${name},`,
+    footer: 'El código vence en 15 minutos. Si no fuiste tú, puedes ignorar este correo.',
+    imageAlt: 'Nutria de NutriLife',
   },
-  reset_password: {
-    subject: 'Tu código para restablecer tu contraseña de NutriLife',
-    intro: 'Usa este código para crear una contraseña nueva en NutriLife:',
-    image: { file: 'nutria-pensando.png', content: loadImage('nutria-pensando.png') },
+  en: {
+    verify_email: {
+      subject: 'Your code to verify your email on NutriLife',
+      intro: 'Use this code to verify your email on NutriLife:',
+    },
+    reset_password: {
+      subject: 'Your code to reset your NutriLife password',
+      intro: 'Use this code to create a new NutriLife password:',
+    },
+    greeting: (name) => `Hi ${name},`,
+    footer: 'The code expires in 15 minutes. If this wasn’t you, you can ignore this email.',
+    imageAlt: 'NutriLife otter',
   },
 };
 
@@ -30,16 +51,17 @@ const escapeHtml = (value) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-export const codeEmail = ({ purpose, code, name }) => {
-  const { subject, intro, image } = COPY[purpose];
-  const greeting = `Hola ${name},`;
-  const footer =
-    'El código vence en 15 minutos. Si no fuiste tú, puedes ignorar este correo.';
+export const codeEmail = ({ purpose, code, name, lang = 'es' }) => {
+  const copy = COPY[lang] ?? COPY.es;
+  const { subject, intro } = copy[purpose];
+  const image = IMAGES[purpose];
+  const greeting = copy.greeting(name);
+  const footer = copy.footer;
 
   const html = `
 <div style="font-family:Arial,Helvetica,sans-serif;background:#f8fafc;padding:32px 16px;">
   <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:24px;padding:32px;text-align:center;">
-    <img src="cid:${NUTRIA_CID}" width="96" height="96" alt="Nutria de NutriLife" style="display:block;margin:0 auto 12px;width:96px;height:96px;image-rendering:pixelated;" />
+    <img src="cid:${NUTRIA_CID}" width="96" height="96" alt="${copy.imageAlt}" style="display:block;margin:0 auto 12px;width:96px;height:96px;image-rendering:pixelated;" />
     <p style="margin:0 0 4px;color:#0a6b3f;font-weight:800;letter-spacing:1px;font-size:12px;">NUTRILIFE</p>
     <p style="margin:16px 0 8px;color:#2c2f31;font-size:16px;">${escapeHtml(greeting)}</p>
     <p style="margin:0 0 24px;color:#595c5e;font-size:15px;line-height:1.5;">${intro}</p>

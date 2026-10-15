@@ -521,3 +521,22 @@ test('Vincular: una cuenta sin verificar queda verificada', async () => {
 
   assert.deepEqual(marked, [7]);
 });
+
+test('Registro, reenvío y olvidé mi contraseña pasan el idioma a sendCode', async () => {
+  const langs = [];
+  codes.sendCode = async (user, purpose, lang) => {
+    langs.push([purpose, lang]);
+  };
+  repo.createUser = async (data) => ({ userId: 11, name: data.name, email: data.email });
+
+  await registerUser({ name: 'Ana', email: 'ana@gmail.com', password: 'secreto123', goal: null, lang: 'en' });
+  repo.findUserByEmail = async () => unverifiedAna();
+  await resendVerification({ email: 'ana@gmail.com', lang: 'en' });
+  await forgotPassword({ email: 'ana@gmail.com', lang: 'en' });
+
+  assert.deepEqual(langs, [
+    ['verify_email', 'en'],
+    ['verify_email', 'en'],
+    ['reset_password', 'en'],
+  ]);
+});

@@ -108,3 +108,21 @@ test('plantillas: llevan la nutria como imagen inline, distinta para cada correo
   }
   assert.notEqual(verify.attachments[0].content, reset.attachments[0].content);
 });
+
+test('plantillas: en inglés cambian asunto, saludo y pie', () => {
+  for (const purpose of ['verify_email', 'reset_password']) {
+    const es = codeEmail({ purpose, code: '482913', name: 'Ana' });
+    const en = codeEmail({ purpose, code: '482913', name: 'Ana', lang: 'en' });
+
+    assert.notEqual(en.subject, es.subject);
+    assert.match(en.text, /^Hi Ana,/);
+    assert.match(en.text, /15 minutes/);
+    assert.match(en.html, /482913/);
+    assert.match(es.text, /^Hola Ana,/);
+  }
+});
+
+test('plantillas: un idioma desconocido usa español', () => {
+  const email = codeEmail({ purpose: 'verify_email', code: '482913', name: 'Ana', lang: 'fr' });
+  assert.match(email.text, /^Hola Ana,/);
+});

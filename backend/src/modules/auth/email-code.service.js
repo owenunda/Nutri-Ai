@@ -25,7 +25,7 @@ const codeExpired = () =>
 
 // Genera un código de 6 dígitos, guarda su hash (reemplazando el anterior) y
 // lo envía por correo. Como mucho uno por minuto.
-export const sendCode = async (user, purpose) => {
+export const sendCode = async (user, purpose, lang = 'es') => {
   const previous = await findCode(user.userId, purpose);
   if (previous) {
     const seconds = RESEND_COOLDOWN_SECONDS - previous.secondsSinceCreated;
@@ -49,7 +49,7 @@ export const sendCode = async (user, purpose) => {
   });
 
   try {
-    await sendEmail({ to: user.email, ...codeEmail({ purpose, code, name: user.name }) });
+    await sendEmail({ to: user.email, ...codeEmail({ purpose, code, name: user.name, lang }) });
   } catch (error) {
     // Sin la fila, el usuario puede pedir otro código enseguida.
     await deleteCode(user.userId, purpose);

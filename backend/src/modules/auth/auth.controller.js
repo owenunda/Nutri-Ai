@@ -22,7 +22,7 @@ export const getAuthHealth = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const authData = await loginUser(req.loginData);
+    const authData = await loginUser({ ...req.loginData, lang: req.lang });
     return successResponse(res, authData, 'Login successful', 200);
   } catch (error) {
     next(error);
@@ -31,7 +31,7 @@ export const login = async (req, res, next) => {
 
 export const register = async (req, res, next) => {
   try {
-    const user = await registerUser(req.registerData);
+    const user = await registerUser({ ...req.registerData, lang: req.lang });
     return successResponse(res, user, 'User registered successfully', 201);
   } catch (error) {
     next(error);
@@ -70,7 +70,7 @@ const CODE_SENT_MESSAGE = 'Si el correo tiene una cuenta, te enviamos un código
 
 export const resendVerificationController = async (req, res, next) => {
   try {
-    await resendVerification(req.emailData);
+    await resendVerification({ ...req.emailData, lang: req.lang });
     return successResponse(res, null, CODE_SENT_MESSAGE, 200);
   } catch (error) {
     next(error);
@@ -79,7 +79,7 @@ export const resendVerificationController = async (req, res, next) => {
 
 export const forgotPasswordController = async (req, res, next) => {
   try {
-    await forgotPassword(req.emailData);
+    await forgotPassword({ ...req.emailData, lang: req.lang });
     return successResponse(res, null, CODE_SENT_MESSAGE, 200);
   } catch (error) {
     next(error);

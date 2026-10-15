@@ -146,3 +146,17 @@ test('consumir: con 5 intentos fallidos el código deja de servir', async () => 
     code: 'CODE_EXPIRED',
   });
 });
+
+test('enviar: el correo sale en el idioma pedido', async () => {
+  await sendCode(ana, 'verify_email', 'en');
+  assert.match(sentEmails[0].text, /^Hi Ana,/);
+});
+
+test('enviar: 429 trae los segundos que faltan como params', async () => {
+  stored = { attempts: 0, secondsSinceCreated: 20, expired: false };
+  await assert.rejects(sendCode(ana, 'verify_email'), (err) => {
+    assert.equal(err.code, 'CODE_RECENTLY_SENT');
+    assert.deepEqual(err.params, { seconds: 40 });
+    return true;
+  });
+});
