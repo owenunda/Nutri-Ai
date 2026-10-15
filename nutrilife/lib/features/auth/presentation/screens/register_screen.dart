@@ -143,26 +143,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final Color accentColor = isSuccess
         ? AuthPalette.primary
         : isDuplicate
-            ? const Color(0xFFD97706)
-            : isWarning
-                ? const Color(0xFFD97706)
-                : const Color(0xFFB42318);
+        ? const Color(0xFFD97706)
+        : isWarning
+        ? const Color(0xFFD97706)
+        : const Color(0xFFB42318);
 
     final IconData icon = isSuccess
         ? Icons.check_circle_rounded
         : isDuplicate
-            ? Icons.mark_email_unread_rounded
-            : isWarning
-                ? Icons.warning_amber_rounded
-                : Icons.error_outline_rounded;
+        ? Icons.mark_email_unread_rounded
+        : isWarning
+        ? Icons.warning_amber_rounded
+        : Icons.error_outline_rounded;
 
     final String title = isSuccess
         ? 'Registro exitoso'
         : isDuplicate
-            ? 'Correo ya registrado'
-            : isWarning
-                ? 'Falta confirmar'
-                : 'Registro no completado';
+        ? 'Correo ya registrado'
+        : isWarning
+        ? 'Falta confirmar'
+        : 'Registro no completado';
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -179,9 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           decoration: BoxDecoration(
             color: AuthPalette.surface,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: accentColor.withValues(alpha: 0.18),
-            ),
+            border: Border.all(color: accentColor.withValues(alpha: 0.18)),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF1E2A24).withValues(alpha: 0.10),
@@ -200,11 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: accentColor.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  color: accentColor,
-                  size: 22,
-                ),
+                child: Icon(icon, color: accentColor, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -447,9 +441,7 @@ class _RegisterCard extends StatelessWidget {
               icon: Icons.person_outline_rounded,
               hintText: '',
               keyboardType: TextInputType.name,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(30),
-              ],
+              inputFormatters: [LengthLimitingTextInputFormatter(30)],
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
               enabled: !isSubmitting,
@@ -674,72 +666,3 @@ class _RegisterCard extends StatelessWidget {
     );
   }
 }
-
-class _BrandFooter extends StatelessWidget {
-  const _BrandFooter();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
-            decoration: BoxDecoration(
-              color: AuthPalette.primarySoft,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ClipOval(
-                  child: Image.asset(
-                    'assets/images/nutria_feliz.png',
-                    width: 26,
-                    height: 26,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'NutriLife',
-                  style: TextStyle(
-                    color: AuthPalette.primary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 18),
-
-          const Text.rich(
-            TextSpan(
-              style: TextStyle(
-                color: AuthPalette.title,
-                fontSize: 26,
-                height: 1.02,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
-              ),
-              children: [
-                TextSpan(text: 'Comienza tu '),
-                TextSpan(
-                  text: 'viaje',
-                  style: TextStyle(color: AuthPalette.primary),
-                ),
-                TextSpan(text: '\nconsciente.'),
-              ],
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-

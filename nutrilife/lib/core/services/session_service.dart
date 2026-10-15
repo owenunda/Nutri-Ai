@@ -11,21 +11,40 @@ class SessionService {
     required String token,
     required Map<String, dynamic> user,
   }) async {
-    DioClient.authToken = token;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyToken, token);
-    await prefs.setString(_keyUser, jsonEncode(user));
+    try {
+      await prefs.setString(_keyUser, jsonEncode(user));
+      await prefs.setString(_keyToken, token);
+      DioClient.authToken = token;
+    } catch (_) {
+      DioClient.authToken = null;
+      await prefs.remove(_keyToken);
+      await prefs.remove(_keyUser);
+      rethrow;
+    }
   }
 
   static Future<({String token, Map<String, dynamic> user})?> restore() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString(_keyToken);
     final userJson = prefs.getString(_keyUser);
-    if (token == null || userJson == null) return null;
-    return (
-      token: token,
-      user: jsonDecode(userJson) as Map<String, dynamic>,
-    );
+    if (token == null || token.isEmpty || userJson == null) {
+      await clear();
+      return null;
+    }
+
+    try {
+      final decodedUser = jsonDecode(userJson);
+      if (decodedUser is! Map<String, dynamic>) {
+        await clear();
+        return null;
+      }
+      DioClient.authToken = token;
+      return (token: token, user: decodedUser);
+    } on FormatException {
+      await clear();
+      return null;
+    }
   }
 
   static Future<void> clear() async {

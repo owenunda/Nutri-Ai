@@ -234,6 +234,37 @@ class ProgressRepository {
 
   final Dio _dio;
 
+  Future<int?> fetchDailyLimit({DateTime? now}) async {
+    try {
+      final date = localDateString(now);
+      final profile = await _getMap(ApiRoutes.userProfile);
+      final historyData = await _getList(ApiRoutes.userPhysicalHistory);
+      final consumptionValidation = await _getOptionalMap(
+        ApiRoutes.statsConsumptionValidation,
+        query: {'date': date},
+      );
+      return ProgressData(
+        profile: profile,
+        history: historyData
+            .whereType<Map>()
+            .map(
+              (item) => PhysicalRecord.fromJson(Map<String, dynamic>.from(item)),
+            )
+            .toList(),
+        consumptionValidation: consumptionValidation,
+        todayCalories: null,
+      ).dailyLimit;
+    } on ProgressException {
+      rethrow;
+    } on DioException catch (error) {
+      throw ProgressException(_fallbackMessage(error));
+    } catch (_) {
+      throw const ProgressException(
+        'No se pudo cargar tu meta diaria. Inténtalo de nuevo.',
+      );
+    }
+  }
+
   Future<ProgressData> fetchProgress({DateTime? now}) async {
     try {
       final date = localDateString(now);

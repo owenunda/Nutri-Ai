@@ -9,7 +9,6 @@ import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
 import '../google_sign_in_flow.dart';
 import '../widgets/google_sign_in_button.dart';
-import 'auth_flow_navigator.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 import 'verify_email_screen.dart';
@@ -76,19 +75,6 @@ class LoginScreen extends StatelessWidget {
                                   ),
                                 );
                               },
-                            ),
-
-                            // TODO: remove — solo para previsualizar onboarding
-                            TextButton(
-                              onPressed: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const AuthFlowNavigator(),
-                                ),
-                              ),
-                              child: const Text(
-                                'Ver onboarding',
-                                style: TextStyle(fontSize: 11, color: Color(0xFFADB5BD)),
-                              ),
                             ),
 
                             SizedBox(
