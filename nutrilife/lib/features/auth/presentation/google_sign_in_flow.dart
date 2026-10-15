@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/services/google_auth_service.dart';
 import '../../../core/services/session_service.dart';
 import '../../home/presentation/screens/dashboard_screen.dart';
@@ -7,9 +8,6 @@ import '../../setup/presentation/screens/profile_setup_screen.dart';
 import '../data/auth_repository.dart';
 import 'screens/link_google_account_screen.dart';
 import 'screens/set_password_screen.dart';
-
-const _googleErrorMessage =
-    'No se pudo iniciar sesión con Google. Inténtalo de nuevo.';
 
 /// Entra con Google y abre la pantalla que corresponda. Devuelve el mensaje
 /// de error a mostrar, o null si salió bien o el usuario cerró el selector.
@@ -53,7 +51,7 @@ Future<String?> signInWithGoogle(
   } on AuthException catch (error) {
     return error.message;
   } catch (_) {
-    return _googleErrorMessage;
+    return currentL10n.authErrorGoogle;
   }
 }
 

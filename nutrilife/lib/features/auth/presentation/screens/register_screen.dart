@@ -14,7 +14,9 @@ import '../widgets/google_sign_in_button.dart';
 import 'verify_email_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, this.repository});
+
+  final AuthRepository? repository;
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -29,7 +31,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  final AuthRepository _authRepository = AuthRepository();
+  late final AuthRepository _authRepository =
+      widget.repository ?? AuthRepository();
 
   bool _acceptedTerms = false;
   bool _obscurePassword = true;
