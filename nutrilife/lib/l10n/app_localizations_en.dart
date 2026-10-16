@@ -48,7 +48,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authLoginSubtitle =>
-      'Enter your credentials to get into your well-being space.';
+      'Enter your details to access your well-being space.';
 
   @override
   String get authLoginEmailLabel => 'EMAIL';
@@ -273,7 +273,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authContinueWithGoogle => 'Continue with Google';
 
   @override
-  String get authLoginSuccessTitle => 'You signed in successfully';
+  String get authLoginSuccessTitle => 'You\'re signed in';
 
   @override
   String get authLoginSuccessBody =>
@@ -831,9 +831,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nutritionLogAnother => 'Log another meal';
 
   @override
-  String get nutritionDoneButton => 'Done';
-
-  @override
   String get nutritionFridgeTitle => 'My fridge';
 
   @override
@@ -859,7 +856,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nutritionHelpManualBody =>
-      'Choose \"I have it\" (goes to your fridge) or \"I ate it\" (logged, not saved).';
+      'Choose \"To my fridge\" (saved in your fridge) or \"I ate it\" (logged, not saved).';
 
   @override
   String get nutritionGotIt => 'Got it';
@@ -1250,7 +1247,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatHistoryBarrierLabel => 'Close history';
 
   @override
-  String get chatWaitForReply => 'Hold on until the chef finishes replying';
+  String get chatWaitForReply => 'Wait for the chef to finish replying';
 
   @override
   String get chatDeleteTitle => 'Delete chat';
@@ -1296,11 +1293,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatRateLimitReplyMinute =>
-      'Hang on a moment, you\'ve reached the per-minute message limit';
+      'You\'ve hit this minute\'s message limit. Hang on a moment.';
 
   @override
   String chatRateLimitReplyMinutes(int minutes) {
-    return 'Please wait about $minutes minutes, you\'ve reached the message limit';
+    return 'You\'ve hit the message limit. Please wait about $minutes minutes.';
   }
 
   @override
@@ -1638,7 +1635,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String progressHistoryCurrent(String weight) {
-    return '${weight}kg Current';
+    return 'Current: $weight kg';
   }
 
   @override
@@ -1994,7 +1991,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumSaveBadge => 'Save 50%';
 
   @override
-  String get premiumStartTrial => 'Start 7 days free';
+  String get premiumStartTrial => 'Start your 7-day free trial';
 
   @override
   String get premiumRestore => 'Restore purchases';

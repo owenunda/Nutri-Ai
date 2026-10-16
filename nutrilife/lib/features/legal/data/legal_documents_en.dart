@@ -225,7 +225,7 @@ class LegalDocumentsEn {
           'of Law 1581 of 2012. We inform you that:',
         ),
         LegalBullets([
-          'You are not required to provide it. Without it, the App cannot '
+          'You are not required to provide this data. Without it, the App cannot '
               'calculate your calorie goal or personalize its recommendations.',
           'We only process it with your prior, express and informed '
               'authorization, which you give by accepting this policy during '
@@ -336,7 +336,7 @@ class LegalDocumentsEn {
           'applicable, any documents you want to rely on.',
         ),
         LegalParagraph(
-          'Inquiries: will be handled within a maximum of ten (10) business '
+          'Inquiries will be handled within a maximum of ten (10) business '
           'days from receipt. If that is not possible, we will tell you the '
           'reasons and the response date, which will not exceed five (5) '
           'additional business days (Article 14, Law 1581 of 2012).',

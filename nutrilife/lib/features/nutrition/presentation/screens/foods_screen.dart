@@ -700,7 +700,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
               FilledButton.icon(
                 onPressed: () => Navigator.of(sheetContext).pop(),
                 icon: const Icon(Icons.check_rounded, size: 18),
-                label: Text(l10n.nutritionDoneButton),
+                label: Text(l10n.commonDone),
                 style: FilledButton.styleFrom(
                   backgroundColor: const Color(0xFF0A6B3F),
                   padding: const EdgeInsets.symmetric(vertical: 14),

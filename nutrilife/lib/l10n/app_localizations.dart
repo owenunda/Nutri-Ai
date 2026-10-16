@@ -1562,12 +1562,6 @@ abstract class AppLocalizations {
   /// **'Registrar otro consumo'**
   String get nutritionLogAnother;
 
-  /// No description provided for @nutritionDoneButton.
-  ///
-  /// In es, this message translates to:
-  /// **'Listo'**
-  String get nutritionDoneButton;
-
   /// No description provided for @nutritionFridgeTitle.
   ///
   /// In es, this message translates to:
@@ -1613,7 +1607,7 @@ abstract class AppLocalizations {
   /// No description provided for @nutritionHelpManualBody.
   ///
   /// In es, this message translates to:
-  /// **'Elige entre \"lo tengo\" (a tu nevera) o \"lo consumí\" (alimento registrado, sin guardar).'**
+  /// **'Elige entre \"A mi nevera\" (a tu nevera) o \"Lo consumí\" (alimento registrado, sin guardar).'**
   String get nutritionHelpManualBody;
 
   /// No description provided for @nutritionGotIt.

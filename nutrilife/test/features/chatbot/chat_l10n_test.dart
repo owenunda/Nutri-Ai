@@ -152,7 +152,7 @@ void main() {
 
       expect(
         vm.messages.last.text,
-        "Please wait about 3 minutes, you've reached the message limit",
+        "You've hit the message limit. Please wait about 3 minutes.",
       );
     });
 

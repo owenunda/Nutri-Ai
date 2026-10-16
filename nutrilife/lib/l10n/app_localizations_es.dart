@@ -834,9 +834,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get nutritionLogAnother => 'Registrar otro consumo';
 
   @override
-  String get nutritionDoneButton => 'Listo';
-
-  @override
   String get nutritionFridgeTitle => 'Mi nevera';
 
   @override
@@ -862,7 +859,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get nutritionHelpManualBody =>
-      'Elige entre \"lo tengo\" (a tu nevera) o \"lo consumí\" (alimento registrado, sin guardar).';
+      'Elige entre \"A mi nevera\" (a tu nevera) o \"Lo consumí\" (alimento registrado, sin guardar).';
 
   @override
   String get nutritionGotIt => 'Entendido';

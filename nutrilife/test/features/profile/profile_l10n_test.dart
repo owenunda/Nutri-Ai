@@ -345,9 +345,9 @@ void main() {
       expect(find.text('\$29.99 / year'), findsOneWidget);
       expect(find.text('\$4.99 / month'), findsOneWidget);
       expect(find.text('Save 50%'), findsOneWidget);
-      expect(find.text('Start 7 days free'), findsOneWidget);
+      expect(find.text('Start your 7-day free trial'), findsOneWidget);
 
-      await tester.tap(find.text('Start 7 days free'));
+      await tester.tap(find.text('Start your 7-day free trial'));
       await tester.pump();
       expect(find.text('Payments are coming soon'), findsOneWidget);
     });

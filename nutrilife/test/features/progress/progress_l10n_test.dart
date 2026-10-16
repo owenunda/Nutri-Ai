@@ -127,7 +127,7 @@ void main() {
     expect(find.text('Weight history'), findsOneWidget);
     expect(find.text('Log weight'), findsOneWidget);
     expect(find.text('OCT 5'), findsOneWidget);
-    expect(find.text('72.5kg Current'), findsOneWidget);
+    expect(find.text('Current: 72.5 kg'), findsOneWidget);
     expect(find.text('Daily goal: 2,000 kcal. You have 0 kcal left today.'), findsOneWidget);
   });
 }
