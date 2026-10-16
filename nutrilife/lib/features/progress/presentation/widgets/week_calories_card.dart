@@ -48,7 +48,7 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 15),
       decoration: BoxDecoration(
         color: AppTheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
@@ -62,9 +62,32 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
               Expanded(
                 child: Text(
                   l10n.progressWeekTitle,
-                  style: const TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 18, fontWeight: FontWeight.w900),
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
+              if (limit != null && _selected == null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _green.withValues(alpha: 0.09),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    l10n.progressWeekOnTargetBadge(week.daysOnTarget),
+                    style: const TextStyle(
+                      color: _green,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
               if (_selected != null)
                 Text(
                   l10n.progressWeekDaySelected(
@@ -76,7 +99,7 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
                 ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 10),
           SizedBox(
             height: 140,
             child: Stack(
@@ -131,10 +154,14 @@ class _WeekCaloriesCardState extends State<WeekCaloriesCard> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 9),
           Text(
             footer,
-            style: const TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: AppTheme.onSurfaceVariant,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           if (limit == null)
             TextButton(

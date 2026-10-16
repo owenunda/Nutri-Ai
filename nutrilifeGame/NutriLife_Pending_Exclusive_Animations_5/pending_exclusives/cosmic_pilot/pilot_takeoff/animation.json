@@ -1,0 +1,34 @@
+{
+  "name": "pilot_takeoff",
+  "gif": "pilot_takeoff.gif",
+  "spritesheet": "pilot_takeoff.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "postura de piloto",
+    "1": "se prepara",
+    "2": "se inclina al frente",
+    "3": "elevación pequeña",
+    "4": "gesto de control imaginario",
+    "5": "vuelve a reposo"
+  },
+  "source_atlas": "pilot_takeoff_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    372,
+    74,
+    373,
+    356,
+    402,
+    365
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

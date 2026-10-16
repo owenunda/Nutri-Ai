@@ -1,0 +1,39 @@
+{
+  "appearance": "nutria_normal_sin_ropa",
+  "animation": "jump",
+  "gif": "jump.gif",
+  "spritesheet": "jump.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 10,
+  "duration_seconds": 0.6,
+  "loop": false,
+  "order": "left to right, one horizontal row; frame files numbered 000–005",
+  "event_frames": {
+    "1": "flexiona",
+    "2": "despegue",
+    "3": "ápice",
+    "4": "descenso",
+    "5": "aterrizaje"
+  },
+  "source_atlas": "jump_atlas.png",
+  "eye_correction": "black eyes; white highlights removed inside detected eye forms",
+  "pixels_darkened_per_frame": [
+    40,
+    0,
+    45,
+    49,
+    50,
+    45
+  ],
+  "alpha": "PNG RGBA; GIF transparency index 255",
+  "adjacent_changed_pixels": [
+    250138,
+    250359,
+    251837,
+    251977,
+    254010
+  ]
+}

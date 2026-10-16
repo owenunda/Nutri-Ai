@@ -1,0 +1,32 @@
+{
+  "name": "curiosity",
+  "gif": "curiosity.gif",
+  "spritesheet": "curiosity.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "2": "inclina la cabeza",
+    "3": "mira a un lado",
+    "4": "mira al otro",
+    "5": "vuelve al centro"
+  },
+  "source_atlas": "curiosity_atlas.png",
+  "unique_animation": false,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    45,
+    78,
+    77,
+    76,
+    60,
+    57
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

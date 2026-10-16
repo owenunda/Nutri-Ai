@@ -8,6 +8,7 @@ import '../../../../core/widgets/primary_button.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../../premium/presentation/widgets/premium_promo_card.dart';
 import '../../../profile/presentation/screens/edit_profile_screen.dart';
+import '../../../hydration/presentation/widgets/hydration_stats_card.dart';
 import '../../data/progress_repository.dart';
 import '../widgets/register_weight_sheet.dart';
 import '../widgets/week_calories_card.dart';
@@ -106,17 +107,26 @@ class _ProgressScreenState extends State<ProgressScreen> {
         return RefreshIndicator(
           color: ProgressScreen._green,
           onRefresh: _refreshProgress,
-          child: _ProgressContent(data: data),
+          child: _ProgressContent(data: data, accountId: _accountId),
         );
       },
     );
   }
+
+  String get _accountId {
+    final email = widget.user?['email']?.toString().trim();
+    final id = widget.user?['id']?.toString().trim();
+    if (email != null && email.isNotEmpty) return email;
+    if (id != null && id.isNotEmpty) return id;
+    return 'default';
+  }
 }
 
 class _ProgressContent extends StatelessWidget {
-  const _ProgressContent({required this.data});
+  const _ProgressContent({required this.data, required this.accountId});
 
   final ProgressData data;
+  final String accountId;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +148,8 @@ class _ProgressContent extends StatelessWidget {
                   children: [
                     Text(
                       l10n.progressKicker,
-                      style: TextStyle(fontFamily: 'Inter', 
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                         color: ProgressScreen._green,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -148,7 +159,8 @@ class _ProgressContent extends StatelessWidget {
                     const SizedBox(height: 7),
                     Text(
                       l10n.progressGreeting(data.firstName),
-                      style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         color: ProgressScreen._text,
                         fontSize: 28,
                         height: 1.05,
@@ -166,21 +178,46 @@ class _ProgressContent extends StatelessWidget {
           const SizedBox(height: 18),
           _TodayCaloriesCard(data: data),
           const SizedBox(height: 22),
-          if (data.week != null) ...[
+          const _ProgressSectionHeading(
+            title: 'CALORÍAS',
+            subtitle: 'Tu consumo frente a la meta diaria',
+            icon: Icons.local_fire_department_rounded,
+            color: Color(0xFFE89B27),
+          ),
+          const SizedBox(height: 10),
+          if (data.week != null)
             WeekCaloriesCard(
               week: data.week!,
-              // Sin meta faltan edad, altura o peso: se completan en el perfil.
               onCompleteProfile: () async {
                 final updated = await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
-                    builder: (_) => EditProfileScreen(profile: UserProfile.fromJson(data.profile)),
+                    builder: (_) => EditProfileScreen(
+                      profile: UserProfile.fromJson(data.profile),
+                    ),
                   ),
                 );
                 if (updated == true) MealLogState.instance.bump();
               },
+            )
+          else
+            const _ProgressUnavailableCard(
+              message: 'Aún no hay suficientes datos para mostrar la semana.',
             ),
-            const SizedBox(height: 22),
-          ],
+          const SizedBox(height: 22),
+          const _ProgressSectionHeading(
+            title: 'HIDRATACIÓN',
+            subtitle: 'Un hábito complementario, día a día',
+            icon: Icons.water_drop_rounded,
+            color: Color(0xFF2997B3),
+          ),
+          const SizedBox(height: 10),
+          HydrationStatsCard(
+            accountId: accountId,
+            title: 'Vasos de agua · últimos 7 días',
+            showStreakSummary: false,
+            showMascot: true,
+          ),
+          const SizedBox(height: 22),
           _WeightHistoryCard(
             records: data.orderedHistory,
             currentWeight: data.currentWeight,
@@ -188,7 +225,8 @@ class _ProgressContent extends StatelessWidget {
           const SizedBox(height: 28),
           Text(
             data.week != null ? l10n.progressSummaryWeek : l10n.progressSummaryNutrition,
-            style: TextStyle(fontFamily: 'PlusJakartaSans', 
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               color: ProgressScreen._text,
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -204,6 +242,88 @@ class _ProgressContent extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ProgressSectionHeading extends StatelessWidget {
+ const _ProgressSectionHeading({
+   required this.title,
+   required this.subtitle,
+   required this.icon,
+   required this.color,
+ });
+
+ final String title;
+ final String subtitle;
+ final IconData icon;
+ final Color color;
+
+ @override
+ Widget build(BuildContext context) {
+   return Row(
+     children: [
+       Container(
+         width: 34,
+         height: 34,
+         decoration: BoxDecoration(
+           color: color.withValues(alpha: 0.1),
+           borderRadius: BorderRadius.circular(11),
+         ),
+         child: Icon(icon, size: 18, color: color),
+       ),
+       const SizedBox(width: 10),
+       Expanded(
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+             Text(
+               title,
+               style: TextStyle(
+                 color: color,
+                 fontSize: 10,
+                 fontWeight: FontWeight.w900,
+                 letterSpacing: 1.1,
+               ),
+             ),
+             const SizedBox(height: 2),
+             Text(
+               subtitle,
+               style: const TextStyle(
+                 color: AppTheme.onSurfaceVariant,
+                 fontSize: 11,
+                 fontWeight: FontWeight.w600,
+               ),
+             ),
+           ],
+         ),
+       ),
+     ],
+   );
+ }
+}
+
+class _ProgressUnavailableCard extends StatelessWidget {
+ const _ProgressUnavailableCard({required this.message});
+
+ final String message;
+
+ @override
+ Widget build(BuildContext context) {
+   return Container(
+     width: double.infinity,
+     padding: const EdgeInsets.all(16),
+     decoration: BoxDecoration(
+       color: Colors.white,
+       borderRadius: BorderRadius.circular(18),
+     ),
+     child: Text(
+       message,
+       style: const TextStyle(
+         color: AppTheme.onSurfaceVariant,
+         fontSize: 12,
+       ),
+     ),
+   );
+ }
 }
 
 class _ProgressLoadingView extends StatelessWidget {
@@ -263,7 +383,8 @@ class _ProgressErrorView extends StatelessWidget {
                 Text(
                   l10n.progressErrorTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: ProgressScreen._text,
                     fontSize: 19,
                     fontWeight: FontWeight.w900,
@@ -273,7 +394,8 @@ class _ProgressErrorView extends StatelessWidget {
                 Text(
                   message.replaceFirst('Exception: ', ''),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontFamily: 'Inter', 
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     color: ProgressScreen._muted.withValues(alpha: 0.9),
                     fontSize: 13,
                     height: 1.35,
@@ -296,7 +418,6 @@ class _ProgressErrorView extends StatelessWidget {
   }
 }
 
-
 class _GoalPill extends StatelessWidget {
   const _GoalPill({required this.goal});
 
@@ -312,7 +433,8 @@ class _GoalPill extends StatelessWidget {
       ),
       child: Text(
         context.l10n.progressGoalPill(goal),
-        style: TextStyle(fontFamily: 'Inter', 
+        style: TextStyle(
+          fontFamily: 'Inter',
           color: const Color(0xFF064D31),
           fontSize: 12,
           height: 1.25,
@@ -386,7 +508,8 @@ class _WeightInsightCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     l10n.progressWeightSummaryTitle,
-                    style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       color: ProgressScreen._green,
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
@@ -407,7 +530,8 @@ class _WeightInsightCard extends StatelessWidget {
                       TextSpan(text: mainText.$2),
                     ],
                   ),
-                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: ProgressScreen._text,
                     fontSize: 22,
                     height: 1.15,
@@ -427,7 +551,8 @@ class _WeightInsightCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: ProgressScreen._text,
                     fontSize: 22,
                     height: 1.15,
@@ -439,7 +564,8 @@ class _WeightInsightCard extends StatelessWidget {
                 hasChange
                     ? l10n.progressCompareHint
                     : l10n.progressAddAnotherHint,
-                style: TextStyle(fontFamily: 'Inter',
+                style: TextStyle(
+                  fontFamily: 'Inter',
                   color: ProgressScreen._muted.withValues(alpha: 0.88),
                   fontSize: 13,
                   height: 1.25,
@@ -458,7 +584,9 @@ class _WeightInsightCard extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: ProgressScreen._green,
                   side: const BorderSide(color: Color(0xFFD1E7DA)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
                 ),
               ),
             ],
@@ -506,7 +634,8 @@ class _TodayCaloriesCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.progressTodayCaloriesTitle,
-                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: ProgressScreen._text,
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
@@ -522,7 +651,8 @@ class _TodayCaloriesCard extends StatelessWidget {
             children: [
               Text(
                 formatKcal(data.totalConsumed, l10n),
-                style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   color: ProgressScreen._green,
                   fontSize: 44,
                   fontWeight: FontWeight.w900,
@@ -537,7 +667,8 @@ class _TodayCaloriesCard extends StatelessWidget {
                   dailyLimit == null
                       ? l10n.progressKcalConsumed
                       : l10n.progressKcalOfLimit(formatKcal(dailyLimit, l10n)),
-                  style: TextStyle(fontFamily: 'Inter', 
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     color: ProgressScreen._muted.withValues(alpha: 0.9),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -568,7 +699,8 @@ class _TodayCaloriesCard extends StatelessWidget {
                     formatKcal(dailyLimit, l10n),
                     formatKcal(remaining, l10n),
                   ),
-            style: TextStyle(fontFamily: 'Inter', 
+            style: TextStyle(
+              fontFamily: 'Inter',
               color: ProgressScreen._muted.withValues(alpha: 0.9),
               fontSize: 13,
               height: 1.35,
@@ -599,7 +731,8 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         status,
-        style: TextStyle(fontFamily: 'Inter', 
+        style: TextStyle(
+          fontFamily: 'Inter',
           color: color,
           fontSize: 11,
           fontWeight: FontWeight.w800,
@@ -634,7 +767,8 @@ class _WeightHistoryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.progressHistoryTitle,
-                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: ProgressScreen._text,
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
@@ -654,7 +788,8 @@ class _WeightHistoryCard extends StatelessWidget {
                 currentWeight == null
                     ? l10n.progressHistoryNoCurrent
                     : l10n.progressHistoryCurrent(_formatDouble(currentWeight!)),
-                style: TextStyle(fontFamily: 'Inter', 
+                style: TextStyle(
+                  fontFamily: 'Inter',
                   color: ProgressScreen._muted,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -697,7 +832,8 @@ class _EmptyHistoryState extends StatelessWidget {
       child: Text(
         context.l10n.progressHistoryEmpty,
         textAlign: TextAlign.center,
-        style: TextStyle(fontFamily: 'Inter', 
+        style: TextStyle(
+          fontFamily: 'Inter',
           color: ProgressScreen._muted.withValues(alpha: 0.85),
           fontSize: 13,
           fontWeight: FontWeight.w700,
@@ -824,7 +960,8 @@ class _AverageTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontFamily: 'Inter', 
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     color: ProgressScreen._muted,
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
@@ -836,7 +973,8 @@ class _AverageTile extends StatelessWidget {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontFamily: 'PlusJakartaSans', 
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: ProgressScreen._text,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -847,7 +985,8 @@ class _AverageTile extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     detail!,
-                    style: TextStyle(fontFamily: 'Inter', 
+                    style: TextStyle(
+                      fontFamily: 'Inter',
                       color: ProgressScreen._green,
                       fontSize: 9,
                       fontWeight: FontWeight.w800,
@@ -903,7 +1042,8 @@ class _AxisLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: TextStyle(fontFamily: 'Inter', 
+      style: TextStyle(
+        fontFamily: 'Inter',
         color: const Color(0xFF9AA4AF),
         fontSize: 9,
         fontWeight: FontWeight.w800,

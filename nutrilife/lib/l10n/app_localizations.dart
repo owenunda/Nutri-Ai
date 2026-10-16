@@ -2783,20 +2783,26 @@ abstract class AppLocalizations {
   /// No description provided for @progressWeekTitle.
   ///
   /// In es, this message translates to:
-  /// **'Esta semana'**
+  /// **'Consumo semanal'**
   String get progressWeekTitle;
 
   /// No description provided for @progressWeekAverage.
   ///
   /// In es, this message translates to:
-  /// **'Promedio: {average} kcal/día'**
+  /// **'Promedio diario · {average} kcal'**
   String progressWeekAverage(String average);
 
   /// No description provided for @progressWeekAverageOnTarget.
   ///
   /// In es, this message translates to:
-  /// **'Promedio: {average} kcal/día · {days} de 7 días en tu meta'**
+  /// **'Promedio diario · {average} kcal · {days} de 7 días en tu meta'**
   String progressWeekAverageOnTarget(String average, int days);
+
+  /// No description provided for @progressWeekOnTargetBadge.
+  ///
+  /// In es, this message translates to:
+  /// **'{days}/7 en meta'**
+  String progressWeekOnTargetBadge(int days);
 
   /// No description provided for @progressWeekDaySelected.
   ///

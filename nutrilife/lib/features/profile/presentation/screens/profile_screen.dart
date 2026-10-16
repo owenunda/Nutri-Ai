@@ -10,6 +10,7 @@ import '../../../legal/presentation/screens/legal_document_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
 import '../../data/profile_repository.dart';
 import '../widgets/language_sheet.dart';
+import '../widgets/profile_streaks_card.dart';
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -18,10 +19,12 @@ class ProfileScreen extends StatefulWidget {
     required this.userName,
     required this.onLogout,
     this.repository,
+    this.accountId = 'default',
   });
 
   final String userName;
   final VoidCallback onLogout;
+  final String accountId;
 
   /// Solo para pruebas; por defecto usa el repositorio real.
   final ProfileRepository? repository;
@@ -193,6 +196,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 18),
+                ProfileStreaksCard(
+                  accountId: profile.email.isEmpty
+                      ? widget.accountId
+                      : profile.email,
                 ),
                 const SizedBox(height: 42),
                 Row(

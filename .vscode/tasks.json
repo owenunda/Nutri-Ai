@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "NutriLife: Run on Android device",
+			"type": "shell",
+			"command": "C:\\Windows\\System32\\cmd.exe",
+			"args": [
+				"/c",
+				"cd /d C:\\Users\\USUARIO\\Desktop\\Nutri-Ai\\nutrilife && C:\\Users\\USUARIO\\flutter\\bin\\flutter.bat run -d R7AX80GMF9R"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

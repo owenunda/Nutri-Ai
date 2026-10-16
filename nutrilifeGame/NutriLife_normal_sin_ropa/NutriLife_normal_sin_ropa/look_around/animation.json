@@ -1,0 +1,38 @@
+{
+  "appearance": "nutria_normal_sin_ropa",
+  "animation": "look_around",
+  "gif": "look_around.gif",
+  "spritesheet": "look_around.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": true,
+  "order": "left to right, one horizontal row; frame files numbered 000–005",
+  "event_frames": {
+    "1": "mira a la izquierda",
+    "3": "vuelve al centro",
+    "4": "mira a la derecha",
+    "5": "parpadea y centra"
+  },
+  "source_atlas": "look_around_atlas.png",
+  "eye_correction": "black eyes; white highlights removed inside detected eye forms",
+  "pixels_darkened_per_frame": [
+    34,
+    179,
+    189,
+    36,
+    32,
+    0
+  ],
+  "alpha": "PNG RGBA; GIF transparency index 255",
+  "adjacent_changed_pixels": [
+    259003,
+    258421,
+    260799,
+    259012,
+    259158
+  ]
+}

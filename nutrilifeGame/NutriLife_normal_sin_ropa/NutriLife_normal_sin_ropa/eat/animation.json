@@ -1,0 +1,40 @@
+{
+  "appearance": "nutria_normal_sin_ropa",
+  "animation": "eat",
+  "gif": "eat.gif",
+  "spritesheet": "eat.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "order": "left to right, one horizontal row; frame files numbered 000–005",
+  "event_frames": {
+    "0": "atiende al alimento que el jugador mueve fuera del sprite",
+    "1": "abre la boca",
+    "2": "mordida fuera de cuadro",
+    "3": "mastica",
+    "4": "traga",
+    "5": "cierra con satisfacción"
+  },
+  "source_atlas": "eat_atlas.png",
+  "eye_correction": "black eyes; white highlights removed inside detected eye forms",
+  "pixels_darkened_per_frame": [
+    50,
+    53,
+    49,
+    54,
+    49,
+    55
+  ],
+  "alpha": "PNG RGBA; GIF transparency index 255",
+  "adjacent_changed_pixels": [
+    260596,
+    260560,
+    261863,
+    261242,
+    261013
+  ]
+}

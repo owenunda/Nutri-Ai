@@ -1,0 +1,37 @@
+{
+  "appearance": "nutria_normal_sin_ropa",
+  "animation": "idea",
+  "gif": "idea.gif",
+  "spritesheet": "idea.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "order": "left to right, one horizontal row; frame files numbered 000–005",
+  "event_frames": {
+    "2": "pose pensativa",
+    "4": "símbolo de idea",
+    "5": "sonrisa satisfecha"
+  },
+  "source_atlas": "idea_atlas.png",
+  "eye_correction": "black eyes; white highlights removed inside detected eye forms",
+  "pixels_darkened_per_frame": [
+    39,
+    409,
+    36,
+    0,
+    43,
+    0
+  ],
+  "alpha": "PNG RGBA; GIF transparency index 255",
+  "adjacent_changed_pixels": [
+    257937,
+    257216,
+    259166,
+    255667,
+    258524
+  ]
+}

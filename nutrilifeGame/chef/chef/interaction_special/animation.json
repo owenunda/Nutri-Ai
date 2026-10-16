@@ -1,0 +1,33 @@
+{
+  "name": "interaction_special",
+  "gif": "interaction_special.gif",
+  "spritesheet": "interaction_special.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "1": "inclina la cabeza",
+    "2": "levanta la pata",
+    "3": "saluda",
+    "4": "rebote corto",
+    "5": "vuelve a la pose inicial"
+  },
+  "source_atlas": "interaction_special_atlas.png",
+  "unique_animation": false,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    0,
+    14,
+    10,
+    6,
+    5,
+    0
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

@@ -6,14 +6,18 @@ import 'package:nutrilife/features/progress/presentation/widgets/week_calories_c
 import '../../helpers/l10n_app.dart';
 
 WeekStats _week({int? limit = 2000}) => WeekStats.fromJson({
-      'dailyLimit': limit,
-      'average': 1850,
-      'daysOnTarget': 4,
-      'days': [
-        // 2026-10-06 es martes.
-        for (var i = 6; i <= 12; i++) {'date': '2026-10-${i.toString().padLeft(2, '0')}', 'totalConsumed': 1500 + i * 50},
-      ],
-    });
+  'dailyLimit': limit,
+  'average': 1850,
+  'daysOnTarget': 4,
+  'days': [
+    // 2026-10-06 es martes.
+    for (var i = 6; i <= 12; i++)
+      {
+        'date': '2026-10-${i.toString().padLeft(2, '0')}',
+        'totalConsumed': 1500 + i * 50,
+      },
+  ],
+});
 
 Future<void> _pump(WidgetTester tester, WeekStats week, {Locale locale = const Locale('es')}) =>
     tester.pumpWidget(l10nApp(
@@ -29,7 +33,11 @@ void main() {
     for (final initial in ['M', 'J', 'V', 'S', 'D', 'L']) {
       expect(find.text(initial), findsWidgets);
     }
-    expect(find.text('Promedio: 1.850 kcal/día · 4 de 7 días en tu meta'), findsOneWidget);
+    expect(
+      find.text('Promedio diario · 1.850 kcal · 4 de 7 días en tu meta'),
+      findsOneWidget,
+    );
+    expect(find.text('4/7 en meta'), findsOneWidget);
   });
 
   testWidgets('tocar una barra muestra ese día', (tester) async {
@@ -39,9 +47,11 @@ void main() {
     expect(find.text('Jue 8 · 1.900 kcal'), findsOneWidget);
   });
 
-  testWidgets('sin meta muestra solo el promedio y el enlace', (tester) async {
+  testWidgets('sin meta muestra promedio y acceso para completar perfil', (
+    tester,
+  ) async {
     await _pump(tester, _week(limit: null));
-    expect(find.text('Promedio: 1.850 kcal/día'), findsOneWidget);
+    expect(find.text('Promedio diario · 1.850 kcal'), findsOneWidget);
     expect(find.text('Completa tu perfil'), findsOneWidget);
   });
 
@@ -52,8 +62,8 @@ void main() {
     for (final initial in ['M', 'T', 'W', 'F', 'S']) {
       expect(find.text(initial), findsWidgets);
     }
-    expect(find.text('This week'), findsOneWidget);
-    expect(find.text('Average: 1,850 kcal/day · 4 of 7 days on target'), findsOneWidget);
+    expect(find.text('Weekly intake'), findsOneWidget);
+    expect(find.text('Daily average · 1,850 kcal · 4 of 7 days on target'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('week-bar-2026-10-08')));
     await tester.pump();
@@ -62,7 +72,7 @@ void main() {
 
   testWidgets('en inglés sin meta pide completar el perfil', (tester) async {
     await _pump(tester, _week(limit: null), locale: const Locale('en'));
-    expect(find.text('Average: 1,850 kcal/day'), findsOneWidget);
+    expect(find.text('Daily average · 1,850 kcal'), findsOneWidget);
     expect(find.text('Complete your profile'), findsOneWidget);
   });
 }

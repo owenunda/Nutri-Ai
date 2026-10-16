@@ -1,0 +1,34 @@
+{
+  "name": "dragon_wing_flap",
+  "gif": "dragon_wing_flap.gif",
+  "spritesheet": "dragon_wing_flap.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "pose firme",
+    "1": "abre las alas existentes",
+    "2": "aletea",
+    "3": "mueve la cola",
+    "4": "pequeño salto",
+    "5": "aterriza y posa"
+  },
+  "source_atlas": "dragon_wing_flap_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    0,
+    0,
+    0,
+    2,
+    9,
+    7
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

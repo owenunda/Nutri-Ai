@@ -1,0 +1,39 @@
+{
+  "appearance": "nutria_normal_sin_ropa",
+  "animation": "happiness",
+  "gif": "happiness.gif",
+  "spritesheet": "happiness.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 10,
+  "duration_seconds": 0.6,
+  "loop": false,
+  "order": "left to right, one horizontal row; frame files numbered 000–005",
+  "event_frames": {
+    "1": "anticipa",
+    "2": "levanta patas",
+    "3": "salto alegre",
+    "4": "aterriza",
+    "5": "sonríe"
+  },
+  "source_atlas": "happiness_atlas.png",
+  "eye_correction": "black eyes; white highlights removed inside detected eye forms",
+  "pixels_darkened_per_frame": [
+    49,
+    0,
+    55,
+    0,
+    0,
+    0
+  ],
+  "alpha": "PNG RGBA; GIF transparency index 255",
+  "adjacent_changed_pixels": [
+    255859,
+    257546,
+    258913,
+    257020,
+    257837
+  ]
+}

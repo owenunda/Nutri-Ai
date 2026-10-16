@@ -1,0 +1,400 @@
+{
+  "appearance": "nutria_normal_sin_ropa",
+  "reference": "nutria_saludando.png; original unclothed otter design retained",
+  "eye_style": "solid black eyes; no white highlights",
+  "format": {
+    "frame": "512x512 RGBA PNG",
+    "spritesheet": "3072x512 RGBA PNG; six contiguous horizontal cells, no spacing",
+    "preview": "transparent GIF, 6 frames"
+  },
+  "actions": [
+    {
+      "name": "idle",
+      "folder": "idle",
+      "gif": "idle/idle.gif",
+      "spritesheet": "idle/idle.png",
+      "frames": "idle/frames/idle_000.png … idle_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": true,
+      "event_frames": {
+        "2": "parpadeo",
+        "4": "movimiento de orejas"
+      },
+      "adjacent_changed_pixels": [
+        258883,
+        259105,
+        260794,
+        260141,
+        260149
+      ]
+    },
+    {
+      "name": "eat",
+      "folder": "eat",
+      "gif": "eat/eat.gif",
+      "spritesheet": "eat/eat.png",
+      "frames": "eat/frames/eat_000.png … eat_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": false,
+      "event_frames": {
+        "0": "atiende al alimento que el jugador mueve fuera del sprite",
+        "1": "abre la boca",
+        "2": "mordida fuera de cuadro",
+        "3": "mastica",
+        "4": "traga",
+        "5": "cierra con satisfacción"
+      },
+      "adjacent_changed_pixels": [
+        260596,
+        260560,
+        261863,
+        261242,
+        261013
+      ]
+    },
+    {
+      "name": "sleep",
+      "folder": "sleep",
+      "gif": "sleep/sleep.gif",
+      "spritesheet": "sleep/sleep.png",
+      "frames": "sleep/frames/sleep_000.png … sleep_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": false,
+      "event_frames": {
+        "0": "se prepara para dormir",
+        "1": "empieza a agacharse",
+        "2": "baja el cuerpo",
+        "3": "se sienta sobre las patas",
+        "4": "se recuesta de lado",
+        "5": "queda acurrucada y dormida"
+      },
+      "adjacent_changed_pixels": [
+        256759,
+        252625,
+        257724,
+        258332,
+        254111
+      ]
+    },
+    {
+      "name": "wake",
+      "folder": "wake",
+      "gif": "wake/wake.gif",
+      "spritesheet": "wake/wake.png",
+      "frames": "wake/frames/wake_000.png … wake_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": false,
+      "event_frames": {
+        "0": "pose dormida",
+        "3": "abre los ojos",
+        "4": "se estira",
+        "5": "vuelve a la pose erguida"
+      },
+      "adjacent_changed_pixels": [
+        251769,
+        253669,
+        259477,
+        258948,
+        258448
+      ]
+    },
+    {
+      "name": "curiosity",
+      "folder": "curiosity",
+      "gif": "curiosity/curiosity.gif",
+      "spritesheet": "curiosity/curiosity.png",
+      "frames": "curiosity/frames/curiosity_000.png … curiosity_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": false,
+      "event_frames": {
+        "2": "inclina la cabeza",
+        "3": "mira a un lado",
+        "4": "mira al otro",
+        "5": "vuelve al centro"
+      },
+      "adjacent_changed_pixels": [
+        260918,
+        260851,
+        261784,
+        260248,
+        260948
+      ]
+    },
+    {
+      "name": "idea",
+      "folder": "idea",
+      "gif": "idea/idea.gif",
+      "spritesheet": "idea/idea.png",
+      "frames": "idea/frames/idea_000.png … idea_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": false,
+      "event_frames": {
+        "2": "pose pensativa",
+        "4": "símbolo de idea",
+        "5": "sonrisa satisfecha"
+      },
+      "adjacent_changed_pixels": [
+        257937,
+        257216,
+        259166,
+        255667,
+        258524
+      ]
+    },
+    {
+      "name": "sadness",
+      "folder": "sadness",
+      "gif": "sadness/sadness.gif",
+      "spritesheet": "sadness/sadness.png",
+      "frames": "sadness/frames/sadness_000.png … sadness_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": false,
+      "event_frames": {
+        "1": "baja orejas",
+        "3": "mira hacia abajo",
+        "5": "pose triste"
+      },
+      "adjacent_changed_pixels": [
+        247371,
+        250217,
+        253292,
+        253853,
+        248959
+      ]
+    },
+    {
+      "name": "happiness",
+      "folder": "happiness",
+      "gif": "happiness/happiness.gif",
+      "spritesheet": "happiness/happiness.png",
+      "frames": "happiness/frames/happiness_000.png … happiness_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 10,
+      "duration_seconds": 0.6,
+      "loop": false,
+      "event_frames": {
+        "1": "anticipa",
+        "2": "levanta patas",
+        "3": "salto alegre",
+        "4": "aterriza",
+        "5": "sonríe"
+      },
+      "adjacent_changed_pixels": [
+        255859,
+        257546,
+        258913,
+        257020,
+        257837
+      ]
+    },
+    {
+      "name": "jump",
+      "folder": "jump",
+      "gif": "jump/jump.gif",
+      "spritesheet": "jump/jump.png",
+      "frames": "jump/frames/jump_000.png … jump_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 10,
+      "duration_seconds": 0.6,
+      "loop": false,
+      "event_frames": {
+        "1": "flexiona",
+        "2": "despegue",
+        "3": "ápice",
+        "4": "descenso",
+        "5": "aterrizaje"
+      },
+      "adjacent_changed_pixels": [
+        250138,
+        250359,
+        251837,
+        251977,
+        254010
+      ]
+    },
+    {
+      "name": "look_around",
+      "folder": "look_around",
+      "gif": "look_around/look_around.gif",
+      "spritesheet": "look_around/look_around.png",
+      "frames": "look_around/frames/look_around_000.png … look_around_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": true,
+      "event_frames": {
+        "1": "mira a la izquierda",
+        "3": "vuelve al centro",
+        "4": "mira a la derecha",
+        "5": "parpadea y centra"
+      },
+      "adjacent_changed_pixels": [
+        259003,
+        258421,
+        260799,
+        259012,
+        259158
+      ]
+    },
+    {
+      "name": "healthy_recovery",
+      "folder": "healthy_recovery",
+      "gif": "healthy_recovery/healthy_recovery.gif",
+      "spritesheet": "healthy_recovery/healthy_recovery.png",
+      "frames": "healthy_recovery/frames/healthy_recovery_000.png … healthy_recovery_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": false,
+      "event_frames": {
+        "1": "percibe interacción fuera de cuadro",
+        "2": "abre la boca",
+        "3": "mastica sin alimento dibujado",
+        "4": "traga",
+        "5": "recupera una expresión alegre"
+      },
+      "adjacent_changed_pixels": [
+        260338,
+        260270,
+        261595,
+        261053,
+        259246
+      ]
+    },
+    {
+      "name": "interaction_special",
+      "folder": "interaction_special",
+      "gif": "interaction_special/interaction_special.gif",
+      "spritesheet": "interaction_special/interaction_special.png",
+      "frames": "interaction_special/frames/interaction_special_000.png … interaction_special_005.png",
+      "frame_count": 6,
+      "frame_size": [
+        512,
+        512
+      ],
+      "sheet_size": [
+        3072,
+        512
+      ],
+      "fps": 8,
+      "duration_seconds": 0.75,
+      "loop": false,
+      "event_frames": {
+        "1": "inclina la cabeza",
+        "2": "levanta la pata",
+        "3": "saluda",
+        "4": "rebote corto",
+        "5": "vuelve a la pose inicial"
+      },
+      "adjacent_changed_pixels": [
+        256570,
+        256046,
+        259076,
+        258743,
+        258163
+      ]
+    }
+  ]
+}

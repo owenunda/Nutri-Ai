@@ -1,0 +1,34 @@
+{
+  "name": "sleep",
+  "gif": "sleep.gif",
+  "spritesheet": "sleep.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "se prepara para dormir",
+    "1": "empieza a agacharse",
+    "2": "baja el cuerpo",
+    "3": "se sienta sobre las patas",
+    "4": "se recuesta de lado",
+    "5": "queda acurrucada y dormida"
+  },
+  "source_atlas": "sleep_atlas.png",
+  "unique_animation": false,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    5,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

@@ -1681,16 +1681,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get progressWeekTitle => 'This week';
+  String get progressWeekTitle => 'Weekly intake';
 
   @override
   String progressWeekAverage(String average) {
-    return 'Average: $average kcal/day';
+    return 'Daily average · $average kcal';
   }
 
   @override
   String progressWeekAverageOnTarget(String average, int days) {
-    return 'Average: $average kcal/day · $days of 7 days on target';
+    return 'Daily average · $average kcal · $days of 7 days on target';
+  }
+
+  @override
+  String progressWeekOnTargetBadge(int days) {
+    return '$days/7 on target';
   }
 
   @override

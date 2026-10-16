@@ -1,0 +1,33 @@
+{
+  "name": "happiness",
+  "gif": "happiness.gif",
+  "spritesheet": "happiness.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 10,
+  "duration_seconds": 0.6,
+  "loop": false,
+  "event_frames": {
+    "1": "anticipa",
+    "2": "levanta patas",
+    "3": "salto alegre",
+    "4": "aterriza",
+    "5": "sonríe"
+  },
+  "source_atlas": "happiness_atlas.png",
+  "unique_animation": false,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    92,
+    83,
+    88,
+    70,
+    83,
+    77
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

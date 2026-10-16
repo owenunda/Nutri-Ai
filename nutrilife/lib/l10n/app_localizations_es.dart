@@ -1685,16 +1685,21 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get progressWeekTitle => 'Esta semana';
+  String get progressWeekTitle => 'Consumo semanal';
 
   @override
   String progressWeekAverage(String average) {
-    return 'Promedio: $average kcal/día';
+    return 'Promedio diario · $average kcal';
   }
 
   @override
   String progressWeekAverageOnTarget(String average, int days) {
-    return 'Promedio: $average kcal/día · $days de 7 días en tu meta';
+    return 'Promedio diario · $average kcal · $days de 7 días en tu meta';
+  }
+
+  @override
+  String progressWeekOnTargetBadge(int days) {
+    return '$days/7 en meta';
   }
 
   @override

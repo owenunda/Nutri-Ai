@@ -1,0 +1,38 @@
+{
+  "appearance": "nutria_normal_sin_ropa",
+  "animation": "curiosity",
+  "gif": "curiosity.gif",
+  "spritesheet": "curiosity.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "order": "left to right, one horizontal row; frame files numbered 000–005",
+  "event_frames": {
+    "2": "inclina la cabeza",
+    "3": "mira a un lado",
+    "4": "mira al otro",
+    "5": "vuelve al centro"
+  },
+  "source_atlas": "curiosity_atlas.png",
+  "eye_correction": "black eyes; white highlights removed inside detected eye forms",
+  "pixels_darkened_per_frame": [
+    78,
+    68,
+    66,
+    373,
+    72,
+    71
+  ],
+  "alpha": "PNG RGBA; GIF transparency index 255",
+  "adjacent_changed_pixels": [
+    260918,
+    260851,
+    261784,
+    260248,
+    260948
+  ]
+}

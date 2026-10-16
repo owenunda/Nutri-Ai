@@ -1,0 +1,34 @@
+{
+  "name": "chef_celebration",
+  "gif": "chef_celebration.gif",
+  "spritesheet": "chef_celebration.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "pose de chef",
+    "1": "acomoda el gorro",
+    "2": "saluda",
+    "3": "reverencia pequeña",
+    "4": "sonríe orgullosa",
+    "5": "regresa a pose"
+  },
+  "source_atlas": "chef_celebration_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    1,
+    4,
+    2,
+    0,
+    8,
+    4
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

@@ -32,6 +32,10 @@ flutter:
   generate: true
   assets:
     - assets/images/
+    - assets/images/hydration/
+    - assets/images/nutria tomando agua.png
+    - assets/images/nutria_celebracion.png
+    - assets/images/nutria_estadisticas_cientifica_borde_negro_1024.png
   fonts:
     - family: PlusJakartaSans
       fonts:

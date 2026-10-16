@@ -1088,8 +1088,8 @@
       }
     }
   },
-  "progressWeekTitle": "Esta semana",
-  "progressWeekAverage": "Promedio: {average} kcal/día",
+  "progressWeekTitle": "Consumo semanal",
+  "progressWeekAverage": "Promedio diario · {average} kcal",
   "@progressWeekAverage": {
     "placeholders": {
       "average": {
@@ -1097,12 +1097,20 @@
       }
     }
   },
-  "progressWeekAverageOnTarget": "Promedio: {average} kcal/día · {days} de 7 días en tu meta",
+  "progressWeekAverageOnTarget": "Promedio diario · {average} kcal · {days} de 7 días en tu meta",
   "@progressWeekAverageOnTarget": {
     "placeholders": {
       "average": {
         "type": "String"
       },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWeekOnTargetBadge": "{days}/7 en meta",
+  "@progressWeekOnTargetBadge": {
+    "placeholders": {
       "days": {
         "type": "int"
       }
@@ -1166,11 +1174,32 @@
   "profileDeleteGoogleFailed": "No se pudo confirmar con Google. Inténtalo de nuevo.",
   "profileMemberDefault": "Miembro de NutriLife",
   "profileMemberSince": "Miembro desde {year}",
-  "@profileMemberSince": {"placeholders": {"year": {"type": "String"}}},
+  "@profileMemberSince": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "profileMemberPlan": "Miembro {plan}",
-  "@profileMemberPlan": {"placeholders": {"plan": {"type": "String"}}},
+  "@profileMemberPlan": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
   "profileMemberPlanSince": "Miembro {plan} desde {year}",
-  "@profileMemberPlanSince": {"placeholders": {"plan": {"type": "String"}, "year": {"type": "String"}}},
+  "@profileMemberPlanSince": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "profileStatAge": "EDAD",
   "profileStatWeight": "PESO",
   "profileStatHeight": "ALTURA",
@@ -1231,9 +1260,21 @@
   "premiumPlanYearly": "Anual",
   "premiumPlanMonthly": "Mensual",
   "premiumPricePerYear": "{price} / año",
-  "@premiumPricePerYear": {"placeholders": {"price": {"type": "String"}}},
+  "@premiumPricePerYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "premiumPricePerMonth": "{price} / mes",
-  "@premiumPricePerMonth": {"placeholders": {"price": {"type": "String"}}},
+  "@premiumPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "premiumSaveBadge": "Ahorra 50%",
   "premiumStartTrial": "Empezar 7 días gratis",
   "premiumRestore": "Restaurar compras",
@@ -1241,5 +1282,11 @@
   "premiumPaymentsSoon": "Los pagos llegan pronto",
   "premiumPromoTitle": "Desbloquea tu progreso completo",
   "legalLastUpdated": "Última actualización: {date}",
-  "@legalLastUpdated": { "placeholders": { "date": { "type": "String" } } }
+  "@legalLastUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

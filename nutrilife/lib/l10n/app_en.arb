@@ -855,9 +855,10 @@
   "progressTileDaysOnTarget": "DAYS ON TARGET",
   "progressTileWeekTotal": "WEEK TOTAL",
   "progressDaysOfSeven": "{count} of 7",
-  "progressWeekTitle": "This week",
-  "progressWeekAverage": "Average: {average} kcal/day",
-  "progressWeekAverageOnTarget": "Average: {average} kcal/day · {days} of 7 days on target",
+  "progressWeekTitle": "Weekly intake",
+  "progressWeekAverage": "Daily average · {average} kcal",
+  "progressWeekAverageOnTarget": "Daily average · {average} kcal · {days} of 7 days on target",
+  "progressWeekOnTargetBadge": "{days}/7 on target",
   "progressWeekDaySelected": "{weekday} {day} · {kcal} kcal",
   "progressCompleteProfile": "Complete your profile",
   "progressSheetHintNoLast": "Type your weight or adjust it with − and +",
@@ -882,11 +883,32 @@
   "profileDeleteGoogleFailed": "We couldn't confirm with Google. Please try again.",
   "profileMemberDefault": "NutriLife member",
   "profileMemberSince": "Member since {year}",
-  "@profileMemberSince": {"placeholders": {"year": {"type": "String"}}},
+  "@profileMemberSince": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "profileMemberPlan": "{plan} member",
-  "@profileMemberPlan": {"placeholders": {"plan": {"type": "String"}}},
+  "@profileMemberPlan": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
   "profileMemberPlanSince": "{plan} member since {year}",
-  "@profileMemberPlanSince": {"placeholders": {"plan": {"type": "String"}, "year": {"type": "String"}}},
+  "@profileMemberPlanSince": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "profileStatAge": "AGE",
   "profileStatWeight": "WEIGHT",
   "profileStatHeight": "HEIGHT",
@@ -947,9 +969,21 @@
   "premiumPlanYearly": "Yearly",
   "premiumPlanMonthly": "Monthly",
   "premiumPricePerYear": "{price} / year",
-  "@premiumPricePerYear": {"placeholders": {"price": {"type": "String"}}},
+  "@premiumPricePerYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "premiumPricePerMonth": "{price} / month",
-  "@premiumPricePerMonth": {"placeholders": {"price": {"type": "String"}}},
+  "@premiumPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "premiumSaveBadge": "Save 50%",
   "premiumStartTrial": "Start 7 days free",
   "premiumRestore": "Restore purchases",

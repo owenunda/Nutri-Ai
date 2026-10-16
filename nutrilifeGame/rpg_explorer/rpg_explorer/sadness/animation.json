@@ -1,0 +1,31 @@
+{
+  "name": "sadness",
+  "gif": "sadness.gif",
+  "spritesheet": "sadness.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "1": "baja orejas",
+    "3": "mira hacia abajo",
+    "5": "pose triste"
+  },
+  "source_atlas": "sadness_atlas.png",
+  "unique_animation": false,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    64,
+    63,
+    64,
+    54,
+    41,
+    0
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}

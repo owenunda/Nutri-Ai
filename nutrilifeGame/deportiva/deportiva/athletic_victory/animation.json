@@ -1,0 +1,34 @@
+{
+  "name": "athletic_victory",
+  "gif": "athletic_victory.gif",
+  "spritesheet": "athletic_victory.png",
+  "frames_dir": "frames",
+  "frame_count": 6,
+  "frame_width": 512,
+  "frame_height": 512,
+  "fps": 8,
+  "duration_seconds": 0.75,
+  "loop": false,
+  "event_frames": {
+    "0": "postura inicial",
+    "1": "estira",
+    "2": "carrera en el sitio",
+    "3": "frena",
+    "4": "victoria con las patas",
+    "5": "regresa a pose"
+  },
+  "source_atlas": "athletic_victory_atlas.png",
+  "unique_animation": true,
+  "frame_extraction": "connected_silhouette_crops",
+  "eyes": "black, no white highlights",
+  "eye_pixels_darkened": [
+    29,
+    20,
+    2,
+    0,
+    43,
+    18
+  ],
+  "always_floating": false,
+  "alpha": "PNG RGBA; GIF transparency index 255"
+}
