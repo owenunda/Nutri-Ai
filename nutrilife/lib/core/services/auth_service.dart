@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../l10n/l10n.dart';
 import '../network/dio_client.dart';
 import '../network/api_routes.dart';
 
@@ -23,10 +24,12 @@ class AuthService {
           'success': true,
           'token': responseData['data']['token'],
           'user': responseData['data']['user'],
-          'message': responseData['message'] ?? 'Login successful',
+          'needsProfileSetup':
+              responseData['data']['needsProfileSetup'] == true,
+          'message': responseData['message'] ?? currentL10n.authLoginSuccess,
         };
       } else {
-        final errorMessage = responseData?['message'] ?? 'Login failed';
+        final errorMessage = responseData?['message'] ?? currentL10n.authErrorLogin;
         return {
           'success': false,
           'message': errorMessage,
@@ -35,7 +38,7 @@ class AuthService {
       }
     } on DioException catch (e) {
       final responseData = e.response?.data;
-      String errorMessage = 'No se pudo iniciar sesión. Inténtalo de nuevo.';
+      String errorMessage = currentL10n.authErrorLogin;
 
       if (responseData is Map<String, dynamic> && responseData['message'] != null) {
         errorMessage = responseData['message'];
@@ -44,13 +47,13 @@ class AuthService {
           case DioExceptionType.connectionTimeout:
           case DioExceptionType.sendTimeout:
           case DioExceptionType.receiveTimeout:
-            errorMessage = 'La conexión con el servidor tardó demasiado. Inténtalo de nuevo.';
+            errorMessage = currentL10n.commonErrorTimeout;
             break;
           case DioExceptionType.connectionError:
-            errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión o si el servidor está activo.';
+            errorMessage = currentL10n.commonErrorConnection;
             break;
           default:
-            errorMessage = 'Error de red: ${e.message}';
+            errorMessage = currentL10n.authErrorNetwork(e.message ?? '');
         }
       }
 
@@ -62,7 +65,7 @@ class AuthService {
     } catch (e) {
       return {
         'success': false,
-        'message': 'Error: $e',
+        'message': currentL10n.authErrorUnexpected(e.toString()),
       };
     }
   }

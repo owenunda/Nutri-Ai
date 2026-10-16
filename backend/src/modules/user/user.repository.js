@@ -7,6 +7,7 @@ const profileSelectQuery = `
     u.email,
     u.age,
     u.goal,
+    (u.password IS NOT NULL) AS "hasPassword",
     r.name AS role,
     p.name AS plan,
     pr.height,
@@ -172,12 +173,33 @@ export const updateUserProfileData = async (userId, { age, goal, height, weight 
   }
 };
 
-export const findUserPasswordHashById = async (userId) => {
+// Guarda la contraseña solo si la cuenta no tenía una. Devuelve null si ya la
+// tenía, así dos peticiones a la vez no se pisan.
+export const setPasswordIfMissing = async (userId, passwordHash) => {
   const { rows } = await pool.query(
-    'SELECT password AS "passwordHash" FROM users WHERE user_id = $1 LIMIT 1',
+    `UPDATE users SET password = $2, updated_at = CURRENT_TIMESTAMP
+     WHERE user_id = $1 AND password IS NULL
+     RETURNING user_id AS "userId"`,
+    [userId, passwordHash]
+  );
+  return rows[0] ?? null;
+};
+
+// Lo necesario para confirmar el borrado: la contraseña, o la cuenta de
+// Google vinculada si el usuario no tiene contraseña.
+export const findUserCredentialsById = async (userId) => {
+  const { rows } = await pool.query(
+    `SELECT
+       u.password AS "passwordHash",
+       ap.provider_user_id AS "googleSub"
+     FROM users u
+     LEFT JOIN user_auth_providers ap
+       ON ap.user_id = u.user_id AND ap.provider = 'google'
+     WHERE u.user_id = $1
+     LIMIT 1`,
     [userId]
   );
-  return rows[0]?.passwordHash ?? null;
+  return rows[0] ?? null;
 };
 
 // Borra la cuenta y todo lo que cuelga de ella en una sola transacción.

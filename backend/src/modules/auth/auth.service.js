@@ -4,16 +4,25 @@ import { config } from '../../config/env_config.js';
 import { AppError } from '../../utils/AppError.js';
 import {
   createUser,
+  createUserWithProvider,
+  findProviderLink,
   findUserByEmail,
+  findUserByProvider,
   getAuthRepositoryStatus,
   getDefaultRoleAndPlanIds,
+  linkAuthProvider,
+  markEmailVerified,
+  setPasswordAndVerify,
 } from './auth.repository.js';
-import { createFridgeService } from '../fridge/fridge.service.js'; // línea nueva
+import { CODE_PURPOSE, consumeCode, sendCode } from './email-code.service.js';
+import { verifyGoogleIdToken } from './google.verifier.js';
+import { createFridgeService } from '../fridge/fridge.service.js';
 import { logEventService } from '../events/events.service.js';
-
 
 const JWT_EXPIRES_IN = '1h';
 const SALT_ROUNDS = 10;
+const GOOGLE = 'google';
+const UNIQUE_VIOLATION = '23505';
 
 export const getAuthModuleStatus = async () => {
   try {
@@ -33,7 +42,101 @@ export const getAuthModuleStatus = async () => {
   }
 };
 
-export const loginUser = async ({ email, password }) => {
+const issueToken = (user) => {
+  if (!config.jwt.secret) {
+    throw new AppError('JWT secret is not configured', 500, 'AUTH_CONFIG_ERROR');
+  }
+
+  const tokenPayload = {
+    userId: user.userId,
+    email: user.email,
+    role: user.role,
+    plan: user.plan,
+    name: user.name,
+    goal: user.goal,
+  };
+
+  return jwt.sign(tokenPayload, config.jwt.secret, { expiresIn: JWT_EXPIRES_IN });
+};
+
+// Respuesta común de los logins. Sin edad, el usuario no terminó el setup
+// del perfil y la app lo manda ahí en vez de al Dashboard.
+const buildSession = (user) => {
+  const { passwordHash, ...safeUser } = user;
+
+  return {
+    token: issueToken(user),
+    user: safeUser,
+    needsProfileSetup: user.age == null,
+  };
+};
+
+// Crea el usuario con el rol y plan por defecto y su nevera. Con `provider`,
+// el usuario y su cuenta externa se crean en la misma transacción.
+const createUserWithDefaults = async ({
+  name,
+  email,
+  passwordHash = null,
+  goal = null,
+  provider = null,
+  emailVerifiedAt = null,
+}) => {
+  const defaults = await getDefaultRoleAndPlanIds();
+
+  if (!defaults?.roleId || !defaults?.planId) {
+    throw new AppError('Default role or plan is not configured', 500, 'AUTH_DEFAULTS_NOT_FOUND');
+  }
+
+  const userData = {
+    name,
+    email,
+    passwordHash,
+    goal,
+    roleId: Number(defaults.roleId),
+    planId: Number(defaults.planId),
+    emailVerifiedAt,
+  };
+
+  const newUser = provider
+    ? await createUserWithProvider({ ...userData, ...provider })
+    : await createUser(userData);
+
+  await createFridgeService(newUser.userId);
+
+  return newUser;
+};
+
+const logLogin = (user, metadata = {}) =>
+  logEventService({
+    eventType: 'LOGIN',
+    category: 'AUTH',
+    userId: user.userId,
+    metadata: { email: user.email, role: user.role, ...metadata },
+  });
+
+const startSession = async (user) => {
+  const session = buildSession(user);
+  await logLogin(user);
+  return session;
+};
+
+// Envía el código de verificación sin cortar el flujo si falla (correo caído
+// o un código enviado hace menos de un minuto): el usuario puede reenviarlo.
+const sendVerificationCodeQuietly = async (user, lang) => {
+  try {
+    await sendCode(user, CODE_PURPOSE.VERIFY_EMAIL, lang);
+  } catch (error) {
+    if (error?.code !== 'CODE_RECENTLY_SENT') {
+      console.error('[auth] No se pudo enviar el código de verificación:', error.message);
+    }
+  }
+};
+
+// Mismo error para un correo que no existe y un código equivocado: no revela
+// qué correos tienen cuenta.
+const invalidCode = () => new AppError('El código no es correcto.', 400, 'INVALID_CODE');
+
+export const loginUser = async ({ email, password, lang }) => {
   try {
     const user = await findUserByEmail(email);
 
@@ -45,6 +148,20 @@ export const loginUser = async ({ email, password }) => {
         metadata: { email, reason: 'USER_NOT_FOUND' },
       });
       throw new AppError('Cuenta no existe', 404, 'USER_NOT_FOUND');
+    }
+
+    if (!user.passwordHash) {
+      await logEventService({
+        eventType: 'LOGIN_FAILED',
+        category: 'AUTH',
+        userId: user.userId,
+        metadata: { email, reason: 'USE_GOOGLE_SIGN_IN' },
+      });
+      throw new AppError(
+        'Esta cuenta usa Google. Toca «Continuar con Google».',
+        409,
+        'USE_GOOGLE_SIGN_IN'
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
@@ -59,35 +176,57 @@ export const loginUser = async ({ email, password }) => {
       throw new AppError('Contraseña incorrecta', 401, 'INVALID_PASSWORD');
     }
 
-    if (!config.jwt.secret) {
-      throw new AppError('JWT secret is not configured', 500, 'AUTH_CONFIG_ERROR');
+    if (!user.emailVerifiedAt) {
+      await sendVerificationCodeQuietly(user, lang);
+      await logEventService({
+        eventType: 'LOGIN_FAILED',
+        category: 'AUTH',
+        userId: user.userId,
+        metadata: { email, reason: 'EMAIL_NOT_VERIFIED' },
+      });
+      throw new AppError(
+        'Verifica tu correo: te enviamos un código.',
+        403,
+        'EMAIL_NOT_VERIFIED'
+      );
     }
 
-    const tokenPayload = {
-      userId: user.userId,
-      email: user.email,
-      role: user.role,
-      plan: user.plan,
-      name: user.name,
-      goal: user.goal
-    };
+    return await startSession(user);
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
 
-    const token = jwt.sign(tokenPayload, config.jwt.secret, {
-      expiresIn: JWT_EXPIRES_IN,
-    });
+    throw new AppError(error.message, 500, 'AUTH_SERVICE_ERROR');
+  }
+};
 
-    const { passwordHash, ...safeUser } = user;
+export const registerUser = async ({ name, email, password, goal, lang }) => {
+  try {
+    const existingUser = await findUserByEmail(email);
+
+    if (existingUser) {
+      throw new AppError('Email is already registered', 409, 'EMAIL_ALREADY_EXISTS');
+    }
+
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+    const newUser = await createUserWithDefaults({ name, email, passwordHash, goal });
 
     await logEventService({
-      eventType: 'LOGIN',
+      eventType: 'REGISTER',
       category: 'AUTH',
-      userId: user.userId,
-      metadata: { email: user.email, role: user.role },
+      userId: newUser.userId,
+      metadata: { email, name },
     });
 
+    // Si el correo falla, la cuenta queda creada: la app permite reenviarlo.
+    await sendVerificationCodeQuietly({ ...newUser, name, email }, lang);
+
     return {
-      token,
-      user: safeUser,
+      ...newUser,
+      role: 'USER',
+      plan: 'FREE',
+      verificationRequired: true,
     };
   } catch (error) {
     if (error instanceof AppError) {
@@ -98,55 +237,230 @@ export const loginUser = async ({ email, password }) => {
   }
 };
 
-export const registerUser = async ({ name, email, password, goal }) => {
-  try {
-    const existingUser = await findUserByEmail(email);
+const verifiedGoogleProfile = async (idToken) => {
+  const profile = await verifyGoogleIdToken(idToken);
 
-    if (existingUser) {
-      throw new AppError('Email is already registered', 409, 'EMAIL_ALREADY_EXISTS');
-    }
+  if (!profile.emailVerified) {
+    throw new AppError('Tu correo de Google no está verificado.', 403, 'GOOGLE_EMAIL_NOT_VERIFIED');
+  }
 
-    const defaults = await getDefaultRoleAndPlanIds();
+  return profile;
+};
 
-    if (!defaults?.roleId || !defaults?.planId) {
+// Otra cuenta de Google con el mismo email (p. ej. borrada y recreada): no se
+// sobrescribe el vínculo.
+const assertNoOtherGoogleAccount = async (userId) => {
+  if (await findProviderLink(userId, GOOGLE)) {
+    throw new AppError(
+      'Este correo ya está vinculado a otra cuenta de Google.',
+      409,
+      'GOOGLE_ACCOUNT_CONFLICT'
+    );
+  }
+};
+
+const linkGoogleToUser = async (user, { sub, email }) => {
+  await linkAuthProvider({ userId: user.userId, provider: GOOGLE, providerUserId: sub, email });
+  // Google demostró que el correo es suyo.
+  if (!user.emailVerifiedAt) {
+    await markEmailVerified(user.userId);
+  }
+  await logEventService({
+    eventType: 'ACCOUNT_LINKED',
+    category: 'AUTH',
+    userId: user.userId,
+    metadata: { provider: GOOGLE },
+  });
+};
+
+const logGoogleLogin = (user) => logLogin(user, { method: GOOGLE });
+
+// Busca al usuario de Google por su `sub`; si no existe, lo vincula a la
+// cuenta con el mismo email o crea una nueva. `isFirstGoogleLogin` es true
+// cuando esta llamada creó o vinculó la cuenta.
+const resolveGoogleUser = async (profile) => {
+  const { sub, email, name } = profile;
+
+  const linkedUser = await findUserByProvider(GOOGLE, sub);
+  if (linkedUser) {
+    return { user: linkedUser, isFirstGoogleLogin: false };
+  }
+
+  const existingUser = await findUserByEmail(email);
+  if (existingUser) {
+    await assertNoOtherGoogleAccount(existingUser.userId);
+
+    // El registro con email no verifica el correo: sin la contraseña no se
+    // sabe si la cuenta es de quien entra con Google. La app la pide y vincula
+    // con POST /auth/google/link.
+    if (existingUser.passwordHash) {
       throw new AppError(
-        'Default role or plan is not configured',
-        500,
-        'AUTH_DEFAULTS_NOT_FOUND'
+        'Ya tienes una cuenta con este correo. Escribe tu contraseña para vincularla con Google.',
+        409,
+        'GOOGLE_LINK_REQUIRES_PASSWORD'
       );
     }
 
-    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+    await linkGoogleToUser(existingUser, profile);
+    return { user: existingUser, isFirstGoogleLogin: true };
+  }
 
-    const newUser = await createUser({
-      name,
-      email,
-      passwordHash,
-      goal,
-      roleId: Number(defaults.roleId),
-      planId: Number(defaults.planId),
-    });
+  const displayName = name?.trim() || email.split('@')[0];
+  const newUser = await createUserWithDefaults({
+    name: displayName,
+    email,
+    provider: { provider: GOOGLE, providerUserId: sub },
+    // Google ya verificó el correo.
+    emailVerifiedAt: new Date(),
+  });
 
-    // Crea automáticamente la nevera del usuario recién registrado
-    await createFridgeService(newUser.userId); // 👈 aquí
+  await logEventService({
+    eventType: 'REGISTER',
+    category: 'AUTH',
+    userId: newUser.userId,
+    metadata: { email, name: displayName, method: GOOGLE },
+  });
 
-    await logEventService({
-      eventType: 'REGISTER',
-      category: 'AUTH',
-      userId: newUser.userId,
-      metadata: { email, name },
-    });
+  // Se relee para tener rol, plan y edad con el mismo formato que el login.
+  return { user: await findUserByProvider(GOOGLE, sub), isFirstGoogleLogin: true };
+};
 
-    return {
-      ...newUser,
-      role: 'USER',
-      plan: 'FREE',
+const toAuthError = (error) =>
+  error instanceof AppError ? error : new AppError(error.message, 500, 'AUTH_SERVICE_ERROR');
+
+export const loginWithGoogle = async ({ idToken }) => {
+  try {
+    const profile = await verifiedGoogleProfile(idToken);
+
+    let resolved;
+    try {
+      resolved = await resolveGoogleUser(profile);
+    } catch (error) {
+      // Dos primeros logins a la vez: el segundo choca con un UNIQUE y, al
+      // repetir la búsqueda, encuentra lo que creó el primero.
+      if (error?.code !== UNIQUE_VIOLATION) {
+        throw error;
+      }
+      resolved = await resolveGoogleUser(profile);
+    }
+    const { user, isFirstGoogleLogin } = resolved;
+
+    // Solo en el primer login con Google y si la cuenta no tiene contraseña:
+    // la app le ofrece crear una para poder entrar también con email.
+    const session = {
+      ...buildSession(user),
+      offerPasswordSetup: isFirstGoogleLogin && !user.passwordHash,
     };
+
+    await logGoogleLogin(user);
+    return session;
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
+    throw toAuthError(error);
+  }
+};
+
+// Vincula Google a una cuenta existente cuando quien entra demuestra que es
+// dueño del correo (idToken de Google) y de la cuenta (su contraseña). La
+// contraseña se conserva: después puede entrar de las dos formas.
+export const linkGoogleAccount = async ({ idToken, password }) => {
+  try {
+    const profile = await verifiedGoogleProfile(idToken);
+
+    // Reintento de una vinculación que ya se hizo: Google basta.
+    let user = await findUserByProvider(GOOGLE, profile.sub);
+
+    if (!user) {
+      user = await findUserByEmail(profile.email);
+      if (!user) {
+        throw new AppError('No hay ninguna cuenta con este correo.', 404, 'USER_NOT_FOUND');
+      }
+
+      await assertNoOtherGoogleAccount(user.userId);
+
+      if (user.passwordHash && !(await bcrypt.compare(password, user.passwordHash))) {
+        await logEventService({
+          eventType: 'LOGIN_FAILED',
+          category: 'AUTH',
+          userId: user.userId,
+          metadata: { email: user.email, reason: 'INVALID_PASSWORD', method: 'google-link' },
+        });
+        throw new AppError('Contraseña incorrecta', 401, 'INVALID_PASSWORD');
+      }
+
+      await linkGoogleToUser(user, profile);
     }
 
-    throw new AppError(error.message, 500, 'AUTH_SERVICE_ERROR');
+    const session = { ...buildSession(user), offerPasswordSetup: false };
+    await logGoogleLogin(user);
+    return session;
+  } catch (error) {
+    throw toAuthError(error);
+  }
+};
+
+// Verifica el correo con el código y entra directo.
+export const verifyEmail = async ({ email, code }) => {
+  try {
+    const user = await findUserByEmail(email);
+    if (!user) {
+      throw invalidCode();
+    }
+
+    await consumeCode(user.userId, CODE_PURPOSE.VERIFY_EMAIL, code);
+    await markEmailVerified(user.userId);
+    await logEventService({
+      eventType: 'EMAIL_VERIFIED',
+      category: 'AUTH',
+      userId: user.userId,
+      metadata: {},
+    });
+
+    return await startSession({ ...user, emailVerifiedAt: user.emailVerifiedAt ?? new Date() });
+  } catch (error) {
+    throw toAuthError(error);
+  }
+};
+
+// Reenvía el código a una cuenta sin verificar. No dice si el correo existe.
+export const resendVerification = async ({ email, lang }) => {
+  try {
+    const user = await findUserByEmail(email);
+    if (user && !user.emailVerifiedAt) {
+      await sendCode(user, CODE_PURPOSE.VERIFY_EMAIL, lang);
+    }
+  } catch (error) {
+    throw toAuthError(error);
+  }
+};
+
+// Envía el código para restablecer la contraseña. No dice si el correo existe.
+export const forgotPassword = async ({ email, lang }) => {
+  try {
+    const user = await findUserByEmail(email);
+    if (user) {
+      await sendCode(user, CODE_PURPOSE.RESET_PASSWORD, lang);
+    }
+  } catch (error) {
+    throw toAuthError(error);
+  }
+};
+
+export const resetPassword = async ({ email, code, password }) => {
+  try {
+    const user = await findUserByEmail(email);
+    if (!user) {
+      throw invalidCode();
+    }
+
+    await consumeCode(user.userId, CODE_PURPOSE.RESET_PASSWORD, code);
+    await setPasswordAndVerify(user.userId, await bcrypt.hash(password, SALT_ROUNDS));
+    await logEventService({
+      eventType: 'PASSWORD_RESET',
+      category: 'AUTH',
+      userId: user.userId,
+      metadata: {},
+    });
+  } catch (error) {
+    throw toAuthError(error);
   }
 };

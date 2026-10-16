@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
@@ -55,10 +57,10 @@ class OnboardingScreen extends StatelessWidget {
               // =========================
               // Título principal
               // =========================
-              const Text(
-                'IA nutricional\npersonalizada',
+              Text(
+                context.l10n.authOnboardingTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Color(0xFF1E293B),
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
@@ -72,10 +74,10 @@ class OnboardingScreen extends StatelessWidget {
               // =========================
               // Descripción
               // =========================
-              const Text(
-                'Tu asistente nutricional inteligente te ayuda a mejorar tu alimentación según tus objetivos.',
+              Text(
+                context.l10n.authOnboardingBody,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Color(0xFF64748B),
                   fontSize: 16,
                   height: 1.5,

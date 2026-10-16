@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/local_date.dart';
@@ -66,9 +67,9 @@ class _TodayMealsSectionState extends State<TodayMealsSection> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Comidas de hoy',
-              style: TextStyle(
+            Text(
+              context.l10n.homeTodayMealsTitle,
+              style: const TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 color: AppTheme.onSurface,
                 fontSize: 20,
@@ -77,9 +78,9 @@ class _TodayMealsSectionState extends State<TodayMealsSection> {
             ),
             TextButton(
               onPressed: widget.onOpenHistory,
-              child: const Text(
-                'Ver historial',
-                style: TextStyle(
+              child: Text(
+                context.l10n.homeViewHistory,
+                style: const TextStyle(
                   color: AppTheme.primaryStart,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -113,7 +114,7 @@ class _TodayMealsSectionState extends State<TodayMealsSection> {
                   ),
                   TextButton(
                     onPressed: _reload,
-                    child: const Text('Reintentar'),
+                    child: Text(context.l10n.commonRetry),
                   ),
                 ],
               );
@@ -171,24 +172,24 @@ class _TodayCaloriesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedCalories = totalCalories.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'),
-      (match) => '${match[1]}.',
-    );
+    final l10n = context.l10n;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    String format(int value) => _formatCalories(value, languageCode);
+    final formattedCalories = format(totalCalories);
     final int? difference = dailyLimit == null
         ? null
         : dailyLimit! - totalCalories;
     final goalMessage = loadingLimit
-        ? 'Cargando tu objetivo diario...'
+        ? l10n.homeGoalLoading
         : limitError
-        ? 'No se pudo cargar tu objetivo diario.'
+        ? l10n.homeGoalError
         : difference == null
-        ? 'Completa tu perfil para calcular tu objetivo diario.'
+        ? l10n.homeGoalIncomplete
         : difference > 0
-        ? 'Te faltan ${_formatCalories(difference)} kcal para cumplir tu objetivo de hoy.'
+        ? l10n.homeGoalRemaining(format(difference))
         : difference < 0
-        ? 'Te excediste por ${_formatCalories(difference.abs())} kcal de tu objetivo diario.'
-        : '¡Has alcanzado tu objetivo diario!';
+        ? l10n.homeGoalExceeded(format(difference.abs()))
+        : l10n.homeGoalReached;
 
     return Container(
       key: const ValueKey('today-calories-card'),
@@ -221,9 +222,9 @@ class _TodayCaloriesCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Calorías de hoy',
-                      style: TextStyle(
+                    Text(
+                      l10n.homeTodayCaloriesTitle,
+                      style: const TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         color: AppTheme.onSurface,
                         fontSize: 15,
@@ -233,8 +234,8 @@ class _TodayCaloriesCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       dailyLimit == null
-                          ? 'Total consumido'
-                          : 'Objetivo: ${_formatCalories(dailyLimit!)} kcal',
+                          ? l10n.homeTodayCaloriesTotal
+                          : l10n.homeTodayCaloriesTarget(format(dailyLimit!)),
                       style: TextStyle(
                         color: AppTheme.onSurfaceVariant.withValues(alpha: 0.9),
                         fontSize: 12,
@@ -260,7 +261,7 @@ class _TodayCaloriesCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    'consumidas',
+                    l10n.homeTodayCaloriesConsumed,
                     style: TextStyle(
                       color: AppTheme.onSurfaceVariant.withValues(alpha: 0.9),
                       fontSize: 11,
@@ -289,8 +290,13 @@ class _TodayCaloriesCard extends StatelessWidget {
     );
   }
 
-  static String _formatCalories(int value) => value.toString().replaceAllMapped(
-    RegExp(r'(\d)(?=(\d{3})+$)'),
-    (match) => '${match[1]}.',
-  );
+  /// Agrupa los miles: con punto en español ("1.250") y con coma en inglés
+  /// ("1,250").
+  static String _formatCalories(int value, String languageCode) {
+    final separator = languageCode == 'en' ? ',' : '.';
+    return value.toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+$)'),
+      (match) => '${match[1]}$separator',
+    );
+  }
 }

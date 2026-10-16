@@ -51,3 +51,20 @@ export function StatusBadge({ status }: { status: number | null }) {
   else if (status >= 300) variant = 'info';
   return <Badge variant={variant}>{status}</Badge>;
 }
+
+const AUTH_METHOD_LABEL: Record<string, string> = {
+  EMAIL: 'Email',
+  GOOGLE: 'Google',
+  BOTH: 'Ambos',
+};
+
+/** Cómo inicia sesión el usuario: Email, Google o Ambos. */
+export function authMethodLabel(method: string) {
+  return AUTH_METHOD_LABEL[method] ?? method;
+}
+
+export function AuthMethodBadge({ method }: { method: string }) {
+  return (
+    <Badge variant={method === 'EMAIL' ? 'outline' : 'info'}>{authMethodLabel(method)}</Badge>
+  );
+}

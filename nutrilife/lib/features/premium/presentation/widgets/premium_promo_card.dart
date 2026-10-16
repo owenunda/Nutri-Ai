@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../screens/premium_screen.dart';
 
@@ -16,17 +17,17 @@ class PremiumPromoCard extends StatelessWidget {
           color: const Color(0xFFECFDF5),
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.workspace_premium_rounded, color: AppTheme.primaryStart),
-            SizedBox(width: 12),
+            const Icon(Icons.workspace_premium_rounded, color: AppTheme.primaryStart),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Desbloquea tu progreso completo',
-                style: TextStyle(fontWeight: FontWeight.w800, color: AppTheme.primaryStart),
+                context.l10n.premiumPromoTitle,
+                style: const TextStyle(fontWeight: FontWeight.w800, color: AppTheme.primaryStart),
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: AppTheme.primaryStart),
+            const Icon(Icons.chevron_right_rounded, color: AppTheme.primaryStart),
           ],
         ),
       ),

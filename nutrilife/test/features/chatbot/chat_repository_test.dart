@@ -3,7 +3,9 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilife/core/state/locale_state.dart';
 import 'package:nutrilife/features/chatbot/data/chat_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Devuelve siempre la misma respuesta canned, sin tocar la red.
 class _FakeAdapter implements HttpClientAdapter {
@@ -65,6 +67,14 @@ const _recipe = {
 };
 
 void main() {
+  // Los errores del repositorio salen en el idioma de la app: estos tests
+  // fijan español para no depender del idioma del equipo.
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await LocaleState.instance.setPreference(LanguagePreference.es);
+  });
+  tearDown(() => LocaleState.instance.setPreference(LanguagePreference.system));
+
   group('envelope sin receta', () {
     test('CHAT no revienta aunque la clave recipe exista en null', () async {
       // Regresión: isNestedRecipeMap usaba containsKey, así que

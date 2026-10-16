@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/features/meals/data/meal_repository.dart';
 import 'package:nutrilife/features/meals/data/models/day_meals.dart';
 import 'package:nutrilife/features/meals/presentation/screens/meal_history_screen.dart';
+import '../../helpers/l10n_app.dart';
 
 class _RepoFalso extends MealRepository {
   final dates = <String>[];
@@ -17,9 +18,7 @@ class _RepoFalso extends MealRepository {
 void main() {
   testWidgets('navega por días y no pasa de hoy', (tester) async {
     final repo = _RepoFalso();
-    await tester.pumpWidget(MaterialApp(
-      home: MealHistoryScreen(repository: repo, clock: () => DateTime(2026, 10, 12, 9)),
-    ));
+    await tester.pumpWidget(l10nApp(MealHistoryScreen(repository: repo, clock: () => DateTime(2026, 10, 12, 9))));
     await tester.pumpAndSettle();
 
     expect(find.text('Hoy'), findsOneWidget);
@@ -42,9 +41,7 @@ void main() {
 
   testWidgets('elige una fecha desde el calendario', (tester) async {
     final repo = _RepoFalso();
-    await tester.pumpWidget(MaterialApp(
-      home: MealHistoryScreen(repository: repo, clock: () => DateTime(2026, 10, 12, 9)),
-    ));
+    await tester.pumpWidget(l10nApp(MealHistoryScreen(repository: repo, clock: () => DateTime(2026, 10, 12, 9))));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Elegir fecha'));
@@ -52,7 +49,7 @@ void main() {
     expect(find.byType(DatePickerDialog), findsOneWidget);
 
     await tester.tap(find.text('3'));
-    await tester.tap(find.text('OK'));
+    await tester.tap(find.text('ACEPTAR'));
     await tester.pumpAndSettle();
 
     expect(find.text('Sáb 3 oct'), findsOneWidget);
@@ -61,9 +58,7 @@ void main() {
 
   testWidgets('tocar la fecha del título abre el calendario', (tester) async {
     final repo = _RepoFalso();
-    await tester.pumpWidget(MaterialApp(
-      home: MealHistoryScreen(repository: repo, clock: () => DateTime(2026, 10, 12, 9)),
-    ));
+    await tester.pumpWidget(l10nApp(MealHistoryScreen(repository: repo, clock: () => DateTime(2026, 10, 12, 9))));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Hoy'));

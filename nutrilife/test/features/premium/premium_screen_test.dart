@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/features/premium/presentation/screens/premium_screen.dart';
 
+import '../../helpers/l10n_app.dart';
+
 void main() {
   testWidgets('el anual viene elegido y se puede cambiar', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: PremiumScreen()));
+    await tester.pumpWidget(l10nApp(const PremiumScreen()));
 
     expect(find.text('Ahorra 50%'), findsOneWidget);
     expect(find.byKey(const ValueKey('plan-yearly-selected')), findsOneWidget);
@@ -21,7 +23,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaterialApp(home: PremiumScreen()));
+    await tester.pumpWidget(l10nApp(const PremiumScreen()));
 
     await tester.tap(find.text('Empezar 7 días gratis'));
     await tester.pump();

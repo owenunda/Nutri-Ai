@@ -5,6 +5,8 @@ import 'package:nutrilife/features/hydration/presentation/screens/water_streak_s
 import 'package:nutrilife/features/hydration/presentation/widgets/hydration_stats_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helpers/l10n_app.dart';
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -18,7 +20,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      const MaterialApp(home: WaterStreakScreen(accountId: 'user@example.com')),
+      l10nApp(const WaterStreakScreen(accountId: 'user@example.com')),
     );
     await tester.pumpAndSettle();
 
@@ -69,8 +71,8 @@ void main() {
     }
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
+      l10nApp(
+        const Scaffold(
           body: SingleChildScrollView(
             child: HydrationStatsCard(
               accountId: 'stats@example.com',
@@ -94,8 +96,8 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: WaterStreakScreen(accountId: 'celebration@example.com'),
+      l10nApp(
+        const WaterStreakScreen(accountId: 'celebration@example.com'),
       ),
     );
     await tester.pumpAndSettle();

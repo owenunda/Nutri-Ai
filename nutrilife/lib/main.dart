@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/ads/ads_service.dart';
+import 'core/l10n/l10n.dart';
+import 'core/state/locale_state.dart';
 import 'core/theme/app_theme.dart';
 import 'core/navigation/navigator_key.dart';
 import 'features/auth/presentation/screens/auth_flow_navigator.dart';
@@ -14,6 +15,7 @@ import 'core/widgets/dismiss_keyboard_on_tap.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LocaleState.instance.load();
   final prefs = await SharedPreferences.getInstance();
   final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
   final session = await SessionService.restore();
@@ -40,16 +42,24 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
-      title: "Nutri life",
-      theme: AppTheme.lightTheme,
-      locale: const Locale('es'),
-      supportedLocales: const [Locale('es'), Locale('en')],
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      builder: (context, child) => DismissKeyboardOnTap(child: child!),
-      home: home,
+    return ListenableBuilder(
+      listenable: LocaleState.instance,
+      builder: (context, _) => MaterialApp(
+        navigatorKey: navigatorKey,
+        debugShowCheckedModeBanner: false,
+        onGenerateTitle: (context) => context.l10n.appTitle,
+        theme: AppTheme.lightTheme,
+        locale: LocaleState.instance.locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        // Con "Sistema" y un teléfono en un idioma sin traducción: español.
+        localeResolutionCallback: (device, supported) => supported.firstWhere(
+          (l) => l.languageCode == device?.languageCode,
+          orElse: () => const Locale('es'),
+        ),
+        builder: (context, child) => DismissKeyboardOnTap(child: child!),
+        home: home,
+      ),
     );
   }
 }

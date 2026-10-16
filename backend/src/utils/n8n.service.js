@@ -7,7 +7,7 @@ if (!URL_WEBHOOK) {
   throw new AppError("URL del webhook de n8n no está configurada", 500, "N8N_CONFIG_ERROR");
 }
 
-export const sendChatN8n = async (message, userId, userName, token, attachedFoods = []) => {
+export const sendChatN8n = async (message, userId, userName, token, attachedFoods = [], language = 'es') => {
   try {
     const payload = {
       message,
@@ -15,6 +15,7 @@ export const sendChatN8n = async (message, userId, userName, token, attachedFood
       name: userName,
       token,
       attachedFoods,
+      language,
     };
     const response = await axios.post(URL_WEBHOOK, payload);
     return response.data;

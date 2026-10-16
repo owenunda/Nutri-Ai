@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/widgets/segmented_tabs.dart';
 import '../../../nutrition/data/food_repository.dart';
@@ -167,23 +168,27 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'Agregar alimentos',
-            style: TextStyle(
+          Text(
+            context.l10n.chatPickerTitle,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
               color: Color(0xFF2C2F31),
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Mi nevera: lo que tienes en casa. Comunes: catálogo general.',
-            style: TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.35),
+          Text(
+            context.l10n.chatPickerIntro,
+            style: const TextStyle(
+                fontSize: 13, color: Color(0xFF64748B), height: 1.35),
           ),
           if (!_isLoading && _errorMessage == null) ...[
             const SizedBox(height: 16),
             SegmentedTabs(
-              labels: const ['Mi nevera', 'Comunes'],
+              labels: [
+                context.l10n.chatPickerTabFridge,
+                context.l10n.chatPickerTabCommon,
+              ],
               badges: [
                 _items.where((i) => _selectedKeys.contains(_key(i))).length,
                 _common.where((i) => _selectedKeys.contains(_key(i))).length,
@@ -195,7 +200,9 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: _showCommon ? 'Buscar en comunes' : 'Buscar en tu nevera',
+                hintText: _showCommon
+                    ? context.l10n.chatPickerSearchCommon
+                    : context.l10n.chatPickerSearchFridge,
                 prefixIcon: const Icon(Icons.search_rounded,
                     color: Color(0xFF94A3B8)),
                 isDense: true,
@@ -241,8 +248,8 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
               ),
               child: Text(
                 _selectedKeys.isEmpty
-                    ? 'Listo'
-                    : 'Agregar ${_selectedKeys.length} al mensaje',
+                    ? context.l10n.commonDone
+                    : context.l10n.chatPickerAddCount(_selectedKeys.length),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -268,13 +275,13 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
     if (_errorMessage != null) {
       return _Message(
         icon: Icons.cloud_off_rounded,
-        title: 'No pudimos leer tu nevera',
+        title: context.l10n.chatPickerErrorTitle,
         detail: _errorMessage!,
         action: TextButton(
           onPressed: _load,
-          child: const Text(
-            'Reintentar',
-            style: TextStyle(
+          child: Text(
+            context.l10n.commonRetry,
+            style: const TextStyle(
               color: Color(0xFF0A6B3F),
               fontWeight: FontWeight.w700,
             ),
@@ -291,18 +298,18 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
       if (query.isNotEmpty) {
         return _Message(
           icon: Icons.search_off_rounded,
-          title: 'Sin resultados',
+          title: context.l10n.chatPickerNoResults,
           detail: _showCommon
-              ? 'No encontramos "$query" en los alimentos comunes.'
-              : 'No encontramos "$query" en tu nevera.',
+              ? context.l10n.chatPickerNoResultsCommon(query)
+              : context.l10n.chatPickerNoResultsFridge(query),
           action: elsewhere == 0
               ? null
               : TextButton(
                   onPressed: () => setState(() => _showCommon = !_showCommon),
                   child: Text(
                     _showCommon
-                        ? 'Ver en Mi nevera ($elsewhere)'
-                        : 'Ver en Comunes ($elsewhere)',
+                        ? context.l10n.chatPickerSeeInFridge(elsewhere)
+                        : context.l10n.chatPickerSeeInCommon(elsewhere),
                     style: const TextStyle(
                       color: Color(0xFF0A6B3F),
                       fontWeight: FontWeight.w700,
@@ -312,16 +319,15 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
         );
       }
       return _showCommon
-          ? const _Message(
+          ? _Message(
               icon: Icons.cloud_off_rounded,
-              title: 'Sin alimentos comunes',
-              detail: 'No pudimos cargar el catálogo. Intenta de nuevo más tarde.',
+              title: context.l10n.chatPickerCommonEmptyTitle,
+              detail: context.l10n.chatPickerCommonEmptyBody,
             )
-          : const _Message(
+          : _Message(
               icon: Icons.kitchen_outlined,
-              title: 'Tu nevera está vacía',
-              detail:
-                  'Agrega alimentos desde la pestaña Alimentos o elige de Comunes.',
+              title: context.l10n.chatPickerFridgeEmptyTitle,
+              detail: context.l10n.chatPickerFridgeEmptyBody,
             );
     }
 
@@ -382,7 +388,7 @@ class _FoodRow extends StatelessWidget {
                   if (item.hasCalories) ...[
                     const SizedBox(height: 2),
                     Text(
-                      '${item.caloriesPerUnit.toInt()} kcal · ${item.baseUnit}',
+                      '${item.caloriesPerUnit.toInt()} kcal · ${prettyUnitLabel(item.baseUnit, context.l10n)}',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -398,16 +404,16 @@ class _FoodRow extends StatelessWidget {
             if (item.isFromFridge)
               item.quantity > 0
                   ? Text(
-                      formatQuantityWithUnit(item.quantity, item.unit),
+                      formatQuantityWithUnit(item.quantity, item.unit, context.l10n),
                       style: const TextStyle(
                         fontSize: 13,
                         color: Color(0xFF2C2F31),
                         fontWeight: FontWeight.w700,
                       ),
                     )
-                  : const Text(
-                      'Sin cantidad',
-                      style: TextStyle(
+                  : Text(
+                      context.l10n.chatPickerNoAmount,
+                      style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFFCBD5E1),
                         fontWeight: FontWeight.w600,

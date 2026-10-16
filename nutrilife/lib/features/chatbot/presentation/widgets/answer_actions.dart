@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../data/models/chat_actions_model.dart';
 import '../../data/models/recipe_model.dart';
 import 'recipe_card_widget.dart';
@@ -47,8 +48,9 @@ class _StepsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final count = recipe.steps.length;
     final minutes = recipe.preparationTimeMinutes;
+    final l10n = context.l10n;
     final subtitle = [
-      '$count ${count == 1 ? 'paso' : 'pasos'}',
+      l10n.chatStepsCount(count),
       if (minutes > 0) '$minutes min',
     ].join(' · ');
 
@@ -89,7 +91,9 @@ class _StepsCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      focusStep != null ? 'Paso $focusStep' : 'Paso a paso',
+                      focusStep != null
+                          ? l10n.chatStepNumber(focusStep!)
+                          : l10n.chatStepByStep,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -119,7 +123,7 @@ class _StepsCard extends StatelessWidget {
               initialStep: focusStep ?? 1,
             ),
             icon: const Icon(Icons.play_arrow_rounded, size: 20),
-            label: const Text('Ver paso a paso'),
+            label: Text(l10n.chatViewStepByStep),
             style: ElevatedButton.styleFrom(
               backgroundColor: _green,
               foregroundColor: Colors.white,
@@ -167,9 +171,9 @@ class _TipCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Tip del chef',
-                  style: TextStyle(
+                Text(
+                  context.l10n.chatChefTip,
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFFB45309),

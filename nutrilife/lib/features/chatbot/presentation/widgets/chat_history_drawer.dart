@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/date_labels.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../data/models/chat_session_model.dart';
 
 class ChatHistoryDrawer extends StatelessWidget {
@@ -81,10 +83,10 @@ class _DrawerHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Text(
-              'Conversaciones',
-              style: TextStyle(
+              context.l10n.chatHistoryTitle,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF2C2F31),
@@ -114,8 +116,10 @@ class _SessionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = session.recipeTitle ?? session.preview ?? 'Conversación';
-    final dateStr = _formatDate(session.createdAt);
+    final title = session.recipeTitle ??
+        session.preview ??
+        context.l10n.chatSessionFallbackTitle;
+    final dateStr = _formatDate(context, session.createdAt);
 
     return InkWell(
       onTap: onTap,
@@ -175,9 +179,9 @@ class _SessionTile extends StatelessWidget {
                   color: const Color(0xFFDCFCE7),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  'Activa',
-                  style: TextStyle(
+                child: Text(
+                  context.l10n.chatSessionActive,
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF0A6B3F),
@@ -190,7 +194,8 @@ class _SessionTile extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
+    final l10n = context.l10n;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
@@ -199,14 +204,11 @@ class _SessionTile extends StatelessWidget {
     final hh = date.hour.toString().padLeft(2, '0');
     final mm = date.minute.toString().padLeft(2, '0');
 
-    if (d == today) return 'Hoy, $hh:$mm';
-    if (d == yesterday) return 'Ayer, $hh:$mm';
+    if (d == today) return l10n.chatHistoryToday('$hh:$mm');
+    if (d == yesterday) return l10n.chatHistoryYesterday('$hh:$mm');
 
-    const months = [
-      '', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
-    ];
-    return '${date.day} ${months[date.month]}';
+    final languageCode = Localizations.localeOf(context).languageCode;
+    return l10n.chatHistoryDate(date.day, shortMonth(date, languageCode));
   }
 }
 
@@ -215,15 +217,15 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.chat_bubble_outline_rounded, size: 40, color: Color(0xFFCBD5E1)),
-          SizedBox(height: 12),
+          const Icon(Icons.chat_bubble_outline_rounded, size: 40, color: Color(0xFFCBD5E1)),
+          const SizedBox(height: 12),
           Text(
-            'Sin conversaciones aún',
-            style: TextStyle(
+            context.l10n.chatHistoryEmpty,
+            style: const TextStyle(
               color: Color(0xFF94A3B8),
               fontSize: 14,
               fontWeight: FontWeight.w500,

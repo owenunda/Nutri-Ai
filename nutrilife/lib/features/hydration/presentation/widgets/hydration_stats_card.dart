@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/water_streak_repository.dart';
 
@@ -7,13 +8,14 @@ class HydrationStatsCard extends StatefulWidget {
   const HydrationStatsCard({
     super.key,
     required this.accountId,
-    this.title = 'Tu hidratación',
+    this.title,
     this.showStreakSummary = true,
     this.showMascot = true,
   });
 
   final String accountId;
-  final String title;
+  /// Sin título usa "Tu hidratación" en el idioma activo.
+  final String? title;
   final bool showStreakSummary;
   final bool showMascot;
 
@@ -81,7 +83,7 @@ class _HydrationStatsCardState extends State<HydrationStatsCard>
           return _ErrorCard(onRetry: _refresh);
         }
         return _HydrationStatsContent(
-          title: widget.title,
+          title: widget.title ?? context.l10n.hydrationStatsTitle,
           snapshot: snapshot.data!,
           showStreakSummary: widget.showStreakSummary,
           showMascot: widget.showMascot,
@@ -106,8 +108,9 @@ class _HydrationStatsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final today = DateTime.parse(snapshot.date);
-    const weekdayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+    final weekdayLabels = l10n.hydrationWeekdayInitials.split(',');
     final labels = List<String>.generate(7, (index) {
       final date = DateTime(today.year, today.month, today.day - (6 - index));
       return weekdayLabels[date.weekday - 1];
@@ -149,8 +152,8 @@ class _HydrationStatsContent extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text(
                       showStreakSummary
-                          ? 'Cada vaso suma'
-                          : 'Vasos registrados',
+                          ? l10n.hydrationEveryGlassCounts
+                          : l10n.hydrationGlassesLogged,
                       style: TextStyle(
                         color: AppTheme.onSurface,
                         fontSize: 17,
@@ -166,7 +169,7 @@ class _HydrationStatsContent extends StatelessWidget {
                   width: 62,
                   height: 66,
                   fit: BoxFit.contain,
-                  semanticLabel: 'Nutria científica de NutriLife',
+                  semanticLabel: l10n.hydrationScientistOtter,
                 ),
             ],
           ),
@@ -178,7 +181,7 @@ class _HydrationStatsContent extends StatelessWidget {
                   child: _StatTile(
                     icon: Icons.local_fire_department_rounded,
                     value: '${snapshot.currentStreak}',
-                    label: 'racha actual',
+                    label: l10n.hydrationStatCurrentStreak,
                     color: const Color(0xFFE89B27),
                   ),
                 ),
@@ -187,7 +190,7 @@ class _HydrationStatsContent extends StatelessWidget {
                   child: _StatTile(
                     icon: Icons.emoji_events_rounded,
                     value: '${snapshot.bestStreak}',
-                    label: 'mejor racha',
+                    label: l10n.hydrationStatBestStreak,
                     color: const Color(0xFF6681C8),
                   ),
                 ),
@@ -196,7 +199,7 @@ class _HydrationStatsContent extends StatelessWidget {
                   child: _StatTile(
                     icon: Icons.water_drop_rounded,
                     value: '${snapshot.totalGlasses}',
-                    label: 'vasos totales',
+                    label: l10n.hydrationStatTotalGlasses,
                     color: const Color(0xFF2997B3),
                   ),
                 ),
@@ -207,16 +210,20 @@ class _HydrationStatsContent extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Últimos 7 días',
-                style: TextStyle(
+              Text(
+                l10n.hydrationLast7Days,
+                style: const TextStyle(
                   color: AppTheme.onSurface,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               Text(
-                '${snapshot.lastSevenDays.where((value) => value >= WaterStreakRepository.dailyGoal).length} metas cumplidas',
+                l10n.hydrationGoalsMet(
+                  snapshot.lastSevenDays
+                      .where((value) => value >= WaterStreakRepository.dailyGoal)
+                      .length,
+                ),
                 style: const TextStyle(
                   color: Color(0xFF6C858D),
                   fontSize: 10,
@@ -244,9 +251,9 @@ class _HydrationStatsContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Meta diaria: 4 vasos · Registro personal, no consejo médico.',
-            style: TextStyle(
+          Text(
+            l10n.hydrationDisclaimer(WaterStreakRepository.dailyGoal),
+            style: const TextStyle(
               color: Color(0xFF83949A),
               fontSize: 10,
               height: 1.35,
@@ -383,14 +390,14 @@ class _ErrorCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Text(
-              'No se pudieron cargar tus estadísticas de agua.',
-              style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 13),
+              context.l10n.hydrationStatsLoadError,
+              style: const TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 13),
             ),
           ),
           IconButton(
-            tooltip: 'Reintentar',
+            tooltip: context.l10n.commonRetry,
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded, color: Color(0xFF1683A0)),
           ),

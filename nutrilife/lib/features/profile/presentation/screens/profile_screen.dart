@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
+import '../../../../core/services/google_auth_service.dart';
+import '../../../../core/state/locale_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
 import '../../data/profile_repository.dart';
+import '../widgets/language_sheet.dart';
 import '../widgets/profile_streaks_card.dart';
 import 'edit_profile_screen.dart';
 
@@ -14,12 +18,16 @@ class ProfileScreen extends StatefulWidget {
     super.key,
     required this.userName,
     required this.onLogout,
+    this.repository,
     this.accountId = 'default',
   });
 
   final String userName;
   final VoidCallback onLogout;
   final String accountId;
+
+  /// Solo para pruebas; por defecto usa el repositorio real.
+  final ProfileRepository? repository;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -33,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _profileRepository = ProfileRepository();
+    _profileRepository = widget.repository ?? ProfileRepository();
     _profileFuture = _profileRepository.getProfile();
   }
 
@@ -62,10 +70,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => _DeleteAccountDialog(
-        onConfirm: (password) => _profileRepository.deleteAccount(
-          password: password,
-          email: profile.email,
-        ),
+        requiresPassword: profile.hasPassword,
+        onConfirm: (password) => _confirmDeletion(profile, password),
       ),
     );
 
@@ -76,13 +82,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(content: Text('Tu cuenta y tus datos fueron eliminados.')),
+        SnackBar(content: Text(context.l10n.profileDeleteDone)),
       );
     widget.onLogout();
   }
 
+  /// Devuelve false si el usuario cerró el selector de Google sin elegir.
+  Future<bool> _confirmDeletion(UserProfile profile, String? password) async {
+    if (profile.hasPassword) {
+      await _profileRepository.deleteAccount(
+        password: password,
+        email: profile.email,
+      );
+      return true;
+    }
+
+    final String? idToken;
+    try {
+      idToken = await GoogleAuthService.getIdToken();
+    } on GoogleAuthException catch (error) {
+      throw ProfileException(error.message);
+    }
+    if (idToken == null) return false;
+
+    await _profileRepository.deleteAccount(
+      googleIdToken: idToken,
+      email: profile.email,
+    );
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return FutureBuilder<UserProfile>(
       future: _profileFuture,
       builder: (context, snapshot) {
@@ -100,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final profile = snapshot.data;
         if (profile == null) {
           return _ProfileErrorView(
-            message: 'No se pudo cargar tu perfil.',
+            message: l10n.profileLoadError,
             onRetry: _refreshProfile,
           );
         }
@@ -129,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  profile.membershipText,
+                  profile.membershipText(l10n),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontFamily: 'Inter', 
                     color: _ProfileColors.text.withValues(alpha: 0.72),
@@ -144,7 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: _ProfileStatCard(
                         value: profile.age?.toString() ?? '--',
                         unit: '',
-                        label: 'EDAD',
+                        label: l10n.profileStatAge,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -152,7 +184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: _ProfileStatCard(
                         value: _formatProfileNumber(profile.weight),
                         unit: 'kg',
-                        label: 'PESO',
+                        label: l10n.profileStatWeight,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -160,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: _ProfileStatCard(
                         value: _formatHeight(profile.height),
                         unit: 'cm',
-                        label: 'ALTURA',
+                        label: l10n.profileStatHeight,
                       ),
                     ),
                   ],
@@ -176,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Objetivo nutricional',
+                        l10n.profileGoalHeading,
                         style: TextStyle(fontFamily: 'PlusJakartaSans', 
                           color: _ProfileColors.text,
                           fontSize: 24,
@@ -195,7 +227,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        'ACTIVO',
+                        l10n.profileGoalActive,
                         style: TextStyle(fontFamily: 'Inter', 
                           color: _ProfileColors.green,
                           fontSize: 13,
@@ -233,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 42),
                 Text(
-                  'Ajustes y recordatorios',
+                  l10n.profileSettingsHeading,
                   style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: _ProfileColors.text,
                     fontSize: 24,
@@ -253,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 42),
                 Text(
-                  'Legal',
+                  l10n.profileLegalHeading,
                   style: TextStyle(fontFamily: 'PlusJakartaSans', 
                     color: _ProfileColors.text,
                     fontSize: 24,
@@ -326,7 +358,7 @@ class _ProfileErrorView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'No pudimos cargar tu perfil',
+                context.l10n.profileLoadErrorTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontFamily: 'PlusJakartaSans', 
                   color: _ProfileColors.text,
@@ -347,7 +379,7 @@ class _ProfileErrorView extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               PrimaryButton(
-                textButton: 'Intentar de nuevo',
+                textButton: context.l10n.profileRetry,
                 icon: Icons.refresh_rounded,
                 height: 48,
                 onPressed: onRetry,
@@ -438,20 +470,21 @@ class _NutritionGoalSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final activeGoal = _normalizeGoal(goal);
     final goals = [
       _GoalOption(
-        label: 'Bajar peso',
+        label: l10n.profileGoalPillLose,
         value: 'lose',
         icon: Icons.trending_down_rounded,
       ),
       _GoalOption(
-        label: 'Mantener',
+        label: l10n.profileGoalPillMaintain,
         value: 'maintain',
         icon: Icons.balance_rounded,
       ),
       _GoalOption(
-        label: 'Subir masa',
+        label: l10n.profileGoalPillGain,
         value: 'gain',
         icon: Icons.fitness_center_rounded,
       ),
@@ -556,6 +589,7 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
@@ -569,8 +603,8 @@ class _SettingsCard extends StatelessWidget {
             icon: Icons.workspace_premium_rounded,
             iconColor: _ProfileColors.green,
             iconBackground: const Color(0xFFDCFCE7),
-            title: 'NutriLife Premium',
-            subtitle: 'Planes y beneficios',
+            title: l10n.premiumTitle,
+            subtitle: l10n.profilePremiumSubtitle,
             trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFFADB4BC), size: 30),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const PremiumScreen()),
@@ -580,8 +614,8 @@ class _SettingsCard extends StatelessWidget {
             icon: Icons.access_time_filled_rounded,
             iconColor: const Color(0xFF066D82),
             iconBackground: const Color(0xFFA8F1F6),
-            title: 'Recordatorios de comida',
-            subtitle: 'Alertas diarias para 4 comidas',
+            title: l10n.profileRemindersTitle,
+            subtitle: l10n.profileRemindersSubtitle,
             trailing: Switch(
               value: mealRemindersEnabled,
               activeThumbColor: _ProfileColors.green,
@@ -589,24 +623,43 @@ class _SettingsCard extends StatelessWidget {
               onChanged: onMealReminderChanged,
             ),
           ),
-          const _SettingsRow(
+          _SettingsRow(
             icon: Icons.notifications_active_rounded,
-            iconColor: Color(0xFF1D4ED8),
-            iconBackground: Color(0xFFE7EAFF),
-            title: 'Configuración de notificaciones',
-            subtitle: 'Push, correo y SMS',
-            trailing: Icon(
+            iconColor: const Color(0xFF1D4ED8),
+            iconBackground: const Color(0xFFE7EAFF),
+            title: l10n.profileNotificationsTitle,
+            subtitle: l10n.profileNotificationsSubtitle,
+            trailing: const Icon(
               Icons.chevron_right_rounded,
               color: Color(0xFFADB4BC),
               size: 30,
+            ),
+          ),
+          ListenableBuilder(
+            listenable: LocaleState.instance,
+            builder: (context, _) => _SettingsRow(
+              icon: Icons.translate_rounded,
+              iconColor: const Color(0xFF066D82),
+              iconBackground: const Color(0xFFA8F1F6),
+              title: context.l10n.profileLanguage,
+              subtitle: languagePreferenceLabel(
+                context.l10n,
+                LocaleState.instance.preference,
+              ),
+              trailing: const Icon(
+                Icons.chevron_right_rounded,
+                color: Color(0xFFADB4BC),
+                size: 30,
+              ),
+              onTap: () => showLanguageSheet(context),
             ),
           ),
           _SettingsRow(
             icon: Icons.tune_rounded,
             iconColor: _ProfileColors.green,
             iconBackground: const Color(0xFFE7F7EF),
-            title: 'Configuración',
-            subtitle: 'Edad, altura, sexo, objetivo y correo',
+            title: l10n.profileConfigTitle,
+            subtitle: l10n.profileConfigSubtitle,
             trailing: const Icon(
               Icons.chevron_right_rounded,
               color: Color(0xFFADB4BC),
@@ -708,7 +761,7 @@ class _LogoutButton extends StatelessWidget {
         onPressed: onPressed,
         icon: const Icon(Icons.logout_rounded, size: 24),
         label: Text(
-          'Cerrar sesión',
+          context.l10n.profileLogout,
           style: TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w800),
         ),
         style: OutlinedButton.styleFrom(
@@ -731,6 +784,7 @@ class _LegalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     const chevron = Icon(
       Icons.chevron_right_rounded,
       color: Color(0xFFADB4BC),
@@ -750,8 +804,8 @@ class _LegalCard extends StatelessWidget {
             icon: Icons.description_rounded,
             iconColor: const Color(0xFF475569),
             iconBackground: const Color(0xFFECEFF1),
-            title: 'Términos y condiciones',
-            subtitle: 'Reglas de uso de NutriLife',
+            title: l10n.profileTermsTitle,
+            subtitle: l10n.profileTermsSubtitle,
             trailing: chevron,
             onTap: () => openLegalDocument(context, LegalDocuments.terms),
           ),
@@ -759,8 +813,8 @@ class _LegalCard extends StatelessWidget {
             icon: Icons.privacy_tip_rounded,
             iconColor: const Color(0xFF475569),
             iconBackground: const Color(0xFFECEFF1),
-            title: 'Política de privacidad',
-            subtitle: 'Cómo tratamos tus datos',
+            title: l10n.profilePrivacyTitle,
+            subtitle: l10n.profilePrivacySubtitle,
             trailing: chevron,
             onTap: () => openLegalDocument(context, LegalDocuments.privacy),
           ),
@@ -781,7 +835,7 @@ class _DeleteAccountButton extends StatelessWidget {
       onPressed: onPressed,
       icon: const Icon(Icons.delete_forever_rounded, size: 22),
       label: Text(
-        'Eliminar cuenta',
+        context.l10n.profileDeleteAccount,
         style: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w800),
       ),
       style: TextButton.styleFrom(
@@ -796,9 +850,16 @@ class _DeleteAccountButton extends StatelessWidget {
 }
 
 class _DeleteAccountDialog extends StatefulWidget {
-  const _DeleteAccountDialog({required this.onConfirm});
+  const _DeleteAccountDialog({
+    required this.requiresPassword,
+    required this.onConfirm,
+  });
 
-  final Future<void> Function(String password) onConfirm;
+  /// false en cuentas que solo entran con Google: se confirma con Google.
+  final bool requiresPassword;
+
+  /// Devuelve false si el usuario canceló la confirmación.
+  final Future<bool> Function(String? password) onConfirm;
 
   @override
   State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
@@ -817,8 +878,8 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
 
   Future<void> _confirm() async {
     final password = _passwordController.text;
-    if (password.isEmpty) {
-      setState(() => _error = 'Escribe tu contraseña para confirmar.');
+    if (widget.requiresPassword && password.isEmpty) {
+      setState(() => _error = context.l10n.profileDeletePasswordRequired);
       return;
     }
 
@@ -828,8 +889,15 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
     });
 
     try {
-      await widget.onConfirm(password);
-      if (mounted) Navigator.of(context).pop(true);
+      final deleted = await widget.onConfirm(
+        widget.requiresPassword ? password : null,
+      );
+      if (!mounted) return;
+      if (deleted) {
+        Navigator.of(context).pop(true);
+      } else {
+        setState(() => _isDeleting = false);
+      }
     } on ProfileException catch (error) {
       if (!mounted) return;
       setState(() {
@@ -841,8 +909,9 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
-      title: const Text('¿Eliminar tu cuenta?'),
+      title: Text(l10n.profileDeleteDialogTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -856,34 +925,48 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Se borrarán para siempre tu perfil, historial de peso, comidas, '
-            'nevera, recetas y conversaciones. Esta acción no se puede deshacer.',
-          ),
+          Text(l10n.profileDeleteDialogBody),
           const SizedBox(height: 16),
-          TextField(
-            controller: _passwordController,
-            obscureText: true,
-            enabled: !_isDeleting,
-            autofillHints: const [AutofillHints.password],
-            decoration: InputDecoration(
-              labelText: 'Contraseña',
-              errorText: _error,
-              border: const OutlineInputBorder(),
-            ),
-            onSubmitted: (_) => _confirm(),
-          ),
+          if (widget.requiresPassword)
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              enabled: !_isDeleting,
+              autofillHints: const [AutofillHints.password],
+              decoration: InputDecoration(
+                labelText: l10n.profileDeletePasswordLabel,
+                errorText: _error,
+                border: const OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _confirm(),
+            )
+          else ...[
+            Text(l10n.profileDeleteGoogleHint),
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _error!,
+                style: const TextStyle(color: _ProfileColors.danger),
+              ),
+            ],
+          ],
         ],
       ),
       actions: [
         TextButton(
           onPressed: _isDeleting ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Cancelar'),
+          child: Text(l10n.commonCancel),
         ),
         TextButton(
           onPressed: _isDeleting ? null : _confirm,
           style: TextButton.styleFrom(foregroundColor: _ProfileColors.danger),
-          child: Text(_isDeleting ? 'Eliminando...' : 'Eliminar'),
+          child: Text(
+            _isDeleting
+                ? l10n.profileDeleting
+                : widget.requiresPassword
+                    ? l10n.profileDeleteConfirm
+                    : l10n.profileDeleteConfirmGoogle,
+          ),
         ),
       ],
     );

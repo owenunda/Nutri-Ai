@@ -1,11 +1,18 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/session_service.dart';
-import '../../../home/presentation/screens/dashboard_screen.dart';
+import '../../../legal/data/legal_documents.dart';
+import '../../../legal/presentation/screens/legal_document_screen.dart';
+import '../google_sign_in_flow.dart';
+import '../widgets/google_sign_in_button.dart';
+import 'forgot_password_screen.dart';
 import 'register_screen.dart';
+import 'verify_email_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -126,7 +133,7 @@ class _BrandHeader extends StatelessWidget {
         const SizedBox(height: 10),
 
         Text(
-          'Tu camino inteligente hacia el bienestar.',
+          context.l10n.authBrandTagline,
           style: TextStyle(
             color: const Color(0xFF595C5E).withValues(alpha: 0.76),
 
@@ -157,6 +164,11 @@ class _LoginPanelState extends State<_LoginPanel> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  late final TapGestureRecognizer _termsTap = TapGestureRecognizer()
+    ..onTap = () => openLegalDocument(context, LegalDocuments.terms);
+  late final TapGestureRecognizer _privacyTap = TapGestureRecognizer()
+    ..onTap = () => openLegalDocument(context, LegalDocuments.privacy);
+
   @override
   void initState() {
     super.initState();
@@ -168,9 +180,47 @@ class _LoginPanelState extends State<_LoginPanel> {
 
   @override
   void dispose() {
+    _termsTap.dispose();
+    _privacyTap.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    setState(() {
+      _errorMessage = null;
+      _isLoading = true;
+    });
+
+    // Si sale bien, navega y este panel desaparece; si el usuario cierra el
+    // selector, error es null y solo se quita la carga.
+    final error = await signInWithGoogle(context);
+    if (!mounted) return;
+    setState(() {
+      _errorMessage = error;
+      _isLoading = false;
+    });
+  }
+
+  /// Al volver con la contraseña cambiada, deja el correo escrito para entrar.
+  Future<void> _openForgotPassword() async {
+    final email = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) =>
+            ForgotPasswordScreen(initialEmail: _emailController.text.trim()),
+      ),
+    );
+    if (email == null || !mounted) return;
+
+    setState(() {
+      _emailController.text = email;
+      _passwordController.clear();
+      _errorMessage = null;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.authPasswordUpdatedSignIn)),
+    );
   }
 
   Future<void> _handleLogin() async {
@@ -194,17 +244,30 @@ class _LoginPanelState extends State<_LoginPanel> {
         );
 
         if (!mounted) return;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => DashboardScreen(user: result['user']),
-          ),
+        openAppAfterLogin(
+          context,
+          result['user'] as Map<String, dynamic>,
+          needsProfileSetup: result['needsProfileSetup'] == true,
         );
 
         return;
       }
 
+      final error = result['error'];
+      if (error is Map && error['code'] == 'EMAIL_NOT_VERIFIED') {
+        // El backend ya envió un código nuevo al correo.
+        setState(() => _isLoading = false);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) =>
+                VerifyEmailScreen(email: _emailController.text.trim()),
+          ),
+        );
+        return;
+      }
+
       setState(() {
-        _errorMessage = result['message'] ?? 'Login failed';
+        _errorMessage = result['message'] ?? context.l10n.authErrorLogin;
 
         _isLoading = false;
       });
@@ -248,8 +311,8 @@ class _LoginPanelState extends State<_LoginPanel> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                const Text(
-                  'Bienvenido de nuevo',
+                Text(
+                  context.l10n.authLoginTitle,
                   style: TextStyle(
                     color: Color(0xFF2C2F31),
                     fontSize: 21,
@@ -260,7 +323,7 @@ class _LoginPanelState extends State<_LoginPanel> {
                 const SizedBox(height: 8),
 
                 Text(
-                  'Ingresa tus credenciales para acceder a tu espacio de bienestar.',
+                  context.l10n.authLoginSubtitle,
                   style: TextStyle(
                     color: const Color(0xFF595C5E).withValues(alpha: 0.78),
 
@@ -272,7 +335,7 @@ class _LoginPanelState extends State<_LoginPanel> {
 
                 const SizedBox(height: 24),
 
-                const _FieldLabel('CORREO ELECTRONICO'),
+                _FieldLabel(context.l10n.authLoginEmailLabel),
 
                 const SizedBox(height: 9),
 
@@ -294,13 +357,13 @@ class _LoginPanelState extends State<_LoginPanel> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                   children: [
-                    const _FieldLabel('CONTRASENA'),
+                    _FieldLabel(context.l10n.authLoginPasswordLabel),
 
                     GestureDetector(
-                      onTap: () {},
+                      onTap: _isLoading ? null : _openForgotPassword,
 
-                      child: const Text(
-                        'Olvidaste tu contrasena?',
+                      child: Text(
+                        context.l10n.authForgotPasswordLink,
                         style: TextStyle(
                           color: AppTheme.primaryStart,
 
@@ -370,7 +433,9 @@ class _LoginPanelState extends State<_LoginPanel> {
                 const SizedBox(height: 22),
 
                 PrimaryButton(
-                  textButton: _isLoading ? 'Iniciando...' : 'Iniciar sesion',
+                  textButton: _isLoading
+                      ? context.l10n.authLoginLoading
+                      : context.l10n.authLoginButton,
 
                   width: double.infinity,
                   height: 56,
@@ -384,7 +449,7 @@ class _LoginPanelState extends State<_LoginPanel> {
 
                 Center(
                   child: Text(
-                    'O CONTINUA CON',
+                    context.l10n.authLoginOrContinueWith,
 
                     style: TextStyle(
                       color: const Color(0xFF595C5E).withValues(alpha: 0.72),
@@ -397,18 +462,46 @@ class _LoginPanelState extends State<_LoginPanel> {
 
                 const SizedBox(height: 22),
 
-                Row(
-                  children: const [
-                    Expanded(
-                      child: _SocialButton(label: 'Google', iconText: 'G'),
-                    ),
+                // Login con Apple retirado temporalmente.
+                GoogleSignInButton(
+                  onPressed: _isLoading ? null : _handleGoogleLogin,
+                ),
 
-                    SizedBox(width: 18),
+                const SizedBox(height: 12),
 
-                    Expanded(
-                      child: _SocialButton(label: 'Apple', icon: Icons.apple),
+                // Entrar con Google puede crear una cuenta nueva: se avisa de
+                // los términos sin agregar un paso.
+                Text.rich(
+                  TextSpan(
+                    style: TextStyle(
+                      color: const Color(0xFF595C5E).withValues(alpha: 0.8),
+                      fontSize: 12,
+                      height: 1.4,
+                      fontWeight: FontWeight.w500,
                     ),
-                  ],
+                    children: [
+                      TextSpan(text: context.l10n.authGoogleTermsPrefix),
+                      TextSpan(
+                        text: context.l10n.authTermsOfService,
+                        recognizer: _termsTap,
+                        style: const TextStyle(
+                          color: AppTheme.primaryStart,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      TextSpan(text: context.l10n.authTermsAnd),
+                      TextSpan(
+                        text: context.l10n.authPrivacyPolicy,
+                        recognizer: _privacyTap,
+                        style: const TextStyle(
+                          color: AppTheme.primaryStart,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const TextSpan(text: '.'),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -555,69 +648,6 @@ class _LoginInput extends StatelessWidget {
   }
 }
 
-class _SocialButton extends StatelessWidget {
-  const _SocialButton({required this.label, this.icon, this.iconText});
-
-  final String label;
-  final IconData? icon;
-  final String? iconText;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
-
-      child: TextButton(
-        onPressed: () {},
-
-        style: TextButton.styleFrom(
-          backgroundColor: const Color(0xFFF0F3F4),
-
-          foregroundColor: const Color(0xFF2C2F31),
-
-          shape: const StadiumBorder(),
-
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-        ),
-
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          mainAxisSize: MainAxisSize.min,
-
-          children: [
-            if (icon != null)
-              Icon(icon, size: 17, color: const Color(0xFF2C2F31)),
-
-            if (iconText != null)
-              Text(
-                iconText!,
-
-                style: const TextStyle(
-                  color: Color(0xFF2C2F31),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-
-            if (icon != null || iconText != null) const SizedBox(width: 6),
-
-            Text(
-              label,
-
-              style: const TextStyle(
-                color: Color(0xFF2C2F31),
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _CreateAccountPrompt extends StatelessWidget {
   const _CreateAccountPrompt({required this.onTap});
 
@@ -630,7 +660,7 @@ class _CreateAccountPrompt extends StatelessWidget {
 
       children: [
         Text(
-          'No tienes una cuenta? ',
+          context.l10n.authLoginNoAccount,
 
           style: TextStyle(
             color: const Color(0xFF595C5E).withValues(alpha: 0.76),
@@ -643,8 +673,8 @@ class _CreateAccountPrompt extends StatelessWidget {
         GestureDetector(
           onTap: onTap,
 
-          child: const Text(
-            'Crea una',
+          child: Text(
+            context.l10n.authLoginCreateOne,
 
             style: TextStyle(
               color: AppTheme.primaryStart,

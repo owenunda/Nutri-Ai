@@ -16,11 +16,13 @@ import adminRoutes from './modules/admin/admin.routes.js';
 import authenticateToken from './middleware/auth.middleware.js';
 import { chatRateLimit } from './middleware/rateLimit.middleware.js';
 import { activityLogger } from './middleware/activityLogger.middleware.js';
+import { languageMiddleware } from './middleware/language.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 import { errorResponse, successResponse } from './utils/response.js';
 import { sendChatN8n } from './utils/n8n.service.js';
 import { getFridgeItemsByIdsService } from './modules/fridge/fridge.service.js';
 import { AppError } from './utils/AppError.js';
+import { localizeError } from './i18n/localize.js';
 
 const app = express();
 
@@ -32,6 +34,9 @@ app.set('trust proxy', 1);
 // Middlewares globales
 app.use(cors());
 app.use(express.json());
+
+// Idioma de la respuesta (errores, correos, chat) según Accept-Language.
+app.use(languageMiddleware);
 
 // Captura automática de eventos de actividad (best-effort, no bloqueante)
 app.use(activityLogger);
@@ -116,10 +121,11 @@ app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), chatRateLimit
     // autenticado: lo que el cliente mande y no sea suyo nunca llega a n8n.
     const attachedFoods = await getFridgeItemsByIdsService(userId, fridgeItemIds, foodIds);
 
-    const result = await sendChatN8n(message, userId, name, token, attachedFoods);
+    const result = await sendChatN8n(message, userId, name, token, attachedFoods, req.lang);
     return successResponse(res, result, 'Mensaje enviado correctamente a n8n');
   } catch (error) {
-    errorResponse(res, error.message, error.code, error.status, error.details);
+    const { message, details } = localizeError(error, req.lang);
+    errorResponse(res, message, error.code, error.status, details);
   }
 });
 

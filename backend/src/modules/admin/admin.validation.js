@@ -2,6 +2,8 @@ import { AppError } from '../../utils/AppError.js';
 import { USER_SORT_KEYS } from './admin.repository.js';
 
 const VALID_PLANS = ['FREE', 'PRO'];
+const VALID_ROLES = ['ADMIN', 'USER'];
+const MIN_PASSWORD_LENGTH = 6;
 const VALID_RANGES = [7, 14, 30, 90];
 
 const validationError = (details) => new AppError('Validation error', 400, 'VALIDATION_ERROR', details);
@@ -70,6 +72,28 @@ export const validatePlanBody = (req, res, next) => {
   const { plan } = req.body ?? {};
   if (!VALID_PLANS.includes(plan)) {
     return next(validationError([{ field: 'plan', message: `plan must be one of: ${VALID_PLANS.join(', ')}` }]));
+  }
+  next();
+};
+
+/** Valida el body del cambio de contraseña (mismo mínimo que el registro). */
+export const validatePasswordBody = (req, res, next) => {
+  const { password } = req.body ?? {};
+  if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
+    return next(
+      validationError([
+        { field: 'password', message: `password must be at least ${MIN_PASSWORD_LENGTH} characters` },
+      ])
+    );
+  }
+  next();
+};
+
+/** Valida el body del cambio de rol. */
+export const validateRoleBody = (req, res, next) => {
+  const { role } = req.body ?? {};
+  if (!VALID_ROLES.includes(role)) {
+    return next(validationError([{ field: 'role', message: `role must be one of: ${VALID_ROLES.join(', ')}` }]));
   }
   next();
 };

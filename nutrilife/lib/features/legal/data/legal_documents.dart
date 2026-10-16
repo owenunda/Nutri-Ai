@@ -1,12 +1,19 @@
 // Términos y Política de Privacidad de NutriLife, redactados según la ley
 // colombiana (Ley 1581 de 2012, Decreto 1074 de 2015, Ley 1480 de 2011 y
-// Ley 527 de 1999). Si cambian, actualiza también kLegalUpdatedAt.
+// Ley 527 de 1999). Si cambian, actualiza también kLegalUpdatedAtEs y
+// kLegalUpdatedAtEn. La versión en inglés vive en legal_documents_en.dart.
+
+import '../../../core/state/locale_state.dart';
+import 'legal_documents_en.dart';
+
+export 'legal_documents_en.dart';
 
 // Datos del responsable: aparecen en ambos documentos.
 const kLegalOwnerName = 'Oween Unda';
 const kLegalOwnerCity = 'Medellín';
 const kLegalContactEmail = 'oweenunda.dev@gmail.com';
-const kLegalUpdatedAt = '13 de octubre de 2026';
+const kLegalUpdatedAtEs = '13 de octubre de 2026';
+const kLegalUpdatedAtEn = 'October 13, 2026';
 
 sealed class LegalBlock {
   const LegalBlock();
@@ -46,8 +53,8 @@ class LegalDocument {
   final List<LegalSection> sections;
 }
 
-class LegalDocuments {
-  const LegalDocuments._();
+class LegalDocumentsEs {
+  const LegalDocumentsEs._();
 
   static const terms = LegalDocument(
     title: 'Términos y Condiciones',
@@ -443,10 +450,22 @@ class LegalDocuments {
           'Si hacemos cambios sustanciales a esta política, te avisaremos en la '
           'App o por correo antes de que entren en vigencia y, cuando la ley lo '
           'exija, te pediremos una nueva autorización. Esta política rige desde '
-          'el $kLegalUpdatedAt. Las bases de datos de NutriLife estarán '
+          'el $kLegalUpdatedAtEs. Las bases de datos de NutriLife estarán '
           'vigentes mientras se preste el servicio.',
         ),
       ]),
     ],
   );
+}
+
+/// Documento legal en el idioma activo de la app.
+class LegalDocuments {
+  LegalDocuments._();
+
+  static bool get _en => LocaleState.instance.languageCode == 'en';
+
+  static LegalDocument get terms =>
+      _en ? LegalDocumentsEn.terms : LegalDocumentsEs.terms;
+  static LegalDocument get privacy =>
+      _en ? LegalDocumentsEn.privacy : LegalDocumentsEs.privacy;
 }

@@ -2,6 +2,10 @@ import type { EventModule } from './event';
 
 export type Plan = 'FREE' | 'PRO';
 
+export type AuthMethod = 'EMAIL' | 'GOOGLE' | 'BOTH';
+
+export type Role = 'ADMIN' | 'USER';
+
 export interface DayPoint {
   day: string;
   registrations: number;
@@ -61,6 +65,7 @@ export interface AdminUser {
   goal: string | null;
   role: string;
   plan: Plan;
+  authMethod: AuthMethod;
   createdAt: string;
   totalEvents: number;
   aiQueries: number;
@@ -94,6 +99,7 @@ export interface UserDetail {
     goal: string | null;
     role: string;
     plan: Plan;
+    authMethod: AuthMethod;
     height: string | null;
     weight: string | null;
     createdAt: string;

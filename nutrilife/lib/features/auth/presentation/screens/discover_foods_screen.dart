@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 class DiscoverFoodsScreen extends StatelessWidget {
   const DiscoverFoodsScreen({super.key});
 
@@ -222,25 +224,25 @@ class DiscoverFoodsScreen extends StatelessWidget {
                 
                 const Spacer(),
                 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     children: [
                       Text(
-                        'Descubre Alimentos',
+                        context.l10n.authDiscoverTitle,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF1E293B),
                           fontSize: 32,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
-                        'Busca tus alimentos favoritos en la barra de búsqueda. Nuestra IA reconoce miles de ingredientes.',
+                        context.l10n.authDiscoverBody,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF64748B),
                           fontSize: 16,
                           height: 1.5,

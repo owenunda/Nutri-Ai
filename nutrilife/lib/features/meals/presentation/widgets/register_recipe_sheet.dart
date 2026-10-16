@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/ads/ads_service.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -21,10 +22,11 @@ Future<void> showRegisterRecipeSheet(
   DateTime Function()? clock,
 }) async {
   final messenger = ScaffoldMessenger.of(context);
+  final l10n = context.l10n;
   if (recipe.ingredients.isEmpty) {
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Esta receta no trae ingredientes para registrar')));
+      ..showSnackBar(SnackBar(content: Text(l10n.mealsRegisterNoIngredients)));
     return;
   }
 
@@ -54,20 +56,20 @@ Future<void> showRegisterRecipeSheet(
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        content: Text('Registrado en ${result.type.label} · ${result.calories} kcal'),
+        content: Text(l10n.mealsRegisteredIn(result.type.label(l10n), result.calories)),
         backgroundColor: AppTheme.primaryStart,
         // Con un botón, Flutter lo deja fijo por defecto; aquí debe irse solo.
         persist: false,
         duration: const Duration(seconds: 5),
         action: SnackBarAction(
-          label: 'Deshacer',
+          label: l10n.mealsUndo,
           textColor: Colors.white,
           onPressed: () async {
             try {
               // Borra la receta con todos sus ingredientes, de una vez.
               await repo.deleteRecipeLog(result.recipeLogId);
             } catch (_) {
-              messenger.showSnackBar(const SnackBar(content: Text('No se pudo deshacer')));
+              messenger.showSnackBar(SnackBar(content: Text(l10n.mealsUndoFailed)));
             } finally {
               MealLogState.instance.bump();
             }
@@ -77,11 +79,12 @@ Future<void> showRegisterRecipeSheet(
     );
 }
 
-/// "cena" → [MealType.dinner]. El chef escribe el tipo en español.
+/// "cena" → [MealType.dinner]. El chef escribe el tipo en español, sin
+/// importar el idioma de la app.
 MealType? mealTypeOfRecipe(RecipeModel recipe) {
   final value = recipe.mealType.trim().toLowerCase();
   for (final type in MealType.values) {
-    if (type.label.toLowerCase() == value) return type;
+    if (type.recipeCode == value) return type;
   }
   return null;
 }
@@ -164,7 +167,7 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
       setState(() => _foods = {for (final f in foods) f.foodId: f});
     } catch (_) {
       if (!mounted) return;
-      setState(() => _error = 'No pudimos cargar los alimentos de la receta. Intenta de nuevo.');
+      setState(() => _error = context.l10n.mealsLoadFoodsError);
     }
   }
 
@@ -201,7 +204,7 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final unit = _portions <= 1 ? 'porción' : 'porciones';
+    final l10n = context.l10n;
     return PopScope(
       canPop: !_saving,
       child: Padding(
@@ -225,9 +228,9 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Registrar comida',
-                  style: TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 22, fontWeight: FontWeight.w900),
+                Text(
+                  l10n.mealsRegisterTitle,
+                  style: const TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 22, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -243,7 +246,7 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                   children: [
                     for (final type in MealType.values)
                       ChoiceChip(
-                        label: Text(type.label),
+                        label: Text(type.label(l10n)),
                         selected: _type == type,
                         onSelected: (_) => setState(() => _type = type),
                         selectedColor: const Color(0xFFDCFCE7),
@@ -263,7 +266,7 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                   child: Row(
                     children: [
                       _StepButton(
-                        tooltip: 'Menos porciones',
+                        tooltip: l10n.mealsLessPortions,
                         icon: Icons.remove_rounded,
                         onPressed: _portions > kMinPortions ? () => _step(-kPortionStep) : null,
                       ),
@@ -271,7 +274,7 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                         child: Column(
                           children: [
                             Text(
-                              '${portionsLabel(_portions)} $unit',
+                              portionsText(_portions, l10n),
                               style: const TextStyle(
                                 fontFamily: 'PlusJakartaSans',
                                 fontSize: 24,
@@ -282,8 +285,8 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                             const SizedBox(height: 2),
                             Text(
                               _foods == null
-                                  ? 'Calculando calorías… · la receta rinde $_servings'
-                                  : '$_calories kcal · la receta rinde $_servings',
+                                  ? l10n.mealsCalculatingCalories(_servings)
+                                  : l10n.mealsRecipeYield(_calories, _servings),
                               style: const TextStyle(
                                 color: Color(0xFF747779),
                                 fontSize: 13,
@@ -294,7 +297,7 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                         ),
                       ),
                       _StepButton(
-                        tooltip: 'Más porciones',
+                        tooltip: l10n.mealsMorePortions,
                         icon: Icons.add_rounded,
                         onPressed: _portions < kMaxPortions ? () => _step(kPortionStep) : null,
                       ),
@@ -308,7 +311,7 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                     TextButton(
                       onPressed: _loadFoods,
                       style: TextButton.styleFrom(foregroundColor: _green),
-                      child: const Text('Reintentar', style: TextStyle(fontWeight: FontWeight.w700)),
+                      child: Text(l10n.commonRetry, style: const TextStyle(fontWeight: FontWeight.w700)),
                     ),
                 ],
                 const SizedBox(height: 20),
@@ -324,7 +327,7 @@ class _RegisterRecipeSheetState extends State<_RegisterRecipeSheet> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
                     ),
-                    child: Text('Registrar en ${_type.label}'),
+                    child: Text(l10n.mealsRegisterIn(_type.label(l10n))),
                   ),
                 ),
               ],

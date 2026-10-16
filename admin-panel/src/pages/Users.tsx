@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '../components/ui/table';
 import { UserAvatar } from '../components/UserAvatar';
-import { PlanBadge } from '../components/CategoryBadge';
+import { AuthMethodBadge, PlanBadge } from '../components/CategoryBadge';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { Nutria } from '../components/Nutria';
 
@@ -146,6 +146,7 @@ export default function Users() {
                 <TableRow>
                   <TableHead>Usuario</TableHead>
                   <TableHead>Plan</TableHead>
+                  <TableHead className="hidden md:table-cell">Acceso</TableHead>
                   <TableHead className="text-right">Consultas IA</TableHead>
                   <TableHead className="hidden text-right lg:table-cell">Comidas</TableHead>
                   <TableHead className="hidden text-right lg:table-cell">Recetas</TableHead>
@@ -187,6 +188,9 @@ export default function Users() {
                     </TableCell>
                     <TableCell>
                       <PlanBadge plan={u.plan} />
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <AuthMethodBadge method={u.authMethod} />
                     </TableCell>
                     <TableCell className="text-right">
                       <span className="inline-flex items-center gap-1 font-bold tabular-nums">

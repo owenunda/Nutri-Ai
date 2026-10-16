@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 
@@ -24,6 +25,7 @@ class UserProfile {
     required this.sex,
     required this.plan,
     required this.createdAt,
+    required this.hasPassword,
   });
 
   final String name;
@@ -36,9 +38,12 @@ class UserProfile {
   final String? plan;
   final DateTime? createdAt;
 
+  /// false si la cuenta solo entra con Google.
+  final bool hasPassword;
+
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
-      name: json['name']?.toString().trim() ?? 'Usuario',
+      name: json['name']?.toString().trim() ?? currentL10n.commonUser,
       email: json['email']?.toString().trim() ?? '',
       age: _toInt(json['age']),
       weight: _toDouble(json['weight']),
@@ -47,6 +52,7 @@ class UserProfile {
       sex: null,
       plan: json['plan']?.toString().trim(),
       createdAt: _toDateTime(json['createdAt']),
+      hasPassword: json['hasPassword'] != false,
     );
   }
 
@@ -60,6 +66,7 @@ class UserProfile {
     String? sex,
     String? plan,
     DateTime? createdAt,
+    bool? hasPassword,
   }) {
     return UserProfile(
       name: name ?? this.name,
@@ -71,20 +78,23 @@ class UserProfile {
       sex: sex ?? this.sex,
       plan: plan ?? this.plan,
       createdAt: createdAt ?? this.createdAt,
+      hasPassword: hasPassword ?? this.hasPassword,
     );
   }
 
-  String get membershipText {
+  String membershipText(AppLocalizations l10n) {
     final currentPlan = plan;
     final year = createdAt?.year;
 
     if (currentPlan == null || currentPlan.isEmpty) {
-      return year == null ? 'Miembro de NutriLife' : 'Miembro desde $year';
+      return year == null
+          ? l10n.profileMemberDefault
+          : l10n.profileMemberSince('$year');
     }
 
     return year == null
-        ? 'Miembro $currentPlan'
-        : 'Miembro $currentPlan desde $year';
+        ? l10n.profileMemberPlan(currentPlan)
+        : l10n.profileMemberPlanSince(currentPlan, '$year');
   }
 }
 
@@ -108,7 +118,7 @@ class ProfileRepository {
       }
 
       throw ProfileException(
-        _extractFriendlyMessage(body) ?? 'No se pudo cargar tu perfil.',
+        _extractFriendlyMessage(body) ?? currentL10n.profileLoadError,
       );
     } on DioException catch (error) {
       throw ProfileException(
@@ -117,9 +127,7 @@ class ProfileRepository {
     } on ProfileException {
       rethrow;
     } catch (_) {
-      throw const ProfileException(
-        'No se pudo cargar tu perfil. Inténtalo de nuevo.',
-      );
+      throw ProfileException(currentL10n.profileLoadErrorRetry);
     }
   }
 
@@ -149,7 +157,7 @@ class ProfileRepository {
       }
 
       throw ProfileException(
-        _extractFriendlyMessage(body) ?? 'No se pudo actualizar tu perfil.',
+        _extractFriendlyMessage(body) ?? currentL10n.profileUpdateError,
       );
     } on DioException catch (error) {
       throw ProfileException(
@@ -158,22 +166,29 @@ class ProfileRepository {
     } on ProfileException {
       rethrow;
     } catch (_) {
-      throw const ProfileException(
-        'No se pudo actualizar tu perfil. Inténtalo de nuevo.',
-      );
+      throw ProfileException(currentL10n.profileUpdateErrorRetry);
     }
   }
 
   // Borra la cuenta en el backend y lo que la app guardó de ella en el
   // dispositivo. La sesión la limpia quien llama, igual que al cerrar sesión.
+  // Se confirma con la contraseña o, si la cuenta no tiene, con Google.
   Future<void> deleteAccount({
-    required String password,
+    String? password,
+    String? googleIdToken,
     required String email,
   }) async {
+    assert(
+      (password == null) != (googleIdToken == null),
+      'Pasa la contraseña o el idToken de Google, no ambos',
+    );
+
     try {
       final response = await _dio.delete<Map<String, dynamic>>(
         ApiRoutes.userAccount,
-        data: {'password': password},
+        data: password != null
+            ? {'password': password}
+            : {'googleIdToken': googleIdToken},
       );
 
       final body = response.data;
@@ -186,14 +201,20 @@ class ProfileRepository {
       }
 
       throw ProfileException(
-        _extractFriendlyMessage(body) ?? 'No se pudo eliminar tu cuenta.',
+        _extractFriendlyMessage(body) ?? currentL10n.profileDeleteError,
       );
     } on DioException catch (error) {
       final data = error.response?.data;
       final errorInfo = data is Map ? data['error'] : null;
       final code = errorInfo is Map ? errorInfo['code'] : null;
       if (code == 'INVALID_PASSWORD') {
-        throw const ProfileException('La contraseña no es correcta.');
+        throw ProfileException(currentL10n.profileDeleteWrongPassword);
+      }
+      if (code == 'GOOGLE_ACCOUNT_MISMATCH') {
+        throw ProfileException(currentL10n.profileDeleteGoogleMismatch);
+      }
+      if (code == 'INVALID_GOOGLE_TOKEN') {
+        throw ProfileException(currentL10n.profileDeleteGoogleFailed);
       }
       throw ProfileException(
         _extractFriendlyMessage(data) ?? _fallbackMessage(error),
@@ -201,9 +222,7 @@ class ProfileRepository {
     } on ProfileException {
       rethrow;
     } catch (_) {
-      throw const ProfileException(
-        'No se pudo eliminar tu cuenta. Inténtalo de nuevo.',
-      );
+      throw ProfileException(currentL10n.profileDeleteErrorRetry);
     }
   }
 
@@ -230,11 +249,11 @@ class ProfileRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return 'La conexión con el servidor tardó demasiado. Inténtalo de nuevo.';
+        return currentL10n.commonErrorTimeout;
       case DioExceptionType.connectionError:
-        return 'No se pudo conectar con el servidor. Verifica que el backend esté activo.';
+        return currentL10n.commonErrorConnection;
       default:
-        return 'No se pudo cargar tu perfil. Inténtalo de nuevo.';
+        return currentL10n.profileLoadErrorRetry;
     }
   }
 

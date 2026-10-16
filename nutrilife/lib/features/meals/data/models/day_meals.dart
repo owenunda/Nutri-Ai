@@ -1,3 +1,4 @@
+import '../../../../core/l10n/l10n.dart';
 import '../../../chatbot/data/models/recipe_model.dart';
 import '../../domain/meal_type.dart';
 
@@ -78,8 +79,8 @@ class MealGroup {
 
   /// "Tilapia, Arroz • 240 kcal" o "Aún no registrada". Los ingredientes de
   /// una receta se nombran con la receta, una sola vez.
-  String get summary {
-    if (isEmpty) return 'Aún no registrada';
+  String summary(AppLocalizations l10n) {
+    if (isEmpty) return l10n.mealsNotLoggedYet;
     final names = <String>[];
     final seenRecipes = <int>{};
     for (final item in items) {

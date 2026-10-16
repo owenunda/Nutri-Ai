@@ -2,18 +2,21 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
 
-import '../../../../core/services/auth_service.dart';
-import '../../../../core/services/session_service.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../setup/presentation/screens/profile_setup_screen.dart';
 import '../../data/auth_repository.dart';
-import 'login_screen.dart';
+import '../google_sign_in_flow.dart';
+import '../widgets/auth_form_widgets.dart';
+import '../widgets/google_sign_in_button.dart';
+import 'verify_email_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, this.repository});
+
+  final AuthRepository? repository;
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -28,7 +31,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  final AuthRepository _authRepository = AuthRepository();
+  late final AuthRepository _authRepository =
+      widget.repository ?? AuthRepository();
 
   bool _acceptedTerms = false;
   bool _obscurePassword = true;
@@ -61,9 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (!_acceptedTerms) {
-      _showSnackBar(
-        'Debes aceptar los términos del servicio y la política de privacidad.',
-      );
+      _showSnackBar(context.l10n.authTermsRequired, isWarning: true);
       return;
     }
 
@@ -78,69 +80,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
       );
 
-      // Auto login to retrieve JWT auth token
-      final loginResult = await AuthService.login(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-
-      if (loginResult['success'] != true) {
-        if (!mounted) return;
-        await showDialog<void>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: const Text('Cuenta creada'),
-            content: const Text(
-              'No pudimos iniciar tu sesión automáticamente. Inicia sesión con tu nueva cuenta para continuar.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text('Continuar'),
-              ),
-            ],
-          ),
-        );
-        if (!mounted) return;
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false,
-        );
-        return;
-      }
-
-      final token = loginResult['token'];
-      final user = loginResult['user'];
-      if (token is! String || token.isEmpty || user is! Map<String, dynamic>) {
-        throw const AuthException(
-          'La cuenta se creó, pero el servidor no devolvió una sesión válida. Inicia sesión para continuar.',
-        );
-      }
-      await SessionService.save(token: token, user: user);
-
       if (!mounted) return;
 
-      _showSnackBar('Cuenta creada correctamente. ¡Bienvenido!');
-
-      await Future<void>.delayed(const Duration(milliseconds: 700));
-
-      if (!mounted) return;
-
-      Navigator.of(context).pushAndRemoveUntil(
+      // La cuenta queda sin verificar: el backend envió un código al correo y
+      // la sesión empieza al verificarlo. "Volver" desde ahí lleva al login.
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) =>
-              ProfileSetupScreen(userName: _nameController.text.trim()),
+              VerifyEmailScreen(email: _emailController.text.trim()),
         ),
-        (route) => false,
       );
     } on AuthException catch (error) {
       if (!mounted) return;
 
-      _showSnackBar(error.message);
+      _showSnackBar(
+        error.message,
+        isDuplicate: error.code == 'EMAIL_ALREADY_EXISTS',
+      );
     } catch (_) {
       if (!mounted) return;
 
-      _showSnackBar('No se pudo completar el registro. Inténtalo de nuevo.');
+      _showSnackBar(context.l10n.authErrorRegister);
     } finally {
       if (mounted) {
         setState(() {
@@ -150,35 +110,58 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  void _showSnackBar(String message) {
-    final lowerMessage = message.toLowerCase();
-    final isSuccess = lowerMessage.contains('correctamente');
-    final isDuplicate = lowerMessage.contains('registrado');
-    final isWarning = lowerMessage.contains('debes aceptar');
+  Future<void> _signUpWithGoogle() async {
+    FocusScope.of(context).unfocus();
 
-    final Color accentColor = isSuccess
-        ? _RegisterPalette.primary
-        : isDuplicate
-        ? const Color(0xFFD97706)
-        : isWarning
+    // Registrarse con Google también crea una cuenta: mismos términos.
+    if (!_acceptedTerms) {
+      _showSnackBar(context.l10n.authTermsRequired, isWarning: true);
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final error = await signInWithGoogle(
+      context,
+      repository: _authRepository,
+    );
+    if (!mounted) return;
+
+    setState(() {
+      _isSubmitting = false;
+    });
+    if (error != null) {
+      _showSnackBar(error);
+    }
+  }
+
+  /// El tipo de aviso lo decide quien llama (no el texto del mensaje, que
+  /// cambia con el idioma): [isDuplicate] si el correo ya existe, [isWarning]
+  /// si falta aceptar los términos.
+  void _showSnackBar(
+    String message, {
+    bool isDuplicate = false,
+    bool isWarning = false,
+  }) {
+    final l10n = context.l10n;
+
+    final Color accentColor = isDuplicate || isWarning
         ? const Color(0xFFD97706)
         : const Color(0xFFB42318);
 
-    final IconData icon = isSuccess
-        ? Icons.check_circle_rounded
-        : isDuplicate
+    final IconData icon = isDuplicate
         ? Icons.mark_email_unread_rounded
         : isWarning
         ? Icons.warning_amber_rounded
         : Icons.error_outline_rounded;
 
-    final String title = isSuccess
-        ? 'Registro exitoso'
-        : isDuplicate
-        ? 'Correo ya registrado'
+    final String title = isDuplicate
+        ? l10n.authRegisterSnackDuplicateTitle
         : isWarning
-        ? 'Falta confirmar'
-        : 'Registro no completado';
+        ? l10n.authRegisterSnackWarningTitle
+        : l10n.authRegisterSnackErrorTitle;
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -193,7 +176,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: _RegisterPalette.surface,
+            color: AuthPalette.surface,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(color: accentColor.withValues(alpha: 0.18)),
             boxShadow: [
@@ -225,7 +208,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Text(
                       title,
                       style: TextStyle(
-                        color: _RegisterPalette.title,
+                        color: AuthPalette.title,
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         height: 1.1,
@@ -235,7 +218,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Text(
                       message,
                       style: TextStyle(
-                        color: _RegisterPalette.body.withValues(alpha: 0.95),
+                        color: AuthPalette.body.withValues(alpha: 0.95),
                         fontSize: 13,
                         height: 1.35,
                         fontWeight: FontWeight.w500,
@@ -254,15 +237,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _RegisterPalette.background,
+      backgroundColor: AuthPalette.background,
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           Positioned(
             top: -90,
             right: -90,
-            child: _GlowCircle(
-              color: _RegisterPalette.primary.withValues(alpha: 0.10),
+            child: AuthGlowCircle(
+              color: AuthPalette.primary.withValues(alpha: 0.10),
               size: 240,
             ),
           ),
@@ -270,7 +253,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Positioned(
             bottom: -120,
             left: -120,
-            child: _GlowCircle(
+            child: AuthGlowCircle(
               color: const Color(0xFFBCEED9).withValues(alpha: 0.22),
               size: 260,
             ),
@@ -325,6 +308,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               });
                             },
                             onSubmit: _submitRegister,
+                            onGoogleSignUp: _signUpWithGoogle,
                             onLoginTap: () => Navigator.pop(context),
                           ),
 
@@ -362,6 +346,7 @@ class _RegisterCard extends StatelessWidget {
     required this.onTogglePasswordVisibility,
     required this.onToggleConfirmVisibility,
     required this.onSubmit,
+    required this.onGoogleSignUp,
     required this.onLoginTap,
   });
 
@@ -383,6 +368,7 @@ class _RegisterCard extends StatelessWidget {
   final VoidCallback onTogglePasswordVisibility;
   final VoidCallback onToggleConfirmVisibility;
   final VoidCallback onSubmit;
+  final VoidCallback onGoogleSignUp;
   final VoidCallback onLoginTap;
 
   @override
@@ -391,7 +377,7 @@ class _RegisterCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
       decoration: BoxDecoration(
-        color: _RegisterPalette.surface,
+        color: AuthPalette.surface,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
@@ -409,11 +395,11 @@ class _RegisterCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Crear cuenta',
+                    context.l10n.authRegisterTitle,
                     style: TextStyle(
-                      color: _RegisterPalette.title,
+                      color: AuthPalette.title,
                       fontSize: 30,
                       height: 1.02,
                       fontWeight: FontWeight.w800,
@@ -433,10 +419,10 @@ class _RegisterCard extends StatelessWidget {
 
             const SizedBox(height: 8),
 
-            const Text(
-              'Comienza tu camino hacia una alimentación inteligente.',
+            Text(
+              context.l10n.authRegisterSubtitle,
               style: TextStyle(
-                color: _RegisterPalette.subtitle,
+                color: AuthPalette.subtitle,
                 fontSize: 16,
                 height: 1.4,
                 fontWeight: FontWeight.w500,
@@ -445,11 +431,11 @@ class _RegisterCard extends StatelessWidget {
 
             const SizedBox(height: 26),
 
-            const _FieldLabel('NOMBRE COMPLETO'),
+            AuthFieldLabel(context.l10n.authRegisterNameLabel),
 
             const SizedBox(height: 10),
 
-            _RegisterField(
+            AuthTextField(
               controller: nameController,
               icon: Icons.person_outline_rounded,
               hintText: '',
@@ -460,7 +446,7 @@ class _RegisterCard extends StatelessWidget {
               enabled: !isSubmitting,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'El nombre es obligatorio.';
+                  return context.l10n.authNameRequired;
                 }
 
                 return null;
@@ -469,41 +455,27 @@ class _RegisterCard extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            const _FieldLabel('CORREO ELECTRÓNICO'),
+            AuthFieldLabel(context.l10n.authEmailLabel),
 
             const SizedBox(height: 10),
 
-            _RegisterField(
+            AuthTextField(
               controller: emailController,
               icon: Icons.mail_outline_rounded,
               hintText: '',
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               enabled: !isSubmitting,
-              validator: (value) {
-                final email = value?.trim() ?? '';
-
-                final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-
-                if (email.isEmpty) {
-                  return 'El correo electrónico es obligatorio.';
-                }
-
-                if (!emailRegex.hasMatch(email)) {
-                  return 'Ingresa un correo electrónico válido.';
-                }
-
-                return null;
-              },
+              validator: (value) => validateEmail(context.l10n, value),
             ),
 
             const SizedBox(height: 18),
 
-            const _FieldLabel('CONTRASEÑA'),
+            AuthFieldLabel(context.l10n.authPasswordLabel),
 
             const SizedBox(height: 10),
 
-            _RegisterField(
+            AuthTextField(
               controller: passwordController,
               icon: Icons.lock_outline_rounded,
               hintText: '',
@@ -515,28 +487,16 @@ class _RegisterCard extends StatelessWidget {
               keyboardType: TextInputType.visiblePassword,
               textInputAction: TextInputAction.next,
               enabled: !isSubmitting,
-              validator: (value) {
-                final password = value ?? '';
-
-                if (password.isEmpty) {
-                  return 'La contraseña es obligatoria.';
-                }
-
-                if (password.length < 6) {
-                  return 'La contraseña debe tener al menos 6 caracteres.';
-                }
-
-                return null;
-              },
+              validator: (value) => validateNewPassword(context.l10n, value),
             ),
 
             const SizedBox(height: 18),
 
-            const _FieldLabel('CONFIRMAR'),
+            AuthFieldLabel(context.l10n.authConfirmLabel),
 
             const SizedBox(height: 10),
 
-            _RegisterField(
+            AuthTextField(
               controller: confirmPasswordController,
               icon: Icons.verified_user_outlined,
               hintText: '',
@@ -549,19 +509,11 @@ class _RegisterCard extends StatelessWidget {
               textInputAction: TextInputAction.done,
               enabled: !isSubmitting,
               onFieldSubmitted: (_) => onSubmit(),
-              validator: (value) {
-                final confirmPassword = value ?? '';
-
-                if (confirmPassword.isEmpty) {
-                  return 'Confirma tu contraseña.';
-                }
-
-                if (confirmPassword != passwordController.text) {
-                  return 'Las contraseñas no coinciden.';
-                }
-
-                return null;
-              },
+              validator: (value) => validatePasswordConfirmation(
+                context.l10n,
+                value,
+                passwordController.text,
+              ),
             ),
 
             const SizedBox(height: 22),
@@ -579,12 +531,12 @@ class _RegisterCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: acceptedTerms
-                          ? _RegisterPalette.primary.withValues(alpha: 0.10)
+                          ? AuthPalette.primary.withValues(alpha: 0.10)
                           : Colors.transparent,
                       border: Border.all(
                         color: acceptedTerms
-                            ? _RegisterPalette.primary
-                            : _RegisterPalette.outline,
+                            ? AuthPalette.primary
+                            : AuthPalette.outline,
                         width: 1.2,
                       ),
                     ),
@@ -592,7 +544,7 @@ class _RegisterCard extends StatelessWidget {
                       Icons.check_rounded,
                       size: 18,
                       color: acceptedTerms
-                          ? _RegisterPalette.primary
+                          ? AuthPalette.primary
                           : Colors.transparent,
                     ),
                   ),
@@ -603,27 +555,27 @@ class _RegisterCard extends StatelessWidget {
                     child: Text.rich(
                       TextSpan(
                         style: const TextStyle(
-                          color: _RegisterPalette.body,
+                          color: AuthPalette.body,
                           fontSize: 15,
                           height: 1.4,
                           fontWeight: FontWeight.w500,
                         ),
                         children: [
-                          const TextSpan(text: 'Acepto los '),
+                          TextSpan(text: context.l10n.authRegisterTermsPrefix),
                           TextSpan(
-                            text: 'Términos del Servicio',
+                            text: context.l10n.authTermsOfService,
                             recognizer: termsTap,
                             style: const TextStyle(
-                              color: _RegisterPalette.primary,
+                              color: AuthPalette.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const TextSpan(text: ' y la '),
+                          TextSpan(text: context.l10n.authTermsAnd),
                           TextSpan(
-                            text: 'Política de Privacidad',
+                            text: context.l10n.authPrivacyPolicy,
                             recognizer: privacyTap,
                             style: const TextStyle(
-                              color: _RegisterPalette.primary,
+                              color: AuthPalette.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -639,7 +591,9 @@ class _RegisterCard extends StatelessWidget {
             const SizedBox(height: 24),
 
             PrimaryButton(
-              textButton: isSubmitting ? 'Registrando...' : 'Registrarse',
+              textButton: isSubmitting
+                  ? context.l10n.authRegisterSubmitting
+                  : context.l10n.authRegisterSubmit,
               width: double.infinity,
               height: 56,
               icon: isSubmitting
@@ -647,9 +601,28 @@ class _RegisterCard extends StatelessWidget {
                   : Icons.arrow_forward_rounded,
               iconSize: 20,
               textSize: 16,
-              startColor: _RegisterPalette.primary,
-              endColor: _RegisterPalette.primaryDark,
+              startColor: AuthPalette.primary,
+              endColor: AuthPalette.primaryDark,
               onPressed: isSubmitting ? null : onSubmit,
+            ),
+
+            const SizedBox(height: 22),
+
+            Center(
+              child: Text(
+                context.l10n.authRegisterOrSignUpWith,
+                style: TextStyle(
+                  color: AuthPalette.body.withValues(alpha: 0.72),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            GoogleSignInButton(
+              onPressed: isSubmitting ? null : onGoogleSignUp,
             ),
 
             const SizedBox(height: 20),
@@ -657,7 +630,7 @@ class _RegisterCard extends StatelessWidget {
             Container(
               height: 1,
               decoration: BoxDecoration(
-                color: _RegisterPalette.divider,
+                color: AuthPalette.divider,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -668,9 +641,9 @@ class _RegisterCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '¿Ya tienes una cuenta?',
+                  context.l10n.authRegisterHaveAccount,
                   style: TextStyle(
-                    color: _RegisterPalette.body.withValues(alpha: 0.82),
+                    color: AuthPalette.body.withValues(alpha: 0.82),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -680,10 +653,10 @@ class _RegisterCard extends StatelessWidget {
 
                 GestureDetector(
                   onTap: onLoginTap,
-                  child: const Text(
-                    'Iniciar sesión',
+                  child: Text(
+                    context.l10n.authRegisterSignIn,
                     style: TextStyle(
-                      color: _RegisterPalette.primary,
+                      color: AuthPalette.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
@@ -696,160 +669,4 @@ class _RegisterCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _FieldLabel extends StatelessWidget {
-  const _FieldLabel(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: _RegisterPalette.label,
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1.1,
-      ),
-    );
-  }
-}
-
-class _RegisterField extends StatelessWidget {
-  const _RegisterField({
-    required this.controller,
-    required this.hintText,
-    required this.icon,
-    this.keyboardType,
-    this.textInputAction,
-    this.inputFormatters,
-    this.textCapitalization = TextCapitalization.none,
-    this.obscureText = false,
-    this.trailingIcon,
-    this.onTrailingTap,
-    this.onFieldSubmitted,
-    this.validator,
-    this.enabled = true,
-  });
-
-  final TextEditingController controller;
-  final String hintText;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final TextInputAction? textInputAction;
-  final List<TextInputFormatter>? inputFormatters;
-  final TextCapitalization textCapitalization;
-  final bool obscureText;
-  final IconData? trailingIcon;
-  final VoidCallback? onTrailingTap;
-  final ValueChanged<String>? onFieldSubmitted;
-  final String? Function(String?)? validator;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      enabled: enabled,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      inputFormatters: inputFormatters,
-      textCapitalization: textCapitalization,
-      obscureText: obscureText,
-      validator: validator,
-      onFieldSubmitted: onFieldSubmitted,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      style: const TextStyle(
-        color: _RegisterPalette.title,
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-      ),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: _RegisterPalette.fieldFill,
-        hintText: hintText,
-        hintStyle: const TextStyle(
-          color: _RegisterPalette.hint,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-        prefixIcon: Icon(icon, color: _RegisterPalette.icon, size: 20),
-        suffixIcon: trailingIcon == null
-            ? null
-            : IconButton(
-                onPressed: enabled ? onTrailingTap : null,
-                icon: Icon(
-                  trailingIcon,
-                  color: _RegisterPalette.icon,
-                  size: 20,
-                ),
-              ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 17,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide(
-            color: _RegisterPalette.primary.withValues(alpha: 0.18),
-            width: 1,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GlowCircle extends StatelessWidget {
-  const _GlowCircle({required this.color, required this.size});
-
-  final Color color;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-    );
-  }
-}
-
-class _RegisterPalette {
-  static const Color background = Color(0xFFF8FAFC);
-
-  static const Color surface = Color(0xFFFFFFFF);
-
-  static const Color title = Color(0xFF2C2F31);
-
-  static const Color body = Color(0xFF595C5E);
-
-  static const Color subtitle = Color(0xFF595C5E);
-
-  static const Color label = Color(0xFF6B7280);
-
-  static const Color hint = Color(0xFF97A0AA);
-
-  static const Color icon = Color(0xFF78808A);
-
-  static const Color outline = Color(0xFFD7DEE5);
-
-  static const Color divider = Color(0xFFE7ECF0);
-
-  static const Color fieldFill = Color(0xFFEFF3F5);
-
-  static const Color primary = Color(0xFF0A6B3F);
-
-  static const Color primaryDark = Color(0xFF085531);
 }

@@ -10,6 +10,8 @@ import 'package:nutrilife/features/nutrition/data/fridge_repository.dart';
 import 'package:nutrilife/features/nutrition/data/models/food_model.dart';
 import 'package:nutrilife/features/nutrition/data/models/fridge_item_model.dart';
 
+import '../../helpers/l10n_app.dart';
+
 /// Devuelve siempre la misma nevera canned, sin tocar la red.
 class _FakeAdapter implements HttpClientAdapter {
   _FakeAdapter(this.body);
@@ -66,8 +68,8 @@ Future<void> pumpSheet(
   FridgeRepository repository, {
   List<FoodModel> catalog = const [],
 }) async {
-  await tester.pumpWidget(MaterialApp(
-    home: Scaffold(
+  await tester.pumpWidget(l10nApp(
+    Scaffold(
       body: FridgePickerSheet(
         repository: repository,
         foodRepository: _Catalogo(catalog),
@@ -206,8 +208,8 @@ void main() {
     testWidgets('devuelve la selección mezclando nevera y comunes',
         (tester) async {
       List<FridgeItemModel>? result;
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
+      await tester.pumpWidget(l10nApp(
+        Scaffold(
           body: Builder(
             builder: (context) => TextButton(
               onPressed: () async => result = await FridgePickerSheet.show(
@@ -242,8 +244,8 @@ void main() {
 
     testWidgets('si el catálogo falla sigue mostrando la nevera',
         (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
+      await tester.pumpWidget(l10nApp(
+        Scaffold(
           body: FridgePickerSheet(
             repository: fridgeWith([banana]),
             foodRepository: _CatalogoRoto(),

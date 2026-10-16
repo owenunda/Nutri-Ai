@@ -1,0 +1,1441 @@
+{
+  "@@locale": "es",
+  "appTitle": "NutriLife",
+  "commonCancel": "Cancelar",
+  "commonRetry": "Reintentar",
+  "commonContinue": "Continuar",
+  "commonErrorTimeout": "La conexión con el servidor tardó demasiado. Inténtalo de nuevo.",
+  "commonErrorConnection": "No se pudo conectar con el servidor. Revisa tu conexión a internet.",
+  "profileLanguage": "Idioma",
+  "profileLanguageSystem": "Usar el del teléfono",
+  "profileLanguageSheetTitle": "Elige el idioma",
+  "commonBack": "Volver",
+  "authBrandTagline": "Tu camino inteligente hacia el bienestar.",
+  "authLoginTitle": "Bienvenido de nuevo",
+  "authLoginSubtitle": "Ingresa tus credenciales para acceder a tu espacio de bienestar.",
+  "authLoginEmailLabel": "CORREO ELECTRONICO",
+  "authLoginPasswordLabel": "CONTRASENA",
+  "authForgotPasswordLink": "¿Olvidaste tu contraseña?",
+  "authPasswordUpdatedSignIn": "Contraseña actualizada. Ya puedes iniciar sesión.",
+  "authLoginButton": "Iniciar sesion",
+  "authLoginLoading": "Iniciando...",
+  "authLoginOrContinueWith": "O CONTINUA CON",
+  "authGoogleTermsPrefix": "Al continuar con Google aceptas los ",
+  "authTermsOfService": "Términos del Servicio",
+  "authTermsAnd": " y la ",
+  "authPrivacyPolicy": "Política de Privacidad",
+  "authLoginNoAccount": "No tienes una cuenta? ",
+  "authLoginCreateOne": "Crea una",
+  "authLoginSuccess": "Inicio de sesión exitoso.",
+  "authErrorLogin": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+  "authErrorNetwork": "Error de red: {details}",
+  "@authErrorNetwork": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "authErrorUnexpected": "Error: {details}",
+  "@authErrorUnexpected": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "authRegisterTitle": "Crear cuenta",
+  "authRegisterSubtitle": "Comienza tu camino hacia una alimentación inteligente.",
+  "authRegisterNameLabel": "NOMBRE COMPLETO",
+  "authEmailLabel": "CORREO ELECTRÓNICO",
+  "authPasswordLabel": "CONTRASEÑA",
+  "authConfirmLabel": "CONFIRMAR",
+  "authNameRequired": "El nombre es obligatorio.",
+  "authRegisterTermsPrefix": "Acepto los ",
+  "authRegisterSubmit": "Registrarse",
+  "authRegisterSubmitting": "Registrando...",
+  "authRegisterOrSignUpWith": "O REGÍSTRATE CON",
+  "authRegisterHaveAccount": "¿Ya tienes una cuenta?",
+  "authRegisterSignIn": "Iniciar sesión",
+  "authTermsRequired": "Debes aceptar los términos del servicio y la política de privacidad.",
+  "authRegisterSnackDuplicateTitle": "Correo ya registrado",
+  "authRegisterSnackWarningTitle": "Falta confirmar",
+  "authRegisterSnackErrorTitle": "Registro no completado",
+  "authEmailRequired": "El correo electrónico es obligatorio.",
+  "authEmailInvalid": "Ingresa un correo electrónico válido.",
+  "authPasswordRequired": "La contraseña es obligatoria.",
+  "authPasswordTooShort": "La contraseña debe tener al menos 6 caracteres.",
+  "authPasswordConfirmRequired": "Confirma tu contraseña.",
+  "authPasswordMismatch": "Las contraseñas no coinciden.",
+  "authForgotTitle": "Recupera tu contraseña",
+  "authForgotSubtitle": "Escribe el correo de tu cuenta y te enviaremos un código para crear una contraseña nueva.",
+  "authForgotSend": "Enviar código",
+  "authForgotSending": "Enviando...",
+  "authResetTitle": "Nueva contraseña",
+  "authResetSubtitle": "Si {email} tiene una cuenta, te enviamos un código de 6 dígitos. Escríbelo y elige tu contraseña nueva.",
+  "@authResetSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "authCodeLabel": "CÓDIGO",
+  "authNewPasswordLabel": "CONTRASEÑA NUEVA",
+  "authSavePassword": "Guardar contraseña",
+  "authSaving": "Guardando...",
+  "authCodeResent": "Te enviamos un código nuevo.",
+  "authSetPasswordTitle": "Crea tu contraseña",
+  "authSetPasswordSubtitle": "¡Ya estás dentro! Si quieres, crea una contraseña para entrar también con tu correo cuando no tengas Google a mano.",
+  "authSetPasswordSkip": "Ahora no",
+  "authVerifyTitle": "Verifica tu correo",
+  "authVerifySubtitle": "Te enviamos un código de 6 dígitos a {email}. Escríbelo aquí para activar tu cuenta.",
+  "@authVerifySubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "authVerifyButton": "Verificar",
+  "authVerifying": "Verificando...",
+  "authCodeInvalid": "Escribe los 6 dígitos del código.",
+  "authResendCode": "Reenviar código",
+  "authResendCodeIn": "Reenviar código en {seconds} s",
+  "@authResendCodeIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "authLinkTitle": "Vincula tu cuenta",
+  "authLinkSubtitle": "Ya tienes una cuenta de NutriLife con este correo. Escribe tu contraseña para vincularla con Google; después podrás entrar de las dos formas.",
+  "authLinkPasswordRequired": "Escribe tu contraseña.",
+  "authLinkButton": "Vincular",
+  "authLinking": "Vinculando...",
+  "authLinkPasswordUpdated": "Contraseña actualizada. Escríbela para vincular tu cuenta.",
+  "authContinueWithGoogle": "Continuar con Google",
+  "authLoginSuccessTitle": "Iniciaste sesión con éxito",
+  "authLoginSuccessBody": "Bienvenido de nuevo. Has ingresado correctamente a tu cuenta.",
+  "authOnboardingTitle": "IA nutricional\npersonalizada",
+  "authOnboardingBody": "Tu asistente nutricional inteligente te ayuda a mejorar tu alimentación según tus objetivos.",
+  "authDiscoverTitle": "Descubre Alimentos",
+  "authDiscoverBody": "Busca tus alimentos favoritos en la barra de búsqueda. Nuestra IA reconoce miles de ingredientes.",
+  "authAnalyzeTitle": "Analiza tu Progreso",
+  "authAnalyzeBody": "Mantente motivado con información detallada sobre tus hábitos. Revisa tus tendencias y celebra cada logro en tu camino.",
+  "authAnalyzeGoalReached": "META CUMPLIDA",
+  "authFlowNext": "Siguiente paso",
+  "authFlowStart": "Comenzar",
+  "authFlowSkip": "SALTAR",
+  "authFlowReviewTerms": "REVISAR TÉRMINOS",
+  "authErrorRegister": "No se pudo completar el registro. Inténtalo de nuevo.",
+  "authErrorVerifyEmail": "No se pudo verificar tu correo. Inténtalo de nuevo.",
+  "authErrorResendCode": "No se pudo reenviar el código. Inténtalo de nuevo.",
+  "authErrorSendCode": "No se pudo enviar el código. Inténtalo de nuevo.",
+  "authErrorResetPassword": "No se pudo cambiar tu contraseña. Inténtalo de nuevo.",
+  "authErrorSetPassword": "No se pudo guardar tu contraseña. Inténtalo de nuevo.",
+  "authErrorGoogle": "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
+  "authErrorGoogleNotConfigured": "El inicio de sesión con Google no está configurado.",
+  "authErrorGoogleNoData": "Google no devolvió tus datos. Inténtalo de nuevo.",
+  "commonUser": "Usuario",
+  "setupProgressLabel": "PROGRESO DE REGISTRO",
+  "setupSaveErrorTitle": "No se pudo guardar",
+  "setupGoalHeading": "Define tu objetivo",
+  "setupGoalSubtitle": "Calcularemos tu plan según lo que\nquieras lograr.",
+  "setupGoalLoseTitle": "Bajar de peso",
+  "setupGoalLoseSubtitle": "Déficit calórico saludable",
+  "setupGoalMaintainTitle": "Mantener peso",
+  "setupGoalMaintainSubtitle": "Estabilidad y nutrición diaria",
+  "setupGoalGainTitle": "Subir de peso",
+  "setupGoalGainSubtitle": "Superávit para masa muscular",
+  "setupGoalPlanBadge": "PLAN PERSONALIZADO",
+  "setupGoalCaloriesLabel": "CALORÍAS DIARIAS RECOMENDADAS",
+  "setupGoalCaloriesNote": "Basado en tu metabolismo basal y\nnivel de actividad actual.",
+  "setupGoalSaving": "Guardando meta...",
+  "setupGoalStart": "Empieza tu meta",
+  "setupGoalSaveError": "No se pudo guardar tu meta. Inténtalo de nuevo.",
+  "setupProfileHeading": "Completa tu perfil",
+  "setupProfileSubtitle": "Estos datos nos ayudan a personalizar tu\nplan nutricional.",
+  "setupAgeLabel": "EDAD",
+  "setupWeightLabel": "PESO (KG)",
+  "setupHeightLabel": "ALTURA (CM)",
+  "setupSexLabel": "SEXO",
+  "setupSexMale": "Hombre",
+  "setupSexFemale": "Mujer",
+  "setupUnitYears": "años",
+  "setupPrecisionTitle": "Precisión NutriLife",
+  "setupPrecisionBody": "Tu metabolismo basal se calculará\nautomáticamente.",
+  "setupProfileSaving": "Guardando...",
+  "setupProfileSave": "Guardar perfil",
+  "setupAgeRequired": "La edad es obligatoria.",
+  "setupAgeInvalid": "Ingresa una edad válida.",
+  "setupAgeTooYoung": "Debes tener al menos 16 años.",
+  "setupWeightRequired": "El peso es obligatorio.",
+  "setupWeightInvalid": "Ingresa un peso válido.",
+  "setupWeightOutOfRange": "Selecciona un peso válido.",
+  "setupHeightRequired": "La altura es obligatoria.",
+  "setupHeightInvalid": "Ingresa una altura válida.",
+  "setupHeightOutOfRange": "La altura debe estar entre 1.50 cm y 2.50 cm.",
+  "setupSexRequired": "Selecciona tu sexo para continuar.",
+  "setupSnackMissingTitle": "Falta un dato",
+  "setupProfileSaveError": "No se pudo guardar tu perfil. Inténtalo de nuevo.",
+  "setupErrorNothingToSave": "No hay datos para guardar.",
+  "setupErrorSave": "No se pudo guardar la información. Inténtalo de nuevo.",
+  "commonNavHome": "Inicio",
+  "commonNavFoods": "Alimentos",
+  "commonNavAi": "IA",
+  "commonNavProgress": "Progreso",
+  "commonNavProfile": "Perfil",
+  "homeSummaryLabel": "RESUMEN",
+  "homeGreeting": "Hola {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeAiCardTitle": "Pregúntale a la IA qué comer.",
+  "homeAiCardSubtitle": "Ideas de comidas personalizadas según tus metas.",
+  "homeAddToMeal": "Agregar a {meal}",
+  "@homeAddToMeal": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTodayMealsTitle": "Comidas de hoy",
+  "homeViewHistory": "Ver historial",
+  "homeTodayCaloriesTitle": "Calorías de hoy",
+  "homeTodayCaloriesTarget": "Objetivo: {kcal} kcal",
+  "@homeTodayCaloriesTarget": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTodayCaloriesTotal": "Total consumido",
+  "homeTodayCaloriesConsumed": "consumidas",
+  "homeGoalLoading": "Cargando tu objetivo diario...",
+  "homeGoalError": "No se pudo cargar tu objetivo diario.",
+  "homeGoalIncomplete": "Completa tu perfil para calcular tu objetivo diario.",
+  "homeGoalRemaining": "Te faltan {kcal} kcal para cumplir tu objetivo de hoy.",
+  "@homeGoalRemaining": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGoalExceeded": "Te excediste por {kcal} kcal de tu objetivo diario.",
+  "@homeGoalExceeded": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGoalReached": "¡Has alcanzado tu objetivo diario!",
+  "mealsTypeBreakfast": "Desayuno",
+  "mealsTypeLunch": "Almuerzo",
+  "mealsTypeDinner": "Cena",
+  "mealsTypeSnack": "Snack",
+  "mealsNotLoggedYet": "Aún no registrada",
+  "mealsPortionsOne": "{amount} porción",
+  "@mealsPortionsOne": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsPortionsOther": "{amount} porciones",
+  "@mealsPortionsOther": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsErrorAddFood": "No se pudo registrar la comida",
+  "mealsErrorAddRecipe": "No se pudo registrar la receta",
+  "mealsErrorDeleteRecipe": "No se pudo borrar la receta",
+  "mealsErrorDeleteItem": "No se pudo borrar",
+  "mealsErrorLoadDay": "No se pudieron cargar tus comidas",
+  "mealsHistoryTitle": "Historial de comidas",
+  "mealsPickDate": "Elegir fecha",
+  "mealsPreviousDay": "Día anterior",
+  "mealsNextDay": "Día siguiente",
+  "mealsToday": "Hoy",
+  "mealsYesterday": "Ayer",
+  "mealsDateLabel": "{weekday} {day} {month}",
+  "@mealsDateLabel": {
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsAddedTo": "Agregado a {meal} · {kcal} kcal",
+  "@mealsAddedTo": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsRegisteredIn": "Registrado en {meal} · {kcal} kcal",
+  "@mealsRegisteredIn": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsUndo": "Deshacer",
+  "mealsUndoFailed": "No se pudo deshacer",
+  "mealsKcalPerUnit": "{kcal} kcal por {unit}",
+  "@mealsKcalPerUnit": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLess": "Menos",
+  "mealsMore": "Más",
+  "mealsDetailTitle": "{meal} · {kcal} kcal",
+  "@mealsDetailTitle": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsOtherFoods": "OTROS ALIMENTOS",
+  "mealsDeleteRecipeTitle": "¿Borrar receta?",
+  "mealsDeleteRecipeBody": "Se quitará \"{title}\" con {count, plural, =1{su ingrediente} other{sus {count} ingredientes}} de esta comida.",
+  "@mealsDeleteRecipeBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsDelete": "Borrar",
+  "mealsDeleteRecipe": "Borrar receta",
+  "mealsViewRecipe": "Ver receta",
+  "mealsDeleteItem": "Borrar {name}",
+  "@mealsDeleteItem": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsRegisterNoIngredients": "Esta receta no trae ingredientes para registrar",
+  "mealsRegisterTitle": "Registrar comida",
+  "mealsLessPortions": "Menos porciones",
+  "mealsMorePortions": "Más porciones",
+  "mealsCalculatingCalories": "Calculando calorías… · la receta rinde {servings}",
+  "@mealsCalculatingCalories": {
+    "placeholders": {
+      "servings": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsRecipeYield": "{kcal} kcal · la receta rinde {servings}",
+  "@mealsRecipeYield": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "servings": {
+        "type": "int"
+      }
+    }
+  },
+  "mealsLoadFoodsError": "No pudimos cargar los alimentos de la receta. Intenta de nuevo.",
+  "mealsRegisterIn": "Registrar en {meal}",
+  "@mealsRegisterIn": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAddFridgeTitle": "Agregar a mi nevera",
+  "nutritionLogConsumedTitle": "Registrar consumido",
+  "nutritionAddFridgeSubtitle": "Lo guardarás en tu nevera para que la IA pueda sugerirlo al chatear.",
+  "nutritionLogConsumedSubtitle": "Se registrará como consumido en la comida que elijas para que el conteo de calorías sea correcto.",
+  "nutritionFoodNameLabel": "Nombre del alimento",
+  "nutritionFoodNameHint": "Ej. Banana",
+  "nutritionFoodNameRequired": "Por favor ingresa un nombre",
+  "nutritionSimilarFoodExists": "Ya existe un alimento parecido. Elige uno para usarlo:",
+  "nutritionUseFood": "Usar {name}",
+  "@nutritionUseFood": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionChange": "Cambiar",
+  "nutritionCaloriesLabel": "Calorías (Kcal)",
+  "nutritionCaloriesHint": "Ej. 105",
+  "nutritionCaloriesRequired": "Ingresa calorías",
+  "nutritionMustBePositive": "Debe ser > 0",
+  "nutritionPortionLabel": "Porción",
+  "nutritionAmountHaveLabel": "Cantidad que tienes",
+  "nutritionAmountConsumedLabel": "Cantidad consumida",
+  "nutritionAmountRequired": "Ingresa cantidad",
+  "nutritionAmountLabel": "Cantidad",
+  "nutritionUnitLabel": "Unidad",
+  "nutritionMealOfDay": "Comida del día",
+  "nutritionSaving": "Guardando...",
+  "nutritionSaveInFridge": "Guardar en nevera",
+  "nutritionSaveInMyFridge": "Guardar en mi nevera",
+  "nutritionLogConsumption": "Registrar consumo",
+  "nutritionGenericError": "Error",
+  "nutritionErrorNoFoodId": "No se pudo obtener el identificador del alimento. Inténtalo de nuevo.",
+  "nutritionErrorRegisterFailed": "No se pudo completar el registro. Inténtalo de nuevo.",
+  "nutritionDoneTitle": "¡Listo!",
+  "nutritionDoneFridge": "Tu alimento ya está en la nevera.",
+  "nutritionDoneConsumed": "Tu consumo quedó registrado.",
+  "nutritionAddAnotherFridge": "Agregar otro a mi nevera",
+  "nutritionLogAnother": "Registrar otro consumo",
+  "nutritionFridgeTitle": "Mi nevera",
+  "nutritionFridgeSubtitle": "Lo que tienes en casa. La IA lo sugiere primero cuando lo adjuntas al chat.",
+  "nutritionHowItWorks": "¿Cómo funciona?",
+  "nutritionCommonTitle": "Comunes",
+  "nutritionManualEntryTitle": "Entrada manual",
+  "nutritionHelpFridgeBody": "Alimentos que tienes guardados. Al adjuntarlos al chat, la IA los prioriza.",
+  "nutritionHelpCommonBody": "Catálogo general de NutriLife para cuando no encuentras lo que buscas.",
+  "nutritionHelpManualBody": "Elige entre \"A mi nevera\" (a tu nevera) o \"Lo consumí\" (alimento registrado, sin guardar).",
+  "nutritionGotIt": "Entendido",
+  "nutritionCustomTitle": "Agregar personalizado",
+  "nutritionCustomBody": "¿No encuentras tu alimento? Agrégalo y elige si lo tienes en casa o solo lo registraste.",
+  "nutritionToFridge": "A mi nevera",
+  "nutritionIAteIt": "Lo consumí",
+  "nutritionSavedSubtitle": "Lo que tienes guardado",
+  "nutritionCatalogSubtitle": "Catálogo de NutriLife",
+  "nutritionSeeAllItems": "Ver todo",
+  "nutritionSeeAllFoods": "Ver todos",
+  "nutritionSeeLess": "Ver menos",
+  "nutritionResultsCount": "Resultados ({count})",
+  "@nutritionResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionTip": "Tip: agregar primero lo que tienes en tu nevera (no lo que comiste fuera) ayuda a la IA a sugerirte recetas con lo que ya está en casa.",
+  "nutritionNoResults": "No encontramos \"{query}\". Prueba con otro nombre o agrégalo desde \"Entrada manual\".",
+  "@nutritionNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionNoCommonFoods": "No hay alimentos comunes cargados.",
+  "nutritionFoodAddedToFridge": "{food} agregado a tu nevera",
+  "@nutritionFoodAddedToFridge": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFoodLoggedIn": "{food} registrado en {meal}",
+  "@nutritionFoodLoggedIn": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorAdd": "No se pudo agregar",
+  "nutritionErrorLog": "No se pudo registrar",
+  "nutritionBulkResult": "{ok}/{total} procesados correctamente.",
+  "@nutritionBulkResult": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionBulkResultWithFailed": "{ok}/{total} procesados correctamente. Fallaron: {names}",
+  "@nutritionBulkResultWithFailed": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAskMealTitle": "¿En qué comida?",
+  "nutritionAskMealBody": "Se registrará como consumido en la comida seleccionada para todos los alimentos marcados.",
+  "nutritionActions": "Acciones",
+  "nutritionClearSelection": "Quitar selección",
+  "nutritionSelectedCount": "{count, plural, =1{1 alimento seleccionado} other{{count} alimentos seleccionados}}",
+  "@nutritionSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionEmptyFridgeTitle": "Tu nevera está vacía",
+  "nutritionEmptyFridgeBody": "Agrega lo que tienes en casa desde \"Entrada manual\" para que la IA pueda sugerírtelo en el chat.",
+  "nutritionAllFoodsTitle": "Todos los alimentos",
+  "nutritionItemsCount": "{count, plural, =1{1 ítem} other{{count} ítems}}",
+  "@nutritionItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionFoodsCount": "{count, plural, =1{1 alimento} other{{count} alimentos}}",
+  "@nutritionFoodsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionFridgeEmptyAll": "Tu nevera está vacía. Agrega alimentos desde \"Entrada manual\" o desde la pestaña Comunes.",
+  "nutritionEditAmount": "Editar cantidad de {name}",
+  "@nutritionEditAmount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFridgeItemRemoved": "{name} se quitó de tu nevera",
+  "@nutritionFridgeItemRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFridgeAmountUpdated": "Cantidad de {name} actualizada",
+  "@nutritionFridgeAmountUpdated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionRemoveFoodTitle": "Quitar alimento",
+  "nutritionRemoveFoodBody": "¿Quieres quitar {name} de tu nevera? Ya no aparecerá entre tus alimentos disponibles.",
+  "@nutritionRemoveFoodBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionRemove": "Quitar",
+  "nutritionAmountGreaterThanZero": "Ingresa una cantidad mayor que 0",
+  "nutritionCantSubtractMore": "No puedes descontar más de lo que tienes ({quantity}).",
+  "@nutritionCantSubtractMore": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAvailable": "Disponible: {amount}",
+  "@nutritionAvailable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAdjustLabel": "Cantidad para sumar o descontar ({unit})",
+  "@nutritionAdjustLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionNewTotalLabel": "Cantidad total nueva ({unit})",
+  "@nutritionNewTotalLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionSubtract": "Descontar",
+  "nutritionIncrease": "Aumentar",
+  "nutritionSaveExactAmount": "Guardar cantidad exacta",
+  "nutritionRemoveFromFridge": "Quitar de la nevera",
+  "nutritionSearchHint": "Busca más de 100,000 alimentos...",
+  "nutritionClearSearch": "Borrar búsqueda",
+  "nutritionUnitOne": "1 unidad",
+  "nutritionUnitServing": "1 porción",
+  "nutritionUnitCup": "1 taza",
+  "nutritionUnitTablespoon": "1 cucharada",
+  "nutritionUnitSlice": "1 rebanada",
+  "nutritionCountUnit": "{count, plural, =1{1 unidad} other{{amount} unidades}}",
+  "@nutritionCountUnit": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountServing": "{count, plural, =1{1 porción} other{{amount} porciones}}",
+  "@nutritionCountServing": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountCup": "{count, plural, =1{1 taza} other{{amount} tazas}}",
+  "@nutritionCountCup": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountTablespoon": "{count, plural, =1{1 cucharada} other{{amount} cucharadas}}",
+  "@nutritionCountTablespoon": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCountSlice": "{count, plural, =1{1 rebanada} other{{amount} rebanadas}}",
+  "@nutritionCountSlice": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorServerConnection": "Error de conexión con el servidor",
+  "nutritionErrorLoadFoods": "Error al obtener alimentos",
+  "nutritionErrorUnexpectedLoadFoods": "Ocurrió un error inesperado al obtener los alimentos: {error}",
+  "@nutritionErrorUnexpectedLoadFoods": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorRegisterFood": "Error al registrar el alimento",
+  "nutritionErrorRegisterFoodServer": "Error al registrar el alimento en el servidor",
+  "nutritionErrorUnexpectedRegisterFood": "Ocurrió un error inesperado al registrar el alimento: {error}",
+  "@nutritionErrorUnexpectedRegisterFood": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorLoadFridge": "Error al obtener la nevera",
+  "nutritionErrorUnexpectedLoadFridge": "Ocurrió un error inesperado al obtener la nevera: {error}",
+  "@nutritionErrorUnexpectedLoadFridge": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorAddToFridge": "No se pudo agregar a la nevera",
+  "nutritionErrorAddToFridgeDetail": "No se pudo agregar a la nevera: {error}",
+  "@nutritionErrorAddToFridgeDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorUpdateAmount": "No se pudo actualizar la cantidad",
+  "nutritionErrorUpdateAmountDetail": "No se pudo actualizar la cantidad: {error}",
+  "@nutritionErrorUpdateAmountDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionErrorRemoveFromFridge": "No se pudo quitar de la nevera",
+  "nutritionErrorRemoveFromFridgeDetail": "No se pudo quitar de la nevera: {error}",
+  "@nutritionErrorRemoveFromFridgeDetail": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionUnitNameUnit": "{count, plural, =1{unidad} other{unidades}}",
+  "@nutritionUnitNameUnit": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameServing": "{count, plural, =1{porción} other{porciones}}",
+  "@nutritionUnitNameServing": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameCup": "{count, plural, =1{taza} other{tazas}}",
+  "@nutritionUnitNameCup": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameTablespoon": "{count, plural, =1{cucharada} other{cucharadas}}",
+  "@nutritionUnitNameTablespoon": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "nutritionUnitNameSlice": "{count, plural, =1{rebanada} other{rebanadas}}",
+  "@nutritionUnitNameSlice": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "commonDone": "Listo",
+  "chatHistoryBarrierLabel": "Cerrar historial",
+  "chatWaitForReply": "Espera a que el chef termine de responder",
+  "chatDeleteTitle": "Eliminar chat",
+  "chatDeleteConfirm": "¿Seguro que quieres eliminar esta conversación?",
+  "chatDeleteButton": "Eliminar",
+  "chatTooltipHistory": "Historial",
+  "chatTooltipNewChat": "Nueva conversación",
+  "chatWelcomeTitle": "¿Cómo puedo ayudarte hoy?",
+  "chatWelcomeSubtitle": "Pídeme recetas, consejos de nutrición o planes de alimentación.",
+  "chatInputHint": "Mensaje a NutriLife...",
+  "chatRateLimitExhausted": "Límite alcanzado · reintenta en {seconds}s",
+  "@chatRateLimitExhausted": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "chatRateLimitRemaining": "{count, plural, =1{Te queda 1 mensaje este minuto} other{Te quedan {count} mensajes este minuto}}",
+  "@chatRateLimitRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatRateLimitReplyMinute": "Espera un momento, alcanzaste el límite de mensajes por minuto",
+  "chatRateLimitReplyMinutes": "Espera unos {minutes} minutos, alcanzaste el límite de mensajes",
+  "@chatRateLimitReplyMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "chatGenericError": "Lo siento, ocurrió un error. Intenta de nuevo.",
+  "chatHistoryTitle": "Conversaciones",
+  "chatHistoryEmpty": "Sin conversaciones aún",
+  "chatSessionFallbackTitle": "Conversación",
+  "chatSessionActive": "Activa",
+  "chatHistoryToday": "Hoy, {time}",
+  "@chatHistoryToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chatHistoryYesterday": "Ayer, {time}",
+  "@chatHistoryYesterday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chatHistoryDate": "{day} {month}",
+  "@chatHistoryDate": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "chatStepsCount": "{count, plural, =1{1 paso} other{{count} pasos}}",
+  "@chatStepsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatStepNumber": "Paso {number}",
+  "@chatStepNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "chatStepByStep": "Paso a paso",
+  "chatViewStepByStep": "Ver paso a paso",
+  "chatChefTip": "Tip del chef",
+  "chatServingsShort": "{count} PORC.",
+  "@chatServingsShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatServingsCount": "{count, plural, =1{1 porción} other{{count} porciones}}",
+  "@chatServingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSeeMore": "Ver más",
+  "chatSeeLess": "Ver menos",
+  "chatViewFullRecipe": "Ver receta completa",
+  "chatLogMeal": "Registrar comida",
+  "chatStepProgress": "Paso {current} de {total}",
+  "@chatStepProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "chatTipsTab": "Tips",
+  "chatPrevious": "Anterior",
+  "chatNext": "Siguiente",
+  "chatSwipeHint": "Desliza para continuar",
+  "chatChefTips": "Tips del chef",
+  "chatPickerTitle": "Agregar alimentos",
+  "chatPickerIntro": "Mi nevera: lo que tienes en casa. Comunes: catálogo general.",
+  "chatPickerTabFridge": "Mi nevera",
+  "chatPickerTabCommon": "Comunes",
+  "chatPickerSearchFridge": "Buscar en tu nevera",
+  "chatPickerSearchCommon": "Buscar en comunes",
+  "chatPickerAddCount": "Agregar {count} al mensaje",
+  "@chatPickerAddCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatPickerErrorTitle": "No pudimos leer tu nevera",
+  "chatPickerNoResults": "Sin resultados",
+  "chatPickerNoResultsFridge": "No encontramos \"{query}\" en tu nevera.",
+  "@chatPickerNoResultsFridge": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "chatPickerNoResultsCommon": "No encontramos \"{query}\" en los alimentos comunes.",
+  "@chatPickerNoResultsCommon": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "chatPickerSeeInFridge": "Ver en Mi nevera ({count})",
+  "@chatPickerSeeInFridge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatPickerSeeInCommon": "Ver en Comunes ({count})",
+  "@chatPickerSeeInCommon": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatPickerCommonEmptyTitle": "Sin alimentos comunes",
+  "chatPickerCommonEmptyBody": "No pudimos cargar el catálogo. Intenta de nuevo más tarde.",
+  "chatPickerFridgeEmptyTitle": "Tu nevera está vacía",
+  "chatPickerFridgeEmptyBody": "Agrega alimentos desde la pestaña Alimentos o elige de Comunes.",
+  "chatPickerNoAmount": "Sin cantidad",
+  "chatErrorTimeout": "El chef se está tomando su tiempo. Intenta de nuevo.",
+  "chatErrorServerConnection": "Error de conexión con el servidor",
+  "chatErrorUnexpectedResponse": "Respuesta inesperada del servidor",
+  "chatErrorReadReply": "No se pudo leer la respuesta del chef: {error}",
+  "@chatErrorReadReply": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "chatErrorLoadHistory": "Error al obtener el historial",
+  "chatErrorUnexpected": "Ocurrió un error inesperado: {error}",
+  "@chatErrorUnexpected": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "chatErrorLoadSession": "Error al obtener la sesión",
+  "chatErrorLoadConversation": "Error al cargar la conversación",
+  "chatErrorOpenConversation": "Error al abrir la conversación",
+  "chatErrorCloseSession": "Error al cerrar la sesión",
+  "chatNoReply": "Sin respuesta",
+  "progressKicker": "PROGRESO SEMANAL",
+  "progressGreeting": "Buen progreso,\n{name}!",
+  "@progressGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "progressGoalPill": "Meta:\n{goal}",
+  "@progressGoalPill": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "progressGoalLose": "Bajar peso",
+  "progressGoalGain": "Subir peso",
+  "progressGoalMaintain": "Mantener peso",
+  "progressGoalNone": "Sin meta",
+  "progressStatusNoData": "Sin datos",
+  "progressStatusExceeded": "EXCEDIDO",
+  "progressErrorTitle": "No se pudo cargar tu progreso",
+  "progressErrorLoadShort": "No se pudo cargar tu progreso.",
+  "progressErrorLoad": "No se pudo cargar tu progreso. Inténtalo de nuevo.",
+  "progressErrorLoadDailyGoal": "No se pudo cargar tu meta diaria. Inténtalo de nuevo.",
+  "progressErrorSaveWeight": "No se pudo guardar tu peso.",
+  "progressErrorInvalidData": "El servidor respondió con datos inválidos.",
+  "progressErrorLoadInfo": "No se pudo cargar la información.",
+  "progressRetry": "Intentar de nuevo",
+  "progressWeightSummaryTitle": "Resumen de peso",
+  "progressWeightDown": "Tu peso bajó\n{amount} desde el registro anterior",
+  "@progressWeightDown": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWeightUp": "Tu peso subió\n{amount} desde el registro anterior",
+  "@progressWeightUp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWeightChanged": "Tu peso cambió\n{amount} desde el registro anterior",
+  "@progressWeightChanged": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "progressCurrentWeight": "Peso actual",
+  "progressNoRecord": "Sin registro",
+  "progressCompareHint": "Comparado con tu registro físico anterior.",
+  "progressAddAnotherHint": "Registra otro peso más adelante para ver tu evolución.",
+  "progressRegisterWeight": "Registrar peso",
+  "progressSummaryWeek": "Resumen de la semana",
+  "progressSummaryNutrition": "Resumen nutricional",
+  "progressTodayCaloriesTitle": "Calorías de hoy",
+  "progressKcalConsumed": "kcal consumidas",
+  "progressKcalOfLimit": "de {limit} kcal",
+  "@progressKcalOfLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "progressCompleteDataHint": "Completa tus datos físicos y tu meta para calcular tu límite diario.",
+  "progressGoalAndRemaining": "Meta diaria: {limit} kcal. Te quedan {remaining} kcal disponibles hoy.",
+  "@progressGoalAndRemaining": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "progressHistoryTitle": "Historial de peso",
+  "progressHistoryNoCurrent": "Sin peso actual",
+  "progressHistoryCurrent": "{weight}kg Actual",
+  "@progressHistoryCurrent": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "progressHistoryEmpty": "Aún no tienes historial físico.",
+  "progressAxisStart": "INICIO",
+  "progressAxisToday": "HOY",
+  "progressTileConsumed": "CONSUMIDAS",
+  "progressTileLoggedToday": "Registradas hoy",
+  "progressTileDailyGoal": "META DIARIA",
+  "progressTileRemaining": "RESTANTES",
+  "progressTileStatus": "ESTADO",
+  "progressTileDailyAverage": "PROMEDIO DIARIO",
+  "progressTileDaysOnTarget": "DÍAS EN META",
+  "progressTileWeekTotal": "TOTAL SEMANA",
+  "progressDaysOfSeven": "{count} de 7",
+  "@progressDaysOfSeven": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWeekTitle": "Consumo semanal",
+  "progressWeekAverage": "Promedio diario · {average} kcal",
+  "@progressWeekAverage": {
+    "placeholders": {
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWeekAverageOnTarget": "Promedio diario · {average} kcal · {days} de 7 días en tu meta",
+  "@progressWeekAverageOnTarget": {
+    "placeholders": {
+      "average": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWeekOnTargetBadge": "{days}/7 en meta",
+  "@progressWeekOnTargetBadge": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWeekDaySelected": "{weekday} {day} · {kcal} kcal",
+  "@progressWeekDaySelected": {
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "progressCompleteProfile": "Completa tu perfil",
+  "progressSheetHintNoLast": "Escribe tu peso o ajústalo con − y +",
+  "progressSheetLastEntry": "Último registro: {weight} kg",
+  "@progressSheetLastEntry": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSheetSame": "Igual que el último",
+  "progressSheetIncrease": "+{weight} kg desde el último",
+  "@progressSheetIncrease": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSheetDecrease": "−{weight} kg desde el último",
+  "@progressSheetDecrease": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSheetSubtract": "Restar 0,1 kg",
+  "progressSheetAdd": "Sumar 0,1 kg",
+  "progressSheetHeightLabel": "Altura (cm)",
+  "progressSheetWeightRangeError": "El peso debe estar entre 30 y 300 kg",
+  "progressSheetHeightRequired": "Ingresa tu altura en cm",
+  "progressSheetSave": "Guardar peso",
+  "profileLoadError": "No se pudo cargar tu perfil.",
+  "profileLoadErrorRetry": "No se pudo cargar tu perfil. Inténtalo de nuevo.",
+  "profileUpdateError": "No se pudo actualizar tu perfil.",
+  "profileUpdateErrorRetry": "No se pudo actualizar tu perfil. Inténtalo de nuevo.",
+  "profileDeleteError": "No se pudo eliminar tu cuenta.",
+  "profileDeleteErrorRetry": "No se pudo eliminar tu cuenta. Inténtalo de nuevo.",
+  "profileDeleteWrongPassword": "La contraseña no es correcta.",
+  "profileDeleteGoogleMismatch": "Esa cuenta de Google no corresponde a este perfil.",
+  "profileDeleteGoogleFailed": "No se pudo confirmar con Google. Inténtalo de nuevo.",
+  "profileMemberDefault": "Miembro de NutriLife",
+  "profileMemberSince": "Miembro desde {year}",
+  "@profileMemberSince": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "profileMemberPlan": "Miembro {plan}",
+  "@profileMemberPlan": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "profileMemberPlanSince": "Miembro {plan} desde {year}",
+  "@profileMemberPlanSince": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStatAge": "EDAD",
+  "profileStatWeight": "PESO",
+  "profileStatHeight": "ALTURA",
+  "profileGoalHeading": "Objetivo nutricional",
+  "profileGoalActive": "ACTIVO",
+  "profileGoalPillLose": "Bajar peso",
+  "profileGoalPillMaintain": "Mantener",
+  "profileGoalPillGain": "Subir masa",
+  "profileSettingsHeading": "Ajustes y recordatorios",
+  "premiumTitle": "NutriLife Premium",
+  "profilePremiumSubtitle": "Planes y beneficios",
+  "profileRemindersTitle": "Recordatorios de comida",
+  "profileRemindersSubtitle": "Alertas diarias para 4 comidas",
+  "profileNotificationsTitle": "Configuración de notificaciones",
+  "profileNotificationsSubtitle": "Push, correo y SMS",
+  "profileConfigTitle": "Configuración",
+  "profileConfigSubtitle": "Edad, altura, sexo, objetivo y correo",
+  "profileLegalHeading": "Legal",
+  "profileTermsTitle": "Términos y condiciones",
+  "profileTermsSubtitle": "Reglas de uso de NutriLife",
+  "profilePrivacyTitle": "Política de privacidad",
+  "profilePrivacySubtitle": "Cómo tratamos tus datos",
+  "profileLogout": "Cerrar sesión",
+  "profileDeleteAccount": "Eliminar cuenta",
+  "profileLoadErrorTitle": "No pudimos cargar tu perfil",
+  "profileRetry": "Intentar de nuevo",
+  "profileDeleteDone": "Tu cuenta y tus datos fueron eliminados.",
+  "profileDeleteDialogTitle": "¿Eliminar tu cuenta?",
+  "profileDeleteDialogBody": "Se borrarán para siempre tu perfil, historial de peso, comidas, nevera, recetas y conversaciones. Esta acción no se puede deshacer.",
+  "profileDeletePasswordRequired": "Escribe tu contraseña para confirmar.",
+  "profileDeletePasswordLabel": "Contraseña",
+  "profileDeleteGoogleHint": "Para confirmar, elige tu cuenta de Google.",
+  "profileDeleting": "Eliminando...",
+  "profileDeleteConfirm": "Eliminar",
+  "profileDeleteConfirmGoogle": "Confirmar con Google",
+  "profileEditHeading": "Datos nutricionales",
+  "profileEditSubtitle": "Actualiza tus datos para que NutriLife ajuste mejor tu plan.",
+  "profileEditAge": "Edad",
+  "profileEditYearsUnit": "años",
+  "profileEditHeight": "Altura",
+  "profileEditWeight": "Peso",
+  "profileEditSex": "Sexo",
+  "profileEditGoal": "Objetivo",
+  "profileEditAccountHeading": "Cuenta",
+  "profileEditEmail": "Email",
+  "profileEditEmailMissing": "Correo no disponible",
+  "profileEditSaving": "Guardando...",
+  "profileEditSave": "Guardar cambios",
+  "profileEditSelectAll": "Selecciona todos los datos para continuar.",
+  "profileEditHeightInvalid": "Selecciona una altura válida entre 1.50 cm y 2.50 cm.",
+  "profileEditWeightDialogTitle": "Vas a actualizar tu peso",
+  "profileEditWeightDialogBody": "Este cambio puede afectar tus ajustes actuales, como tu meta calórica diaria y tu plan nutricional. NutriLife recalculará tus objetivos con el nuevo valor.",
+  "premiumSubtitle": "Lleva tu alimentación al siguiente nivel",
+  "premiumBenefitChat": "Chef IA sin límite de mensajes",
+  "premiumBenefitProgress": "Historial de progreso completo",
+  "premiumBenefitPlans": "Planes de comida semanales",
+  "premiumBenefitRecipes": "Recetas guardadas sin límite",
+  "premiumPlanYearly": "Anual",
+  "premiumPlanMonthly": "Mensual",
+  "premiumPricePerYear": "{price} / año",
+  "@premiumPricePerYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "premiumPricePerMonth": "{price} / mes",
+  "@premiumPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "premiumSaveBadge": "Ahorra 50%",
+  "premiumStartTrial": "Empezar 7 días gratis",
+  "premiumRestore": "Restaurar compras",
+  "premiumTerms": "Términos",
+  "premiumPaymentsSoon": "Los pagos llegan pronto",
+  "premiumPromoTitle": "Desbloquea tu progreso completo",
+  "legalLastUpdated": "Última actualización: {date}",
+  "@legalLastUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "hydrationKicker": "HIDRATACIÓN",
+  "hydrationLoadErrorTap": "No se pudo cargar. Toca para reintentar.",
+  "hydrationLoadingToday": "Cargando avance de hoy...",
+  "hydrationDrinkWater": "Beber agua",
+  "hydrationGlassesTodayLine": "{glasses}/{goal} vasos hoy · {status}",
+  "@hydrationGlassesTodayLine": {
+    "placeholders": {
+      "glasses": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "hydrationTagline": "Un pequeño hábito, un gran avance",
+  "hydrationStreakDays": "{days, plural, =1{Racha 1 día} other{Racha {days} días}}",
+  "@hydrationStreakDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationScreenTitle": "Racha de agua",
+  "hydrationLoadError": "No pudimos cargar tu racha de agua.",
+  "hydrationTodayChallenge": "Tu reto de hoy",
+  "hydrationChallengeDone": "Reto completado",
+  "hydrationLogGlass": "Registrar un vaso",
+  "hydrationUndoGlass": "Deshacer último vaso",
+  "hydrationSaveError": "No se pudo guardar el cambio: {error}",
+  "@hydrationSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "hydrationRemaining": "{remaining, plural, =1{Te falta 1 vaso para completar el reto.} other{Te faltan {remaining} vasos para completar el reto.}}",
+  "@hydrationRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationGoalNote": "Meta del reto: {goal} vasos al día. Ajusta tu hidratación a tus necesidades.",
+  "@hydrationGoalNote": {
+    "placeholders": {
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationCurrentStreakKicker": "RACHA ACTUAL",
+  "hydrationDays": "{days, plural, =1{1 día} other{{days} días}}",
+  "@hydrationDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationBestStreak": "{days, plural, =1{Mejor racha: 1 día} other{Mejor racha: {days} días}}",
+  "@hydrationBestStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationDialogue0": "¡Hola! ¿Me ayudas a llenar mi vasito hoy?",
+  "hydrationDialogue1": "¡Gracias! Cada vasito cuenta.",
+  "hydrationDialogue2": "¡Qué bien! Ya vamos avanzando juntos.",
+  "hydrationDialogue3": "¡Vamos muy bien! Un poquito más.",
+  "hydrationDialogue4": "¡Casi lo logramos! Un vasito más.",
+  "hydrationDialogueDone": "¡Lo hicimos! Mañana seguimos cuidando el hábito.",
+  "hydrationCelebrationImage": "Nutria celebrando con serpentinas",
+  "hydrationGoalReached": "¡Meta de agua cumplida!",
+  "hydrationCelebrationBody": "¡La nutria está celebrando contigo! Cada día estás construyendo un gran hábito.",
+  "hydrationCelebrationOk": "¡Qué bien!",
+  "hydrationDrinkingOtter": "Nutria tomando agua",
+  "hydrationStatsTitle": "Tu hidratación",
+  "hydrationEveryGlassCounts": "Cada vaso suma",
+  "hydrationGlassesLogged": "Vasos registrados",
+  "hydrationScientistOtter": "Nutria científica de NutriLife",
+  "hydrationStatCurrentStreak": "racha actual",
+  "hydrationStatBestStreak": "mejor racha",
+  "hydrationStatTotalGlasses": "vasos totales",
+  "hydrationLast7Days": "Últimos 7 días",
+  "hydrationGoalsMet": "{count, plural, =1{1 meta cumplida} other{{count} metas cumplidas}}",
+  "@hydrationGoalsMet": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationDisclaimer": "Meta diaria: {goal} vasos · Registro personal, no consejo médico.",
+  "@hydrationDisclaimer": {
+    "placeholders": {
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationStatsLoadError": "No se pudieron cargar tus estadísticas de agua.",
+  "hydrationWeekdayInitials": "L,M,X,J,V,S,D",
+  "hydrationErrorInvalidHistory": "El historial de hidratación no es válido.",
+  "hydrationErrorInvalidData": "El historial de hidratación contiene datos no válidos.",
+  "hydrationErrorUpdate": "No se pudo actualizar el historial de hidratación.",
+  "hydrationErrorSave": "No se pudo guardar el historial de hidratación.",
+  "profileStreaksTitle": "TUS RACHAS",
+  "profileStreaksCalorieGoal": "Objetivo calórico",
+  "profileStreaksHydration": "Hidratación",
+  "profileStreaksCalorieError": "No pudimos cargar las calorías: {error}",
+  "@profileStreaksCalorieError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStreaksNoWeekData": "Aún no hay datos semanales para calcular esta racha.",
+  "profileStreaksCalorieNote": "Racha calórica calculada con los últimos 7 días disponibles.",
+  "profileStreaksDays": "{value} días",
+  "@profileStreaksDays": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStreaksCurrentBest": "actual · mejor 7d {best}",
+  "@profileStreaksCurrentBest": {
+    "placeholders": {
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStreaksLoadError": "No se pudieron cargar tus rachas.",
+  "progressSectionCalories": "CALORÍAS",
+  "progressSectionCaloriesSubtitle": "Tu consumo frente a la meta diaria",
+  "progressWeekUnavailable": "Aún no hay suficientes datos para mostrar la semana.",
+  "progressSectionHydrationSubtitle": "Un hábito complementario, día a día",
+  "progressHydrationCardTitle": "Vasos de agua · últimos 7 días"
+}

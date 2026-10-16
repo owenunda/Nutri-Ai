@@ -7,6 +7,7 @@ import 'package:nutrilife/features/meals/data/meal_repository.dart';
 import 'package:nutrilife/features/meals/domain/meal_type.dart';
 import 'package:nutrilife/features/meals/presentation/widgets/add_food_sheet.dart';
 import 'package:nutrilife/features/nutrition/data/models/food_model.dart';
+import '../../helpers/l10n_app.dart';
 
 class _RepoFalso extends MealRepository {
   Object? fallo;
@@ -34,8 +35,7 @@ Future<_RepoFalso> _open(WidgetTester tester, {DateTime? at, MealType? initial, 
   final repo = _RepoFalso()
     ..fallo = fallo
     ..espera = espera;
-  await tester.pumpWidget(MaterialApp(
-    home: Scaffold(
+  await tester.pumpWidget(l10nApp(Scaffold(
       body: Builder(
         builder: (context) => TextButton(
           onPressed: () => showAddFoodSheet(
@@ -47,8 +47,7 @@ Future<_RepoFalso> _open(WidgetTester tester, {DateTime? at, MealType? initial, 
           child: const Text('abrir'),
         ),
       ),
-    ),
-  ));
+    )));
   await tester.tap(find.text('abrir'));
   await tester.pumpAndSettle();
   return repo;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 
 import '../../data/profile_repository.dart';
@@ -7,16 +8,21 @@ class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({
     super.key,
     required this.profile,
+    this.repository,
   });
 
   final UserProfile profile;
+
+  /// Solo para pruebas; por defecto usa el repositorio real.
+  final ProfileRepository? repository;
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final ProfileRepository _profileRepository = ProfileRepository();
+  late final ProfileRepository _profileRepository =
+      widget.repository ?? ProfileRepository();
   late final TextEditingController _ageController;
   late final TextEditingController _heightController;
   late final TextEditingController _weightController;
@@ -33,12 +39,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     441,
     (index) => (30 + (index * 0.5)).toStringAsFixed(1),
   );
-  final List<String> _sexOptions = const ['Hombre', 'Mujer'];
-  final List<String> _goalOptions = const [
-    'Bajar de peso',
-    'Mantener peso',
-    'Subir de peso',
-  ];
+  // Los valores de sexo y objetivo son los que se guardan (en el dispositivo y
+  // en el backend); lo que ve el usuario sale de _sexLabel y _goalLabel.
+  final List<String> _sexOptions = const [_sexMale, _sexFemale];
+  final List<String> _goalOptions = const [_goalLose, _goalMaintain, _goalGain];
 
   bool _isSaving = false;
 
@@ -54,10 +58,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _initialWeightText = _initialWeight(widget.profile.weight);
     _weightController = TextEditingController(text: _initialWeightText);
     _sexController = TextEditingController(
-      text: widget.profile.sex?.isNotEmpty == true ? widget.profile.sex! : 'Hombre',
+      text: widget.profile.sex?.isNotEmpty == true ? widget.profile.sex! : _sexMale,
     );
     _goalController = TextEditingController(
-      text: _goalLabel(widget.profile.goal),
+      text: _goalValue(widget.profile.goal),
     );
   }
 
@@ -83,12 +87,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         weight == null ||
         sex.isEmpty ||
         goal.isEmpty) {
-      _showSnackBar('Selecciona todos los datos para continuar.');
+      _showSnackBar(context.l10n.profileEditSelectAll);
       return;
     }
 
     if (heightInMeters < 1.50 || heightInMeters > 2.50) {
-      _showSnackBar('Selecciona una altura válida entre 1.50 cm y 2.50 cm.');
+      _showSnackBar(context.l10n.profileEditHeightInvalid);
       return;
     }
 
@@ -109,7 +113,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         age: age,
         height: heightInMeters * 100,
         weight: weight,
-        goal: _backendGoal(goal),
+        goal: goal,
         sex: sex,
         email: widget.profile.email,
       );
@@ -122,7 +126,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (_) {
       if (mounted) {
-        _showSnackBar('No se pudo actualizar tu perfil. Inténtalo de nuevo.');
+        _showSnackBar(context.l10n.profileUpdateErrorRetry);
       }
     } finally {
       if (mounted) {
@@ -137,6 +141,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
+        final l10n = context.l10n;
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.symmetric(horizontal: 28),
@@ -164,8 +169,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                const Text(
-                  'Vas a actualizar tu peso',
+                Text(
+                  l10n.profileEditWeightDialogTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: _EditProfileColors.text,
@@ -175,7 +180,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Este cambio puede afectar tus ajustes actuales, como tu meta calórica diaria y tu plan nutricional. NutriLife recalculará tus objetivos con el nuevo valor.',
+                  l10n.profileEditWeightDialogBody,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: _EditProfileColors.muted.withValues(alpha: 0.9),
@@ -200,8 +205,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             borderRadius: BorderRadius.circular(999),
                           ),
                         ),
-                        child: const Text(
-                          'Cancelar',
+                        child: Text(
+                          l10n.commonCancel,
                           style: TextStyle(fontWeight: FontWeight.w800),
                         ),
                       ),
@@ -218,8 +223,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             borderRadius: BorderRadius.circular(999),
                           ),
                         ),
-                        child: const Text(
-                          'Continuar',
+                        child: Text(
+                          l10n.commonContinue,
                           style: TextStyle(fontWeight: FontWeight.w800),
                         ),
                       ),
@@ -288,6 +293,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7F9),
       body: SafeArea(
@@ -310,9 +316,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       height: 44,
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Configuración',
+                      l10n.profileConfigTitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: _EditProfileColors.green,
@@ -326,8 +332,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ],
               ),
               const SizedBox(height: 36),
-              const Text(
-                'Datos nutricionales',
+              Text(
+                l10n.profileEditHeading,
                 style: TextStyle(
                   color: _EditProfileColors.text,
                   fontSize: 28,
@@ -337,7 +343,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Actualiza tus datos para que NutriLife ajuste mejor tu plan.',
+                l10n.profileEditSubtitle,
                 style: TextStyle(
                   color: _EditProfileColors.muted.withValues(alpha: 0.86),
                   fontSize: 15,
@@ -349,15 +355,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               _ConfigCard(
                 children: [
                   _PickerRow(
-                    label: 'Edad',
+                    label: l10n.profileEditAge,
                     controller: _ageController,
                     options: _ageOptions,
-                    unit: 'años',
+                    unit: l10n.profileEditYearsUnit,
                     icon: Icons.calendar_month_outlined,
                   ),
                   const _ConfigDivider(),
                   _PickerRow(
-                    label: 'Altura',
+                    label: l10n.profileEditHeight,
                     controller: _heightController,
                     options: _heightOptions,
                     unit: 'cm',
@@ -365,7 +371,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   const _ConfigDivider(),
                   _PickerRow(
-                    label: 'Peso',
+                    label: l10n.profileEditWeight,
                     controller: _weightController,
                     options: _weightOptions,
                     unit: 'kg',
@@ -373,23 +379,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   const _ConfigDivider(),
                   _PickerRow(
-                    label: 'Sexo',
+                    label: l10n.profileEditSex,
                     controller: _sexController,
                     options: _sexOptions,
+                    optionLabel: (value) => _sexLabel(l10n, value),
                     icon: Icons.person_outline_rounded,
                   ),
                   const _ConfigDivider(),
                   _PickerRow(
-                    label: 'Objetivo',
+                    label: l10n.profileEditGoal,
                     controller: _goalController,
                     options: _goalOptions,
+                    optionLabel: (value) => _goalLabel(l10n, value),
                     icon: Icons.flag_outlined,
                   ),
                 ],
               ),
               const SizedBox(height: 30),
-              const Text(
-                'Cuenta',
+              Text(
+                l10n.profileEditAccountHeading,
                 style: TextStyle(
                   color: _EditProfileColors.text,
                   fontSize: 24,
@@ -401,9 +409,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               _ConfigCard(
                 children: [
                   _StaticInfoRow(
-                    label: 'Email',
+                    label: l10n.profileEditEmail,
                     value: widget.profile.email.isEmpty
-                        ? 'Correo no disponible'
+                        ? l10n.profileEditEmailMissing
                         : widget.profile.email,
                     icon: Icons.email_outlined,
                   ),
@@ -432,7 +440,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     size: 22,
                   ),
                   label: Text(
-                    _isSaving ? 'Guardando...' : 'Guardar cambios',
+                    _isSaving ? l10n.profileEditSaving : l10n.profileEditSave,
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
@@ -474,6 +482,7 @@ class _PickerRow extends StatefulWidget {
     required this.options,
     required this.icon,
     this.unit,
+    this.optionLabel,
   });
 
   final String label;
@@ -481,6 +490,9 @@ class _PickerRow extends StatefulWidget {
   final List<String> options;
   final IconData icon;
   final String? unit;
+
+  /// Texto que ve el usuario para cada valor; si falta, se muestra el valor.
+  final String Function(String value)? optionLabel;
 
   @override
   State<_PickerRow> createState() => _PickerRowState();
@@ -566,12 +578,13 @@ class _PickerRowState extends State<_PickerRow> {
   }
 
   String _valueWithUnit(String value) {
+    final shown = widget.optionLabel?.call(value) ?? value;
     final unit = widget.unit;
     if (unit == null || unit.isEmpty) {
-      return value;
+      return shown;
     }
 
-    return '$value $unit';
+    return '$shown $unit';
   }
 
   @override
@@ -733,33 +746,55 @@ String _initialWeight(double? weight) {
   return rounded.toStringAsFixed(1);
 }
 
-String _goalLabel(String? goal) {
+// Valores que se guardan: no se traducen. Los de objetivo son los que espera
+// el backend; los de sexo, los que se guardan en el dispositivo.
+const _sexMale = 'Hombre';
+const _sexFemale = 'Mujer';
+const _goalLose = 'Perder peso';
+const _goalMaintain = 'Mantener peso';
+const _goalGain = 'Ganar peso';
+
+String _sexLabel(AppLocalizations l10n, String value) {
+  switch (value) {
+    case _sexMale:
+      return l10n.setupSexMale;
+    case _sexFemale:
+      return l10n.setupSexFemale;
+    default:
+      return value;
+  }
+}
+
+String _goalLabel(AppLocalizations l10n, String value) {
+  switch (value) {
+    case _goalLose:
+      return l10n.setupGoalLoseTitle;
+    case _goalGain:
+      return l10n.setupGoalGainTitle;
+    case _goalMaintain:
+      return l10n.setupGoalMaintainTitle;
+    default:
+      return value;
+  }
+}
+
+/// Convierte el objetivo que llega del backend en uno de los valores de arriba.
+String _goalValue(String? goal) {
   final normalized = goal?.toLowerCase() ?? '';
 
   if (normalized.contains('perder') ||
       normalized.contains('bajar') ||
       normalized.contains('lose')) {
-    return 'Bajar de peso';
+    return _goalLose;
   }
 
   if (normalized.contains('ganar') ||
       normalized.contains('subir') ||
       normalized.contains('gain')) {
-    return 'Subir de peso';
+    return _goalGain;
   }
 
-  return 'Mantener peso';
-}
-
-String _backendGoal(String goal) {
-  switch (goal) {
-    case 'Bajar de peso':
-      return 'Perder peso';
-    case 'Subir de peso':
-      return 'Ganar peso';
-    default:
-      return 'Mantener peso';
-  }
+  return _goalMaintain;
 }
 
 List<BoxShadow> get _editProfileShadow {

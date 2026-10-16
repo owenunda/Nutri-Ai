@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../nutrition/data/fridge_repository.dart';
 import '../../../nutrition/data/models/fridge_item_model.dart';
 import 'fridge_picker_sheet.dart';
@@ -124,9 +125,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
                     maxLines: 5,
                     keyboardType: TextInputType.multiline,
                     textInputAction: TextInputAction.newline,
-                    decoration: const InputDecoration(
-                      hintText: 'Mensaje a NutriLife...',
-                      hintStyle: TextStyle(
+                    decoration: InputDecoration(
+                      hintText: context.l10n.chatInputHint,
+                      hintStyle: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 15,
                         fontWeight: FontWeight.w500,

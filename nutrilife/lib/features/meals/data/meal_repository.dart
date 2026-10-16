@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/utils/local_date.dart';
@@ -47,7 +48,7 @@ class MealRepository {
           .map((e) => ((e as Map)['detailId'] as num).toInt())
           .toList();
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'No se pudo registrar la comida');
+      throw Exception(e.response?.data?['message'] ?? currentL10n.mealsErrorAddFood);
     }
   }
 
@@ -83,7 +84,7 @@ class MealRepository {
         detailIds: (data['items'] as List).map((e) => ((e as Map)['detailId'] as num).toInt()).toList(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'No se pudo registrar la receta');
+      throw Exception(e.response?.data?['message'] ?? currentL10n.mealsErrorAddRecipe);
     }
   }
 
@@ -92,7 +93,7 @@ class MealRepository {
     try {
       await _dio.delete<void>(ApiRoutes.mealRecipeLogById(recipeLogId));
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'No se pudo borrar la receta');
+      throw Exception(e.response?.data?['message'] ?? currentL10n.mealsErrorDeleteRecipe);
     }
   }
 
@@ -100,7 +101,7 @@ class MealRepository {
     try {
       await _dio.delete<void>(ApiRoutes.mealItem(detailId));
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'No se pudo borrar');
+      throw Exception(e.response?.data?['message'] ?? currentL10n.mealsErrorDeleteItem);
     }
   }
 
@@ -113,7 +114,7 @@ class MealRepository {
       final data = response.data?['data'];
       return data is Map ? DayMeals.fromJson(data) : DayMeals.empty(date);
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['message'] ?? 'No se pudieron cargar tus comidas');
+      throw Exception(e.response?.data?['message'] ?? currentL10n.mealsErrorLoadDay);
     }
   }
 }

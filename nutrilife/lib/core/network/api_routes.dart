@@ -1,9 +1,16 @@
 class ApiRoutes {
   static const String authLogin = '/auth/login';
   static const String authRegister = '/auth/register';
+  static const String authGoogle = '/auth/google';
+  static const String authGoogleLink = '/auth/google/link';
+  static const String authVerifyEmail = '/auth/verify-email';
+  static const String authVerifyEmailResend = '/auth/verify-email/resend';
+  static const String authPasswordForgot = '/auth/password/forgot';
+  static const String authPasswordReset = '/auth/password/reset';
   static const String authHealth = '/auth/health';
   static const String userProfile = '/user/profile';
   static const String userAccount = '/user/account';
+  static const String userPassword = '/user/password';
   static const String userPhysicalHistory = '/user/physical/history';
   static const String statsTodayCalories = '/stats/today-calories';
   static const String statsConsumptionValidation =

@@ -11,6 +11,11 @@ const nodeEnv = trim(env.NODE_ENV) || 'development';
 const jwtSecret = trim(env.JWT_SECRET) || (nodeEnv === 'development' ? 'dev_secret' : undefined);
 const port = trim(env.PORT) || '3000';
 
+const googleClientIds = (trim(env.GOOGLE_CLIENT_IDS) || '')
+  .split(',')
+  .map((id) => id.trim())
+  .filter(Boolean);
+
 export const config = {
   node_env: nodeEnv,
   port: Number(port),
@@ -23,6 +28,13 @@ export const config = {
   },
   jwt: {
     secret: jwtSecret,
+  },
+  google: {
+    clientIds: googleClientIds,
+  },
+  email: {
+    resendApiKey: trim(env.RESEND_API_KEY),
+    from: trim(env.EMAIL_FROM),
   },
   n8n: {
     url_dev: trim(env.N8N_URL_DEV),

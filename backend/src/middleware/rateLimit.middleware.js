@@ -2,6 +2,7 @@ import { RateLimiterRedis } from 'rate-limiter-flexible';
 import { getRedisClient } from '../config/redis.client.js';
 import { errorResponse } from '../utils/response.js';
 import { config } from '../config/env_config.js';
+import { localizeError } from '../i18n/localize.js';
 
 const keyByUserId = (req) =>
   req.user?.userId ? `chat:user:${req.user.userId}` : `chat:ip:${req.ip}`;
@@ -41,13 +42,14 @@ const buildMiddleware = ({ points, keyPrefix, keyExtractor }) => {
         res.setHeader('X-RateLimit-Limit', String(points));
         res.setHeader('X-RateLimit-Remaining', '0');
         res.setHeader('X-RateLimit-Reset', String(retryAfter));
-        return errorResponse(
-          res,
-          'Has superado el límite de solicitudes. Intenta de nuevo en unos segundos.',
-          'RATE_LIMIT_EXCEEDED',
-          429,
-          []
+        const { message } = localizeError(
+          {
+            code: 'RATE_LIMIT_EXCEEDED',
+            message: 'Has superado el límite de solicitudes. Intenta de nuevo en unos segundos.',
+          },
+          req.lang
         );
+        return errorResponse(res, message, 'RATE_LIMIT_EXCEEDED', 429, []);
       }
 
       // Redis caído: fail-open con log. Rate limit es defensa, no ruta crítica.

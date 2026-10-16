@@ -14,6 +14,11 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>es</string>
+		<string>en</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>nutrilife</string>
 	<key>CFBundlePackageType</key>
@@ -77,6 +82,21 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>GIDClientID</key>
+	<string>989596167337-i5pv3ad7749qo0bip7g9md80gkk049bs.apps.googleusercontent.com</string>
+	<key>GIDServerClientID</key>
+	<string>989596167337-elpa3b076o6je6bnt1c255cfd4jks8do.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.989596167337-i5pv3ad7749qo0bip7g9md80gkk049bs</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>

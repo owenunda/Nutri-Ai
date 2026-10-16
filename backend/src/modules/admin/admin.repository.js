@@ -160,6 +160,16 @@ const USER_SORTS = {
 };
 export const USER_SORT_KEYS = Object.keys(USER_SORTS);
 
+// Cómo entra el usuario: solo contraseña, solo Google, o ambos.
+const authMethodSql = (alias) => `
+  CASE
+    WHEN ${alias}.password IS NULL THEN 'GOOGLE'
+    WHEN EXISTS (
+      SELECT 1 FROM user_auth_providers ap WHERE ap.user_id = ${alias}.user_id
+    ) THEN 'BOTH'
+    ELSE 'EMAIL'
+  END`;
+
 /**
  * Lista usuarios con su uso de la app y de la IA.
  * @param {Object} filters
@@ -211,6 +221,7 @@ export const findUsers = async ({ search, plan, sort = 'recent', limit, offset }
       u.goal,
       r.name AS role,
       p.name AS plan,
+      ${authMethodSql('u')} AS "authMethod",
       u.created_at AS "createdAt",
       COALESCE(ev.total, 0) AS "totalEvents",
       COALESCE(ev.ai, 0) AS "aiQueries",
@@ -250,6 +261,7 @@ export const findUserDetail = async (userId) => {
       u.goal,
       r.name AS role,
       p.name AS plan,
+      ${authMethodSql('u')} AS "authMethod",
       pr.height,
       pr.weight,
       u.created_at AS "createdAt",
@@ -379,5 +391,35 @@ export const updateUserPlan = async (userId, planName) => {
     RETURNING u.user_id AS "userId", p.name AS plan
   `;
   const { rows } = await pool.query(query, [userId, planName]);
+  return rows[0] ?? null;
+};
+
+/**
+ * Pone una contraseña nueva (ya hasheada) a un usuario.
+ * @returns {Promise<Object|null>} { userId } o null si no existe.
+ */
+export const updateUserPassword = async (userId, passwordHash) => {
+  const { rows } = await pool.query(
+    `UPDATE users SET password = $2, updated_at = CURRENT_TIMESTAMP
+     WHERE user_id = $1
+     RETURNING user_id AS "userId"`,
+    [userId, passwordHash]
+  );
+  return rows[0] ?? null;
+};
+
+/**
+ * Cambia el rol de un usuario (ADMIN / USER).
+ * @returns {Promise<Object|null>} El usuario actualizado o null si no existe.
+ */
+export const updateUserRole = async (userId, roleName) => {
+  const query = `
+    UPDATE users u
+    SET role_id = r.role_id, updated_at = CURRENT_TIMESTAMP
+    FROM roles r
+    WHERE u.user_id = $1 AND r.name = $2
+    RETURNING u.user_id AS "userId", r.name AS role
+  `;
+  const { rows } = await pool.query(query, [userId, roleName]);
   return rows[0] ?? null;
 };

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/ads/ads_service.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../nutrition/data/models/food_model.dart';
+import '../../../nutrition/domain/food_units.dart';
 import '../../data/meal_repository.dart';
 import '../../domain/meal_type.dart';
 import '../../domain/portions.dart';
@@ -17,6 +19,7 @@ Future<void> showAddFoodSheet(
 }) async {
   final now = (clock ?? DateTime.now)();
   final messenger = ScaffoldMessenger.of(context);
+  final l10n = context.l10n;
   final repo = repository ?? MealRepository();
 
   final result = await showModalBottomSheet<({int detailId, MealType type, int calories})>(
@@ -37,20 +40,20 @@ Future<void> showAddFoodSheet(
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        content: Text('Agregado a ${result.type.label} · ${result.calories} kcal'),
+        content: Text(l10n.mealsAddedTo(result.type.label(l10n), result.calories)),
         backgroundColor: AppTheme.primaryStart,
         // Con un botón, Flutter lo deja fijo por defecto; aquí debe irse solo.
         persist: false,
         duration: const Duration(seconds: 5),
         action: SnackBarAction(
-          label: 'Deshacer',
+          label: l10n.mealsUndo,
           textColor: Colors.white,
           onPressed: () async {
             try {
               await repo.deleteItem(result.detailId);
               MealLogState.instance.bump();
             } catch (_) {
-              messenger.showSnackBar(const SnackBar(content: Text('No se pudo deshacer')));
+              messenger.showSnackBar(SnackBar(content: Text(l10n.mealsUndoFailed)));
             }
           },
         ),
@@ -80,11 +83,9 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
 
   int get _calories => caloriesFor(_portions, widget.food.caloriesPerUnit);
 
-  String get _detail {
-    final unit = _portions <= 1 ? 'porción' : 'porciones';
-    return '${portionsLabel(_portions)} $unit · '
-        '${quantityLabel(_portions, widget.food.baseUnit)} · $_calories kcal';
-  }
+  String _detail(AppLocalizations l10n) =>
+      '${portionsText(_portions, l10n)} · '
+      '${quantityLabel(_portions, widget.food.baseUnit, l10n)} · $_calories kcal';
 
   void _step(double delta) {
     setState(() {
@@ -119,6 +120,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return PopScope(
       canPop: !_saving,
       child: Padding(
@@ -153,7 +155,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${widget.food.caloriesPerUnit.round()} kcal por ${widget.food.baseUnit.toLowerCase()}',
+                  l10n.mealsKcalPerUnit(widget.food.caloriesPerUnit.round(), prettyUnitLabel(widget.food.baseUnit, l10n).toLowerCase()),
                   style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                 ),
                 const SizedBox(height: 20),
@@ -163,7 +165,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                   children: [
                     for (final type in MealType.values)
                       ChoiceChip(
-                        label: Text(type.label),
+                        label: Text(type.label(l10n)),
                         selected: _type == type,
                         onSelected: (_) => setState(() => _type = type),
                         selectedColor: const Color(0xFFDCFCE7),
@@ -181,19 +183,19 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                   children: [
                     _StepButton(
                       icon: Icons.remove_rounded,
-                      tooltip: 'Menos',
+                      tooltip: l10n.mealsLess,
                       onTap: _portions > kMinPortions ? () => _step(-kPortionStep) : null,
                     ),
                     Expanded(
                       child: Text(
-                        _detail,
+                        _detail(l10n),
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: Color(0xFF2C2F31), fontSize: 15, fontWeight: FontWeight.w700),
                       ),
                     ),
                     _StepButton(
                       icon: Icons.add_rounded,
-                      tooltip: 'Más',
+                      tooltip: l10n.mealsMore,
                       onTap: _portions < kMaxPortions ? () => _step(kPortionStep) : null,
                     ),
                   ],
@@ -215,7 +217,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
                     ),
-                    child: Text('Agregar a ${_type.label}'),
+                    child: Text(l10n.homeAddToMeal(_type.label(l10n))),
                   ),
                 ),
               ],

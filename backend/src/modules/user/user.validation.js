@@ -91,17 +91,37 @@ export const validateUpdateProfileRequest = (req, res, next) => {
   next();
 };
 
+// Exactamente una forma de confirmar: contraseña, o idToken de Google para
+// las cuentas sin contraseña. El servicio decide cuál corresponde.
 export const validateDeleteAccountRequest = (req, res, next) => {
-  const { password } = req.body ?? {};
+  const { password, googleIdToken } = req.body ?? {};
+  const hasPassword = typeof password === 'string' && password.length > 0;
+  const hasGoogleToken = typeof googleIdToken === 'string' && googleIdToken.trim().length > 0;
 
-  if (typeof password !== 'string' || password.length === 0) {
+  if (hasPassword === hasGoogleToken) {
     return next(
       new AppError('Validation error', 400, 'VALIDATION_ERROR', [
-        { field: 'password', message: 'Password is required' },
+        { field: 'password', message: 'Send either password or googleIdToken' },
       ])
     );
   }
 
-  req.accountDeletionData = { password };
+  req.accountDeletionData = hasPassword ? { password } : { googleIdToken: googleIdToken.trim() };
+  next();
+};
+
+// Mismo mínimo que el registro con email.
+export const validateSetPasswordRequest = (req, res, next) => {
+  const { password } = req.body ?? {};
+
+  if (typeof password !== 'string' || password.length < 6) {
+    return next(
+      new AppError('Validation error', 400, 'VALIDATION_ERROR', [
+        { field: 'password', message: 'Password must be at least 6 characters' },
+      ])
+    );
+  }
+
+  req.setPasswordData = { password };
   next();
 };

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/motion.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/progress_repository.dart';
@@ -44,42 +45,46 @@ class _RegisterWeightSheet extends StatefulWidget {
 }
 
 class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
-  late final TextEditingController _weight = TextEditingController(text: _formatNumber(widget.lastWeight ?? 70));
+  late final TextEditingController _weight = TextEditingController(text: _formatNumber(widget.lastWeight ?? 70, context.l10n));
   final TextEditingController _height = TextEditingController();
   String? _error;
   bool _saving = false;
 
   double? get _parsedWeight => double.tryParse(_weight.text.replaceAll(',', '.'));
 
-  static String _formatNumber(double kg) => kg.toStringAsFixed(1).replaceAll('.', ',');
-  static String _formatKg(double kg) => '${_formatNumber(kg)} kg';
+  /// Un decimal; coma en español y punto en inglés.
+  static String _formatNumber(double kg, AppLocalizations l10n) {
+    final shown = kg.toStringAsFixed(1);
+    return l10n.localeName == 'es' ? shown.replaceAll('.', ',') : shown;
+  }
 
   /// Diferencia contra el último registro, p. ej. "+0,6 kg desde el último".
-  String? get _deltaText {
+  String? _deltaText(AppLocalizations l10n) {
     final last = widget.lastWeight;
     final current = _parsedWeight;
     if (last == null || current == null) return null;
     final diff = ((current - last) * 10).round() / 10;
-    if (diff == 0) return 'Igual que el último';
-    return '${diff > 0 ? '+' : '−'}${_formatKg(diff.abs())} desde el último';
+    if (diff == 0) return l10n.progressSheetSame;
+    final shown = _formatNumber(diff.abs(), l10n);
+    return diff > 0 ? l10n.progressSheetIncrease(shown) : l10n.progressSheetDecrease(shown);
   }
 
   void _step(double delta) {
     final current = _parsedWeight ?? widget.lastWeight ?? 70;
     final next = ((current + delta) * 10).round() / 10;
-    _weight.text = _formatNumber(next.clamp(_minWeight, _maxWeight));
+    _weight.text = _formatNumber(next.clamp(_minWeight, _maxWeight), context.l10n);
     setState(() {});
   }
 
   Future<void> _save() async {
     final weight = _parsedWeight;
     if (weight == null || weight < _minWeight || weight > _maxWeight) {
-      setState(() => _error = 'El peso debe estar entre 30 y 300 kg');
+      setState(() => _error = context.l10n.progressSheetWeightRangeError);
       return;
     }
     final height = widget.height ?? double.tryParse(_height.text.replaceAll(',', '.'));
     if (height == null || height <= 0 || height > 300) {
-      setState(() => _error = 'Ingresa tu altura en cm');
+      setState(() => _error = context.l10n.progressSheetHeightRequired);
       return;
     }
     setState(() {
@@ -107,6 +112,8 @@ class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final deltaText = _deltaText(l10n);
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
       child: SafeArea(
@@ -128,15 +135,15 @@ class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Registrar peso',
-                style: TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 22, fontWeight: FontWeight.w900),
+              Text(
+                l10n.progressRegisterWeight,
+                style: const TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 22, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 4),
               Text(
                 widget.lastWeight == null
-                    ? 'Escribe tu peso o ajústalo con − y +'
-                    : 'Último registro: ${_formatKg(widget.lastWeight!)}',
+                    ? l10n.progressSheetHintNoLast
+                    : l10n.progressSheetLastEntry(_formatNumber(widget.lastWeight!, l10n)),
                 style: const TextStyle(color: Color(0xFF747779), fontSize: 14, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 20),
@@ -145,7 +152,7 @@ class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
                 decoration: BoxDecoration(color: const Color(0xFFF5F7F9), borderRadius: BorderRadius.circular(24)),
                 child: Row(
                   children: [
-                    _StepButton(tooltip: 'Restar 0,1 kg', icon: Icons.remove_rounded, onPressed: () => _step(-0.1)),
+                    _StepButton(tooltip: l10n.progressSheetSubtract, icon: Icons.remove_rounded, onPressed: () => _step(-0.1)),
                     Expanded(
                       child: Column(
                         children: [
@@ -183,10 +190,10 @@ class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
                               ),
                             ],
                           ),
-                          if (_deltaText != null) ...[
+                          if (deltaText != null) ...[
                             const SizedBox(height: 6),
                             Text(
-                              _deltaText!,
+                              deltaText,
                               style: const TextStyle(
                                 color: Color(0xFF747779),
                                 fontSize: 13,
@@ -197,7 +204,7 @@ class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
                         ],
                       ),
                     ),
-                    _StepButton(tooltip: 'Sumar 0,1 kg', icon: Icons.add_rounded, onPressed: () => _step(0.1)),
+                    _StepButton(tooltip: l10n.progressSheetAdd, icon: Icons.add_rounded, onPressed: () => _step(0.1)),
                   ],
                 ),
               ),
@@ -209,7 +216,7 @@ class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [_numberFormatter],
                   decoration: InputDecoration(
-                    labelText: 'Altura (cm)',
+                    labelText: l10n.progressSheetHeightLabel,
                     filled: true,
                     fillColor: const Color(0xFFF1F5F9),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
@@ -233,7 +240,7 @@ class _RegisterWeightSheetState extends State<_RegisterWeightSheet> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
                   ),
-                  child: const Text('Guardar peso'),
+                  child: Text(l10n.progressSheetSave),
                 ),
               ),
             ],

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/water_streak_repository.dart';
 import '../widgets/water_progress_illustration.dart';
@@ -126,9 +127,9 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
       appBar: AppBar(
         backgroundColor: const Color(0xFFF2F8FA),
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Racha de agua',
-          style: TextStyle(
+        title: Text(
+          context.l10n.hydrationScreenTitle,
+          style: const TextStyle(
             color: AppTheme.onSurface,
             fontSize: 18,
             fontWeight: FontWeight.w800,
@@ -159,16 +160,19 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
               color: Color(0xFF6A8790),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'No pudimos cargar tu racha de agua.',
+            Text(
+              context.l10n.hydrationLoadError,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppTheme.onSurface,
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
-            TextButton(onPressed: _load, child: const Text('Reintentar')),
+            TextButton(
+              onPressed: _load,
+              child: Text(context.l10n.commonRetry),
+            ),
           ],
         ),
       ),
@@ -176,6 +180,7 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
   }
 
   Widget _buildTracker(WaterStreakSnapshot snapshot) {
+    final l10n = context.l10n;
     final remaining = WaterStreakRepository.dailyGoal - snapshot.glassesToday;
     final completed = snapshot.goalCompleted;
     return SingleChildScrollView(
@@ -204,9 +209,9 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Tu reto de hoy',
-                      style: TextStyle(
+                    Text(
+                      l10n.hydrationTodayChallenge,
+                      style: const TextStyle(
                         color: AppTheme.onSurface,
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
@@ -245,7 +250,7 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
-                    _dialogue(snapshot.glassesToday),
+                    _dialogue(l10n, snapshot.glassesToday),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Color(0xFF45626C),
@@ -269,7 +274,7 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                           : Icons.water_drop_rounded,
                     ),
                     label: Text(
-                      completed ? 'Reto completado' : 'Registrar un vaso',
+                      completed ? l10n.hydrationChallengeDone : l10n.hydrationLogGlass,
                     ),
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xFF1683A0),
@@ -291,7 +296,7 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                         ? null
                         : () => _changeGlasses(add: false),
                     icon: const Icon(Icons.undo_rounded, size: 18),
-                    label: const Text('Deshacer último vaso'),
+                    label: Text(l10n.hydrationUndoGlass),
                     style: TextButton.styleFrom(
                       foregroundColor: const Color(0xFF5F7C86),
                     ),
@@ -300,7 +305,7 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                 if (_saveError != null) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'No se pudo guardar el cambio: $_saveError',
+                    l10n.hydrationSaveError('$_saveError'),
                     key: const ValueKey('water-save-error'),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
@@ -312,7 +317,7 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                 if (!completed) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Te ${remaining == 1 ? 'falta' : 'faltan'} $remaining ${remaining == 1 ? 'vaso' : 'vasos'} para completar el reto.',
+                    l10n.hydrationRemaining(remaining),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Color(0xFF738991),
@@ -324,10 +329,10 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Meta del reto: ${WaterStreakRepository.dailyGoal} vasos al día. Ajusta tu hidratación a tus necesidades.',
+          Text(
+            l10n.hydrationGoalNote(WaterStreakRepository.dailyGoal),
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF738991),
               fontSize: 11,
               height: 1.4,
@@ -339,6 +344,7 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
   }
 
   Widget _buildStreakCard(WaterStreakSnapshot snapshot) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -376,9 +382,9 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'RACHA ACTUAL',
-                  style: TextStyle(
+                Text(
+                  l10n.hydrationCurrentStreakKicker,
+                  style: const TextStyle(
                     color: Color(0xFFD3F2F7),
                     fontSize: 10,
                     letterSpacing: 1.1,
@@ -387,7 +393,7 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${snapshot.currentStreak} ${snapshot.currentStreak == 1 ? 'día' : 'días'}',
+                  l10n.hydrationDays(snapshot.currentStreak),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 25,
@@ -395,7 +401,7 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                   ),
                 ),
                 Text(
-                  'Mejor racha: ${snapshot.bestStreak} ${snapshot.bestStreak == 1 ? 'día' : 'días'}',
+                  l10n.hydrationBestStreak(snapshot.bestStreak),
                   style: const TextStyle(
                     color: Color(0xFFD3F2F7),
                     fontSize: 11,
@@ -415,14 +421,14 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
     );
   }
 
-  String _dialogue(int glasses) {
+  String _dialogue(AppLocalizations l10n, int glasses) {
     return switch (glasses) {
-      0 => '¡Hola! ¿Me ayudas a llenar mi vasito hoy?',
-      1 => '¡Gracias! Cada vasito cuenta.',
-      2 => '¡Qué bien! Ya vamos avanzando juntos.',
-      3 => '¡Vamos muy bien! Un poquito más.',
-      4 => '¡Casi lo logramos! Un vasito más.',
-      _ => '¡Lo hicimos! Mañana seguimos cuidando el hábito.',
+      0 => l10n.hydrationDialogue0,
+      1 => l10n.hydrationDialogue1,
+      2 => l10n.hydrationDialogue2,
+      3 => l10n.hydrationDialogue3,
+      4 => l10n.hydrationDialogue4,
+      _ => l10n.hydrationDialogueDone,
     };
   }
 }
@@ -432,6 +438,7 @@ class _WaterGoalCelebrationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
@@ -453,24 +460,24 @@ class _WaterGoalCelebrationDialog extends StatelessWidget {
                 width: 210,
                 height: 190,
                 fit: BoxFit.contain,
-                semanticLabel: 'Nutria celebrando con serpentinas',
+                semanticLabel: l10n.hydrationCelebrationImage,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              '¡Meta de agua cumplida!',
+            Text(
+              l10n.hydrationGoalReached,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF14677A),
                 fontSize: 21,
                 fontWeight: FontWeight.w900,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              '¡La nutria está celebrando contigo! Cada día estás construyendo un gran hábito.',
+            Text(
+              l10n.hydrationCelebrationBody,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF5F7C86),
                 fontSize: 13,
                 height: 1.4,
@@ -485,9 +492,9 @@ class _WaterGoalCelebrationDialog extends StatelessWidget {
                   backgroundColor: const Color(0xFF1683A0),
                   padding: const EdgeInsets.symmetric(vertical: 13),
                 ),
-                child: const Text(
-                  '¡Qué bien!',
-                  style: TextStyle(fontWeight: FontWeight.w800),
+                child: Text(
+                  l10n.hydrationCelebrationOk,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 
 /// Buscador de alimentos con una X para borrar lo escrito.
 class FoodSearchField extends StatelessWidget {
@@ -33,7 +34,7 @@ class FoodSearchField extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
-            hintText: 'Busca más de 100,000 alimentos...',
+            hintText: context.l10n.nutritionSearchHint,
             hintStyle: const TextStyle(
               color: Color(0xFF94A3B8),
               fontSize: 15,
@@ -46,7 +47,7 @@ class FoodSearchField extends StatelessWidget {
             suffixIcon: value.text.isEmpty
                 ? null
                 : IconButton(
-                    tooltip: 'Borrar búsqueda',
+                    tooltip: context.l10n.nutritionClearSearch,
                     onPressed: controller.clear,
                     icon: const Icon(
                       Icons.close_rounded,

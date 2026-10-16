@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/ads/ad_banner.dart';
 import '../../../../core/ads/ads_service.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../../core/state/bot_mood_state.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -40,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _userName = widget.user?['name'] ?? 'Usuario';
+    _userName = widget.user?['name'] ?? currentL10n.commonUser;
     final email = widget.user?['email']?.toString().trim();
     final id = widget.user?['id']?.toString().trim();
     _hydrationAccountId = email != null && email.isNotEmpty
@@ -159,9 +160,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'RESUMEN',
-            style: TextStyle(
+          Text(
+            context.l10n.homeSummaryLabel,
+            style: const TextStyle(
               color: AppTheme.onSurfaceVariant,
               fontSize: 12,
               fontWeight: FontWeight.w800,
@@ -170,7 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Hola $_userName',
+            context.l10n.homeGreeting(_userName),
             style: const TextStyle(
               fontFamily: 'PlusJakartaSans',
               color: AppTheme.onSurface,

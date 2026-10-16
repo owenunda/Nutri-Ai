@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../network/dio_client.dart';
+import 'google_auth_service.dart';
 
 class SessionService {
   static const _keyToken = 'auth_token';
@@ -48,6 +49,7 @@ class SessionService {
 
   static Future<void> clear() async {
     DioClient.authToken = null;
+    await GoogleAuthService.signOut();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyToken);
     await prefs.remove(_keyUser);

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
+import '../../../nutrition/domain/food_units.dart';
 import '../../../nutrition/data/models/fridge_item_model.dart';
 
 /// Etiquetas de los alimentos adjuntos a un mensaje.
@@ -31,7 +33,7 @@ class AttachedFoodChips extends StatelessWidget {
               const Icon(Icons.eco_rounded, size: 13, color: Colors.white),
               const SizedBox(width: 5),
               Text(
-                _label(food),
+                _label(food, context.l10n),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12.5,
@@ -46,12 +48,13 @@ class AttachedFoodChips extends StatelessWidget {
   }
 }
 
-String _label(FridgeItemModel food) {
+String _label(FridgeItemModel food, AppLocalizations l10n) {
   if (food.quantity <= 0) return food.name;
 
   final quantity = food.quantity % 1 == 0
       ? food.quantity.toInt().toString()
       : food.quantity.toString();
 
-  return '${food.name} · $quantity ${food.unit}';
+  final unit = unitName(food.unit, l10n, count: food.quantity);
+  return '${food.name} · $quantity $unit';
 }

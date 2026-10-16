@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/rate_limit_state.dart';
 import '../../../../core/state/bot_mood_state.dart';
@@ -146,8 +147,8 @@ class ChatViewModel extends ChangeNotifier {
       if (e is RateLimitException) {
         final mins = (e.retryAfterSeconds / 60).ceil();
         final friendly = mins <= 1
-            ? 'Espera un momento, alcanzaste el límite de mensajes por minuto'
-            : 'Espera unos $mins minutos, alcanzaste el límite de mensajes';
+            ? currentL10n.chatRateLimitReplyMinute
+            : currentL10n.chatRateLimitReplyMinutes(mins);
         _startTypewriter(friendly);
         return;
       }
@@ -159,7 +160,7 @@ class ChatViewModel extends ChangeNotifier {
       _startTypewriter(
         kDebugMode
             ? 'Error: $_errorMessage'
-            : 'Lo siento, ocurrió un error. Intenta de nuevo.',
+            : currentL10n.chatGenericError,
       );
     } finally {
       _isLoading = false;

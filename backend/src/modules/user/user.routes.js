@@ -5,11 +5,13 @@ import {
   deleteAccount,
   getPhysicalHistoryController,
   getProfile,
+  setPassword,
   updateProfile,
 } from './user.controller.js';
 import {
   validateCreatePhysicalRecordRequest,
   validateDeleteAccountRequest,
+  validateSetPasswordRequest,
   validateUpdateProfileRequest,
 } from './user.validation.js';
 
@@ -143,7 +145,43 @@ router.put('/profile', authenticateToken(), validateUpdateProfileRequest, update
  *   delete:
  *     tags: [User]
  *     summary: Eliminar la cuenta del usuario y todos sus datos
- *     description: Borra de forma permanente el usuario, sus comidas, nevera, registros físicos, chats, recetas y alimentos personalizados. Exige la contraseña actual.
+ *     description: Borra de forma permanente el usuario, sus comidas, nevera, registros físicos, chats, recetas y alimentos personalizados. Exige la contraseña actual, o un idToken de Google si la cuenta no tiene contraseña.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 example: MiContraseña123
+ *               googleIdToken:
+ *                 type: string
+ *                 description: Solo para cuentas sin contraseña
+ *     responses:
+ *       200:
+ *         description: Cuenta eliminada
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         description: Confirmación incorrecta (code INVALID_PASSWORD, INVALID_GOOGLE_TOKEN o GOOGLE_ACCOUNT_MISMATCH)
+ *       404:
+ *         description: El usuario ya no existe
+ */
+router.delete('/account', authenticateToken(), validateDeleteAccountRequest, deleteAccount);
+
+/**
+ * @openapi
+ * /api/v1/user/password:
+ *   post:
+ *     tags: [User]
+ *     summary: Crear la contraseña de una cuenta que solo entra con Google
+ *     description: Solo funciona si la cuenta no tiene contraseña. Después el usuario puede entrar con Google o con email y contraseña.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -156,19 +194,17 @@ router.put('/profile', authenticateToken(), validateUpdateProfileRequest, update
  *             properties:
  *               password:
  *                 type: string
- *                 example: MiContraseña123
+ *                 minLength: 6
  *     responses:
  *       200:
- *         description: Cuenta eliminada
+ *         description: Contraseña creada
  *       400:
  *         $ref: '#/components/responses/BadRequestError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         description: Contraseña incorrecta (code INVALID_PASSWORD)
- *       404:
- *         description: El usuario ya no existe
+ *       409:
+ *         description: La cuenta ya tiene contraseña (code PASSWORD_ALREADY_SET)
  */
-router.delete('/account', authenticateToken(), validateDeleteAccountRequest, deleteAccount);
+router.post('/password', authenticateToken(), validateSetPasswordRequest, setPassword);
 
 export default router;

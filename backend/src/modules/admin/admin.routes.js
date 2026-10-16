@@ -1,11 +1,21 @@
 import { Router } from 'express';
 import authenticateToken from '../../middleware/auth.middleware.js';
-import { getOverview, listUsers, getUserDetail, updateUserPlan } from './admin.controller.js';
+import {
+  getOverview,
+  listUsers,
+  getUserDetail,
+  updateUserPlan,
+  updateUserPassword,
+  updateUserRole,
+  deleteUser,
+} from './admin.controller.js';
 import {
   validateOverviewQuery,
   validateListUsersQuery,
   validateUserIdParam,
   validatePlanBody,
+  validatePasswordBody,
+  validateRoleBody,
 } from './admin.validation.js';
 
 const router = Router();
@@ -124,5 +134,105 @@ router.patch('/users/:userId/plan',
   validatePlanBody,
   updateUserPlan
 );
+
+/**
+ * @openapi
+ * /api/v1/admin/users/{userId}/password:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Poner una contraseña nueva a un usuario (solo ADMIN)
+ *     description: Si el usuario solo entraba con Google, pasa a poder entrar también con contraseña.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [password]
+ *             properties:
+ *               password: { type: string, minLength: 6 }
+ *     responses:
+ *       200:
+ *         description: Contraseña actualizada
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       404:
+ *         description: Usuario no encontrado
+ */
+router.patch('/users/:userId/password',
+  authenticateToken(['ADMIN']),
+  validateUserIdParam,
+  validatePasswordBody,
+  updateUserPassword
+);
+
+/**
+ * @openapi
+ * /api/v1/admin/users/{userId}/role:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Dar o quitar el rol de administrador (solo ADMIN)
+ *     description: El cambio se aplica en el próximo inicio de sesión del usuario. Un admin no puede quitarse el rol a sí mismo.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [role]
+ *             properties:
+ *               role: { type: string, enum: [ADMIN, USER] }
+ *     responses:
+ *       200:
+ *         description: Rol actualizado
+ *       404:
+ *         description: Usuario no encontrado
+ *       409:
+ *         description: Un admin no puede quitarse el rol a sí mismo (code CANNOT_DEMOTE_SELF)
+ */
+router.patch('/users/:userId/role',
+  authenticateToken(['ADMIN']),
+  validateUserIdParam,
+  validateRoleBody,
+  updateUserRole
+);
+
+/**
+ * @openapi
+ * /api/v1/admin/users/{userId}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Eliminar la cuenta de un usuario y todos sus datos (solo ADMIN)
+ *     description: Borra de forma permanente el usuario, sus comidas, nevera, registros físicos, chats, recetas y alimentos personalizados. Un admin no puede borrar su propia cuenta desde aquí.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: Cuenta eliminada
+ *       404:
+ *         description: Usuario no encontrado
+ *       409:
+ *         description: Un admin no puede borrar su propia cuenta (code CANNOT_DELETE_SELF)
+ */
+router.delete('/users/:userId', authenticateToken(['ADMIN']), validateUserIdParam, deleteUser);
 
 export default router;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
@@ -75,14 +76,14 @@ class _AuthFlowNavigatorState extends State<AuthFlowNavigator> {
 
     // 2. Determinar texto y acción del botón principal de forma dinámica
     final int roundedPage = _currentPage.round();
-    String buttonText = 'Siguiente paso';
+    String buttonText = context.l10n.authFlowNext;
     VoidCallback buttonAction = _nextPage;
 
     if (roundedPage == 1) {
-      buttonText = 'Continuar';
+      buttonText = context.l10n.commonContinue;
       buttonAction = _nextPage;
     } else if (roundedPage == 2) {
-      buttonText = 'Comenzar';
+      buttonText = context.l10n.authFlowStart;
       buttonAction = () async {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('has_seen_onboarding', true);
@@ -156,8 +157,8 @@ class _AuthFlowNavigatorState extends State<AuthFlowNavigator> {
                             );
                           }
                         },
-                        child: const Text(
-                          'SALTAR',
+                        child: Text(
+                          context.l10n.authFlowSkip,
                           style: TextStyle(
                             color: Color(0xFF64748B),
                             fontSize: 14,
@@ -283,8 +284,8 @@ class _AuthFlowNavigatorState extends State<AuthFlowNavigator> {
                                   context,
                                   LegalDocuments.terms,
                                 ),
-                                child: const Text(
-                                  'REVISAR TÉRMINOS',
+                                child: Text(
+                                  context.l10n.authFlowReviewTerms,
                                   style: TextStyle(
                                     color: Color(0xFF595C5E),
                                     fontSize: 12,

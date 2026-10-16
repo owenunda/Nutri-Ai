@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/week_stats.dart';
 import 'week_calories_card.dart' show formatKcal;
@@ -10,12 +11,13 @@ class WeeklySummaryGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final limit = week.dailyLimit;
     final tiles = [
-      ('PROMEDIO DIARIO', '${formatKcal(week.average)} kcal'),
-      ('META DIARIA', limit == null ? '--' : '${formatKcal(limit)} kcal'),
-      ('DÍAS EN META', limit == null ? '--' : '${week.daysOnTarget} de 7'),
-      ('TOTAL SEMANA', '${formatKcal(week.total)} kcal'),
+      (l10n.progressTileDailyAverage, '${formatKcal(week.average, l10n)} kcal'),
+      (l10n.progressTileDailyGoal, limit == null ? '--' : '${formatKcal(limit, l10n)} kcal'),
+      (l10n.progressTileDaysOnTarget, limit == null ? '--' : l10n.progressDaysOfSeven(week.daysOnTarget)),
+      (l10n.progressTileWeekTotal, '${formatKcal(week.total, l10n)} kcal'),
     ];
     return GridView.count(
       crossAxisCount: 2,

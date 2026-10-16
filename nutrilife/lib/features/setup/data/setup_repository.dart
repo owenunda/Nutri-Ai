@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
 
@@ -42,7 +43,7 @@ class SetupRepository {
     }
 
     if (body.isEmpty) {
-      throw const SetupException('No hay datos para guardar.');
+      throw SetupException(currentL10n.setupErrorNothingToSave);
     }
 
     try {
@@ -57,7 +58,7 @@ class SetupRepository {
       }
 
       throw SetupException(
-        _extractFriendlyMessage(data) ?? 'No se pudo guardar la información.',
+        _extractFriendlyMessage(data) ?? currentL10n.setupErrorSave,
       );
     } on DioException catch (error) {
       throw SetupException(
@@ -67,9 +68,7 @@ class SetupRepository {
     } on SetupException {
       rethrow;
     } catch (_) {
-      throw const SetupException(
-        'No se pudo guardar la información. Inténtalo de nuevo.',
-      );
+      throw SetupException(currentL10n.setupErrorSave);
     }
   }
 
@@ -78,11 +77,11 @@ class SetupRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return 'La conexión con el servidor tardó demasiado. Inténtalo de nuevo.';
+        return currentL10n.commonErrorTimeout;
       case DioExceptionType.connectionError:
-        return 'No se pudo conectar con el servidor. Verifica que el backend esté activo.';
+        return currentL10n.commonErrorConnection;
       default:
-        return 'No se pudo guardar la información. Inténtalo de nuevo.';
+        return currentL10n.setupErrorSave;
     }
   }
 
@@ -99,7 +98,6 @@ class SetupRepository {
             .whereType<Map>()
             .map((item) => item['message'])
             .whereType<String>()
-            .map(_translateMessage)
             .toList();
 
         if (messages.isNotEmpty) {
@@ -110,28 +108,9 @@ class SetupRepository {
 
     final message = data['message'];
     if (message is String && message.trim().isNotEmpty) {
-      return _translateMessage(message);
+      return message;
     }
 
     return null;
-  }
-
-  String _translateMessage(String message) {
-    const translations = {
-      'Validation error': 'Revisa los campos marcados e inténtalo de nuevo.',
-      'At least one field must be provided: age, weight, height or goal':
-          'Debes enviar al menos un dato para actualizar.',
-      'Age must be an integer between 16 and 120':
-          'La edad debe estar entre 16 y 120 años.',
-      'Weight must be a number greater than 0':
-          'El peso debe ser un número válido.',
-      'Height must be a number greater than 0':
-          'La altura debe ser un número válido.',
-      'Goal must be a non-empty string': 'Selecciona una meta para continuar.',
-      'Goal must contain a single value': 'Selecciona una sola meta.',
-      'User not found': 'No se encontró el usuario autenticado.',
-    };
-
-    return translations[message] ?? message;
   }
 }
