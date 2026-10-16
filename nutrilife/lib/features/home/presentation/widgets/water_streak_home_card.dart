@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../hydration/data/water_streak_repository.dart';
 import '../../../hydration/presentation/widgets/water_progress_illustration.dart';
@@ -65,17 +66,18 @@ class _WaterStreakHomeCardState extends State<WaterStreakHomeCard>
     return FutureBuilder<WaterStreakSnapshot>(
       future: _snapshot,
       builder: (context, snapshot) {
+        final l10n = context.l10n;
         final glasses = snapshot.data?.glassesToday ?? 0;
         final progress = (glasses / WaterStreakRepository.dailyGoal).clamp(
           0.0,
           1.0,
         );
         final message = snapshot.hasError
-            ? 'No se pudo cargar. Toca para reintentar.'
+            ? l10n.hydrationLoadErrorTap
             : snapshot.connectionState == ConnectionState.waiting &&
                   !snapshot.hasData
-            ? 'Cargando avance de hoy...'
-            : _streakLabel(snapshot.data?.currentStreak ?? 0);
+            ? l10n.hydrationLoadingToday
+            : l10n.hydrationStreakDays(snapshot.data?.currentStreak ?? 0);
 
         return Material(
           color: Colors.transparent,
@@ -112,7 +114,7 @@ class _WaterStreakHomeCardState extends State<WaterStreakHomeCard>
                             ),
                             const SizedBox(width: 7),
                             Text(
-                              'HIDRATACIÓN',
+                              l10n.hydrationKicker,
                               style: TextStyle(
                                 color: const Color(0xFF1683A0),
                                 fontSize: 10,
@@ -124,7 +126,7 @@ class _WaterStreakHomeCardState extends State<WaterStreakHomeCard>
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          'Beber agua',
+                          l10n.hydrationDrinkWater,
                           style: const TextStyle(
                             fontFamily: 'PlusJakartaSans',
                             color: AppTheme.onSurface,
@@ -134,7 +136,11 @@ class _WaterStreakHomeCardState extends State<WaterStreakHomeCard>
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '$glasses/${WaterStreakRepository.dailyGoal} vasos hoy · $message',
+                          l10n.hydrationGlassesTodayLine(
+                            glasses,
+                            WaterStreakRepository.dailyGoal,
+                            message,
+                          ),
                           style: const TextStyle(
                             color: AppTheme.onSurfaceVariant,
                             fontSize: 10,
@@ -155,18 +161,18 @@ class _WaterStreakHomeCardState extends State<WaterStreakHomeCard>
                           ),
                         ),
                         const SizedBox(height: 6),
-                        const Row(
+                        Row(
                           children: [
                             Text(
-                              'Un pequeño hábito, un gran avance',
-                              style: TextStyle(
+                              l10n.hydrationTagline,
+                              style: const TextStyle(
                                 color: Color(0xFF1683A0),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            SizedBox(width: 4),
-                            Icon(
+                            const SizedBox(width: 4),
+                            const Icon(
                               Icons.arrow_forward_rounded,
                               size: 15,
                               color: Color(0xFF1683A0),
@@ -193,5 +199,4 @@ class _WaterStreakHomeCardState extends State<WaterStreakHomeCard>
     );
   }
 
-  String _streakLabel(int days) => 'Racha $days ${days == 1 ? 'día' : 'días'}';
 }

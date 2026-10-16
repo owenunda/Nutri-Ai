@@ -1288,5 +1288,155 @@
         "type": "String"
       }
     }
-  }
+  },
+  "hydrationKicker": "HIDRATACIÓN",
+  "hydrationLoadErrorTap": "No se pudo cargar. Toca para reintentar.",
+  "hydrationLoadingToday": "Cargando avance de hoy...",
+  "hydrationDrinkWater": "Beber agua",
+  "hydrationGlassesTodayLine": "{glasses}/{goal} vasos hoy · {status}",
+  "@hydrationGlassesTodayLine": {
+    "placeholders": {
+      "glasses": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "hydrationTagline": "Un pequeño hábito, un gran avance",
+  "hydrationStreakDays": "{days, plural, =1{Racha 1 día} other{Racha {days} días}}",
+  "@hydrationStreakDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationScreenTitle": "Racha de agua",
+  "hydrationLoadError": "No pudimos cargar tu racha de agua.",
+  "hydrationTodayChallenge": "Tu reto de hoy",
+  "hydrationChallengeDone": "Reto completado",
+  "hydrationLogGlass": "Registrar un vaso",
+  "hydrationUndoGlass": "Deshacer último vaso",
+  "hydrationSaveError": "No se pudo guardar el cambio: {error}",
+  "@hydrationSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "hydrationRemaining": "{remaining, plural, =1{Te falta 1 vaso para completar el reto.} other{Te faltan {remaining} vasos para completar el reto.}}",
+  "@hydrationRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationGoalNote": "Meta del reto: {goal} vasos al día. Ajusta tu hidratación a tus necesidades.",
+  "@hydrationGoalNote": {
+    "placeholders": {
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationCurrentStreakKicker": "RACHA ACTUAL",
+  "hydrationDays": "{days, plural, =1{1 día} other{{days} días}}",
+  "@hydrationDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationBestStreak": "{days, plural, =1{Mejor racha: 1 día} other{Mejor racha: {days} días}}",
+  "@hydrationBestStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationDialogue0": "¡Hola! ¿Me ayudas a llenar mi vasito hoy?",
+  "hydrationDialogue1": "¡Gracias! Cada vasito cuenta.",
+  "hydrationDialogue2": "¡Qué bien! Ya vamos avanzando juntos.",
+  "hydrationDialogue3": "¡Vamos muy bien! Un poquito más.",
+  "hydrationDialogue4": "¡Casi lo logramos! Un vasito más.",
+  "hydrationDialogueDone": "¡Lo hicimos! Mañana seguimos cuidando el hábito.",
+  "hydrationCelebrationImage": "Nutria celebrando con serpentinas",
+  "hydrationGoalReached": "¡Meta de agua cumplida!",
+  "hydrationCelebrationBody": "¡La nutria está celebrando contigo! Cada día estás construyendo un gran hábito.",
+  "hydrationCelebrationOk": "¡Qué bien!",
+  "hydrationDrinkingOtter": "Nutria tomando agua",
+  "hydrationStatsTitle": "Tu hidratación",
+  "hydrationEveryGlassCounts": "Cada vaso suma",
+  "hydrationGlassesLogged": "Vasos registrados",
+  "hydrationScientistOtter": "Nutria científica de NutriLife",
+  "hydrationStatCurrentStreak": "racha actual",
+  "hydrationStatBestStreak": "mejor racha",
+  "hydrationStatTotalGlasses": "vasos totales",
+  "hydrationLast7Days": "Últimos 7 días",
+  "hydrationGoalsMet": "{count, plural, =1{1 meta cumplida} other{{count} metas cumplidas}}",
+  "@hydrationGoalsMet": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationDisclaimer": "Meta diaria: {goal} vasos · Registro personal, no consejo médico.",
+  "@hydrationDisclaimer": {
+    "placeholders": {
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationStatsLoadError": "No se pudieron cargar tus estadísticas de agua.",
+  "hydrationWeekdayInitials": "L,M,X,J,V,S,D",
+  "hydrationErrorInvalidHistory": "El historial de hidratación no es válido.",
+  "hydrationErrorInvalidData": "El historial de hidratación contiene datos no válidos.",
+  "hydrationErrorUpdate": "No se pudo actualizar el historial de hidratación.",
+  "hydrationErrorSave": "No se pudo guardar el historial de hidratación.",
+  "profileStreaksTitle": "TUS RACHAS",
+  "profileStreaksCalorieGoal": "Objetivo calórico",
+  "profileStreaksHydration": "Hidratación",
+  "profileStreaksCalorieError": "No pudimos cargar las calorías: {error}",
+  "@profileStreaksCalorieError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStreaksNoWeekData": "Aún no hay datos semanales para calcular esta racha.",
+  "profileStreaksCalorieNote": "Racha calórica calculada con los últimos 7 días disponibles.",
+  "profileStreaksDays": "{value} días",
+  "@profileStreaksDays": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStreaksCurrentBest": "actual · mejor 7d {best}",
+  "@profileStreaksCurrentBest": {
+    "placeholders": {
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStreaksLoadError": "No se pudieron cargar tus rachas.",
+  "progressSectionCalories": "CALORÍAS",
+  "progressSectionCaloriesSubtitle": "Tu consumo frente a la meta diaria",
+  "progressWeekUnavailable": "Aún no hay suficientes datos para mostrar la semana.",
+  "progressSectionHydrationSubtitle": "Un hábito complementario, día a día",
+  "progressHydrationCardTitle": "Vasos de agua · últimos 7 días"
 }

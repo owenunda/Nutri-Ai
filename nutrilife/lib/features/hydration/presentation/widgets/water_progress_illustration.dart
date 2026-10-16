@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 class WaterProgressIllustration extends StatelessWidget {
   const WaterProgressIllustration({
     super.key,
@@ -23,7 +25,7 @@ class WaterProgressIllustration extends StatelessWidget {
     return 'assets/images/hydration/hidratacion_$stage.png';
   }
 
-  Widget _cupAndDrinkingOtter() {
+  Widget _cupAndDrinkingOtter(BuildContext context) {
     return Row(
       key: ValueKey('$_assetPath-drinking-otter'),
       mainAxisSize: MainAxisSize.min,
@@ -46,7 +48,7 @@ class WaterProgressIllustration extends StatelessWidget {
           width: height * 0.46,
           height: height * 0.62,
           fit: BoxFit.contain,
-          semanticLabel: 'Nutria tomando agua',
+          semanticLabel: context.l10n.hydrationDrinkingOtter,
         ),
       ],
     );
@@ -61,7 +63,7 @@ class WaterProgressIllustration extends StatelessWidget {
         switchInCurve: Curves.easeOut,
         switchOutCurve: Curves.easeIn,
         child: showDrinkingOtter
-            ? _cupAndDrinkingOtter()
+            ? _cupAndDrinkingOtter(context)
             : Image.asset(
                 _assetPath,
                 key: ValueKey(_assetPath),

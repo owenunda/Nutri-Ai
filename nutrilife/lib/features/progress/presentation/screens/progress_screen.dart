@@ -178,9 +178,9 @@ class _ProgressContent extends StatelessWidget {
           const SizedBox(height: 18),
           _TodayCaloriesCard(data: data),
           const SizedBox(height: 22),
-          const _ProgressSectionHeading(
-            title: 'CALORÍAS',
-            subtitle: 'Tu consumo frente a la meta diaria',
+          _ProgressSectionHeading(
+            title: l10n.progressSectionCalories,
+            subtitle: l10n.progressSectionCaloriesSubtitle,
             icon: Icons.local_fire_department_rounded,
             color: Color(0xFFE89B27),
           ),
@@ -200,20 +200,20 @@ class _ProgressContent extends StatelessWidget {
               },
             )
           else
-            const _ProgressUnavailableCard(
-              message: 'Aún no hay suficientes datos para mostrar la semana.',
+            _ProgressUnavailableCard(
+              message: l10n.progressWeekUnavailable,
             ),
           const SizedBox(height: 22),
-          const _ProgressSectionHeading(
-            title: 'HIDRATACIÓN',
-            subtitle: 'Un hábito complementario, día a día',
+          _ProgressSectionHeading(
+            title: l10n.hydrationKicker,
+            subtitle: l10n.progressSectionHydrationSubtitle,
             icon: Icons.water_drop_rounded,
             color: Color(0xFF2997B3),
           ),
           const SizedBox(height: 10),
           HydrationStatsCard(
             accountId: accountId,
-            title: 'Vasos de agua · últimos 7 días',
+            title: l10n.progressHydrationCardTitle,
             showStreakSummary: false,
             showMascot: true,
           ),

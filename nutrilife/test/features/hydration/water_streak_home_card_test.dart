@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/features/home/presentation/widgets/water_streak_home_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helpers/l10n_app.dart';
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -12,8 +14,8 @@ void main() {
     var opened = false;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      l10nApp(
+        Scaffold(
           body: WaterStreakHomeCard(
             accountId: 'user@example.com',
             onTap: () async {

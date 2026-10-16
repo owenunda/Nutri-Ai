@@ -2012,4 +2012,248 @@ class AppLocalizationsEn extends AppLocalizations {
   String legalLastUpdated(String date) {
     return 'Last updated: $date';
   }
+
+  @override
+  String get hydrationKicker => 'HYDRATION';
+
+  @override
+  String get hydrationLoadErrorTap => 'Couldn\'t load. Tap to try again.';
+
+  @override
+  String get hydrationLoadingToday => 'Loading today\'s progress...';
+
+  @override
+  String get hydrationDrinkWater => 'Drink water';
+
+  @override
+  String hydrationGlassesTodayLine(int glasses, int goal, String status) {
+    return '$glasses/$goal glasses today · $status';
+  }
+
+  @override
+  String get hydrationTagline => 'A small habit, a big step';
+
+  @override
+  String hydrationStreakDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days-day streak',
+      one: '1-day streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hydrationScreenTitle => 'Water streak';
+
+  @override
+  String get hydrationLoadError => 'We couldn\'t load your water streak.';
+
+  @override
+  String get hydrationTodayChallenge => 'Today\'s challenge';
+
+  @override
+  String get hydrationChallengeDone => 'Challenge complete';
+
+  @override
+  String get hydrationLogGlass => 'Log a glass';
+
+  @override
+  String get hydrationUndoGlass => 'Undo last glass';
+
+  @override
+  String hydrationSaveError(String error) {
+    return 'Couldn\'t save the change: $error';
+  }
+
+  @override
+  String hydrationRemaining(int remaining) {
+    String _temp0 = intl.Intl.pluralLogic(
+      remaining,
+      locale: localeName,
+      other: '$remaining more glasses to complete the challenge.',
+      one: '1 more glass to complete the challenge.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hydrationGoalNote(int goal) {
+    return 'Challenge goal: $goal glasses a day. Adjust your hydration to your needs.';
+  }
+
+  @override
+  String get hydrationCurrentStreakKicker => 'CURRENT STREAK';
+
+  @override
+  String hydrationDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hydrationBestStreak(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Best streak: $days days',
+      one: 'Best streak: 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hydrationDialogue0 =>
+      'Hi! Will you help me fill my little glass today?';
+
+  @override
+  String get hydrationDialogue1 => 'Thanks! Every little glass counts.';
+
+  @override
+  String get hydrationDialogue2 => 'Nice! We\'re making progress together.';
+
+  @override
+  String get hydrationDialogue3 => 'Going great! Just a little more.';
+
+  @override
+  String get hydrationDialogue4 => 'Almost there! One more little glass.';
+
+  @override
+  String get hydrationDialogueDone =>
+      'We did it! Tomorrow we keep the habit going.';
+
+  @override
+  String get hydrationCelebrationImage => 'Otter celebrating with streamers';
+
+  @override
+  String get hydrationGoalReached => 'Water goal reached!';
+
+  @override
+  String get hydrationCelebrationBody =>
+      'The otter is celebrating with you! Every day you\'re building a great habit.';
+
+  @override
+  String get hydrationCelebrationOk => 'Awesome!';
+
+  @override
+  String get hydrationDrinkingOtter => 'Otter drinking water';
+
+  @override
+  String get hydrationStatsTitle => 'Your hydration';
+
+  @override
+  String get hydrationEveryGlassCounts => 'Every glass counts';
+
+  @override
+  String get hydrationGlassesLogged => 'Glasses logged';
+
+  @override
+  String get hydrationScientistOtter => 'NutriLife scientist otter';
+
+  @override
+  String get hydrationStatCurrentStreak => 'current streak';
+
+  @override
+  String get hydrationStatBestStreak => 'best streak';
+
+  @override
+  String get hydrationStatTotalGlasses => 'total glasses';
+
+  @override
+  String get hydrationLast7Days => 'Last 7 days';
+
+  @override
+  String hydrationGoalsMet(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count goals met',
+      one: '1 goal met',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hydrationDisclaimer(int goal) {
+    return 'Daily goal: $goal glasses · Personal log, not medical advice.';
+  }
+
+  @override
+  String get hydrationStatsLoadError => 'We couldn\'t load your water stats.';
+
+  @override
+  String get hydrationWeekdayInitials => 'M,T,W,T,F,S,S';
+
+  @override
+  String get hydrationErrorInvalidHistory =>
+      'The hydration history is not valid.';
+
+  @override
+  String get hydrationErrorInvalidData =>
+      'The hydration history contains invalid data.';
+
+  @override
+  String get hydrationErrorUpdate => 'Couldn\'t update the hydration history.';
+
+  @override
+  String get hydrationErrorSave => 'Couldn\'t save the hydration history.';
+
+  @override
+  String get profileStreaksTitle => 'YOUR STREAKS';
+
+  @override
+  String get profileStreaksCalorieGoal => 'Calorie goal';
+
+  @override
+  String get profileStreaksHydration => 'Hydration';
+
+  @override
+  String profileStreaksCalorieError(String error) {
+    return 'We couldn\'t load your calories: $error';
+  }
+
+  @override
+  String get profileStreaksNoWeekData =>
+      'There\'s no weekly data to calculate this streak yet.';
+
+  @override
+  String get profileStreaksCalorieNote =>
+      'Calorie streak based on the last 7 available days.';
+
+  @override
+  String profileStreaksDays(String value) {
+    return '$value days';
+  }
+
+  @override
+  String profileStreaksCurrentBest(String best) {
+    return 'current · best 7d $best';
+  }
+
+  @override
+  String get profileStreaksLoadError => 'We couldn\'t load your streaks.';
+
+  @override
+  String get progressSectionCalories => 'CALORIES';
+
+  @override
+  String get progressSectionCaloriesSubtitle =>
+      'Your intake vs. your daily goal';
+
+  @override
+  String get progressWeekUnavailable =>
+      'There isn\'t enough data to show the week yet.';
+
+  @override
+  String get progressSectionHydrationSubtitle =>
+      'A complementary habit, day by day';
+
+  @override
+  String get progressHydrationCardTitle => 'Glasses of water · last 7 days';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/state/meal_log_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../hydration/data/water_streak_repository.dart';
@@ -110,6 +111,7 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
         }
 
         final streaks = snapshot.data!;
+        final l10n = context.l10n;
         return Container(
           key: const ValueKey('profile-streaks-card'),
           padding: const EdgeInsets.all(16),
@@ -128,9 +130,9 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'TUS RACHAS',
-                style: TextStyle(
+              Text(
+                l10n.profileStreaksTitle,
+                style: const TextStyle(
                   color: AppTheme.primaryStart,
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
@@ -144,7 +146,7 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
                     child: _StreakMetric(
                       icon: Icons.local_fire_department_rounded,
                       color: const Color(0xFFE89B27),
-                      title: 'Objetivo calórico',
+                      title: l10n.profileStreaksCalorieGoal,
                       current: streaks.caloriesCurrent,
                       best: streaks.caloriesBest,
                     ),
@@ -154,7 +156,7 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
                     child: _StreakMetric(
                       icon: Icons.water_drop_rounded,
                       color: const Color(0xFF2997B3),
-                      title: 'Hidratación',
+                      title: l10n.profileStreaksHydration,
                       current: streaks.waterCurrent,
                       best: streaks.waterBest,
                     ),
@@ -164,7 +166,7 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
               if (streaks.calorieErrorMessage != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  'No pudimos cargar las calorías: ${streaks.calorieErrorMessage}',
+                  l10n.profileStreaksCalorieError(streaks.calorieErrorMessage!),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -174,18 +176,18 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
                 ),
               ] else if (!streaks.calorieGoalAvailable) ...[
                 const SizedBox(height: 8),
-                const Text(
-                  'Aún no hay datos semanales para calcular esta racha.',
-                  style: TextStyle(
+                Text(
+                  l10n.profileStreaksNoWeekData,
+                  style: const TextStyle(
                     color: AppTheme.onSurfaceVariant,
                     fontSize: 9,
                   ),
                 ),
               ] else ...[
                 const SizedBox(height: 8),
-                const Text(
-                  'Racha calórica calculada con los últimos 7 días disponibles.',
-                  style: TextStyle(
+                Text(
+                  l10n.profileStreaksCalorieNote,
+                  style: const TextStyle(
                     color: AppTheme.onSurfaceVariant,
                     fontSize: 9,
                   ),
@@ -268,7 +270,7 @@ class _StreakMetric extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '$currentValue días',
+            context.l10n.profileStreaksDays(currentValue),
             style: TextStyle(
               color: color,
               fontSize: 20,
@@ -276,7 +278,7 @@ class _StreakMetric extends StatelessWidget {
             ),
           ),
           Text(
-            'actual · mejor 7d $bestValue',
+            context.l10n.profileStreaksCurrentBest(bestValue),
             style: const TextStyle(
               color: AppTheme.onSurfaceVariant,
               fontSize: 9,
@@ -304,13 +306,16 @@ class _StreaksErrorCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Text(
-              'No se pudieron cargar tus rachas.',
-              style: TextStyle(color: AppTheme.onSurface),
+              context.l10n.profileStreaksLoadError,
+              style: const TextStyle(color: AppTheme.onSurface),
             ),
           ),
-          TextButton(onPressed: onRetry, child: const Text('Reintentar')),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(context.l10n.commonRetry),
+          ),
         ],
       ),
     );

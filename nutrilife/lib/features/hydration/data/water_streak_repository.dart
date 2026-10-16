@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/utils/local_date.dart';
 
 class WaterStreakSnapshot {
@@ -91,7 +92,7 @@ class WaterStreakRepository {
 
     final decoded = jsonDecode(storedHistory);
     if (decoded is! Map<String, dynamic>) {
-      throw const FormatException('El historial de hidratación no es válido.');
+      throw FormatException(currentL10n.hydrationErrorInvalidHistory);
     }
 
     final history = <String, int>{};
@@ -104,9 +105,7 @@ class WaterStreakRepository {
           count is! int ||
           count < 1 ||
           count > _previousDailyGoal) {
-        throw const FormatException(
-          'El historial de hidratación contiene datos no válidos.',
-        );
+        throw FormatException(currentL10n.hydrationErrorInvalidData);
       }
       if (count > dailyGoal) {
         history[entry.key] = dailyGoal;
@@ -121,7 +120,7 @@ class WaterStreakRepository {
         jsonEncode(history),
       );
       if (!saved) {
-        throw StateError('No se pudo actualizar el historial de hidratación.');
+        throw StateError(currentL10n.hydrationErrorUpdate);
       }
     }
     return history;
@@ -134,7 +133,7 @@ class WaterStreakRepository {
       jsonEncode(history),
     );
     if (!saved) {
-      throw StateError('No se pudo guardar el historial de hidratación.');
+      throw StateError(currentL10n.hydrationErrorSave);
     }
   }
 

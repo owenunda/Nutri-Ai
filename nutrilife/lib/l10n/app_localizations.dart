@@ -3367,6 +3367,366 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Última actualización: {date}'**
   String legalLastUpdated(String date);
+
+  /// No description provided for @hydrationKicker.
+  ///
+  /// In es, this message translates to:
+  /// **'HIDRATACIÓN'**
+  String get hydrationKicker;
+
+  /// No description provided for @hydrationLoadErrorTap.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar. Toca para reintentar.'**
+  String get hydrationLoadErrorTap;
+
+  /// No description provided for @hydrationLoadingToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando avance de hoy...'**
+  String get hydrationLoadingToday;
+
+  /// No description provided for @hydrationDrinkWater.
+  ///
+  /// In es, this message translates to:
+  /// **'Beber agua'**
+  String get hydrationDrinkWater;
+
+  /// No description provided for @hydrationGlassesTodayLine.
+  ///
+  /// In es, this message translates to:
+  /// **'{glasses}/{goal} vasos hoy · {status}'**
+  String hydrationGlassesTodayLine(int glasses, int goal, String status);
+
+  /// No description provided for @hydrationTagline.
+  ///
+  /// In es, this message translates to:
+  /// **'Un pequeño hábito, un gran avance'**
+  String get hydrationTagline;
+
+  /// No description provided for @hydrationStreakDays.
+  ///
+  /// In es, this message translates to:
+  /// **'{days, plural, =1{Racha 1 día} other{Racha {days} días}}'**
+  String hydrationStreakDays(int days);
+
+  /// No description provided for @hydrationScreenTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Racha de agua'**
+  String get hydrationScreenTitle;
+
+  /// No description provided for @hydrationLoadError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar tu racha de agua.'**
+  String get hydrationLoadError;
+
+  /// No description provided for @hydrationTodayChallenge.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu reto de hoy'**
+  String get hydrationTodayChallenge;
+
+  /// No description provided for @hydrationChallengeDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Reto completado'**
+  String get hydrationChallengeDone;
+
+  /// No description provided for @hydrationLogGlass.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar un vaso'**
+  String get hydrationLogGlass;
+
+  /// No description provided for @hydrationUndoGlass.
+  ///
+  /// In es, this message translates to:
+  /// **'Deshacer último vaso'**
+  String get hydrationUndoGlass;
+
+  /// No description provided for @hydrationSaveError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar el cambio: {error}'**
+  String hydrationSaveError(String error);
+
+  /// No description provided for @hydrationRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'{remaining, plural, =1{Te falta 1 vaso para completar el reto.} other{Te faltan {remaining} vasos para completar el reto.}}'**
+  String hydrationRemaining(int remaining);
+
+  /// No description provided for @hydrationGoalNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Meta del reto: {goal} vasos al día. Ajusta tu hidratación a tus necesidades.'**
+  String hydrationGoalNote(int goal);
+
+  /// No description provided for @hydrationCurrentStreakKicker.
+  ///
+  /// In es, this message translates to:
+  /// **'RACHA ACTUAL'**
+  String get hydrationCurrentStreakKicker;
+
+  /// No description provided for @hydrationDays.
+  ///
+  /// In es, this message translates to:
+  /// **'{days, plural, =1{1 día} other{{days} días}}'**
+  String hydrationDays(int days);
+
+  /// No description provided for @hydrationBestStreak.
+  ///
+  /// In es, this message translates to:
+  /// **'{days, plural, =1{Mejor racha: 1 día} other{Mejor racha: {days} días}}'**
+  String hydrationBestStreak(int days);
+
+  /// No description provided for @hydrationDialogue0.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Hola! ¿Me ayudas a llenar mi vasito hoy?'**
+  String get hydrationDialogue0;
+
+  /// No description provided for @hydrationDialogue1.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Gracias! Cada vasito cuenta.'**
+  String get hydrationDialogue1;
+
+  /// No description provided for @hydrationDialogue2.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Qué bien! Ya vamos avanzando juntos.'**
+  String get hydrationDialogue2;
+
+  /// No description provided for @hydrationDialogue3.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Vamos muy bien! Un poquito más.'**
+  String get hydrationDialogue3;
+
+  /// No description provided for @hydrationDialogue4.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Casi lo logramos! Un vasito más.'**
+  String get hydrationDialogue4;
+
+  /// No description provided for @hydrationDialogueDone.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Lo hicimos! Mañana seguimos cuidando el hábito.'**
+  String get hydrationDialogueDone;
+
+  /// No description provided for @hydrationCelebrationImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Nutria celebrando con serpentinas'**
+  String get hydrationCelebrationImage;
+
+  /// No description provided for @hydrationGoalReached.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Meta de agua cumplida!'**
+  String get hydrationGoalReached;
+
+  /// No description provided for @hydrationCelebrationBody.
+  ///
+  /// In es, this message translates to:
+  /// **'¡La nutria está celebrando contigo! Cada día estás construyendo un gran hábito.'**
+  String get hydrationCelebrationBody;
+
+  /// No description provided for @hydrationCelebrationOk.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Qué bien!'**
+  String get hydrationCelebrationOk;
+
+  /// No description provided for @hydrationDrinkingOtter.
+  ///
+  /// In es, this message translates to:
+  /// **'Nutria tomando agua'**
+  String get hydrationDrinkingOtter;
+
+  /// No description provided for @hydrationStatsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu hidratación'**
+  String get hydrationStatsTitle;
+
+  /// No description provided for @hydrationEveryGlassCounts.
+  ///
+  /// In es, this message translates to:
+  /// **'Cada vaso suma'**
+  String get hydrationEveryGlassCounts;
+
+  /// No description provided for @hydrationGlassesLogged.
+  ///
+  /// In es, this message translates to:
+  /// **'Vasos registrados'**
+  String get hydrationGlassesLogged;
+
+  /// No description provided for @hydrationScientistOtter.
+  ///
+  /// In es, this message translates to:
+  /// **'Nutria científica de NutriLife'**
+  String get hydrationScientistOtter;
+
+  /// No description provided for @hydrationStatCurrentStreak.
+  ///
+  /// In es, this message translates to:
+  /// **'racha actual'**
+  String get hydrationStatCurrentStreak;
+
+  /// No description provided for @hydrationStatBestStreak.
+  ///
+  /// In es, this message translates to:
+  /// **'mejor racha'**
+  String get hydrationStatBestStreak;
+
+  /// No description provided for @hydrationStatTotalGlasses.
+  ///
+  /// In es, this message translates to:
+  /// **'vasos totales'**
+  String get hydrationStatTotalGlasses;
+
+  /// No description provided for @hydrationLast7Days.
+  ///
+  /// In es, this message translates to:
+  /// **'Últimos 7 días'**
+  String get hydrationLast7Days;
+
+  /// No description provided for @hydrationGoalsMet.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 meta cumplida} other{{count} metas cumplidas}}'**
+  String hydrationGoalsMet(int count);
+
+  /// No description provided for @hydrationDisclaimer.
+  ///
+  /// In es, this message translates to:
+  /// **'Meta diaria: {goal} vasos · Registro personal, no consejo médico.'**
+  String hydrationDisclaimer(int goal);
+
+  /// No description provided for @hydrationStatsLoadError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar tus estadísticas de agua.'**
+  String get hydrationStatsLoadError;
+
+  /// No description provided for @hydrationWeekdayInitials.
+  ///
+  /// In es, this message translates to:
+  /// **'L,M,X,J,V,S,D'**
+  String get hydrationWeekdayInitials;
+
+  /// No description provided for @hydrationErrorInvalidHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'El historial de hidratación no es válido.'**
+  String get hydrationErrorInvalidHistory;
+
+  /// No description provided for @hydrationErrorInvalidData.
+  ///
+  /// In es, this message translates to:
+  /// **'El historial de hidratación contiene datos no válidos.'**
+  String get hydrationErrorInvalidData;
+
+  /// No description provided for @hydrationErrorUpdate.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo actualizar el historial de hidratación.'**
+  String get hydrationErrorUpdate;
+
+  /// No description provided for @hydrationErrorSave.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar el historial de hidratación.'**
+  String get hydrationErrorSave;
+
+  /// No description provided for @profileStreaksTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'TUS RACHAS'**
+  String get profileStreaksTitle;
+
+  /// No description provided for @profileStreaksCalorieGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo calórico'**
+  String get profileStreaksCalorieGoal;
+
+  /// No description provided for @profileStreaksHydration.
+  ///
+  /// In es, this message translates to:
+  /// **'Hidratación'**
+  String get profileStreaksHydration;
+
+  /// No description provided for @profileStreaksCalorieError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar las calorías: {error}'**
+  String profileStreaksCalorieError(String error);
+
+  /// No description provided for @profileStreaksNoWeekData.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no hay datos semanales para calcular esta racha.'**
+  String get profileStreaksNoWeekData;
+
+  /// No description provided for @profileStreaksCalorieNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Racha calórica calculada con los últimos 7 días disponibles.'**
+  String get profileStreaksCalorieNote;
+
+  /// No description provided for @profileStreaksDays.
+  ///
+  /// In es, this message translates to:
+  /// **'{value} días'**
+  String profileStreaksDays(String value);
+
+  /// No description provided for @profileStreaksCurrentBest.
+  ///
+  /// In es, this message translates to:
+  /// **'actual · mejor 7d {best}'**
+  String profileStreaksCurrentBest(String best);
+
+  /// No description provided for @profileStreaksLoadError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar tus rachas.'**
+  String get profileStreaksLoadError;
+
+  /// No description provided for @progressSectionCalories.
+  ///
+  /// In es, this message translates to:
+  /// **'CALORÍAS'**
+  String get progressSectionCalories;
+
+  /// No description provided for @progressSectionCaloriesSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu consumo frente a la meta diaria'**
+  String get progressSectionCaloriesSubtitle;
+
+  /// No description provided for @progressWeekUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no hay suficientes datos para mostrar la semana.'**
+  String get progressWeekUnavailable;
+
+  /// No description provided for @progressSectionHydrationSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Un hábito complementario, día a día'**
+  String get progressSectionHydrationSubtitle;
+
+  /// No description provided for @progressHydrationCardTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Vasos de agua · últimos 7 días'**
+  String get progressHydrationCardTitle;
 }
 
 class _AppLocalizationsDelegate
