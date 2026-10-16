@@ -30,8 +30,10 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    final original = DioClient.instance.httpClientAdapter;
     adapter = _CaptureAdapter();
     DioClient.instance.httpClientAdapter = adapter;
+    addTearDown(() => DioClient.instance.httpClientAdapter = original);
   });
 
   test('manda el idioma elegido en Accept-Language', () async {

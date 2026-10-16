@@ -46,4 +46,31 @@ void main() {
     await s.load();
     expect(s.preference, LanguagePreference.system);
   });
+
+  test('volver a sistema sigue otra vez al teléfono', () async {
+    final s = _state('en');
+    await s.load();
+    await s.setPreference(LanguagePreference.es);
+    expect(s.languageCode, 'es');
+
+    await s.setPreference(LanguagePreference.system);
+
+    expect(s.locale, isNull);
+    expect(s.languageCode, 'en');
+    final otra = _state('en');
+    await otra.load();
+    expect(otra.preference, LanguagePreference.system);
+  });
+
+  test('elegir el mismo idioma no avisa a nadie', () async {
+    final s = _state('es');
+    await s.load();
+    await s.setPreference(LanguagePreference.en);
+    var avisos = 0;
+    s.addListener(() => avisos++);
+
+    await s.setPreference(LanguagePreference.en);
+
+    expect(avisos, 0);
+  });
 }

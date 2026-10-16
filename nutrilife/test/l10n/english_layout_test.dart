@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilife/features/hydration/data/water_streak_repository.dart';
+import 'package:nutrilife/features/hydration/presentation/screens/water_streak_screen.dart';
 import 'package:nutrilife/core/network/dio_client.dart';
 import 'package:nutrilife/core/theme/app_theme.dart';
 import 'package:nutrilife/features/auth/data/auth_repository.dart';
@@ -362,8 +364,11 @@ void main() {
 
     testWidgets('onboarding: las tres páginas', (tester) async {
       await _show(tester, const AuthFlowNavigator(), settle: false);
+      // Título de cada página en inglés: confirma que el swipe sí avanza.
+      const titles = ['Discover Foods', 'Personalized', 'Track Your Progress'];
       for (var page = 0; page < 3; page++) {
         expect(find.byType(AuthFlowNavigator), findsOneWidget);
+        expect(find.textContaining(titles[page]), findsOneWidget);
         if (page < 2) {
           await tester.drag(find.byType(PageView), const Offset(-300, 0));
           await tester.pump(const Duration(milliseconds: 800));
@@ -511,6 +516,7 @@ void main() {
         ),
       );
       expect(find.byType(AllFoodsScreen), findsOneWidget);
+      expect(find.text('My fridge'), findsOneWidget);
     });
 
     testWidgets('hoja para añadir un alimento', (tester) async {
@@ -578,6 +584,19 @@ void main() {
       await tester.tap(find.text('open sheet'));
       await tester.pumpAndSettle();
       expect(find.byType(BottomSheet), findsOneWidget);
+    });
+  });
+
+  group('Hidratación en inglés a 375x812', () {
+    testWidgets('racha de agua con la meta cumplida y su celebración', (tester) async {
+      await _show(tester, const WaterStreakScreen(accountId: 'layout@example.com'));
+      expect(find.text('Water streak'), findsOneWidget);
+      for (var glass = 0; glass < WaterStreakRepository.dailyGoal; glass++) {
+        await tester.ensureVisible(find.byKey(const ValueKey('add-water-glass')));
+        await tester.tap(find.byKey(const ValueKey('add-water-glass')));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('Water goal reached!'), findsOneWidget);
     });
   });
 
