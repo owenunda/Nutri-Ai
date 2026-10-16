@@ -1,11 +1,15 @@
 // backend/src/i18n/localize.js
 import { CODE_MESSAGES, SOURCE_MESSAGES } from './messages.js';
 
-const bySource = (message, lang) =>
-  typeof message === 'string' ? SOURCE_MESSAGES[message]?.[lang] : undefined;
+// Object.hasOwn: un texto o código como "constructor" no debe resolver a
+// propiedades heredadas del objeto.
+const own = (table, key) =>
+  table && typeof key === 'string' && Object.hasOwn(table, key) ? table[key] : undefined;
+
+const bySource = (message, lang) => own(own(SOURCE_MESSAGES, message), lang);
 
 const byCode = (code, lang, params) => {
-  const entry = CODE_MESSAGES[lang]?.[code];
+  const entry = own(own(CODE_MESSAGES, lang), code);
   return typeof entry === 'function' ? entry(params ?? {}) : entry;
 };
 

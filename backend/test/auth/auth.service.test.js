@@ -403,6 +403,21 @@ test('Login: correo sin verificar envía un código y responde 403', async () =>
   assert.equal(events.at(-1).metadata.reason, 'EMAIL_NOT_VERIFIED');
 });
 
+test('Login: sin verificar envía el código en el idioma de la petición', async () => {
+  const langs = [];
+  const user = await unverifiedAna();
+  repo.findUserByEmail = async () => user;
+  codes.sendCode = async (u, purpose, lang) => {
+    langs.push(lang);
+  };
+
+  await assert.rejects(
+    loginUser({ email: 'ana@gmail.com', password: 'secreto123', lang: 'en' }),
+    { code: 'EMAIL_NOT_VERIFIED' }
+  );
+  assert.deepEqual(langs, ['en']);
+});
+
 test('Login: sin verificar y con un código reciente igual responde 403', async () => {
   const { AppError } = await import(src('utils/AppError.js'));
   const user = await unverifiedAna();

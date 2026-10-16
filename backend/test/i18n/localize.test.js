@@ -52,3 +52,10 @@ test('traduce los mensajes de los detalles y deja los demás campos', () => {
     'texto suelto',
   ]);
 });
+
+test('un código o mensaje con nombre de propiedad heredada no rompe nada', () => {
+  const out = localizeError({ code: 'constructor', message: 'toString' }, 'en');
+  assert.equal(out.message, 'toString');
+  const otro = localizeError({ code: 'INVALID_CODE', message: 'hasOwnProperty' }, '__proto__');
+  assert.equal(otro.message, 'hasOwnProperty');
+});

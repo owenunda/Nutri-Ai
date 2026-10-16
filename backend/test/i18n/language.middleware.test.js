@@ -30,3 +30,13 @@ test('el middleware deja el idioma en req.lang', () => {
   assert.equal(req.lang, 'en');
   assert.ok(called);
 });
+
+test('el parámetro q no distingue mayúsculas', () => {
+  assert.equal(resolveLang('en;Q=0.1, es;q=0.9'), 'es');
+  assert.equal(resolveLang('es;Q=0, en'), 'en');
+});
+
+test('un q mal formado descarta ese idioma', () => {
+  assert.equal(resolveLang('en;q=abc, es'), 'es');
+  assert.equal(resolveLang('en;q=, fr'), 'es');
+});

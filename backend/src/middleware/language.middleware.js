@@ -13,7 +13,8 @@ export const resolveLang = (header) => {
     .split(',')
     .map((part, index) => {
       const [tag, ...params] = part.trim().split(';');
-      const qParam = params.map((p) => p.trim()).find((p) => p.startsWith('q='));
+      // El nombre del parámetro no distingue mayúsculas (q=0.8 o Q=0.8).
+      const qParam = params.map((p) => p.trim()).find((p) => p.toLowerCase().startsWith('q='));
       return {
         lang: tag.trim().toLowerCase().split('-')[0],
         q: qParam ? Number(qParam.slice(2)) : 1,
