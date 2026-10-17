@@ -49,6 +49,8 @@ import 'package:nutrilife/features/setup/presentation/screens/profile_setup_scre
 import 'package:nutrilife/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../helpers/fake_hydration_server.dart';
+
 /// Revisión de layout en inglés: arma las pantallas principales en un teléfono
 /// de 375x812, con la tipografía real de la app y el tamaño de texto normal,
 /// y falla si algo desborda. El test de Flutter falla solo ante cualquier
@@ -348,7 +350,9 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    DioClient.instance.httpClientAdapter = _EmptyAdapter();
+    DioClient.instance.httpClientAdapter = FakeHydrationServer(
+      fallback: _EmptyAdapter(),
+    );
   });
 
   group('Auth en inglés a 375x812', () {
@@ -447,7 +451,9 @@ void main() {
   group('Inicio en inglés a 375x812', () {
     testWidgets('dashboard: pestañas de inicio, alimentos, chat, progreso y perfil',
         (tester) async {
-      DioClient.instance.httpClientAdapter = _ProfileAdapter();
+      DioClient.instance.httpClientAdapter = FakeHydrationServer(
+        fallback: _ProfileAdapter(),
+      );
       await _show(
         tester,
         const DashboardScreen(user: {'name': 'Alexandra Montgomery'}),

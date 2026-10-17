@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilife/core/network/dio_client.dart';
 import 'package:nutrilife/features/hydration/data/water_streak_repository.dart';
 import 'package:nutrilife/features/hydration/presentation/screens/water_streak_screen.dart';
 import 'package:nutrilife/features/hydration/presentation/widgets/hydration_stats_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helpers/fake_hydration_server.dart';
 import '../../helpers/l10n_app.dart';
 
 void main() {
@@ -64,12 +66,9 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    final repository = WaterStreakRepository(accountId: 'stats@example.com');
-    for (final day in [DateTime(2026, 10, 12), DateTime(2026, 10, 13)]) {
-      for (var glass = 0; glass < WaterStreakRepository.dailyGoal; glass++) {
-        await repository.addGlass(now: day);
-      }
-    }
+    final server = DioClient.instance.httpClientAdapter as FakeHydrationServer;
+    server.history['2026-10-12'] = WaterStreakRepository.dailyGoal;
+    server.history['2026-10-13'] = WaterStreakRepository.dailyGoal;
 
     await tester.pumpWidget(
       l10nApp(
