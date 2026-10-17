@@ -12,6 +12,8 @@ const validationError = (field, message) =>
 /** Fecha real en formato YYYY-MM-DD. */
 export const isValidDay = (value) => {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  // Postgres no tiene año 0000.
+  if (value < '0001') return false;
   const time = Date.parse(`${value}T00:00:00Z`);
   return !Number.isNaN(time) && new Date(time).toISOString().slice(0, 10) === value;
 };

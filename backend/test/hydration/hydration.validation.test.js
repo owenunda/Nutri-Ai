@@ -23,6 +23,7 @@ test('isValidDay acepta solo fechas reales YYYY-MM-DD', () => {
   assert.equal(isValidDay('2026-02-30'), false);
   assert.equal(isValidDay('17/10/2026'), false);
   assert.equal(isValidDay(20261017), false);
+  assert.equal(isValidDay('0000-01-01'), false);
 });
 
 test('date de hoy, ayer o mañana pasa', () => {
@@ -56,6 +57,7 @@ for (const history of [
   { [today]: 6 },
   { [today]: 2.5 },
   { [shift(5)]: 2 },
+  { '0000-01-01': 1 },
 ]) {
   test(`import inválido ${JSON.stringify(history)} responde 400`, () => {
     const { error } = run(validateImportBody, { history });
