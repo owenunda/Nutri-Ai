@@ -47,7 +47,7 @@ Se monta en `POST /api/v1/n8n/chat` después de `chatRateLimit`.
    - `code: 'CHAT_DAILY_LIMIT'` (FREE) o `'CHAT_FAIR_USE_LIMIT'` (PRO)
    - mensaje localizado (es/en) vía `localizeError`
    - `details` / datos: `{ limit, used, remaining: 0, resetAt }`, donde `resetAt` es el ISO de la próxima medianoche de Bogotá.
-6. Si no pasa el límite → deja en `req.chatQuota` `{ plan, limit, used, remaining, resetAt }` y una función `req.chatQuota.refund()` que hace `DECR`.
+6. Si no pasa el límite → deja en `req.chatQuota` `{ quota, refund }`, donde `quota` es `{ plan, unlimited, limit, used, remaining, resetAt, exhausted }` y `refund()` hace `DECR`. `exhausted` es true cuando ya no quedan mensajes (también para PRO en su tope), y la app lo usa para bloquear el input.
 7. **Redis caído**: deja pasar el mensaje, registra en el log y deja `req.chatQuota = null`. Es el mismo criterio fail-open que `rateLimit.middleware.js`.
 
 Si el usuario del token ya no existe en la base de datos, responde 401, igual que cualquier petición sin usuario válido.
@@ -57,12 +57,12 @@ Si el usuario del token ya no existe en la base de datos, responde 401, igual qu
 - Si `sendChatN8n` lanza error → `req.chatQuota?.refund()` antes de responder.
 - El error `N8N_ERROR` pasa a mostrar un mensaje amigable localizado: es: "El Chef está descansando un momento. Intenta de nuevo en un rato." / en: "The Chef is taking a short break. Try again in a little while." El status pasa de 500 a 503 y no consume mensaje.
 - La respuesta exitosa agrega `quota` junto a los datos de n8n:
-  `data: { ...respuestaN8n, quota: { limit, used, remaining, resetAt, unlimited } }`.
+  `data: { ...respuestaN8n, quota: { plan, unlimited, limit, used, remaining, resetAt, exhausted } }`.
   Si Redis estaba caído, `quota` es `null`.
 
 ### `GET /api/v1/chat/quota` (nuevo, en `chat.routes.js`)
 
-Devuelve la cuota de hoy sin consumir: `{ plan, limit, used, remaining, resetAt, unlimited }`. Usa el mismo helper que el middleware (lee con `GET`, sin `INCR`). Los roles `ADMIN` y `USER` pueden llamarlo.
+Devuelve la cuota de hoy sin consumir: `{ plan, unlimited, limit, used, remaining, resetAt, exhausted }`. Usa el mismo helper que el middleware (lee con `GET`, sin `INCR`). Los roles `ADMIN` y `USER` pueden llamarlo.
 
 Para PRO, el endpoint devuelve `unlimited: true` y no expone `limit` ni `used` (el tope de 50 es interno). Si un PRO llega a 50, recibe un 429 con el código `CHAT_FAIR_USE_LIMIT` y el mensaje "Llegaste al límite de uso justo de hoy. Vuelve mañana."
 
