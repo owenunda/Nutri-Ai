@@ -214,7 +214,12 @@ export const CODE_MESSAGES = {
     SESSION_ACTIVATE_ERROR: 'We could not open the conversation.',
     SESSION_UPDATE_ERROR: 'We could not update the conversation.',
     SESSION_CLOSE_ERROR: 'We could not close the conversation.',
-    N8N_ERROR: 'We could not reach the chat service.',
+    N8N_ERROR: 'The Chef is taking a short break. Try again in a little while.',
+    CHAT_DAILY_LIMIT: ({ limit } = {}) =>
+      limit
+        ? `You've used your ${limit} Chef AI message${limit === 1 ? '' : 's'} for today.`
+        : "You've used your Chef AI messages for today.",
+    CHAT_FAIR_USE_LIMIT: "You've reached today's fair-use limit. Come back tomorrow.",
 
     // Admin
     CANNOT_DEMOTE_SELF: 'You cannot remove your own admin role.',
