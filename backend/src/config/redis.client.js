@@ -18,11 +18,20 @@ export const getRedisClient = async () => {
   }
 
   connecting = (async () => {
-    const c = createClient({ url: config.redis.url });
+    // Sin cola offline: con Redis caído los comandos fallan al instante y se
+    // cumple el fail-open del rate limit y de la cuota, en vez de quedar colgados.
+    const c = createClient({ url: config.redis.url, disableOfflineQueue: true });
     c.on('error', (err) => {
       console.error('[redis] error de conexión:', err.message);
     });
-    await c.connect();
+    try {
+      await c.connect();
+    } catch (err) {
+      // Que el siguiente llamado reintente en vez de reusar la promesa rechazada.
+      connecting = null;
+      client = null;
+      throw err;
+    }
     client = c;
     connecting = null;
     return c;

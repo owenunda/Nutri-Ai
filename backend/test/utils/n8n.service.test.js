@@ -4,12 +4,14 @@ import assert from 'node:assert/strict';
 const src = (path) => new URL(`../../src/${path}`, import.meta.url).href;
 
 const posts = [];
+const postOptions = [];
 let failNext = false;
 mock.module('axios', {
   exports: {
     default: {
-      post: async (url, payload) => {
+      post: async (url, payload, options) => {
         posts.push(payload);
+        postOptions.push(options);
         if (failNext) {
           failNext = false;
           throw new Error('socket hang up');
@@ -34,6 +36,11 @@ test('manda el idioma a n8n', async () => {
 test('sin idioma manda español', async () => {
   await sendChatN8n('hola', 7, 'Ana', 'jwt');
   assert.equal(posts.at(-1).language, 'es');
+});
+
+test('la llamada a n8n lleva timeout de 85 s', async () => {
+  await sendChatN8n('hola', 7, 'Ana', 'jwt');
+  assert.equal(postOptions.at(-1).timeout, 85000);
 });
 
 test('si n8n falla el error es 503 con mensaje amigable', async () => {

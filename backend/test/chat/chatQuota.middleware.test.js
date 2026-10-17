@@ -43,6 +43,15 @@ test('FREE sin mensajes: 429 CHAT_DAILY_LIMIT en español con la cuota', async (
   assert.deepEqual(res.body.data, { quota: freeExhausted });
 });
 
+test('FREE con límite 1: el texto en español va en singular', async () => {
+  const quota = { ...freeExhausted, limit: 1, used: 1 };
+  consumeImpl = async () => ({ allowed: false, quota, refund: async () => {} });
+  const res = fakeRes();
+  await chatDailyQuota({ user: { userId: 1, role: 'USER' } }, res, () => assert.fail('no debe pasar'));
+
+  assert.equal(res.body.message, 'Usaste tu 1 mensaje de hoy con el Chef IA.');
+});
+
 test('FREE sin mensajes: el mensaje sale en inglés', async () => {
   consumeImpl = async () => ({ allowed: false, quota: freeExhausted, refund: async () => {} });
   const res = fakeRes();

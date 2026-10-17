@@ -17,7 +17,8 @@ export const sendChatN8n = async (message, userId, userName, token, attachedFood
       attachedFoods,
       language,
     };
-    const response = await axios.post(URL_WEBHOOK, payload);
+    // La app corta a los 90 s; fallar antes permite devolver el mensaje de la cuota.
+    const response = await axios.post(URL_WEBHOOK, payload, { timeout: 85_000 });
     return response.data;
   } catch (error) {
     console.error("Error al enviar mensaje a n8n:", error.response?.data || error.message);

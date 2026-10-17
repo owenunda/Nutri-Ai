@@ -19,7 +19,9 @@ export const chatDailyQuota = async (req, res, next) => {
     const code = fairUse ? 'CHAT_FAIR_USE_LIMIT' : 'CHAT_DAILY_LIMIT';
     const source = fairUse
       ? 'Llegaste al límite de uso justo de hoy. Vuelve mañana.'
-      : `Usaste tus ${quota.limit} mensaje${quota.limit === 1 ? '' : 's'} de hoy con el Chef IA.`;
+      : quota.limit === 1
+        ? 'Usaste tu 1 mensaje de hoy con el Chef IA.'
+        : `Usaste tus ${quota.limit} mensajes de hoy con el Chef IA.`;
     const { message } = localizeError(
       { code, message: source, params: { limit: quota.limit } },
       req.lang
