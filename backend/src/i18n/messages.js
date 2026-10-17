@@ -113,8 +113,20 @@ export const SOURCE_MESSAGES = {
   },
   'Weight is required': { es: 'El peso es obligatorio.', en: 'Weight is required.' },
   'Weight must be a number greater than 0': { es: 'El peso debe ser un número válido.', en: 'Weight must be a valid number.' },
+  'date must be today in YYYY-MM-DD format': {
+    es: 'date debe ser la fecha de hoy en formato YYYY-MM-DD.',
+    en: 'date must be today in YYYY-MM-DD format.',
+  },
   'days must be a positive integer': { es: 'days debe ser un entero positivo.', en: 'days must be a positive integer.' },
   'from must be a valid ISO date': { es: 'from debe ser una fecha ISO válida.', en: 'from must be a valid ISO date.' },
+  'history has too many days': {
+    es: 'El historial tiene demasiados días.',
+    en: 'The history has too many days.',
+  },
+  'history must be an object of date: glasses': {
+    es: 'El historial debe ser un objeto fecha: vasos.',
+    en: 'The history must be an object of date: glasses.',
+  },
   'limit must be a positive integer': { es: 'limit debe ser un entero positivo.', en: 'limit must be a positive integer.' },
   'limit must be an integer between 1 and 200': {
     es: 'limit debe ser un entero entre 1 y 200.',
@@ -241,6 +253,7 @@ export const CODE_MESSAGES = {
     EVENTS_SERVICE_ERROR: SOMETHING_WENT_WRONG,
     FOOD_SERVICE_ERROR: SOMETHING_WENT_WRONG,
     FRIDGE_SERVICE_ERROR: SOMETHING_WENT_WRONG,
+    HYDRATION_SERVICE_ERROR: SOMETHING_WENT_WRONG,
     MEAL_SERVICE_ERROR: SOMETHING_WENT_WRONG,
     RECIPE_SERVICE_ERROR: SOMETHING_WENT_WRONG,
     STATS_SERVICE_ERROR: SOMETHING_WENT_WRONG,

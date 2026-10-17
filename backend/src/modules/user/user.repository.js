@@ -242,6 +242,7 @@ export const deleteUserAccountData = async (userId) => {
     await client.query('DELETE FROM fridges WHERE user_id = $1', [userId]);
 
     await client.query('DELETE FROM physical_records WHERE user_id = $1', [userId]);
+    await client.query('DELETE FROM water_intake WHERE user_id = $1', [userId]);
 
     // Cada receta generada por la IA se inserta para un solo usuario; solo se
     // borran las que nadie más tiene ni aparecen en comidas de otros.
