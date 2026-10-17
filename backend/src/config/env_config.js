@@ -49,4 +49,8 @@ export const config = {
     authStrictPerMinute: Number(trim(env.RATE_LIMIT_AUTH_PER_MINUTE)) || 5,
     globalPerMinute: Number(trim(env.RATE_LIMIT_GLOBAL_PER_MINUTE)) || 60,
   },
+  chatQuota: {
+    freePerDay: Number(trim(env.CHAT_DAILY_LIMIT_FREE)) || 3,
+    proPerDay: Number(trim(env.CHAT_DAILY_LIMIT_PRO)) || 50,
+  },
 };
