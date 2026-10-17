@@ -14,35 +14,33 @@ class WaterProgressIllustration extends StatelessWidget {
   final double height;
   final bool showDrinkingOtter;
 
-  String get _assetPath {
-    final stage = switch (glasses) {
-      <= 0 => '01_vacio',
-      1 => '02_25',
-      2 => '03_50',
-      3 => '04_75',
-      _ => '05_meta_cumplida',
-    };
-    return 'assets/images/hydration/hidratacion_$stage.png';
-  }
+  String get _stage => switch (glasses) {
+        <= 0 => '01_vacio',
+        1 => '02_25',
+        2 => '03_50',
+        3 => '04_75',
+        _ => '05_meta_cumplida',
+      };
+
+  /// Vaso con la nutria saludando al lado.
+  String get _assetPath => 'assets/images/hydration/hidratacion_$_stage.png';
+
+  /// Solo el vaso, con fondo transparente, para ponerle al lado la nutria
+  /// que toma agua.
+  String get _glassOnlyPath => 'assets/images/hydration/vaso_$_stage.png';
 
   Widget _cupAndDrinkingOtter(BuildContext context) {
     return Row(
-      key: ValueKey('$_assetPath-drinking-otter'),
+      key: ValueKey('$_glassOnlyPath-drinking-otter'),
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ClipRect(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            widthFactor: 0.54,
-            child: Image.asset(
-              _assetPath,
-              height: height,
-              fit: BoxFit.fitHeight,
-              cacheWidth: 800,
-            ),
-          ),
+        Image.asset(
+          _glassOnlyPath,
+          height: height * 0.92,
+          fit: BoxFit.fitHeight,
         ),
+        const SizedBox(width: 8),
         Image.asset(
           'assets/images/nutria tomando agua.png',
           width: height * 0.46,

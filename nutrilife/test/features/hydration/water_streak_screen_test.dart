@@ -36,13 +36,24 @@ void main() {
       ),
       findsOneWidget,
     );
+    // Con la nutria tomando agua va el vaso solo: la ilustración completa trae
+    // otra nutria pegada al vaso y se colaba su pata.
     expect(
       find.byKey(
         const ValueKey(
-          'assets/images/hydration/hidratacion_01_vacio.png-drinking-otter',
+          'assets/images/hydration/vaso_01_vacio.png-drinking-otter',
         ),
       ),
       findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Image &&
+            widget.image is AssetImage &&
+            (widget.image as AssetImage).assetName.contains('hidratacion_'),
+      ),
+      findsNothing,
     );
 
     await tester.tap(find.byKey(const ValueKey('add-water-glass')));
