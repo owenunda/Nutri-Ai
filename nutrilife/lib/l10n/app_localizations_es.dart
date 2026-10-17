@@ -2143,9 +2143,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get hydrationCelebrationOk => '¡Qué bien!';
 
   @override
-  String get hydrationDrinkingOtter => 'Nutria tomando agua';
-
-  @override
   String get hydrationStatsTitle => 'Tu hidratación';
 
   @override

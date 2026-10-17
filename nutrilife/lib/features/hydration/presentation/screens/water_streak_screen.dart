@@ -245,7 +245,6 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                 WaterProgressIllustration(
                   glasses: snapshot.glassesToday,
                   height: 220,
-                  showDrinkingOtter: true,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),

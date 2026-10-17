@@ -29,20 +29,10 @@ void main() {
       find.text('¡Hola! ¿Me ayudas a llenar mi vasito hoy?'),
       findsOneWidget,
     );
-    expect(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is Image && widget.semanticLabel == 'Nutria tomando agua',
-      ),
-      findsOneWidget,
-    );
-    // Con la nutria tomando agua va el vaso solo: la ilustración completa trae
-    // otra nutria pegada al vaso y se colaba su pata.
+    // Cada nivel trae su propia nutria: no se le suma otra encima.
     expect(
       find.byKey(
-        const ValueKey(
-          'assets/images/hydration/vaso_01_vacio.png-drinking-otter',
-        ),
+        const ValueKey('assets/images/hydration/hidratacion_01_vacio.png'),
       ),
       findsOneWidget,
     );
@@ -51,7 +41,7 @@ void main() {
         (widget) =>
             widget is Image &&
             widget.image is AssetImage &&
-            (widget.image as AssetImage).assetName.contains('hidratacion_'),
+            (widget.image as AssetImage).assetName.contains('nutria'),
       ),
       findsNothing,
     );

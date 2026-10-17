@@ -3536,12 +3536,6 @@ abstract class AppLocalizations {
   /// **'¡Qué bien!'**
   String get hydrationCelebrationOk;
 
-  /// No description provided for @hydrationDrinkingOtter.
-  ///
-  /// In es, this message translates to:
-  /// **'Nutria tomando agua'**
-  String get hydrationDrinkingOtter;
-
   /// No description provided for @hydrationStatsTitle.
   ///
   /// In es, this message translates to:
