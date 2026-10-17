@@ -1461,5 +1461,12 @@
   },
   "chatQuotaGoPremium": "Hazte Premium",
   "chatQuotaReply": "Por hoy ya usaste tus mensajes conmigo. Vuelve mañana o hazte Premium para seguir cocinando juntos.",
-  "chatQuotaFairUseReply": "Hoy hablamos muchísimo. Descansemos y seguimos mañana."
+  "chatQuotaFairUseReply": "Hoy hablamos muchísimo. Descansemos y seguimos mañana.",
+  "profilePremiumActiveUntil": "Activo hasta el {date}",
+  "@profilePremiumActiveUntil": {
+    "placeholders": {
+      "date": { "type": "DateTime", "format": "yMMMd" }
+    }
+  },
+  "profilePremiumActiveForever": "Activo sin vencimiento"
 }

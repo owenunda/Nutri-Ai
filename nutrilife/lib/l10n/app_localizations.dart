@@ -3769,6 +3769,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Hoy hablamos muchísimo. Descansemos y seguimos mañana.'**
   String get chatQuotaFairUseReply;
+
+  /// No description provided for @profilePremiumActiveUntil.
+  ///
+  /// In es, this message translates to:
+  /// **'Activo hasta el {date}'**
+  String profilePremiumActiveUntil(DateTime date);
+
+  /// No description provided for @profilePremiumActiveForever.
+  ///
+  /// In es, this message translates to:
+  /// **'Activo sin vencimiento'**
+  String get profilePremiumActiveForever;
 }
 
 class _AppLocalizationsDelegate

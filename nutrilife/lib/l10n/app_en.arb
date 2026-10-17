@@ -1057,5 +1057,7 @@
   "chatQuotaResetsAt": "They reset at {time}",
   "chatQuotaGoPremium": "Go Premium",
   "chatQuotaReply": "You've used your messages with me for today. Come back tomorrow or go Premium to keep cooking together.",
-  "chatQuotaFairUseReply": "We talked a lot today. Let's rest and pick up tomorrow."
+  "chatQuotaFairUseReply": "We talked a lot today. Let's rest and pick up tomorrow.",
+  "profilePremiumActiveUntil": "Active until {date}",
+  "profilePremiumActiveForever": "Active with no end date"
 }

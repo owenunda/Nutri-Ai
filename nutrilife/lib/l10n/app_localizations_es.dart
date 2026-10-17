@@ -2298,4 +2298,15 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get chatQuotaFairUseReply =>
       'Hoy hablamos muchísimo. Descansemos y seguimos mañana.';
+
+  @override
+  String profilePremiumActiveUntil(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Activo hasta el $dateString';
+  }
+
+  @override
+  String get profilePremiumActiveForever => 'Activo sin vencimiento';
 }

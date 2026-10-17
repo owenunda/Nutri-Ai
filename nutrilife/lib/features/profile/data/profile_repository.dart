@@ -26,6 +26,7 @@ class UserProfile {
     required this.plan,
     required this.createdAt,
     required this.hasPassword,
+    this.proUntil,
   });
 
   final String name;
@@ -37,6 +38,11 @@ class UserProfile {
   final String? sex;
   final String? plan;
   final DateTime? createdAt;
+
+  /// Fin del PRO regalado, en hora local. Null con PRO = sin vencimiento.
+  final DateTime? proUntil;
+
+  bool get isPro => plan?.toUpperCase() == 'PRO';
 
   /// false si la cuenta solo entra con Google.
   final bool hasPassword;
@@ -53,6 +59,7 @@ class UserProfile {
       plan: json['plan']?.toString().trim(),
       createdAt: _toDateTime(json['createdAt']),
       hasPassword: json['hasPassword'] != false,
+      proUntil: _toDateTime(json['proUntil'])?.toLocal(),
     );
   }
 
@@ -67,6 +74,7 @@ class UserProfile {
     String? plan,
     DateTime? createdAt,
     bool? hasPassword,
+    DateTime? proUntil,
   }) {
     return UserProfile(
       name: name ?? this.name,
@@ -79,6 +87,7 @@ class UserProfile {
       plan: plan ?? this.plan,
       createdAt: createdAt ?? this.createdAt,
       hasPassword: hasPassword ?? this.hasPassword,
+      proUntil: proUntil ?? this.proUntil,
     );
   }
 

@@ -275,6 +275,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 20),
                 _SettingsCard(
+                  isPro: profile.isPro,
+                  proUntil: profile.proUntil,
                   mealRemindersEnabled: _mealRemindersEnabled,
                   onMealReminderChanged: (value) {
                     setState(() {
@@ -578,11 +580,17 @@ class _GoalOption {
 
 class _SettingsCard extends StatelessWidget {
   const _SettingsCard({
+    required this.isPro,
+    required this.proUntil,
     required this.mealRemindersEnabled,
     required this.onMealReminderChanged,
     required this.onOpenConfiguration,
   });
 
+  final bool isPro;
+
+  /// Fin del PRO regalado. Null con PRO = sin vencimiento.
+  final DateTime? proUntil;
   final bool mealRemindersEnabled;
   final ValueChanged<bool> onMealReminderChanged;
   final VoidCallback onOpenConfiguration;
@@ -604,11 +612,20 @@ class _SettingsCard extends StatelessWidget {
             iconColor: _ProfileColors.green,
             iconBackground: const Color(0xFFDCFCE7),
             title: l10n.premiumTitle,
-            subtitle: l10n.profilePremiumSubtitle,
-            trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFFADB4BC), size: 30),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const PremiumScreen()),
-            ),
+            // Con PRO ya no se vende: se dice hasta cuándo dura.
+            subtitle: !isPro
+                ? l10n.profilePremiumSubtitle
+                : proUntil == null
+                    ? l10n.profilePremiumActiveForever
+                    : l10n.profilePremiumActiveUntil(proUntil!),
+            trailing: isPro
+                ? const Icon(Icons.check_circle_rounded, color: _ProfileColors.green, size: 26)
+                : const Icon(Icons.chevron_right_rounded, color: Color(0xFFADB4BC), size: 30),
+            onTap: isPro
+                ? null
+                : () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const PremiumScreen()),
+                    ),
           ),
           _SettingsRow(
             icon: Icons.access_time_filled_rounded,
