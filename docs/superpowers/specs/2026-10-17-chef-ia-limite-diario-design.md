@@ -46,9 +46,9 @@ Se monta en `POST /api/v1/n8n/chat` después de `chatRateLimit`.
 5. Si el valor pasa el límite → `DECR` (para no inflar el contador) y responde **429**:
    - `code: 'CHAT_DAILY_LIMIT'` (FREE) o `'CHAT_FAIR_USE_LIMIT'` (PRO)
    - mensaje localizado (es/en) vía `localizeError`
-   - `details` / datos: `{ limit, used, remaining: 0, resetAt }`, donde `resetAt` es el ISO de la próxima medianoche de Bogotá.
+   - `data: { quota }` con la misma forma del punto 6 (`remaining: 0`, `exhausted: true`); `resetAt` es el ISO de la próxima medianoche de Bogotá.
 6. Si no pasa el límite → deja en `req.chatQuota` `{ quota, refund }`, donde `quota` es `{ plan, unlimited, limit, used, remaining, resetAt, exhausted }` y `refund()` hace `DECR`. `exhausted` es true cuando ya no quedan mensajes (también para PRO en su tope), y la app lo usa para bloquear el input.
-7. **Redis caído**: deja pasar el mensaje, registra en el log y deja `req.chatQuota = null`. Es el mismo criterio fail-open que `rateLimit.middleware.js`.
+7. **Redis caído**: deja pasar el mensaje, registra en el log y deja `req.chatQuota = { quota: null, refund: noop }`. Es el mismo criterio fail-open que `rateLimit.middleware.js`.
 
 Si el usuario del token ya no existe en la base de datos, responde 401, igual que cualquier petición sin usuario válido.
 
