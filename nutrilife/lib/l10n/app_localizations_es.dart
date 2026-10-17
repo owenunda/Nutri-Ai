@@ -2260,4 +2260,39 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get progressHydrationCardTitle => 'Vasos de agua · últimos 7 días';
+
+  @override
+  String chatQuotaRemaining(int remaining, int limit) {
+    return '$remaining de $limit mensajes hoy';
+  }
+
+  @override
+  String chatQuotaExhaustedTitle(int limit) {
+    String _temp0 = intl.Intl.pluralLogic(
+      limit,
+      locale: localeName,
+      other: 'Usaste tus $limit mensajes de hoy',
+      one: 'Usaste tu mensaje de hoy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatQuotaFairUseTitle => 'Llegaste al límite de uso justo de hoy';
+
+  @override
+  String chatQuotaResetsAt(String time) {
+    return 'Se reinician a las $time';
+  }
+
+  @override
+  String get chatQuotaGoPremium => 'Hazte Premium';
+
+  @override
+  String get chatQuotaReply =>
+      'Por hoy ya usaste tus mensajes conmigo. Vuelve mañana o hazte Premium para seguir cocinando juntos.';
+
+  @override
+  String get chatQuotaFairUseReply =>
+      'Hoy hablamos muchísimo. Descansemos y seguimos mañana.';
 }

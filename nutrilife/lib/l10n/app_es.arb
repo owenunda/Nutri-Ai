@@ -1437,5 +1437,28 @@
   "progressSectionCaloriesSubtitle": "Tu consumo frente a la meta diaria",
   "progressWeekUnavailable": "Aún no hay suficientes datos para mostrar la semana.",
   "progressSectionHydrationSubtitle": "Un hábito complementario, día a día",
-  "progressHydrationCardTitle": "Vasos de agua · últimos 7 días"
+  "progressHydrationCardTitle": "Vasos de agua · últimos 7 días",
+  "chatQuotaRemaining": "{remaining} de {limit} mensajes hoy",
+  "@chatQuotaRemaining": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "limit": { "type": "int" }
+    }
+  },
+  "chatQuotaExhaustedTitle": "{limit, plural, =1{Usaste tu mensaje de hoy} other{Usaste tus {limit} mensajes de hoy}}",
+  "@chatQuotaExhaustedTitle": {
+    "placeholders": {
+      "limit": { "type": "int" }
+    }
+  },
+  "chatQuotaFairUseTitle": "Llegaste al límite de uso justo de hoy",
+  "chatQuotaResetsAt": "Se reinician a las {time}",
+  "@chatQuotaResetsAt": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "chatQuotaGoPremium": "Hazte Premium",
+  "chatQuotaReply": "Por hoy ya usaste tus mensajes conmigo. Vuelve mañana o hazte Premium para seguir cocinando juntos.",
+  "chatQuotaFairUseReply": "Hoy hablamos muchísimo. Descansemos y seguimos mañana."
 }

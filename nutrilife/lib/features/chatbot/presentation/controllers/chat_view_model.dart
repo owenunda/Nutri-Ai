@@ -9,6 +9,7 @@ import '../../../nutrition/data/models/fridge_item_model.dart';
 import '../../data/chat_repository.dart';
 import '../../data/models/chat_actions_model.dart';
 import '../../data/models/chat_message_model.dart';
+import '../../data/models/chat_quota_model.dart';
 import '../../data/models/recipe_model.dart';
 
 class ChatViewModel extends ChangeNotifier {
@@ -26,6 +27,7 @@ class ChatViewModel extends ChangeNotifier {
   /// camino: lo que llegue después no debe tocar la pantalla.
   bool _disposed = false;
   int? _currentSessionId;
+  ChatQuota? _quota;
 
   List<ChatMessageModel> get messages => List.unmodifiable(_messages);
   bool get isLoading => _isLoading;
@@ -34,6 +36,24 @@ class ChatViewModel extends ChangeNotifier {
   /// Sesión cuyos mensajes están en pantalla. Null en un chat nuevo hasta que
   /// se cargue desde el historial.
   int? get currentSessionId => _currentSessionId;
+
+  /// Mensajes que le quedan hoy. Null si el backend no la ha dicho.
+  ChatQuota? get quota => _quota;
+
+  /// Sin mensajes por hoy: la pantalla cambia el input por la tarjeta.
+  bool get isQuotaExhausted => _quota?.exhausted ?? false;
+
+  /// Pide la cuota al abrir el chat. Si falla, el chat sigue sin contador.
+  Future<void> loadQuota() async {
+    try {
+      final quota = await _repository.getQuota();
+      if (quota == null) return;
+      _quota = quota;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('ChatViewModel.loadQuota falló: $e');
+    }
+  }
 
   void clearMessages() {
     _typingTimer?.cancel();
@@ -132,6 +152,7 @@ class ChatViewModel extends ChangeNotifier {
         fridgeItemIds: [for (final f in foods) if (f.isFromFridge) f.fridgeItemId],
         foodIds: [for (final f in foods) if (!f.isFromFridge) f.foodId],
       );
+      if (reply.quota != null) _quota = reply.quota;
       if (reply.recipe != null) {
         _messages.add(ChatMessageModel(
           text: reply.text,
@@ -144,6 +165,13 @@ class ChatViewModel extends ChangeNotifier {
         _startTypewriter(reply.text, actions: reply.actions);
       }
     } catch (e, stackTrace) {
+      if (e is ChatQuotaExceededException) {
+        _quota = e.quota;
+        _startTypewriter(
+          e.isFairUse ? currentL10n.chatQuotaFairUseReply : currentL10n.chatQuotaReply,
+        );
+        return;
+      }
       if (e is RateLimitException) {
         final mins = (e.retryAfterSeconds / 60).ceil();
         final friendly = mins <= 1
@@ -168,7 +196,9 @@ class ChatViewModel extends ChangeNotifier {
       // hold(idle) va antes del pulse: pulse solo se aplica sobre idle.
       // Sin el guard del rate limit, agotar el limite haria guinar al bot,
       // porque esa rama hace return sin poner _errorMessage.
-      if (_errorMessage == null && !DioClient.rateLimit.isExhausted) {
+      if (_errorMessage == null &&
+          !DioClient.rateLimit.isExhausted &&
+          !isQuotaExhausted) {
         BotMoodState.instance.pulse(BotMood.pleased);
       }
       notifyListeners();

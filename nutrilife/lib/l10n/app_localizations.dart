@@ -3721,6 +3721,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Vasos de agua · últimos 7 días'**
   String get progressHydrationCardTitle;
+
+  /// No description provided for @chatQuotaRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'{remaining} de {limit} mensajes hoy'**
+  String chatQuotaRemaining(int remaining, int limit);
+
+  /// No description provided for @chatQuotaExhaustedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'{limit, plural, =1{Usaste tu mensaje de hoy} other{Usaste tus {limit} mensajes de hoy}}'**
+  String chatQuotaExhaustedTitle(int limit);
+
+  /// No description provided for @chatQuotaFairUseTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Llegaste al límite de uso justo de hoy'**
+  String get chatQuotaFairUseTitle;
+
+  /// No description provided for @chatQuotaResetsAt.
+  ///
+  /// In es, this message translates to:
+  /// **'Se reinician a las {time}'**
+  String chatQuotaResetsAt(String time);
+
+  /// No description provided for @chatQuotaGoPremium.
+  ///
+  /// In es, this message translates to:
+  /// **'Hazte Premium'**
+  String get chatQuotaGoPremium;
+
+  /// No description provided for @chatQuotaReply.
+  ///
+  /// In es, this message translates to:
+  /// **'Por hoy ya usaste tus mensajes conmigo. Vuelve mañana o hazte Premium para seguir cocinando juntos.'**
+  String get chatQuotaReply;
+
+  /// No description provided for @chatQuotaFairUseReply.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy hablamos muchísimo. Descansemos y seguimos mañana.'**
+  String get chatQuotaFairUseReply;
 }
 
 class _AppLocalizationsDelegate

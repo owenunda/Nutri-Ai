@@ -1049,5 +1049,12 @@
   "progressSectionCaloriesSubtitle": "Your intake vs. your daily goal",
   "progressWeekUnavailable": "There isn't enough data to show the week yet.",
   "progressSectionHydrationSubtitle": "A complementary habit, day by day",
-  "progressHydrationCardTitle": "Glasses of water · last 7 days"
+  "progressHydrationCardTitle": "Glasses of water · last 7 days",
+  "chatQuotaRemaining": "{remaining} of {limit} messages today",
+  "chatQuotaExhaustedTitle": "{limit, plural, =1{You've used your message for today} other{You've used your {limit} messages for today}}",
+  "chatQuotaFairUseTitle": "You've reached today's fair-use limit",
+  "chatQuotaResetsAt": "They reset at {time}",
+  "chatQuotaGoPremium": "Go Premium",
+  "chatQuotaReply": "You've used your messages with me for today. Come back tomorrow or go Premium to keep cooking together.",
+  "chatQuotaFairUseReply": "We talked a lot today. Let's rest and pick up tomorrow."
 }
