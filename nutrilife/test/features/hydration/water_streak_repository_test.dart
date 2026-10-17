@@ -1,6 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/features/hydration/data/water_streak_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../helpers/fake_hydration_server.dart';
+
+WaterStreakRepository _repo(FakeHydrationServer server, {String account = 'user@example.com'}) =>
+    WaterStreakRepository(
+      accountId: account,
+      dio: Dio(BaseOptions(baseUrl: 'https://test.local'))..httpClientAdapter = server,
+    );
 
 void main() {
   setUp(() {
@@ -8,7 +17,7 @@ void main() {
   });
 
   test('guarda el progreso diario y calcula rachas consecutivas', () async {
-    final repository = WaterStreakRepository(accountId: 'user@example.com');
+    final repository = _repo(FakeHydrationServer());
     final firstDay = DateTime(2026, 10, 12);
 
     var snapshot = await repository.load(now: firstDay);
@@ -41,7 +50,7 @@ void main() {
   });
 
   test('limita el conteo a cuatro y permite deshacer vasos', () async {
-    final repository = WaterStreakRepository(accountId: 'user@example.com');
+    final repository = _repo(FakeHydrationServer());
     final today = DateTime(2026, 10, 14);
 
     for (var glass = 0; glass < WaterStreakRepository.dailyGoal + 2; glass++) {
@@ -60,35 +69,43 @@ void main() {
     expect(snapshot.glassesToday, 0);
   });
 
-  test('mantiene historiales separados por cuenta', () async {
-    final firstAccount = WaterStreakRepository(accountId: 'one@example.com');
-    final secondAccount = WaterStreakRepository(accountId: 'two@example.com');
+  test('cada cuenta ve su propio historial del servidor', () async {
+    final first = _repo(FakeHydrationServer(), account: 'one@example.com');
+    final second = _repo(FakeHydrationServer(), account: 'two@example.com');
     final today = DateTime(2026, 10, 14);
 
-    await firstAccount.addGlass(now: today);
+    await first.addGlass(now: today);
 
-    expect((await firstAccount.load(now: today)).glassesToday, 1);
-    expect((await secondAccount.load(now: today)).glassesToday, 0);
+    expect((await first.load(now: today)).glassesToday, 1);
+    expect((await second.load(now: today)).glassesToday, 0);
   });
 
-  test(
-    'migra historiales guardados con la meta anterior de cinco vasos',
-    () async {
-      SharedPreferences.setMockInitialValues({
-        'water_streak_v1_user%40example.com': '{"2026-10-12":5}',
-      });
-      final repository = WaterStreakRepository(accountId: 'user@example.com');
+  test('sube una vez el historial guardado en el teléfono y lo borra', () async {
+    SharedPreferences.setMockInitialValues({
+      'water_streak_v1_user%40example.com': '{"2026-10-11":4,"2026-10-12":5,"mal":2}',
+    });
+    final server = FakeHydrationServer();
+    final repository = _repo(server);
 
-      final snapshot = await repository.load(now: DateTime(2026, 10, 12));
-      final preferences = await SharedPreferences.getInstance();
+    final snapshot = await repository.load(now: DateTime(2026, 10, 12));
+    final preferences = await SharedPreferences.getInstance();
 
-      expect(snapshot.glassesToday, WaterStreakRepository.dailyGoal);
-      expect(snapshot.currentStreak, 1);
-      expect(snapshot.totalGlasses, WaterStreakRepository.dailyGoal);
-      expect(
-        preferences.getString('water_streak_v1_user%40example.com'),
-        '{"2026-10-12":4}',
-      );
-    },
-  );
+    expect(server.history, {'2026-10-11': 4, '2026-10-12': 4});
+    expect(snapshot.currentStreak, 2);
+    expect(preferences.getString('water_streak_v1_user%40example.com'), isNull);
+
+    await repository.load(now: DateTime(2026, 10, 12));
+    expect(server.requests.where((r) => r.path == '/hydration/import'), hasLength(1));
+  });
+
+  test('si el import falla, el historial local se queda para reintentar', () async {
+    SharedPreferences.setMockInitialValues({
+      'water_streak_v1_user%40example.com': '{"2026-10-12":3}',
+    });
+    final server = FakeHydrationServer()..failing = true;
+
+    await expectLater(_repo(server).load(now: DateTime(2026, 10, 12)), throwsException);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('water_streak_v1_user%40example.com'), isNotNull);
+  });
 }

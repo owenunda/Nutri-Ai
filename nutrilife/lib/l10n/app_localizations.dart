@@ -3775,6 +3775,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Activo sin vencimiento'**
   String get profilePremiumActiveForever;
+
+  /// No description provided for @hydrationErrorLoad.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar tu racha de agua. Revisa tu conexión.'**
+  String get hydrationErrorLoad;
 }
 
 class _AppLocalizationsDelegate

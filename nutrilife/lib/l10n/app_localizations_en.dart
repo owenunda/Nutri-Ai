@@ -2300,4 +2300,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profilePremiumActiveForever => 'Active with no end date';
+
+  @override
+  String get hydrationErrorLoad =>
+      'Couldn\'t load your water streak. Check your connection.';
 }

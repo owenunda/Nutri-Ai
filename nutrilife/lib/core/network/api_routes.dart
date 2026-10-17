@@ -33,4 +33,8 @@ class ApiRoutes {
   static String mealRecipeLogById(int recipeLogId) => '/meals/recipe-logs/$recipeLogId';
   static const String statsWeek = '/stats/week';
   static const String userPhysical = '/user/physical';
+  static const String hydration = '/hydration';
+  static const String hydrationGlass = '/hydration/glass';
+  static const String hydrationGlassUndo = '/hydration/glass/undo';
+  static const String hydrationImport = '/hydration/import';
 }

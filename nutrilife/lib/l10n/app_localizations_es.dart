@@ -2306,4 +2306,8 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get profilePremiumActiveForever => 'Activo sin vencimiento';
+
+  @override
+  String get hydrationErrorLoad =>
+      'No se pudo cargar tu racha de agua. Revisa tu conexión.';
 }

@@ -1467,5 +1467,6 @@
       "date": { "type": "DateTime", "format": "yMMMd" }
     }
   },
-  "profilePremiumActiveForever": "Activo sin vencimiento"
+  "profilePremiumActiveForever": "Activo sin vencimiento",
+  "hydrationErrorLoad": "No se pudo cargar tu racha de agua. Revisa tu conexión."
 }

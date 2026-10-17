@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/network/api_routes.dart';
+import '../../../core/network/dio_client.dart';
 import '../../../core/utils/local_date.dart';
 
 class WaterStreakSnapshot {
@@ -41,100 +44,97 @@ class WaterStreakState extends ChangeNotifier {
 }
 
 class WaterStreakRepository {
-  WaterStreakRepository({required String accountId})
-    : _storageKey =
-          'water_streak_v1_${Uri.encodeComponent(accountId.trim().toLowerCase())}';
+  WaterStreakRepository({required String accountId, Dio? dio})
+    : _legacyKey =
+          'water_streak_v1_${Uri.encodeComponent(accountId.trim().toLowerCase())}',
+      _dio = dio ?? DioClient.instance;
 
   static const int dailyGoal = 4;
-  static const int _previousDailyGoal = 5;
+  static const int _legacyMaxGlasses = 5;
 
-  final String _storageKey;
+  /// Clave del historial que vivía solo en el teléfono, antes del backend.
+  final String _legacyKey;
+  final Dio _dio;
 
   Future<WaterStreakSnapshot> load({DateTime? now}) async {
-    final history = await _readHistory();
-    return _snapshot(history, localDateString(now));
+    final today = localDateString(now);
+    await _importLegacyHistory();
+    return _snapshot(await _fetchHistory(), today);
   }
 
-  Future<WaterStreakSnapshot> addGlass({DateTime? now}) async {
-    final history = await _readHistory();
+  Future<WaterStreakSnapshot> addGlass({DateTime? now}) =>
+      _changeGlasses(ApiRoutes.hydrationGlass, now);
+
+  Future<WaterStreakSnapshot> undoGlass({DateTime? now}) =>
+      _changeGlasses(ApiRoutes.hydrationGlassUndo, now);
+
+  Future<WaterStreakSnapshot> _changeGlasses(String route, DateTime? now) async {
     final today = localDateString(now);
-    final currentCount = history[today] ?? 0;
-    if (currentCount < dailyGoal) {
-      history[today] = currentCount + 1;
-      await _writeHistory(history);
-      WaterStreakState.instance.bump();
+    final history = await _fetchHistory();
+    final int glasses;
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(route, data: {'date': today});
+      glasses = ((response.data?['data'] as Map?)?['glasses'] as num?)?.toInt() ?? 0;
+    } on DioException {
+      throw Exception(currentL10n.hydrationErrorSave);
     }
+    if (glasses > 0) {
+      history[today] = glasses;
+    } else {
+      history.remove(today);
+    }
+    WaterStreakState.instance.bump();
     return _snapshot(history, today);
   }
 
-  Future<WaterStreakSnapshot> undoGlass({DateTime? now}) async {
-    final history = await _readHistory();
-    final today = localDateString(now);
-    final currentCount = history[today] ?? 0;
-    if (currentCount > 0) {
-      if (currentCount == 1) {
-        history.remove(today);
-      } else {
-        history[today] = currentCount - 1;
-      }
-      await _writeHistory(history);
-      WaterStreakState.instance.bump();
+  Future<Map<String, int>> _fetchHistory() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(ApiRoutes.hydration);
+      final raw = (response.data?['data'] as Map?)?['history'];
+      if (raw is! Map) throw Exception(currentL10n.hydrationErrorInvalidHistory);
+      return {
+        for (final entry in raw.entries)
+          if (entry.key is String && entry.value is num)
+            entry.key as String: (entry.value as num).toInt(),
+      };
+    } on DioException {
+      throw Exception(currentL10n.hydrationErrorLoad);
     }
-    return _snapshot(history, today);
   }
 
-  Future<Map<String, int>> _readHistory() async {
+  /// Sube una sola vez lo que estaba guardado en el teléfono. Si el servidor
+  /// no responde, se deja para el próximo intento. Las entradas raras se
+  /// descartan.
+  Future<void> _importLegacyHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    final storedHistory = preferences.getString(_storageKey);
-    if (storedHistory == null) {
-      return {};
-    }
-
-    final decoded = jsonDecode(storedHistory);
-    if (decoded is! Map<String, dynamic>) {
-      throw FormatException(currentL10n.hydrationErrorInvalidHistory);
-    }
+    final stored = preferences.getString(_legacyKey);
+    if (stored == null) return;
 
     final history = <String, int>{};
-    var migratedHistory = false;
-    for (final entry in decoded.entries) {
-      final parsedDate = DateTime.tryParse(entry.key);
-      final count = entry.value;
-      if (parsedDate == null ||
-          localDateString(parsedDate) != entry.key ||
-          count is! int ||
-          count < 1 ||
-          count > _previousDailyGoal) {
-        throw FormatException(currentL10n.hydrationErrorInvalidData);
+    try {
+      final decoded = jsonDecode(stored);
+      if (decoded is Map) {
+        for (final entry in decoded.entries) {
+          final day = entry.key;
+          final count = entry.value;
+          final parsed = day is String ? DateTime.tryParse(day) : null;
+          if (parsed == null || localDateString(parsed) != day) continue;
+          if (count is! int || count < 1 || count > _legacyMaxGlasses) continue;
+          history[day as String] = count;
+        }
       }
-      if (count > dailyGoal) {
-        history[entry.key] = dailyGoal;
-        migratedHistory = true;
-      } else {
-        history[entry.key] = count;
-      }
+    } on FormatException {
+      // JSON roto: no hay nada que rescatar.
     }
-    if (migratedHistory) {
-      final saved = await preferences.setString(
-        _storageKey,
-        jsonEncode(history),
-      );
-      if (!saved) {
-        throw StateError(currentL10n.hydrationErrorUpdate);
-      }
-    }
-    return history;
-  }
 
-  Future<void> _writeHistory(Map<String, int> history) async {
-    final preferences = await SharedPreferences.getInstance();
-    final saved = await preferences.setString(
-      _storageKey,
-      jsonEncode(history),
-    );
-    if (!saved) {
-      throw StateError(currentL10n.hydrationErrorSave);
+    if (history.isNotEmpty) {
+      try {
+        await _dio.post<void>(ApiRoutes.hydrationImport, data: {'history': history});
+      } on DioException {
+        throw Exception(currentL10n.hydrationErrorLoad);
+      }
     }
+    await preferences.remove(_legacyKey);
   }
 
   WaterStreakSnapshot _snapshot(Map<String, int> history, String today) {
