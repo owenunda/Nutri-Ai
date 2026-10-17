@@ -10,6 +10,7 @@ import {
     getSessionMessagesController,
     activateSessionController
 } from './chat.controller.js';
+import { getChatQuotaController } from './chatQuota.controller.js';
 import {
     validateSessionIdParam,
     validateAddMessageRequest,
@@ -269,5 +270,25 @@ router.post('/session/message', authenticateToken(['ADMIN', 'USER']), validateAd
  *         description: No hay sesión activa
  */
 router.put('/session/close', authenticateToken(['ADMIN', 'USER']), closeSessionController);
+
+/**
+ * @openapi
+ * /api/v1/chat/quota:
+ *   get:
+ *     tags: [Chat]
+ *     summary: Mensajes del Chef IA que le quedan hoy al usuario
+ *     description: >
+ *       No consume mensajes. Para PRO y ADMIN unlimited es true y limit, used
+ *       y remaining vienen null. data es null si Redis no está disponible.
+ *       El día cambia a la medianoche de Bogotá (resetAt).
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cuota de hoy
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get('/quota', authenticateToken(['ADMIN', 'USER']), getChatQuotaController);
 
 export default router;
