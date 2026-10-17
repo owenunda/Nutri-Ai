@@ -167,4 +167,26 @@ void main() {
     final preferences = await SharedPreferences.getInstance();
     expect(preferences.getString('water_streak_v1_user%40example.com'), isNotNull);
   });
+
+  test('un 401 (sesión caducada) en el import no borra el historial local', () async {
+    SharedPreferences.setMockInitialValues({
+      'water_streak_v1_user%40example.com': '{"2026-10-12":3}',
+    });
+    final server = FakeHydrationServer()..importStatus = 401;
+
+    await expectLater(_repo(server).load(now: DateTime(2026, 10, 12)), throwsException);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('water_streak_v1_user%40example.com'), isNotNull);
+  });
+
+  test('un 404 (ruta aún no desplegada) en el import no borra el historial local', () async {
+    SharedPreferences.setMockInitialValues({
+      'water_streak_v1_user%40example.com': '{"2026-10-12":3}',
+    });
+    final server = FakeHydrationServer()..importStatus = 404;
+
+    await expectLater(_repo(server).load(now: DateTime(2026, 10, 12)), throwsException);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('water_streak_v1_user%40example.com'), isNotNull);
+  });
 }

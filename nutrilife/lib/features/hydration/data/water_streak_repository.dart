@@ -107,8 +107,9 @@ class WaterStreakRepository {
   /// no responde, se deja para el próximo intento. Las entradas raras, las
   /// fechas futuras (el servidor rechaza todo el import si alguna pasa de
   /// mañana) y las que sobran de las 1.000 más recientes se descartan. Si el
-  /// servidor rechaza el historial con un 4xx (salvo 408 y 429), ya no sirve y
-  /// también se borra.
+  /// servidor rechaza los datos (400, 413 o 422), ya no sirven y también se
+  /// borran. Con cualquier otro error (sesión caducada, ruta ausente, límite
+  /// de peticiones, 5xx, conexión) se conservan para reintentar.
   Future<void> _importLegacyHistory(String today) async {
     final preferences = await SharedPreferences.getInstance();
     final stored = preferences.getString(_legacyKey);
@@ -153,7 +154,7 @@ class WaterStreakRepository {
   }
 
   bool _isPermanentRejection(int? status) =>
-      status != null && status >= 400 && status < 500 && status != 408 && status != 429;
+      status == 400 || status == 413 || status == 422;
 
   WaterStreakSnapshot _snapshot(Map<String, int> history, String today) {
     final parsedToday = DateTime.parse(today);
