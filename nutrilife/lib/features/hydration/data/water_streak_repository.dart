@@ -51,6 +51,7 @@ class WaterStreakRepository {
 
   static const int dailyGoal = 4;
   static const int _legacyMaxGlasses = 5;
+  static const int _importMaxEntries = 1000;
 
   /// Clave del historial que vivía solo en el teléfono, antes del backend.
   final String _legacyKey;
@@ -58,7 +59,7 @@ class WaterStreakRepository {
 
   Future<WaterStreakSnapshot> load({DateTime? now}) async {
     final today = localDateString(now);
-    await _importLegacyHistory();
+    await _importLegacyHistory(today);
     return _snapshot(await _fetchHistory(), today);
   }
 
@@ -103,9 +104,12 @@ class WaterStreakRepository {
   }
 
   /// Sube una sola vez lo que estaba guardado en el teléfono. Si el servidor
-  /// no responde, se deja para el próximo intento. Las entradas raras se
-  /// descartan.
-  Future<void> _importLegacyHistory() async {
+  /// no responde, se deja para el próximo intento. Las entradas raras, las
+  /// fechas futuras (el servidor rechaza todo el import si alguna pasa de
+  /// mañana) y las que sobran de las 1.000 más recientes se descartan. Si el
+  /// servidor rechaza el historial con un 4xx (salvo 408 y 429), ya no sirve y
+  /// también se borra.
+  Future<void> _importLegacyHistory(String today) async {
     final preferences = await SharedPreferences.getInstance();
     final stored = preferences.getString(_legacyKey);
     if (stored == null) return;
@@ -127,15 +131,29 @@ class WaterStreakRepository {
       // JSON roto: no hay nada que rescatar.
     }
 
+    final latest = _nextDate(today);
+    history.removeWhere((day, _) => day.compareTo(latest) > 0);
+    if (history.length > _importMaxEntries) {
+      final recent = history.keys.toList()..sort();
+      for (final day in recent.take(history.length - _importMaxEntries)) {
+        history.remove(day);
+      }
+    }
+
     if (history.isNotEmpty) {
       try {
         await _dio.post<void>(ApiRoutes.hydrationImport, data: {'history': history});
-      } on DioException {
-        throw Exception(currentL10n.hydrationErrorLoad);
+      } on DioException catch (error) {
+        if (!_isPermanentRejection(error.response?.statusCode)) {
+          throw Exception(currentL10n.hydrationErrorLoad);
+        }
       }
     }
     await preferences.remove(_legacyKey);
   }
+
+  bool _isPermanentRejection(int? status) =>
+      status != null && status >= 400 && status < 500 && status != 408 && status != 429;
 
   WaterStreakSnapshot _snapshot(Map<String, int> history, String today) {
     final parsedToday = DateTime.parse(today);

@@ -18,6 +18,9 @@ class FakeHydrationServer implements HttpClientAdapter {
   /// Si es true, todas las rutas de hidratación responden 500.
   bool failing = false;
 
+  /// Si no es null, /hydration/import responde con este estado de error.
+  int? importStatus;
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -50,6 +53,10 @@ class FakeHydrationServer implements HttpClientAdapter {
         }
         return _ok({'date': date, 'glasses': left < 0 ? 0 : left});
       case ('POST', '/hydration/import'):
+        final rejected = importStatus;
+        if (rejected != null) {
+          return _json(rejected, {'success': false, 'message': 'rejected'});
+        }
         final incoming = (body['history'] as Map).cast<String, int>();
         for (final entry in incoming.entries) {
           final value = entry.value.clamp(1, goal);

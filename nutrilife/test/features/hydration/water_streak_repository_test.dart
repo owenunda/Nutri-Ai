@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilife/core/utils/local_date.dart';
 import 'package:nutrilife/features/hydration/data/water_streak_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -103,6 +106,62 @@ void main() {
       'water_streak_v1_user%40example.com': '{"2026-10-12":3}',
     });
     final server = FakeHydrationServer()..failing = true;
+
+    await expectLater(_repo(server).load(now: DateTime(2026, 10, 12)), throwsException);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('water_streak_v1_user%40example.com'), isNotNull);
+  });
+
+  test('no manda al servidor fechas futuras y aun así sube lo válido', () async {
+    SharedPreferences.setMockInitialValues({
+      'water_streak_v1_user%40example.com': '{"2026-10-12":3,"2030-01-01":4}',
+    });
+    final server = FakeHydrationServer();
+
+    final snapshot = await _repo(server).load(now: DateTime(2026, 10, 12));
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(server.history, {'2026-10-12': 3});
+    expect(snapshot.glassesToday, 3);
+    expect(preferences.getString('water_streak_v1_user%40example.com'), isNull);
+  });
+
+  test('sube como mucho las 1000 fechas más recientes', () async {
+    final start = DateTime(2020, 1, 1);
+    final days = {
+      for (var i = 0; i < 1005; i++)
+        localDateString(DateTime(start.year, start.month, start.day + i)): 1,
+    };
+    SharedPreferences.setMockInitialValues({
+      'water_streak_v1_user%40example.com': jsonEncode(days),
+    });
+    final server = FakeHydrationServer();
+
+    await _repo(server).load(now: DateTime(2026, 10, 12));
+
+    expect(server.history, hasLength(1000));
+    expect(server.history.containsKey('2020-01-01'), isFalse);
+    expect(server.history.containsKey(days.keys.last), isTrue);
+  });
+
+  test('si el servidor rechaza el import con 400, el historial local se descarta', () async {
+    SharedPreferences.setMockInitialValues({
+      'water_streak_v1_user%40example.com': '{"2026-10-12":3}',
+    });
+    final server = FakeHydrationServer()..importStatus = 400;
+
+    final snapshot = await _repo(server).load(now: DateTime(2026, 10, 12));
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(snapshot.glassesToday, 0);
+    expect(preferences.getString('water_streak_v1_user%40example.com'), isNull);
+  });
+
+  test('un 429 en el import se reintenta: el historial local se conserva', () async {
+    SharedPreferences.setMockInitialValues({
+      'water_streak_v1_user%40example.com': '{"2026-10-12":3}',
+    });
+    final server = FakeHydrationServer()..importStatus = 429;
 
     await expectLater(_repo(server).load(now: DateTime(2026, 10, 12)), throwsException);
     final preferences = await SharedPreferences.getInstance();
