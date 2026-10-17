@@ -5,6 +5,7 @@ import '../../../core/network/dio_client.dart';
 import '../../../core/network/rate_limit_state.dart';
 import 'models/chat_actions_model.dart';
 import 'models/chat_message_model.dart';
+import 'models/chat_quota_model.dart';
 import 'models/recipe_model.dart';
 import 'models/chat_session_model.dart';
 
@@ -29,12 +30,14 @@ class ChatResponse {
   final String text;
   final RecipeModel? recipe;
   final ChatActions? actions;
+  final ChatQuota? quota;
 
   const ChatResponse({
     required this.type,
     required this.text,
     this.recipe,
     this.actions,
+    this.quota,
   });
 
   bool get isModification => type == ChatResponseType.recipeModified;
@@ -72,6 +75,8 @@ class ChatRepository {
         ),
       );
     } on DioException catch (e) {
+      final quotaError = _quotaExceededFrom(e.response);
+      if (quotaError != null) throw quotaError;
       if (e.error is RateLimitException) {
         final r = e.error as RateLimitException;
         throw RateLimitException(
@@ -100,6 +105,37 @@ class ChatRepository {
     } catch (e) {
       throw Exception(currentL10n.chatErrorReadReply(e.toString()));
     }
+  }
+
+  /// Mensajes que le quedan hoy. Null si el backend no responde o no la sabe:
+  /// el chat funciona igual, sin contador.
+  Future<ChatQuota?> getQuota() async {
+    try {
+      final response =
+          await _dio.get<Map<String, dynamic>>(ApiRoutes.chatQuota);
+      return ChatQuota.fromMap(response.data?['data']);
+    } on DioException {
+      return null;
+    }
+  }
+
+  static const _quotaErrorCodes = {'CHAT_DAILY_LIMIT', 'CHAT_FAIR_USE_LIMIT'};
+
+  /// El 429 del límite del día trae la cuota en `data.quota`. El del límite
+  /// por minuto no, y sigue su camino de siempre.
+  ChatQuotaExceededException? _quotaExceededFrom(Response? response) {
+    if (response?.statusCode != 429) return null;
+    final body = response?.data;
+    if (body is! Map) return null;
+    final code = (body['error'] as Map?)?['code'];
+    if (!_quotaErrorCodes.contains(code)) return null;
+    final quota = ChatQuota.fromMap((body['data'] as Map?)?['quota']) ??
+        ChatQuota(
+          unlimited: code == 'CHAT_FAIR_USE_LIMIT',
+          remaining: 0,
+          exhausted: true,
+        );
+    return ChatQuotaExceededException(quota);
   }
 
   Future<List<ChatSessionModel>> getSessions() async {
@@ -215,6 +251,7 @@ class ChatRepository {
   ChatResponse _parseEnvelope(Map envelope) {
     final type = _chatResponseTypeFrom(envelope['type'] as String?);
     final message = (envelope['message'] as String?)?.trim() ?? '';
+    final quota = ChatQuota.fromMap(envelope['quota']);
 
     // ANSWER y CHAT vienen sin receta: la clave existe pero vale null.
     final recipeMap = envelope['recipe'];
@@ -223,6 +260,7 @@ class ChatRepository {
         type: type,
         text: message.isEmpty ? currentL10n.chatNoReply : message,
         actions: ChatActions.fromMap(envelope['actions']),
+        quota: quota,
       );
     }
 
@@ -235,6 +273,7 @@ class ChatRepository {
       type: type,
       text: message.isNotEmpty ? message : recipe.chefReason,
       recipe: recipe,
+      quota: quota,
     );
   }
 }

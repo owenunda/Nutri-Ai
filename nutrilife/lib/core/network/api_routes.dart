@@ -19,6 +19,7 @@ class ApiRoutes {
   static const String chatSessionClose = '/chat/session/close';
   static const String chatSessions = '/chat/sessions';
   static const String chatActiveSession = '/chat/session';
+  static const String chatQuota = '/chat/quota';
   static String chatSessionMessages(int sessionId) =>
       '/chat/sessions/$sessionId/messages';
   static String chatSessionActivate(int sessionId) =>
