@@ -2278,6 +2278,9 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get chatQuotaExhaustedGeneric => 'Usaste tus mensajes de hoy';
+
+  @override
   String get chatQuotaFairUseTitle => 'Llegaste al límite de uso justo de hoy';
 
   @override

@@ -19,9 +19,12 @@ class ChatQuotaBlockedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final resetAt = quota.resetAt;
+    final limit = quota.limit;
     final title = quota.unlimited
         ? l10n.chatQuotaFairUseTitle
-        : l10n.chatQuotaExhaustedTitle(quota.limit ?? 0);
+        : limit == null
+            ? l10n.chatQuotaExhaustedGeneric
+            : l10n.chatQuotaExhaustedTitle(limit);
 
     return SafeArea(
       top: false,

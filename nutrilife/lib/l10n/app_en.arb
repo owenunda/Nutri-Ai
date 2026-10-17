@@ -1052,6 +1052,7 @@
   "progressHydrationCardTitle": "Glasses of water · last 7 days",
   "chatQuotaRemaining": "{remaining} of {limit} messages today",
   "chatQuotaExhaustedTitle": "{limit, plural, =1{You've used your message for today} other{You've used your {limit} messages for today}}",
+  "chatQuotaExhaustedGeneric": "You've used your messages for today",
   "chatQuotaFairUseTitle": "You've reached today's fair-use limit",
   "chatQuotaResetsAt": "They reset at {time}",
   "chatQuotaGoPremium": "Go Premium",

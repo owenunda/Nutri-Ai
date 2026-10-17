@@ -68,6 +68,16 @@ void main() {
       expect(taps, 1);
     });
 
+    testWidgets('429 sin datos de cuota: título genérico, sin "0 mensajes"',
+        (tester) async {
+      await tester.pumpWidget(_wrap(const ChatQuotaBlockedCard(
+        quota: ChatQuota(unlimited: false, exhausted: true),
+      )));
+
+      expect(find.text('Usaste tus mensajes de hoy'), findsOneWidget);
+      expect(find.textContaining('0 mensajes'), findsNothing);
+    });
+
     testWidgets('PRO en el tope: uso justo y sin botón', (tester) async {
       await tester.pumpWidget(_wrap(ChatQuotaBlockedCard(
         quota: ChatQuota(unlimited: true, resetAt: resetAt, exhausted: true),

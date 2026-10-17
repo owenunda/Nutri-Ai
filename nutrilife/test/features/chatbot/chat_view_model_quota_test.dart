@@ -91,4 +91,43 @@ void main() {
     expect(vm.isQuotaExhausted, isTrue);
     expect(vm.messages.last.fullText, startsWith('Hoy hablamos muchísimo'));
   });
+
+  group('cambio de día', () {
+    final resetAt = DateTime(2026, 10, 18);
+    final agotadaHastaMedianoche = ChatQuota(
+      unlimited: false,
+      limit: 3,
+      used: 3,
+      remaining: 0,
+      resetAt: resetAt,
+      exhausted: true,
+    );
+
+    test('pasada la hora de reinicio ya no está bloqueado', () async {
+      final despues = ChatViewModel(
+        repository: repo,
+        now: () => resetAt.add(const Duration(minutes: 1)),
+      );
+      addTearDown(despues.dispose);
+      repo.quotaInicial = agotadaHastaMedianoche;
+
+      await despues.loadQuota();
+
+      expect(despues.quota?.exhausted, isTrue);
+      expect(despues.isQuotaExhausted, isFalse);
+    });
+
+    test('antes de la hora de reinicio sigue bloqueado', () async {
+      final antes = ChatViewModel(
+        repository: repo,
+        now: () => resetAt.subtract(const Duration(minutes: 1)),
+      );
+      addTearDown(antes.dispose);
+      repo.quotaInicial = agotadaHastaMedianoche;
+
+      await antes.loadQuota();
+
+      expect(antes.isQuotaExhausted, isTrue);
+    });
+  });
 }

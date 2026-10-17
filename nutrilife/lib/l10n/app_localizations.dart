@@ -3734,6 +3734,12 @@ abstract class AppLocalizations {
   /// **'{limit, plural, =1{Usaste tu mensaje de hoy} other{Usaste tus {limit} mensajes de hoy}}'**
   String chatQuotaExhaustedTitle(int limit);
 
+  /// No description provided for @chatQuotaExhaustedGeneric.
+  ///
+  /// In es, this message translates to:
+  /// **'Usaste tus mensajes de hoy'**
+  String get chatQuotaExhaustedGeneric;
+
   /// No description provided for @chatQuotaFairUseTitle.
   ///
   /// In es, this message translates to:

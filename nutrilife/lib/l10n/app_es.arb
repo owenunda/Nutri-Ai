@@ -1451,6 +1451,7 @@
       "limit": { "type": "int" }
     }
   },
+  "chatQuotaExhaustedGeneric": "Usaste tus mensajes de hoy",
   "chatQuotaFairUseTitle": "Llegaste al límite de uso justo de hoy",
   "chatQuotaResetsAt": "Se reinician a las {time}",
   "@chatQuotaResetsAt": {

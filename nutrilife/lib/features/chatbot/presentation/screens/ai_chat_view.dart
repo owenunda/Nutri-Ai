@@ -29,7 +29,7 @@ class AiChatView extends StatefulWidget {
   State<AiChatView> createState() => _AiChatViewState();
 }
 
-class _AiChatViewState extends State<AiChatView> {
+class _AiChatViewState extends State<AiChatView> with WidgetsBindingObserver {
   late final ChatViewModel _viewModel;
   late final ChatRepository _repository;
   final ScrollController _scrollController = ScrollController();
@@ -37,11 +37,18 @@ class _AiChatViewState extends State<AiChatView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _viewModel = ChatViewModel();
     _repository = ChatRepository();
     DioClient.rateLimit.addListener(_syncBotSleep);
     unawaited(_viewModel.loadActiveSession().then((_) => _scrollToBottom()));
     unawaited(_viewModel.loadQuota());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Al volver de segundo plano puede haber cambiado el día.
+    if (state == AppLifecycleState.resumed) unawaited(_viewModel.loadQuota());
   }
 
   void _openPremium() {
@@ -58,6 +65,7 @@ class _AiChatViewState extends State<AiChatView> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     DioClient.rateLimit.removeListener(_syncBotSleep);
     _viewModel.dispose();
     _scrollController.dispose();

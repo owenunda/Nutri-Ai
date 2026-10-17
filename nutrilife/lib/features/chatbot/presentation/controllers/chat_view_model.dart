@@ -15,13 +15,18 @@ import '../../data/models/recipe_model.dart';
 class ChatViewModel extends ChangeNotifier {
   final ChatRepository _repository;
 
-  ChatViewModel({ChatRepository? repository})
-      : _repository = repository ?? ChatRepository();
+  /// Reloj inyectable para probar el cambio de día.
+  final DateTime Function() _now;
+
+  ChatViewModel({ChatRepository? repository, DateTime Function()? now})
+      : _repository = repository ?? ChatRepository(),
+        _now = now ?? DateTime.now;
 
   final List<ChatMessageModel> _messages = [];
   bool _isLoading = false;
   String? _errorMessage;
   Timer? _typingTimer;
+  Timer? _quotaResetTimer;
 
   /// Un 401 manda al login y destruye el chat aunque haya una respuesta en
   /// camino: lo que llegue después no debe tocar la pantalla.
@@ -41,14 +46,36 @@ class ChatViewModel extends ChangeNotifier {
   ChatQuota? get quota => _quota;
 
   /// Sin mensajes por hoy: la pantalla cambia el input por la tarjeta.
-  bool get isQuotaExhausted => _quota?.exhausted ?? false;
+  /// Pasada la medianoche de reinicio deja de bloquear aunque la cuota no se
+  /// haya recargado: el usuario escribe y el backend decide.
+  bool get isQuotaExhausted {
+    final quota = _quota;
+    if (quota == null || !quota.exhausted) return false;
+    final resetAt = quota.resetAt;
+    return resetAt == null || !_now().isAfter(resetAt);
+  }
+
+  /// Guarda la cuota y, si quedó agotada, agenda su recarga para cuando
+  /// cambie el día: la pantalla vive en una pestaña y no se reconstruye sola.
+  void _setQuota(ChatQuota quota) {
+    _quota = quota;
+    _quotaResetTimer?.cancel();
+    final resetAt = quota.resetAt;
+    if (_disposed || !quota.exhausted || resetAt == null) return;
+    // Ya pasó la hora: isQuotaExhausted desbloquea y no hay nada que esperar.
+    if (!resetAt.isAfter(_now())) return;
+    _quotaResetTimer = Timer(
+      resetAt.difference(_now()) + const Duration(seconds: 5),
+      loadQuota,
+    );
+  }
 
   /// Pide la cuota al abrir el chat. Si falla, el chat sigue sin contador.
   Future<void> loadQuota() async {
     try {
       final quota = await _repository.getQuota();
       if (quota == null) return;
-      _quota = quota;
+      _setQuota(quota);
       notifyListeners();
     } catch (e) {
       debugPrint('ChatViewModel.loadQuota falló: $e');
@@ -117,6 +144,7 @@ class ChatViewModel extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _typingTimer?.cancel();
+    _quotaResetTimer?.cancel();
     super.dispose();
   }
 
@@ -152,7 +180,7 @@ class ChatViewModel extends ChangeNotifier {
         fridgeItemIds: [for (final f in foods) if (f.isFromFridge) f.fridgeItemId],
         foodIds: [for (final f in foods) if (!f.isFromFridge) f.foodId],
       );
-      if (reply.quota != null) _quota = reply.quota;
+      if (reply.quota != null) _setQuota(reply.quota!);
       if (reply.recipe != null) {
         _messages.add(ChatMessageModel(
           text: reply.text,
@@ -166,7 +194,7 @@ class ChatViewModel extends ChangeNotifier {
       }
     } catch (e, stackTrace) {
       if (e is ChatQuotaExceededException) {
-        _quota = e.quota;
+        _setQuota(e.quota);
         _startTypewriter(
           e.isFairUse ? currentL10n.chatQuotaFairUseReply : currentL10n.chatQuotaReply,
         );
