@@ -60,16 +60,25 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
     });
   }
 
+  /// Si el agua falla, la tarjeta sigue mostrando la racha de calorías.
+  Future<WaterStreakSnapshot?> _loadWater() async {
+    try {
+      return await _waterRepository.load();
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<_ProfileStreaks> _loadStreaks() async {
-    final waterFuture = _waterRepository.load();
+    final waterFuture = _loadWater();
     late ProgressData progress;
     try {
       progress = await _progressRepository.fetchProgress();
     } on ProgressException catch (error) {
       final water = await waterFuture;
       return _ProfileStreaks(
-        waterCurrent: water.currentStreak,
-        waterBest: water.bestStreak,
+        waterCurrent: water?.currentStreak,
+        waterBest: water?.bestStreak,
         caloriesCurrent: null,
         caloriesBest: null,
         calorieGoalAvailable: false,
@@ -79,8 +88,8 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
     final water = await waterFuture;
     final week = progress.week;
     return _ProfileStreaks(
-      waterCurrent: water.currentStreak,
-      waterBest: water.bestStreak,
+      waterCurrent: water?.currentStreak,
+      waterBest: water?.bestStreak,
       caloriesCurrent: week?.hasTargetHistory == true
           ? week!.currentGoalStreak()
           : null,
@@ -211,8 +220,8 @@ class _ProfileStreaks {
     required this.calorieErrorMessage,
   });
 
-  final int waterCurrent;
-  final int waterBest;
+  final int? waterCurrent;
+  final int? waterBest;
   final int? caloriesCurrent;
   final int? caloriesBest;
   final bool calorieGoalAvailable;

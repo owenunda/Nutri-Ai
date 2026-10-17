@@ -71,12 +71,13 @@ class WaterStreakRepository {
 
   Future<WaterStreakSnapshot> _changeGlasses(String route, DateTime? now) async {
     final today = localDateString(now);
-    final history = await _fetchHistory();
+    final Map<String, int> history;
     final int glasses;
     try {
+      history = await _fetchHistory();
       final response = await _dio.post<Map<String, dynamic>>(route, data: {'date': today});
       glasses = ((response.data?['data'] as Map?)?['glasses'] as num?)?.toInt() ?? 0;
-    } on DioException {
+    } on Exception {
       throw Exception(currentL10n.hydrationErrorSave);
     }
     if (glasses > 0) {

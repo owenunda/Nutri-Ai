@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilife/core/state/locale_state.dart';
 import 'package:nutrilife/core/utils/local_date.dart';
 import 'package:nutrilife/features/hydration/data/water_streak_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -188,5 +189,22 @@ void main() {
     await expectLater(_repo(server).load(now: DateTime(2026, 10, 12)), throwsException);
     final preferences = await SharedPreferences.getInstance();
     expect(preferences.getString('water_streak_v1_user%40example.com'), isNotNull);
+  });
+
+  test('si falla al guardar un vaso, el error es el texto de guardar', () async {
+    await LocaleState.instance.setPreference(LanguagePreference.es);
+    addTearDown(() => LocaleState.instance.setPreference(LanguagePreference.system));
+    final server = FakeHydrationServer()..failing = true;
+
+    await expectLater(
+      _repo(server).addGlass(now: DateTime(2026, 10, 12)),
+      throwsA(
+        isA<Exception>().having(
+          (e) => e.toString(),
+          'message',
+          'Exception: No se pudo guardar el historial de hidratación.',
+        ),
+      ),
+    );
   });
 }

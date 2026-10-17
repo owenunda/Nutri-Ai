@@ -304,7 +304,9 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
                 if (_saveError != null) ...[
                   const SizedBox(height: 8),
                   Text(
-                    l10n.hydrationSaveError('$_saveError'),
+                    l10n.hydrationSaveError(
+                      _saveError.toString().replaceFirst('Exception: ', ''),
+                    ),
                     key: const ValueKey('water-save-error'),
                     textAlign: TextAlign.center,
                     style: const TextStyle(

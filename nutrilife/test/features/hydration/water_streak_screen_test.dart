@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilife/core/network/dio_client.dart';
+import 'package:nutrilife/core/state/locale_state.dart';
+import 'package:nutrilife/core/utils/local_date.dart';
 import 'package:nutrilife/features/hydration/data/water_streak_repository.dart';
 import 'package:nutrilife/features/hydration/presentation/screens/water_streak_screen.dart';
 import 'package:nutrilife/features/hydration/presentation/widgets/hydration_stats_card.dart';
@@ -67,8 +69,12 @@ void main() {
     addTearDown(tester.view.reset);
 
     final server = DioClient.instance.httpClientAdapter as FakeHydrationServer;
-    server.history['2026-10-12'] = WaterStreakRepository.dailyGoal;
-    server.history['2026-10-13'] = WaterStreakRepository.dailyGoal;
+    // La tarjeta mira los últimos 7 días del reloj real: se siembra ayer y anteayer.
+    final today = DateTime.now();
+    for (final daysAgo in [1, 2]) {
+      server.history[localDateString(today.subtract(Duration(days: daysAgo)))] =
+          WaterStreakRepository.dailyGoal;
+    }
 
     await tester.pumpWidget(
       l10nApp(
@@ -117,5 +123,26 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('si falla al guardar, el error no muestra "Exception"', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await LocaleState.instance.setPreference(LanguagePreference.es);
+    addTearDown(() => LocaleState.instance.setPreference(LanguagePreference.system));
+
+    await tester.pumpWidget(
+      l10nApp(const WaterStreakScreen(accountId: 'save-error@example.com')),
+    );
+    await tester.pumpAndSettle();
+
+    (DioClient.instance.httpClientAdapter as FakeHydrationServer).failing = true;
+    await tester.tap(find.byKey(const ValueKey('add-water-glass')));
+    await tester.pumpAndSettle();
+
+    final message = tester.widget<Text>(find.byKey(const ValueKey('water-save-error'))).data!;
+    expect(message, 'No se pudo guardar el cambio: No se pudo guardar el historial de hidratación.');
+    expect(message, isNot(contains('Exception')));
   });
 }
