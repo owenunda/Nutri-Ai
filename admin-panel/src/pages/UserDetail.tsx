@@ -39,7 +39,8 @@ import {
 import { getErrorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { cn, formatAxisDay, formatDate, formatDay, formatNumber, formatRelative } from '../lib/utils';
-import type { Plan, Role, UserDetail as UserDetailData } from '../types/admin';
+import { PRO_DURATIONS, previewProUntil } from '../lib/proGift';
+import type { Plan, ProDuration, Role, UserDetail as UserDetailData } from '../types/admin';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button, buttonVariants } from '../components/ui/button';
 import { Dialog } from '../components/ui/dialog';
@@ -58,7 +59,7 @@ export default function UserDetail() {
   const [data, setData] = useState<UserDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [planDialog, setPlanDialog] = useState(false);
+  const [planDialog, setPlanDialog] = useState<PlanDialogMode | null>(null);
   const [passwordDialog, setPasswordDialog] = useState(false);
   const [roleDialog, setRoleDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -124,6 +125,11 @@ export default function UserDetail() {
                 )}
               </div>
               <p className="truncate text-white/80">{profile.email}</p>
+              {isPro && (
+                <p className="mt-1 text-sm font-semibold text-white">
+                  {profile.proUntil ? `PRO hasta el ${formatDay(profile.proUntil)}` : 'PRO sin vencimiento'}
+                </p>
+              )}
               <p className="mt-1 text-sm text-white/70">
                 #{profile.userId} · Se unió el {formatDay(profile.createdAt)} · Activo {formatRelative(usage.lastActivity)}
               </p>
@@ -140,14 +146,27 @@ export default function UserDetail() {
           </div>
         </div>
         <div className="relative mt-5 flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            onClick={() => setPlanDialog(true)}
-            className={isPro ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-white text-emerald-900 hover:bg-white/90'}
-          >
-            <Crown className="h-4 w-4" />
-            {isPro ? 'Pasar a FREE' : 'Regalar PRO'}
-          </Button>
+          {/* Un PRO sin vencimiento no se extiende: solo se puede quitar. */}
+          {(!isPro || profile.proUntil) && (
+            <Button
+              size="sm"
+              onClick={() => setPlanDialog('gift')}
+              className="bg-white text-emerald-900 hover:bg-white/90"
+            >
+              <Crown className="h-4 w-4" />
+              {isPro ? 'Extender PRO' : 'Regalar PRO'}
+            </Button>
+          )}
+          {isPro && (
+            <Button
+              size="sm"
+              onClick={() => setPlanDialog('remove')}
+              className="bg-white/15 text-white hover:bg-white/25"
+            >
+              <Crown className="h-4 w-4" />
+              Pasar a FREE
+            </Button>
+          )}
           <Button
             size="sm"
             onClick={() => setPasswordDialog(true)}
@@ -305,12 +324,14 @@ export default function UserDetail() {
       </Card>
 
       <PlanDialog
-        open={planDialog}
-        onClose={() => setPlanDialog(false)}
+        mode={planDialog}
+        onClose={() => setPlanDialog(null)}
         userId={profile.userId}
         name={profile.name}
-        current={profile.plan}
-        onChanged={(plan) => setData((d) => (d ? { ...d, profile: { ...d.profile, plan } } : d))}
+        current={{ plan: profile.plan, proUntil: profile.proUntil }}
+        onChanged={({ plan, proUntil }) =>
+          setData((d) => (d ? { ...d, profile: { ...d.profile, plan, proUntil } } : d))
+        }
       />
 
       <PasswordDialog
@@ -368,32 +389,46 @@ function SmallFact({ icon: Icon, label, value }: { icon: typeof Apple; label: st
   );
 }
 
+type PlanDialogMode = 'gift' | 'remove';
+
 function PlanDialog({
-  open,
+  mode,
   onClose,
   userId,
   name,
   current,
   onChanged,
 }: {
-  open: boolean;
+  mode: PlanDialogMode | null;
   onClose: () => void;
   userId: number;
   name: string;
-  current: Plan;
-  onChanged: (plan: Plan) => void;
+  current: { plan: Plan; proUntil: string | null };
+  onChanged: (change: { plan: Plan; proUntil: string | null }) => void;
 }) {
-  const next: Plan = current === 'PRO' ? 'FREE' : 'PRO';
+  const gift = mode === 'gift';
+  const extending = gift && current.plan === 'PRO';
+  const [duration, setDuration] = useState<ProDuration>('1m');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const until = previewProUntil(current, duration);
+
+  const close = () => {
+    setError(null);
+    setDuration('1m');
+    onClose();
+  };
 
   const confirm = async () => {
     setSaving(true);
     setError(null);
     try {
-      const result = await updateUserPlan(userId, next);
-      onChanged(result.plan);
-      onClose();
+      const result = gift
+        ? await updateUserPlan(userId, 'PRO', duration)
+        : await updateUserPlan(userId, 'FREE');
+      onChanged({ plan: result.plan, proUntil: result.proUntil });
+      close();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -401,29 +436,57 @@ function PlanDialog({
     }
   };
 
+  const title = !gift ? 'Quitar el plan PRO' : extending ? 'Extender NutriLife PRO' : 'Regalar NutriLife PRO';
+
   return (
-    <Dialog open={open} onClose={onClose} title={next === 'PRO' ? 'Regalar NutriLife PRO' : 'Quitar el plan PRO'}>
+    <Dialog open={mode !== null} onClose={close} title={title}>
       <div className="flex items-center gap-4">
-        <Nutria mood={next === 'PRO' ? 'premium' : 'triste'} className="h-20 w-20 shrink-0" />
+        <Nutria mood={gift ? 'premium' : 'triste'} className="h-20 w-20 shrink-0" />
         <p className="text-sm text-muted-foreground">
-          {next === 'PRO'
-            ? `${name} pasará al plan PRO.`
-            : `${name} volverá al plan FREE.`}{' '}
-          El cambio se ve en la app la próxima vez que inicie sesión.
+          {!gift
+            ? `${name} volverá al plan FREE.`
+            : extending
+              ? `El tiempo se suma al PRO que ${name} ya tiene.`
+              : `${name} pasará al plan PRO.`}{' '}
+          El chat lo toma enseguida; los anuncios, la próxima vez que inicie sesión.
         </p>
       </div>
+
+      {gift && (
+        <>
+          <p className="mt-5 text-sm font-semibold">¿Por cuánto tiempo?</p>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {PRO_DURATIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setDuration(option.value)}
+                aria-pressed={duration === option.value}
+                className={cn(
+                  'rounded-xl border px-3 py-2 text-sm font-semibold transition-colors',
+                  duration === option.value
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'hover:border-primary/50 hover:bg-primary/5'
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 rounded-xl bg-primary/10 px-3 py-2 text-sm font-medium text-primary">
+            {until ? `Quedará PRO hasta el ${formatDay(until.toISOString())}.` : 'Quedará PRO sin vencimiento.'}
+          </p>
+        </>
+      )}
+
       {error && <p className="mt-4 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
       <div className="mt-6 flex justify-end gap-2">
-        <Button variant="outline" onClick={onClose} disabled={saving}>
+        <Button variant="outline" onClick={close} disabled={saving}>
           Cancelar
         </Button>
-        <Button
-          onClick={confirm}
-          disabled={saving}
-          variant={next === 'PRO' ? 'default' : 'destructive'}
-        >
+        <Button onClick={confirm} disabled={saving} variant={gift ? 'default' : 'destructive'}>
           {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-          {next === 'PRO' ? 'Dar PRO' : 'Pasar a FREE'}
+          {!gift ? 'Pasar a FREE' : extending ? 'Extender PRO' : 'Dar PRO'}
         </Button>
       </div>
     </Dialog>
