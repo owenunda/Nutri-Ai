@@ -5,6 +5,7 @@ import '../../../../core/network/dio_client.dart';
 import '../../../../core/state/bot_mood_state.dart';
 import '../../../bot/domain/bot_mood.dart';
 import '../../../nutrition/data/models/fridge_item_model.dart';
+import '../../../premium/presentation/screens/premium_screen.dart';
 import '../../data/chat_repository.dart';
 import '../../data/models/chat_message_model.dart';
 import '../../data/models/chat_session_model.dart';
@@ -14,6 +15,8 @@ import '../widgets/answer_actions.dart';
 import '../widgets/attached_food_chips.dart';
 import '../widgets/bot_message_text.dart';
 import '../widgets/chat_history_drawer.dart';
+import '../widgets/chat_quota_blocked_card.dart';
+import '../widgets/chat_quota_chip.dart';
 import '../widgets/chat_input_field.dart';
 import '../widgets/chat_welcome_header.dart';
 import '../widgets/rate_limit_chip.dart';
@@ -38,6 +41,13 @@ class _AiChatViewState extends State<AiChatView> {
     _repository = ChatRepository();
     DioClient.rateLimit.addListener(_syncBotSleep);
     unawaited(_viewModel.loadActiveSession().then((_) => _scrollToBottom()));
+    unawaited(_viewModel.loadQuota());
+  }
+
+  void _openPremium() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const PremiumScreen()),
+    );
   }
 
   void _syncBotSleep() {
@@ -206,6 +216,10 @@ class _AiChatViewState extends State<AiChatView> {
           ),
         ),
         const RateLimitChip(),
+        ListenableBuilder(
+          listenable: _viewModel,
+          builder: (context, _) => ChatQuotaChip(quota: _viewModel.quota),
+        ),
         Expanded(
           child: ListenableBuilder(
             listenable: _viewModel,
@@ -243,10 +257,19 @@ class _AiChatViewState extends State<AiChatView> {
         ),
         ListenableBuilder(
           listenable: _viewModel,
-          builder: (context, _) => ChatInputField(
-            onSend: _handleSend,
-            isLoading: _viewModel.isLoading,
-          ),
+          builder: (context, _) {
+            final quota = _viewModel.quota;
+            if (_viewModel.isQuotaExhausted && quota != null) {
+              return ChatQuotaBlockedCard(
+                quota: quota,
+                onGoPremium: quota.unlimited ? null : _openPremium,
+              );
+            }
+            return ChatInputField(
+              onSend: _handleSend,
+              isLoading: _viewModel.isLoading,
+            );
+          },
         ),
       ],
     );
