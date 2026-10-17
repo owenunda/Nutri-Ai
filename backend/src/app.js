@@ -11,18 +11,15 @@ import statsRoutes from './modules/stats/stats.routes.js';
 import mealRoutes from './modules/meal/meal.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
 import chatRoutes from './modules/chat/chat.routes.js';
+import { sendChatMessageController } from './modules/chat/chatMessage.controller.js';
 import eventsRoutes from './modules/events/events.routes.js';
 import adminRoutes from './modules/admin/admin.routes.js';
 import authenticateToken from './middleware/auth.middleware.js';
 import { chatRateLimit } from './middleware/rateLimit.middleware.js';
+import { chatDailyQuota } from './middleware/chatQuota.middleware.js';
 import { activityLogger } from './middleware/activityLogger.middleware.js';
 import { languageMiddleware } from './middleware/language.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
-import { errorResponse, successResponse } from './utils/response.js';
-import { sendChatN8n } from './utils/n8n.service.js';
-import { getFridgeItemsByIdsService } from './modules/fridge/fridge.service.js';
-import { AppError } from './utils/AppError.js';
-import { localizeError } from './i18n/localize.js';
 
 const app = express();
 
@@ -106,28 +103,12 @@ app.get('/api/v1/health', (_req, res) => {
  *         $ref: '#/components/responses/BadRequestError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
- *       500:
- *         description: Error al comunicarse con n8n
+ *       429:
+ *         description: Límite por minuto (RATE_LIMIT_EXCEEDED) o del día (CHAT_DAILY_LIMIT para FREE, CHAT_FAIR_USE_LIMIT para PRO). Los del día traen data.quota.
+ *       503:
+ *         description: El servicio de IA no responde (N8N_ERROR). El mensaje no cuenta para el límite.
  */
-app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), chatRateLimit, async (req, res) => {
-  try {
-    const { message, fridgeItemIds, foodIds } = req.body;
-    const { userId, name } = req.user;
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!message) throw new AppError("Bad request", 400, "BAD_REQUEST");
-
-    // Los ids se releen de la nevera y del catálogo visible para el usuario
-    // autenticado: lo que el cliente mande y no sea suyo nunca llega a n8n.
-    const attachedFoods = await getFridgeItemsByIdsService(userId, fridgeItemIds, foodIds);
-
-    const result = await sendChatN8n(message, userId, name, token, attachedFoods, req.lang);
-    return successResponse(res, result, 'Mensaje enviado correctamente a n8n');
-  } catch (error) {
-    const { message, details } = localizeError(error, req.lang);
-    errorResponse(res, message, error.code, error.status, details);
-  }
-});
+app.post('/api/v1/n8n/chat', authenticateToken(['ADMIN', 'USER']), chatRateLimit, chatDailyQuota, sendChatMessageController);
 
 app.use('/api/v1/food', foodRoutes);
 app.use('/api/v1/fridge', fridgeRoutes);

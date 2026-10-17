@@ -21,6 +21,7 @@ export const sendChatN8n = async (message, userId, userName, token, attachedFood
     return response.data;
   } catch (error) {
     console.error("Error al enviar mensaje a n8n:", error.response?.data || error.message);
-    throw new AppError("Error al comunicarse con el servicio de chat", 500, "N8N_ERROR");
+    // 503: el servicio de IA no responde (n8n caído o MiniMax sin cuota).
+    throw new AppError("El Chef está descansando un momento. Intenta de nuevo en un rato.", 503, "N8N_ERROR");
   }
 }
