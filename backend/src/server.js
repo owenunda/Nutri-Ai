@@ -3,13 +3,18 @@ import app from './app.js';
 import { config } from './config/env_config.js';
 import pool from './database/connection.js';
 import { AppError } from './utils/AppError.js';
+import { startProExpiryJob } from './modules/admin/proExpiry.job.js';
 
 const PORT = config.port;
 const dbConfigured = config.db?.host && config.db?.user && config.db?.name;
 
 if (dbConfigured) {
   pool.connect()
-    .then(() => console.info('Base de datos conectada'))
+    .then((client) => {
+      client.release();
+      console.info('Base de datos conectada');
+      startProExpiryJob();
+    })
     .catch(err => {
       throw new AppError('Error al conectar a la base de datos', 500, 'DATABASE_ERROR', err);
     });

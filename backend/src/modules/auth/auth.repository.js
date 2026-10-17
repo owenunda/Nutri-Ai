@@ -19,6 +19,7 @@ const userSelect = `
     u.email_verified_at AS "emailVerifiedAt",
     r.name AS role,
     p.name AS plan,
+    u.pro_until AS "proUntil",
     u.created_at AS "createdAt",
     u.updated_at AS "updatedAt"
   FROM users u

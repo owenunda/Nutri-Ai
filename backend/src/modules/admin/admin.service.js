@@ -6,10 +6,12 @@ import {
   getOverview,
   findUsers,
   findUserDetail,
+  findUserPlanState,
   updateUserPassword,
   updateUserPlan,
   updateUserRole,
 } from './admin.repository.js';
+import { computeProUntil } from './proGift.js';
 
 const SALT_ROUNDS = 10;
 
@@ -38,11 +40,17 @@ export const getUserDetailService = (userId) =>
     return detail;
   });
 
-/** Cambia el plan de un usuario (FREE / PRO). */
-export const updateUserPlanService = (userId, plan) =>
+/**
+ * Cambia el plan de un usuario. PRO lleva la duración del regalo (ver
+ * proGift.js); FREE borra la fecha de vencimiento.
+ */
+export const updateUserPlanService = (userId, plan, duration, now = new Date()) =>
   wrap(async () => {
-    const updated = await updateUserPlan(userId, plan);
-    if (!updated) throw new AppError('Usuario no encontrado', 404, 'USER_NOT_FOUND');
+    const current = await findUserPlanState(userId);
+    if (!current) throw userNotFound();
+    const proUntil = plan === 'PRO' ? computeProUntil(current, duration, now) : null;
+    const updated = await updateUserPlan(userId, plan, proUntil);
+    if (!updated) throw userNotFound();
     return updated;
   });
 

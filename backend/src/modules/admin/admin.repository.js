@@ -221,6 +221,7 @@ export const findUsers = async ({ search, plan, sort = 'recent', limit, offset }
       u.goal,
       r.name AS role,
       p.name AS plan,
+      u.pro_until AS "proUntil",
       ${authMethodSql('u')} AS "authMethod",
       u.created_at AS "createdAt",
       COALESCE(ev.total, 0) AS "totalEvents",
@@ -261,6 +262,7 @@ export const findUserDetail = async (userId) => {
       u.goal,
       r.name AS role,
       p.name AS plan,
+      u.pro_until AS "proUntil",
       ${authMethodSql('u')} AS "authMethod",
       pr.height,
       pr.weight,
@@ -379,19 +381,51 @@ export const findUserDetail = async (userId) => {
 };
 
 /**
- * Cambia el plan de un usuario.
+ * Plan actual de un usuario y hasta cuándo dura su PRO.
+ * @returns {Promise<{plan: string, proUntil: Date|null}|null>} null si no existe.
+ */
+export const findUserPlanState = async (userId) => {
+  const { rows } = await pool.query(
+    `SELECT p.name AS plan, u.pro_until AS "proUntil"
+       FROM users u
+       INNER JOIN plans p ON p.plan_id = u.plan_id
+      WHERE u.user_id = $1`,
+    [userId]
+  );
+  return rows[0] ?? null;
+};
+
+/**
+ * Cambia el plan de un usuario. proUntil: fin del PRO (null = sin vencimiento,
+ * y siempre null para FREE).
  * @returns {Promise<Object|null>} El usuario actualizado o null si no existe.
  */
-export const updateUserPlan = async (userId, planName) => {
+export const updateUserPlan = async (userId, planName, proUntil = null) => {
   const query = `
     UPDATE users u
-    SET plan_id = p.plan_id, updated_at = CURRENT_TIMESTAMP
+    SET plan_id = p.plan_id, pro_until = $3, updated_at = CURRENT_TIMESTAMP
     FROM plans p
     WHERE u.user_id = $1 AND p.name = $2
-    RETURNING u.user_id AS "userId", p.name AS plan
+    RETURNING u.user_id AS "userId", p.name AS plan, u.pro_until AS "proUntil"
   `;
-  const { rows } = await pool.query(query, [userId, planName]);
+  const { rows } = await pool.query(query, [userId, planName, proUntil]);
   return rows[0] ?? null;
+};
+
+/**
+ * Pasa a FREE a quien tenía PRO con fecha y ya venció.
+ * @returns {Promise<number[]>} ids de los usuarios que volvieron a FREE.
+ */
+export const expireGiftedPro = async () => {
+  const { rows } = await pool.query(
+    `UPDATE users
+        SET plan_id = (SELECT plan_id FROM plans WHERE name = 'FREE'),
+            pro_until = NULL,
+            updated_at = CURRENT_TIMESTAMP
+      WHERE pro_until IS NOT NULL AND pro_until <= NOW()
+      RETURNING user_id AS "userId"`
+  );
+  return rows.map((row) => row.userId);
 };
 
 /**

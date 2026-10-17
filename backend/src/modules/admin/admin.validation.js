@@ -1,5 +1,6 @@
 import { AppError } from '../../utils/AppError.js';
 import { USER_SORT_KEYS } from './admin.repository.js';
+import { PRO_DURATIONS } from './proGift.js';
 
 const VALID_PLANS = ['FREE', 'PRO'];
 const VALID_ROLES = ['ADMIN', 'USER'];
@@ -67,11 +68,18 @@ export const validateUserIdParam = (req, res, next) => {
   next();
 };
 
-/** Valida el body del cambio de plan. */
+/** Valida el body del cambio de plan. PRO necesita la duración del regalo. */
 export const validatePlanBody = (req, res, next) => {
-  const { plan } = req.body ?? {};
+  const { plan, duration } = req.body ?? {};
   if (!VALID_PLANS.includes(plan)) {
     return next(validationError([{ field: 'plan', message: `plan must be one of: ${VALID_PLANS.join(', ')}` }]));
+  }
+  if (plan === 'PRO' && !Object.hasOwn(PRO_DURATIONS, duration ?? '')) {
+    return next(
+      validationError([
+        { field: 'duration', message: `duration must be one of: ${Object.keys(PRO_DURATIONS).join(', ')}` },
+      ])
+    );
   }
   next();
 };

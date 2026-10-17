@@ -38,7 +38,7 @@ export const getUserDetail = async (req, res, next) => {
 
 export const updateUserPlan = async (req, res, next) => {
   try {
-    const result = await updateUserPlanService(req.targetUserId, req.body.plan);
+    const result = await updateUserPlanService(req.targetUserId, req.body.plan, req.body.duration);
     return successResponse(res, result, 'Plan actualizado con éxito');
   } catch (error) {
     next(error);

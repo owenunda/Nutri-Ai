@@ -10,6 +10,7 @@ const profileSelectQuery = `
     (u.password IS NOT NULL) AS "hasPassword",
     r.name AS role,
     p.name AS plan,
+    u.pro_until AS "proUntil",
     pr.height,
     pr.weight,
     pr.record_date AS "recordDate",

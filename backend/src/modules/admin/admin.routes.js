@@ -106,6 +106,11 @@ router.get('/users/:userId', authenticateToken(['ADMIN']), validateUserIdParam, 
  *   patch:
  *     tags: [Admin]
  *     summary: Cambiar el plan de un usuario (solo ADMIN)
+ *     description: >
+ *       PRO necesita duration. Si el usuario ya tenía PRO con fecha, la
+ *       duración se suma a esa fecha; si no, cuenta desde ahora. forever deja
+ *       el PRO sin vencimiento. FREE borra la fecha. Al vencer, el usuario
+ *       vuelve a FREE solo.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -122,9 +127,10 @@ router.get('/users/:userId', authenticateToken(['ADMIN']), validateUserIdParam, 
  *             required: [plan]
  *             properties:
  *               plan: { type: string, enum: [FREE, PRO] }
+ *               duration: { type: string, enum: [7d, 1m, 3m, 6m, 12m, forever], description: Obligatorio con PRO }
  *     responses:
  *       200:
- *         description: Plan actualizado
+ *         description: Plan actualizado ({ userId, plan, proUntil })
  *       404:
  *         description: Usuario no encontrado
  */

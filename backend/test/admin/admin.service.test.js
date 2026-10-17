@@ -5,7 +5,9 @@ import bcrypt from 'bcrypt';
 const src = (path) => new URL(`../../src/${path}`, import.meta.url).href;
 
 const REPO_EXPORTS = [
+  'expireGiftedPro',
   'findUserDetail',
+  'findUserPlanState',
   'findUsers',
   'getOverview',
   'updateUserPassword',
@@ -33,7 +35,7 @@ mock.module(src('modules/events/events.service.js'), {
   },
 });
 
-const { deleteUserService, updateUserPasswordService, updateUserRoleService } = await import(
+const { deleteUserService, updateUserPasswordService, updateUserPlanService, updateUserRoleService } = await import(
   src('modules/admin/admin.service.js')
 );
 
@@ -135,4 +137,63 @@ test('eliminar: usuario inexistente responde 404', async () => {
     code: 'USER_NOT_FOUND',
   });
   assert.deepEqual(events, []);
+});
+
+const NOW = new Date('2026-10-17T15:00:00Z');
+
+const capturePlanUpdate = () => {
+  const calls = [];
+  repo.updateUserPlan = async (userId, plan, proUntil) => {
+    calls.push({ userId, plan, proUntil: proUntil?.toISOString() ?? null });
+    return { userId, plan, proUntil };
+  };
+  return calls;
+};
+
+test('plan: regalar 7 días a un FREE guarda la fecha de fin', async () => {
+  repo.findUserPlanState = async () => ({ plan: 'FREE', proUntil: null });
+  const calls = capturePlanUpdate();
+
+  await updateUserPlanService(5, 'PRO', '7d', NOW);
+
+  assert.deepEqual(calls, [{ userId: 5, plan: 'PRO', proUntil: '2026-10-24T15:00:00.000Z' }]);
+});
+
+test('plan: extender un PRO con fecha suma a esa fecha', async () => {
+  repo.findUserPlanState = async () => ({ plan: 'PRO', proUntil: new Date('2026-11-01T00:00:00Z') });
+  const calls = capturePlanUpdate();
+
+  await updateUserPlanService(5, 'PRO', '1m', NOW);
+
+  assert.equal(calls[0].proUntil, '2026-12-01T00:00:00.000Z');
+});
+
+test('plan: sin vencimiento guarda null', async () => {
+  repo.findUserPlanState = async () => ({ plan: 'FREE', proUntil: null });
+  const calls = capturePlanUpdate();
+
+  await updateUserPlanService(5, 'PRO', 'forever', NOW);
+
+  assert.equal(calls[0].proUntil, null);
+});
+
+test('plan: pasar a FREE borra la fecha', async () => {
+  repo.findUserPlanState = async () => ({ plan: 'PRO', proUntil: new Date('2026-11-01T00:00:00Z') });
+  const calls = capturePlanUpdate();
+
+  await updateUserPlanService(5, 'FREE', undefined, NOW);
+
+  assert.deepEqual(calls, [{ userId: 5, plan: 'FREE', proUntil: null }]);
+});
+
+test('plan: usuario inexistente responde 404', async () => {
+  repo.findUserPlanState = async () => null;
+  repo.updateUserPlan = async () => {
+    throw new Error('updateUserPlan no debería llamarse');
+  };
+
+  await assert.rejects(updateUserPlanService(99, 'PRO', '7d', NOW), {
+    status: 404,
+    code: 'USER_NOT_FOUND',
+  });
 });
