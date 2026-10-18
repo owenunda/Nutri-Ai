@@ -8,12 +8,12 @@ import {
   getOverview,
   findUsers,
   findUserDetail,
-  findUserPlanState,
   updateUserPassword,
-  updateUserPlan,
   updateUserRole,
 } from './admin.repository.js';
 import { computeProUntil } from './proGift.js';
+import { computeEffectivePlan } from '../subscription/effectivePlan.js';
+import { saveGift } from '../subscription/subscription.service.js';
 
 const SALT_ROUNDS = 10;
 
@@ -72,20 +72,35 @@ export const getUserDetailService = (userId, now = new Date()) =>
   wrap(async () => {
     const detail = await findUserDetail(userId);
     if (!detail) throw new AppError('Usuario no encontrado', 404, 'USER_NOT_FOUND');
-    const { waterRows, ...rest } = detail;
-    return { ...rest, water: summarizeWater(toHistory(waterRows), dayInTimeZone(now, PANEL_TIMEZONE)) };
+    const { waterRows, profile, ...rest } = detail;
+    const { proSource } = computeEffectivePlan(
+      { giftPro: profile.giftPro, giftProUntil: profile.giftProUntil, storeExpiresAt: profile.subscription?.expiresAt },
+      now
+    );
+    return {
+      ...rest,
+      profile: { ...profile, proSource },
+      water: summarizeWater(toHistory(waterRows), dayInTimeZone(now, PANEL_TIMEZONE)),
+    };
   });
 
+// El regalo en la forma que espera computeProUntil.
+const giftPlanState = ({ giftPro, giftProUntil }) => ({ plan: giftPro ? 'PRO' : 'FREE', proUntil: giftProUntil });
+
 /**
- * Cambia el plan de un usuario. PRO lleva la duración del regalo (ver
- * proGift.js); FREE borra la fecha de vencimiento.
+ * Cambia el PRO regalado de un usuario. PRO lleva la duración (ver proGift.js);
+ * FREE quita el regalo. Lo pagado en la tienda no se toca: el plan se recalcula.
  */
 export const updateUserPlanService = (userId, plan, duration, now = new Date()) =>
   wrap(async () => {
-    const current = await findUserPlanState(userId);
-    if (!current) throw userNotFound();
-    const proUntil = plan === 'PRO' ? computeProUntil(current, duration, now) : null;
-    const updated = await updateUserPlan(userId, plan, proUntil);
+    const updated = await saveGift(
+      userId,
+      (current) =>
+        plan === 'PRO'
+          ? { giftPro: true, giftProUntil: computeProUntil(giftPlanState(current), duration, now) }
+          : { giftPro: false, giftProUntil: null },
+      now
+    );
     if (!updated) throw userNotFound();
     return updated;
   });

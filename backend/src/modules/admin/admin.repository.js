@@ -300,6 +300,16 @@ export const findUserDetail = async (userId) => {
       r.name AS role,
       p.name AS plan,
       u.pro_until AS "proUntil",
+      u.gift_pro AS "giftPro",
+      u.gift_pro_until AS "giftProUntil",
+      CASE WHEN ss.user_id IS NULL THEN NULL ELSE json_build_object(
+        'productId', ss.product_id,
+        'store', ss.store,
+        'expiresAt', ss.expires_at,
+        'willRenew', ss.will_renew,
+        'billingIssue', ss.billing_issue,
+        'environment', ss.environment
+      ) END AS subscription,
       ${authMethodSql('u')} AS "authMethod",
       pr.height,
       pr.weight,
@@ -308,6 +318,7 @@ export const findUserDetail = async (userId) => {
     FROM users u
     INNER JOIN roles r ON r.role_id = u.role_id
     INNER JOIN plans p ON p.plan_id = u.plan_id
+    LEFT JOIN store_subscriptions ss ON ss.user_id = u.user_id
     LEFT JOIN LATERAL (
       SELECT height, weight
       FROM physical_records
@@ -424,38 +435,6 @@ export const findUserDetail = async (userId) => {
     recentEvents: recentEvents.rows,
     waterRows: water.rows,
   };
-};
-
-/**
- * Plan actual de un usuario y hasta cuándo dura su PRO.
- * @returns {Promise<{plan: string, proUntil: Date|null}|null>} null si no existe.
- */
-export const findUserPlanState = async (userId) => {
-  const { rows } = await pool.query(
-    `SELECT p.name AS plan, u.pro_until AS "proUntil"
-       FROM users u
-       INNER JOIN plans p ON p.plan_id = u.plan_id
-      WHERE u.user_id = $1`,
-    [userId]
-  );
-  return rows[0] ?? null;
-};
-
-/**
- * Cambia el plan de un usuario. proUntil: fin del PRO (null = sin vencimiento,
- * y siempre null para FREE).
- * @returns {Promise<Object|null>} El usuario actualizado o null si no existe.
- */
-export const updateUserPlan = async (userId, planName, proUntil = null) => {
-  const query = `
-    UPDATE users u
-    SET plan_id = p.plan_id, pro_until = $3, updated_at = CURRENT_TIMESTAMP
-    FROM plans p
-    WHERE u.user_id = $1 AND p.name = $2
-    RETURNING u.user_id AS "userId", p.name AS plan, u.pro_until AS "proUntil"
-  `;
-  const { rows } = await pool.query(query, [userId, planName, proUntil]);
-  return rows[0] ?? null;
 };
 
 /**

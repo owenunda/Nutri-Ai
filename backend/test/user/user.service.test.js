@@ -36,7 +36,7 @@ mock.module(src('modules/auth/google.verifier.js'), {
   exports: { verifyGoogleIdToken: (...args) => verifyImpl(...args) },
 });
 
-const { deleteUserAccount, setUserPassword } = await import(src('modules/user/user.service.js'));
+const { deleteUserAccount, getUserProfile, setUserPassword } = await import(src('modules/user/user.service.js'));
 
 const passwordHash = await bcrypt.hash('secreto123', 4);
 let deletedIds;
@@ -173,4 +173,22 @@ test('crear contraseña: usuario inexistente responde 404', async () => {
     status: 404,
     code: 'USER_NOT_FOUND',
   });
+});
+
+test('perfil: agrega proSource y no expone los datos internos del plan', async () => {
+  repo.findUserProfileById = async () => ({
+    userId: 7,
+    plan: 'PRO',
+    proUntil: null,
+    giftPro: true,
+    giftProUntil: null,
+    storeExpiresAt: null,
+  });
+
+  const profile = await getUserProfile(7);
+
+  assert.equal(profile.proSource, 'gift');
+  assert.equal('giftPro' in profile, false);
+  assert.equal('giftProUntil' in profile, false);
+  assert.equal('storeExpiresAt' in profile, false);
 });

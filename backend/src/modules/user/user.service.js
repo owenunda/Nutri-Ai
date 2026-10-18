@@ -11,8 +11,15 @@ import {
   setPasswordIfMissing,
   updateUserProfileData,
 } from './user.repository.js';
+import { computeEffectivePlan } from '../subscription/effectivePlan.js';
 
 const SALT_ROUNDS = 10;
+
+// El perfil dice de dónde viene el PRO, sin exponer las columnas internas.
+const withProSource = ({ giftPro, giftProUntil, storeExpiresAt, ...profile }) => ({
+  ...profile,
+  proSource: computeEffectivePlan({ giftPro, giftProUntil, storeExpiresAt }).proSource,
+});
 
 export const getUserProfile = async (userId) => {
   try {
@@ -22,7 +29,7 @@ export const getUserProfile = async (userId) => {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    return user;
+    return withProSource(user);
   } catch (error) {
     if (error instanceof AppError) {
       throw error;
@@ -76,7 +83,7 @@ export const updateUserProfile = async (userId, profileData) => {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    return updatedUser;
+    return withProSource(updatedUser);
   } catch (error) {
     if (error instanceof AppError) {
       throw error;

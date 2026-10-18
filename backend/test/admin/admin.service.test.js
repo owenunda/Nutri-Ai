@@ -7,11 +7,9 @@ const src = (path) => new URL(`../../src/${path}`, import.meta.url).href;
 const REPO_EXPORTS = [
   'expireGiftedPro',
   'findUserDetail',
-  'findUserPlanState',
   'findUsers',
   'getOverview',
   'updateUserPassword',
-  'updateUserPlan',
   'updateUserRole',
 ];
 
@@ -34,6 +32,11 @@ mock.module(src('modules/events/events.service.js'), {
       events.push(event);
     },
   },
+});
+
+let saveGiftImpl;
+mock.module(src('modules/subscription/subscription.service.js'), {
+  exports: { saveGift: (...args) => saveGiftImpl(...args) },
 });
 
 const {
@@ -147,56 +150,63 @@ test('eliminar: usuario inexistente responde 404', async () => {
 
 const NOW = new Date('2026-10-17T15:00:00Z');
 
-const capturePlanUpdate = () => {
-  const calls = [];
-  repo.updateUserPlan = async (userId, plan, proUntil) => {
-    calls.push({ userId, plan, proUntil: proUntil?.toISOString() ?? null });
-    return { userId, plan, proUntil };
+// Corre giftFor con el regalo indicado y devuelve el regalo nuevo.
+const giftAfter = async (current, plan, duration) => {
+  let gift;
+  saveGiftImpl = async (userId, giftFor, now) => {
+    gift = giftFor({ plan: 'FREE', storeExpiresAt: null, ...current });
+    return { userId, plan: 'PRO', proUntil: null, proSource: 'gift', now };
   };
-  return calls;
+  await updateUserPlanService(5, plan, duration, NOW);
+  return { ...gift, giftProUntil: gift.giftProUntil?.toISOString() ?? null };
 };
 
-test('plan: regalar 7 días a un FREE guarda la fecha de fin', async () => {
-  repo.findUserPlanState = async () => ({ plan: 'FREE', proUntil: null });
-  const calls = capturePlanUpdate();
-
-  await updateUserPlanService(5, 'PRO', '7d', NOW);
-
-  assert.deepEqual(calls, [{ userId: 5, plan: 'PRO', proUntil: '2026-10-24T15:00:00.000Z' }]);
+test('plan: regalar 7 días a quien no tiene regalo', async () => {
+  assert.deepEqual(await giftAfter({ giftPro: false, giftProUntil: null }, 'PRO', '7d'), {
+    giftPro: true,
+    giftProUntil: '2026-10-24T15:00:00.000Z',
+  });
 });
 
-test('plan: extender un PRO con fecha suma a esa fecha', async () => {
-  repo.findUserPlanState = async () => ({ plan: 'PRO', proUntil: new Date('2026-11-01T00:00:00Z') });
-  const calls = capturePlanUpdate();
-
-  await updateUserPlanService(5, 'PRO', '1m', NOW);
-
-  assert.equal(calls[0].proUntil, '2026-12-01T00:00:00.000Z');
+test('plan: extender un regalo con fecha suma a esa fecha', async () => {
+  const gift = await giftAfter({ giftPro: true, giftProUntil: new Date('2026-11-01T00:00:00Z') }, 'PRO', '1m');
+  assert.equal(gift.giftProUntil, '2026-12-01T00:00:00.000Z');
 });
 
-test('plan: sin vencimiento guarda null', async () => {
-  repo.findUserPlanState = async () => ({ plan: 'FREE', proUntil: null });
-  const calls = capturePlanUpdate();
-
-  await updateUserPlanService(5, 'PRO', 'forever', NOW);
-
-  assert.equal(calls[0].proUntil, null);
+test('plan: el regalo cuenta desde ahora aunque pague en la tienda', async () => {
+  const gift = await giftAfter(
+    { plan: 'PRO', giftPro: false, giftProUntil: null, storeExpiresAt: new Date('2026-12-01T00:00:00Z') },
+    'PRO',
+    '7d'
+  );
+  assert.equal(gift.giftProUntil, '2026-10-24T15:00:00.000Z');
 });
 
-test('plan: pasar a FREE borra la fecha', async () => {
-  repo.findUserPlanState = async () => ({ plan: 'PRO', proUntil: new Date('2026-11-01T00:00:00Z') });
-  const calls = capturePlanUpdate();
+test('plan: regalo sin vencimiento', async () => {
+  assert.deepEqual(await giftAfter({ giftPro: false, giftProUntil: null }, 'PRO', 'forever'), {
+    giftPro: true,
+    giftProUntil: null,
+  });
+});
 
-  await updateUserPlanService(5, 'FREE', undefined, NOW);
+test('plan: FREE quita el regalo', async () => {
+  assert.deepEqual(await giftAfter({ giftPro: true, giftProUntil: new Date('2026-11-01T00:00:00Z') }, 'FREE'), {
+    giftPro: false,
+    giftProUntil: null,
+  });
+});
 
-  assert.deepEqual(calls, [{ userId: 5, plan: 'FREE', proUntil: null }]);
+test('plan: devuelve lo que calculó saveGift y le pasa la hora', async () => {
+  saveGiftImpl = async (userId, giftFor, now) => ({ userId, plan: 'PRO', proUntil: null, proSource: 'both', now });
+
+  const result = await updateUserPlanService(5, 'FREE', undefined, NOW);
+
+  assert.equal(result.proSource, 'both');
+  assert.equal(result.now, NOW);
 });
 
 test('plan: usuario inexistente responde 404', async () => {
-  repo.findUserPlanState = async () => null;
-  repo.updateUserPlan = async () => {
-    throw new Error('updateUserPlan no debería llamarse');
-  };
+  saveGiftImpl = async () => null;
 
   await assert.rejects(updateUserPlanService(99, 'PRO', '7d', NOW), {
     status: 404,
@@ -266,4 +276,40 @@ test('resumen: cuenta las rachas de agua vivas y las ordena', async () => {
     { userId: 2, name: 'Bea', plan: 'PRO', currentStreak: 3 },
     { userId: 1, name: 'Ana', plan: 'FREE', currentStreak: 2 },
   ]);
+});
+
+test('detalle: agrega de dónde viene el PRO', async () => {
+  repo.findUserDetail = async () => ({
+    profile: {
+      userId: 5,
+      giftPro: false,
+      giftProUntil: null,
+      subscription: { expiresAt: '2026-11-17T15:00:00Z', productId: 'monthly' },
+    },
+    usage: {},
+    series: [],
+    byModule: [],
+    recentEvents: [],
+    waterRows: [],
+  });
+
+  const detail = await getUserDetailService(5, NIGHT_IN_BOGOTA);
+
+  assert.equal(detail.profile.proSource, 'store');
+  assert.equal(detail.profile.subscription.productId, 'monthly');
+});
+
+test('detalle: sin suscripción ni regalo no hay proSource', async () => {
+  repo.findUserDetail = async () => ({
+    profile: { userId: 5, giftPro: false, giftProUntil: null, subscription: null },
+    usage: {},
+    series: [],
+    byModule: [],
+    recentEvents: [],
+    waterRows: [],
+  });
+
+  const detail = await getUserDetailService(5, NIGHT_IN_BOGOTA);
+
+  assert.equal(detail.profile.proSource, null);
 });

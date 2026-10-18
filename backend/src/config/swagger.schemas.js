@@ -18,6 +18,16 @@
  *         plan:
  *           type: string
  *           example: FREE
+ *         proUntil:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           description: Fin del PRO. Null con PRO = sin vencimiento.
+ *         proSource:
+ *           type: string
+ *           nullable: true
+ *           enum: [gift, store, both]
+ *           description: De dónde viene el PRO (regalo del panel, tienda o ambos).
  *         goal:
  *           type: string
  *           description: User's nutritional goal

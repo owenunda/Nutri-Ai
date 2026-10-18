@@ -11,6 +11,9 @@ const profileSelectQuery = `
     r.name AS role,
     p.name AS plan,
     u.pro_until AS "proUntil",
+    u.gift_pro AS "giftPro",
+    u.gift_pro_until AS "giftProUntil",
+    ss.expires_at AS "storeExpiresAt",
     pr.height,
     pr.weight,
     pr.record_date AS "recordDate",
@@ -19,6 +22,7 @@ const profileSelectQuery = `
   FROM users u
   INNER JOIN roles r ON r.role_id = u.role_id
   INNER JOIN plans p ON p.plan_id = u.plan_id
+  LEFT JOIN store_subscriptions ss ON ss.user_id = u.user_id
   LEFT JOIN LATERAL (
     SELECT
       height,
