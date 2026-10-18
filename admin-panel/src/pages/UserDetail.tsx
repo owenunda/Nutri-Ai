@@ -341,6 +341,7 @@ export default function UserDetail() {
         userId={profile.userId}
         name={profile.name}
         current={giftState}
+        paysInStore={profile.proSource === 'store'}
         onChanged={() => load()}
       />
 
@@ -482,6 +483,7 @@ function PlanDialog({
   userId,
   name,
   current,
+  paysInStore,
   onChanged,
 }: {
   mode: PlanDialogMode | null;
@@ -489,6 +491,8 @@ function PlanDialog({
   userId: number;
   name: string;
   current: { plan: Plan; proUntil: string | null };
+  /** Ya es PRO por la tienda (sin regalo activo). */
+  paysInStore: boolean;
   onChanged: () => void;
 }) {
   const gift = mode === 'gift';
@@ -531,7 +535,9 @@ function PlanDialog({
             ? `${name} pierde el PRO regalado. Si paga en la tienda, sigue PRO.`
             : extending
               ? `El tiempo se suma al PRO que ${name} ya tiene.`
-              : `${name} pasará al plan PRO.`}{' '}
+              : paysInStore
+                ? `${name} recibe PRO regalado además de su suscripción.`
+                : `${name} pasará al plan PRO.`}{' '}
           El chat lo toma enseguida; los anuncios, la próxima vez que inicie sesión.
         </p>
       </div>
