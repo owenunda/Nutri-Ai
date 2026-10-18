@@ -137,13 +137,16 @@ class _WaterStreakScreenState extends State<WaterStreakScreen>
         ),
         centerTitle: true,
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF2799B5)),
-            )
-          : _loadError != null
-          ? _buildLoadError()
-          : _buildTracker(_snapshot!),
+      body: SafeArea(
+        top: false,
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFF2799B5)),
+              )
+            : _loadError != null
+            ? _buildLoadError()
+            : _buildTracker(_snapshot!),
+      ),
     );
   }
 

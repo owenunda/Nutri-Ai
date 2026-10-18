@@ -105,7 +105,9 @@ class _MealHistoryScreenState extends State<MealHistoryScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+        padding: EdgeInsets.fromLTRB(
+          24, 8, 24, 32 + MediaQuery.paddingOf(context).bottom,
+        ),
         children: [
           Row(
             children: [

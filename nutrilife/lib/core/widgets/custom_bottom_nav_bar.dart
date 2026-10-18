@@ -18,29 +18,34 @@ class CustomBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Container(
-      height: 76,
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(38),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(0, Icons.home_rounded, l10n.commonNavHome),
-          _buildNavItem(1, Icons.restaurant_menu_rounded, l10n.commonNavFoods),
-          _buildCenterItem(2, l10n.commonNavAi),
-          _buildNavItem(3, Icons.bar_chart_rounded, l10n.commonNavProgress),
-          _buildNavItem(4, Icons.person_rounded, l10n.commonNavProfile),
-        ],
+    // SafeArea: la app va borde a borde, así que sin esto la barra queda
+    // debajo de los botones de navegación de Android.
+    return SafeArea(
+      top: false,
+      child: Container(
+        height: 76,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(38),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(0, Icons.home_rounded, l10n.commonNavHome),
+            _buildNavItem(1, Icons.restaurant_menu_rounded, l10n.commonNavFoods),
+            _buildCenterItem(2, l10n.commonNavAi),
+            _buildNavItem(3, Icons.bar_chart_rounded, l10n.commonNavProgress),
+            _buildNavItem(4, Icons.person_rounded, l10n.commonNavProfile),
+          ],
+        ),
       ),
     );
   }

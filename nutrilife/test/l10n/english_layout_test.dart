@@ -358,7 +358,7 @@ void main() {
   group('Auth en inglés a 375x812', () {
     testWidgets('login', (tester) async {
       await _show(tester, const LoginScreen());
-      expect(find.text('Welcome back'), findsOneWidget);
+      expect(find.text('Sign in to your account'), findsOneWidget);
     });
 
     testWidgets('register', (tester) async {

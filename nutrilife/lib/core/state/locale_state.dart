@@ -31,12 +31,12 @@ class LocaleState extends ChangeNotifier {
       };
 
   /// Idioma efectivo: el elegido o, con `system`, el del teléfono si está
-  /// soportado. Si no, español.
+  /// soportado. Si no, inglés.
   String get languageCode {
     final chosen = locale;
     if (chosen != null) return chosen.languageCode;
     final device = _deviceLocale().languageCode;
-    return supportedCodes.contains(device) ? device : 'es';
+    return supportedCodes.contains(device) ? device : 'en';
   }
 
   Future<void> load() async {

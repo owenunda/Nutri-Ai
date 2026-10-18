@@ -17,10 +17,10 @@ void main() {
     expect(s.languageCode, 'en');
   });
 
-  test('un teléfono en otro idioma cae a español', () async {
+  test('un teléfono en otro idioma cae a inglés', () async {
     final s = _state('fr');
     await s.load();
-    expect(s.languageCode, 'es');
+    expect(s.languageCode, 'en');
   });
 
   test('guardar la preferencia la aplica y la recuerda', () async {

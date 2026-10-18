@@ -44,7 +44,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authBrandTagline => 'Your smart path to well-being.';
 
   @override
-  String get authLoginTitle => 'Welcome back';
+  String get authLoginTitle => 'Sign in to your account';
 
   @override
   String get authLoginSubtitle =>

@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// No description provided for @authLoginTitle.
   ///
   /// In es, this message translates to:
-  /// **'Bienvenido de nuevo'**
+  /// **'Entra a tu cuenta'**
   String get authLoginTitle;
 
   /// No description provided for @authLoginSubtitle.
@@ -179,13 +179,13 @@ abstract class AppLocalizations {
   /// No description provided for @authLoginEmailLabel.
   ///
   /// In es, this message translates to:
-  /// **'CORREO ELECTRONICO'**
+  /// **'CORREO ELECTRÓNICO'**
   String get authLoginEmailLabel;
 
   /// No description provided for @authLoginPasswordLabel.
   ///
   /// In es, this message translates to:
-  /// **'CONTRASENA'**
+  /// **'CONTRASEÑA'**
   String get authLoginPasswordLabel;
 
   /// No description provided for @authForgotPasswordLink.
@@ -203,7 +203,7 @@ abstract class AppLocalizations {
   /// No description provided for @authLoginButton.
   ///
   /// In es, this message translates to:
-  /// **'Iniciar sesion'**
+  /// **'Iniciar sesión'**
   String get authLoginButton;
 
   /// No description provided for @authLoginLoading.
@@ -215,7 +215,7 @@ abstract class AppLocalizations {
   /// No description provided for @authLoginOrContinueWith.
   ///
   /// In es, this message translates to:
-  /// **'O CONTINUA CON'**
+  /// **'O CONTINÚA CON'**
   String get authLoginOrContinueWith;
 
   /// No description provided for @authGoogleTermsPrefix.
@@ -245,7 +245,7 @@ abstract class AppLocalizations {
   /// No description provided for @authLoginNoAccount.
   ///
   /// In es, this message translates to:
-  /// **'No tienes una cuenta? '**
+  /// **'¿No tienes una cuenta? '**
   String get authLoginNoAccount;
 
   /// No description provided for @authLoginCreateOne.
@@ -2495,7 +2495,7 @@ abstract class AppLocalizations {
   /// No description provided for @progressGreeting.
   ///
   /// In es, this message translates to:
-  /// **'Buen progreso,\n{name}!'**
+  /// **'¡Buen progreso,\n{name}!'**
   String progressGreeting(String name);
 
   /// No description provided for @progressGoalPill.

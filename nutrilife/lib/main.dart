@@ -54,10 +54,10 @@ class MainApp extends StatelessWidget {
         locale: LocaleState.instance.locale,
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
-        // Con "Sistema" y un teléfono en un idioma sin traducción: español.
+        // Con "Sistema" y un teléfono en un idioma sin traducción: inglés.
         localeResolutionCallback: (device, supported) => supported.firstWhere(
           (l) => l.languageCode == device?.languageCode,
-          orElse: () => const Locale('es'),
+          orElse: () => const Locale('en'),
         ),
         builder: (context, child) => DismissKeyboardOnTap(child: child!),
         home: home,

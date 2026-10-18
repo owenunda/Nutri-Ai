@@ -44,17 +44,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get authBrandTagline => 'Tu camino inteligente hacia el bienestar.';
 
   @override
-  String get authLoginTitle => 'Bienvenido de nuevo';
+  String get authLoginTitle => 'Entra a tu cuenta';
 
   @override
   String get authLoginSubtitle =>
       'Ingresa tus credenciales para acceder a tu espacio de bienestar.';
 
   @override
-  String get authLoginEmailLabel => 'CORREO ELECTRONICO';
+  String get authLoginEmailLabel => 'CORREO ELECTRÓNICO';
 
   @override
-  String get authLoginPasswordLabel => 'CONTRASENA';
+  String get authLoginPasswordLabel => 'CONTRASEÑA';
 
   @override
   String get authForgotPasswordLink => '¿Olvidaste tu contraseña?';
@@ -64,13 +64,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Contraseña actualizada. Ya puedes iniciar sesión.';
 
   @override
-  String get authLoginButton => 'Iniciar sesion';
+  String get authLoginButton => 'Iniciar sesión';
 
   @override
   String get authLoginLoading => 'Iniciando...';
 
   @override
-  String get authLoginOrContinueWith => 'O CONTINUA CON';
+  String get authLoginOrContinueWith => 'O CONTINÚA CON';
 
   @override
   String get authGoogleTermsPrefix => 'Al continuar con Google aceptas los ';
@@ -85,7 +85,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get authPrivacyPolicy => 'Política de Privacidad';
 
   @override
-  String get authLoginNoAccount => 'No tienes una cuenta? ';
+  String get authLoginNoAccount => '¿No tienes una cuenta? ';
 
   @override
   String get authLoginCreateOne => 'Crea una';
@@ -1518,7 +1518,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String progressGreeting(String name) {
-    return 'Buen progreso,\n$name!';
+    return '¡Buen progreso,\n$name!';
   }
 
   @override

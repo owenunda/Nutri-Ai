@@ -99,7 +99,7 @@ void main() {
     await _pump(tester, _data(), const Locale('es'));
 
     expect(find.text('PROGRESO SEMANAL'), findsOneWidget);
-    expect(find.text('Buen progreso,\nAna!'), findsOneWidget);
+    expect(find.text('¡Buen progreso,\nAna!'), findsOneWidget);
     expect(find.text('Meta:\nBajar peso'), findsOneWidget);
     expect(find.text('Calorías de hoy'), findsOneWidget);
     expect(find.text('2.450'), findsOneWidget);

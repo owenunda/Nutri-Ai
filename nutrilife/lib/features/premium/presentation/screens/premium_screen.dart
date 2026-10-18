@@ -160,7 +160,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
         foregroundColor: const Color(0xFF2C2F31),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+        padding: EdgeInsets.fromLTRB(
+          24, 0, 24, 32 + MediaQuery.paddingOf(context).bottom,
+        ),
         children: [
           Center(
             child: ClipOval(

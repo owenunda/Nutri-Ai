@@ -11,16 +11,16 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Sign in to your account'), findsOneWidget);
     expect(find.text('Sign in'), findsOneWidget);
-    expect(find.text('Bienvenido de nuevo'), findsNothing);
+    expect(find.text('Entra a tu cuenta'), findsNothing);
   });
 
   testWidgets('el login se ve en español con el idioma es', (tester) async {
     await tester.pumpWidget(l10nApp(const LoginScreen()));
     await tester.pump();
 
-    expect(find.text('Bienvenido de nuevo'), findsOneWidget);
-    expect(find.text('Welcome back'), findsNothing);
+    expect(find.text('Entra a tu cuenta'), findsOneWidget);
+    expect(find.text('Sign in to your account'), findsNothing);
   });
 }
