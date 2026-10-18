@@ -2346,6 +2346,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profilePremiumActiveForever => 'Active with no end date';
 
   @override
+  String get profilePremiumManageUnavailable =>
+      'Manage your subscription from your phone\'s app store.';
+
+  @override
   String get hydrationErrorLoad =>
       'Couldn\'t load your water streak. Check your connection.';
 }

@@ -8,6 +8,7 @@ import 'package:nutrilife/features/profile/data/profile_repository.dart';
 import 'package:nutrilife/features/profile/presentation/screens/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helpers/fake_purchase_service.dart';
 import '../../helpers/l10n_app.dart';
 
 /// Devuelve el perfil indicado para cualquier petición.
@@ -53,6 +54,7 @@ Future<void> _pumpProfile(
   WidgetTester tester,
   Map<String, Object?> profile, {
   Locale locale = const Locale('es'),
+  FakePurchaseService? purchases,
 }) async {
   tester.view.physicalSize = const Size(900, 3600);
   tester.view.devicePixelRatio = 1.0;
@@ -61,12 +63,14 @@ Future<void> _pumpProfile(
 
   final dio = Dio(BaseOptions(baseUrl: 'https://test.local'))
     ..httpClientAdapter = _ProfileAdapter(profile);
+  // En la app el perfil vive dentro del Scaffold del dashboard; aquí el aviso lo necesita.
   await tester.pumpWidget(l10nApp(
-    ProfileScreen(
+    Scaffold(body: ProfileScreen(
       userName: 'Ana',
       onLogout: () {},
       repository: ProfileRepository(dio: dio),
-    ),
+      purchases: purchases ?? FakePurchaseService(),
+    )),
     locale: locale,
   ));
   await tester.pumpAndSettle();
@@ -126,5 +130,34 @@ void main() {
 
     expect(find.text('Planes y beneficios'), findsOneWidget);
     expect(find.textContaining('Activo'), findsNothing);
+  });
+
+  testWidgets('PRO pagado: tocar la fila pide la página de la tienda', (tester) async {
+    final purchases = FakePurchaseService(url: null);
+    await _pumpProfile(
+      tester,
+      _profileJson(plan: 'PRO', proUntil: '2026-11-24T12:00:00.000Z', proSource: 'store'),
+      purchases: purchases,
+    );
+
+    await tester.tap(find.text('Activo hasta el 24 nov 2026'));
+    await tester.pump();
+
+    expect(purchases.managementUrlCalls, 1);
+    expect(find.text('Administra tu suscripción desde la tienda de tu teléfono.'), findsOneWidget);
+  });
+
+  testWidgets('PRO regalado: la fila no hace nada', (tester) async {
+    final purchases = FakePurchaseService();
+    await _pumpProfile(
+      tester,
+      _profileJson(plan: 'PRO', proUntil: '2026-11-24T12:00:00.000Z', proSource: 'gift'),
+      purchases: purchases,
+    );
+
+    await tester.tap(find.text('Activo hasta el 24 nov 2026'));
+    await tester.pump();
+
+    expect(purchases.managementUrlCalls, 0);
   });
 }

@@ -1487,5 +1487,6 @@
     }
   },
   "profilePremiumActiveForever": "Activo sin vencimiento",
+  "profilePremiumManageUnavailable": "Administra tu suscripción desde la tienda de tu teléfono.",
   "hydrationErrorLoad": "No se pudo cargar tu racha de agua. Revisa tu conexión."
 }

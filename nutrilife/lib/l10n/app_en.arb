@@ -1078,5 +1078,6 @@
   "chatQuotaFairUseReply": "We talked a lot today. Let's rest and pick up tomorrow.",
   "profilePremiumActiveUntil": "Active until {date}",
   "profilePremiumActiveForever": "Active with no end date",
+  "profilePremiumManageUnavailable": "Manage your subscription from your phone's app store.",
   "hydrationErrorLoad": "Couldn't load your water streak. Check your connection."
 }

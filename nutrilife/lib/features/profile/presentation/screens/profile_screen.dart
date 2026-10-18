@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/services/google_auth_service.dart';
+import '../../../../core/services/purchase_service.dart';
 import '../../../../core/state/locale_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -20,6 +22,7 @@ class ProfileScreen extends StatefulWidget {
     required this.onLogout,
     this.repository,
     this.accountId = 'default',
+    this.purchases,
   });
 
   final String userName;
@@ -29,6 +32,9 @@ class ProfileScreen extends StatefulWidget {
   /// Solo para pruebas; por defecto usa el repositorio real.
   final ProfileRepository? repository;
 
+  /// Solo para pruebas; por defecto usa el servicio de compras real.
+  final PurchaseService? purchases;
+
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -37,6 +43,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late final ProfileRepository _profileRepository;
   late Future<UserProfile> _profileFuture;
   bool _mealRemindersEnabled = true;
+  late final PurchaseService _purchases = widget.purchases ?? PurchaseService.instance;
+
+  Future<void> _openPremium() async {
+    final becamePro = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const PremiumScreen()),
+    );
+    if (becamePro == true && mounted) await _refreshProfile();
+  }
+
+  // Cancelar o cambiar de plan se hace en la tienda, no en la app.
+  Future<void> _manageSubscription() async {
+    final url = await _purchases.managementUrl();
+    if (!mounted) return;
+    final uri = url == null ? null : Uri.tryParse(url);
+    if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(context.l10n.profilePremiumManageUnavailable)));
+    }
+  }
 
   @override
   void initState() {
@@ -277,6 +304,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _SettingsCard(
                   isPro: profile.isPro,
                   proUntil: profile.proUntil,
+                  hasStoreSubscription: profile.hasStoreSubscription,
+                  onOpenPremium: _openPremium,
+                  onManageSubscription: _manageSubscription,
                   mealRemindersEnabled: _mealRemindersEnabled,
                   onMealReminderChanged: (value) {
                     setState(() {
@@ -582,6 +612,9 @@ class _SettingsCard extends StatelessWidget {
   const _SettingsCard({
     required this.isPro,
     required this.proUntil,
+    required this.hasStoreSubscription,
+    required this.onOpenPremium,
+    required this.onManageSubscription,
     required this.mealRemindersEnabled,
     required this.onMealReminderChanged,
     required this.onOpenConfiguration,
@@ -589,8 +622,13 @@ class _SettingsCard extends StatelessWidget {
 
   final bool isPro;
 
-  /// Fin del PRO regalado. Null con PRO = sin vencimiento.
+  /// Fin del PRO. Null con PRO = sin vencimiento.
   final DateTime? proUntil;
+
+  /// El PRO viene (también) de la tienda: la fila abre la página para administrarla.
+  final bool hasStoreSubscription;
+  final VoidCallback onOpenPremium;
+  final VoidCallback onManageSubscription;
   final bool mealRemindersEnabled;
   final ValueChanged<bool> onMealReminderChanged;
   final VoidCallback onOpenConfiguration;
@@ -618,14 +656,14 @@ class _SettingsCard extends StatelessWidget {
                 : proUntil == null
                     ? l10n.profilePremiumActiveForever
                     : l10n.profilePremiumActiveUntil(proUntil!),
-            trailing: isPro
+            trailing: isPro && !hasStoreSubscription
                 ? const Icon(Icons.check_circle_rounded, color: _ProfileColors.green, size: 26)
                 : const Icon(Icons.chevron_right_rounded, color: Color(0xFFADB4BC), size: 30),
-            onTap: isPro
-                ? null
-                : () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const PremiumScreen()),
-                    ),
+            onTap: !isPro
+                ? onOpenPremium
+                : hasStoreSubscription
+                    ? onManageSubscription
+                    : null,
           ),
           _SettingsRow(
             icon: Icons.access_time_filled_rounded,

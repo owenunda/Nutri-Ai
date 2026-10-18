@@ -51,10 +51,11 @@ class _AiChatViewState extends State<AiChatView> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) unawaited(_viewModel.loadQuota());
   }
 
-  void _openPremium() {
-    Navigator.of(context).push(
+  Future<void> _openPremium() async {
+    final becamePro = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => const PremiumScreen()),
     );
+    if (becamePro == true) unawaited(_viewModel.loadQuota());
   }
 
   void _syncBotSleep() {

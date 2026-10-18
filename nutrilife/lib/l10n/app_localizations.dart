@@ -3848,6 +3848,12 @@ abstract class AppLocalizations {
   /// **'Activo sin vencimiento'**
   String get profilePremiumActiveForever;
 
+  /// No description provided for @profilePremiumManageUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Administra tu suscripción desde la tienda de tu teléfono.'**
+  String get profilePremiumManageUnavailable;
+
   /// No description provided for @hydrationErrorLoad.
   ///
   /// In es, this message translates to:
