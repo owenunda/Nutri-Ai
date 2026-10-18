@@ -4,6 +4,7 @@ import { config } from './config/env_config.js';
 import pool from './database/connection.js';
 import { AppError } from './utils/AppError.js';
 import { startProExpiryJob } from './modules/admin/proExpiry.job.js';
+import { startGuestCleanupJob } from './modules/auth/guestCleanup.job.js';
 
 const PORT = config.port;
 const dbConfigured = config.db?.host && config.db?.user && config.db?.name;
@@ -14,6 +15,7 @@ if (dbConfigured) {
       client.release();
       console.info('Base de datos conectada');
       startProExpiryJob();
+      startGuestCleanupJob();
     })
     .catch(err => {
       throw new AppError('Error al conectar a la base de datos', 500, 'DATABASE_ERROR', err);
