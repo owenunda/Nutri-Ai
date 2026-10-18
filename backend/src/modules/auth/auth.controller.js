@@ -3,6 +3,7 @@ import {
   forgotPassword,
   getAuthModuleStatus,
   linkGoogleAccount,
+  loginAsGuest,
   loginUser,
   loginWithGoogle,
   registerUser,
@@ -90,6 +91,15 @@ export const resetPasswordController = async (req, res, next) => {
   try {
     await resetPassword(req.resetPasswordData);
     return successResponse(res, null, 'Password reset successfully', 200);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const guestLogin = async (req, res, next) => {
+  try {
+    const authData = await loginAsGuest({ lang: req.lang });
+    return successResponse(res, authData, 'Guest session started', 201);
   } catch (error) {
     next(error);
   }

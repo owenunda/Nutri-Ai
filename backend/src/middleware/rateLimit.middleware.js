@@ -13,7 +13,7 @@ const keyAuthStrict = (req) => `auth:ip:${req.ip}`;
 const keyGlobal = (req) =>
   req.user?.userId ? `global:user:${req.user.userId}` : `global:ip:${req.ip}`;
 
-const buildMiddleware = ({ points, keyPrefix, keyExtractor }) => {
+const buildMiddleware = ({ points, keyPrefix, keyExtractor, duration = 60 }) => {
   const middleware = async (req, res, next) => {
     try {
       const redis = await getRedisClient();
@@ -21,7 +21,7 @@ const buildMiddleware = ({ points, keyPrefix, keyExtractor }) => {
         storeClient: redis,
         keyPrefix,
         points,
-        duration: 60,
+        duration,
       });
       const result = await rateLimiter.consume(keyExtractor(req), 1);
 
@@ -109,4 +109,15 @@ export const subscriptionSyncRateLimit = buildMiddleware({
   points: config.rateLimit.subscriptionSyncPerMinute,
   keyPrefix: 'rl:subscription-sync',
   keyExtractor: (req) => `subscription:user:${req.user?.userId ?? req.ip}`,
+});
+
+/**
+ * Rate limit de POST /auth/guest: cada llamada crea una cuenta.
+ * Default: 5 por hora por IP.
+ */
+export const guestRateLimit = buildMiddleware({
+  points: config.rateLimit.guestPerHour,
+  duration: 60 * 60,
+  keyPrefix: 'rl:auth-guest',
+  keyExtractor: (req) => `guest:ip:${req.ip}`,
 });

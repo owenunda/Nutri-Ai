@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { config } from '../../config/env_config.js';
@@ -15,14 +16,19 @@ import {
   setPasswordAndVerify,
 } from './auth.repository.js';
 import { CODE_PURPOSE, consumeCode, sendCode } from './email-code.service.js';
+import { createGuestAccount, findSampleFoodIds } from './guest.repository.js';
+import { GUEST_PROFILE, GUEST_TTL_MS, buildGuestSampleData } from './guest.sampleData.js';
 import { verifyGoogleIdToken } from './google.verifier.js';
 import { createFridgeService } from '../fridge/fridge.service.js';
 import { logEventService } from '../events/events.service.js';
+import { bogotaDayKey } from '../../utils/bogotaDay.js';
 
 const JWT_EXPIRES_IN = '1h';
 const SALT_ROUNDS = 10;
 const GOOGLE = 'google';
 const UNIQUE_VIOLATION = '23505';
+const GUEST_EMAIL_DOMAIN = 'guest.nutrilife.invalid';
+const GUEST_NAMES = { es: 'Invitado', en: 'Guest' };
 
 export const getAuthModuleStatus = async () => {
   try {
@@ -32,6 +38,7 @@ export const getAuthModuleStatus = async () => {
       module: 'auth',
       status: 'running',
       repository,
+      guestModeEnabled: config.guestMode.enabled,
     };
   } catch (error) {
     if (error instanceof AppError) {
@@ -41,6 +48,13 @@ export const getAuthModuleStatus = async () => {
     throw new AppError(error.message, 500, 'AUTH_SERVICE_ERROR');
   }
 };
+
+// El invitado no tiene contraseña para volver a entrar: su token dura lo que
+// dura la cuenta, y al vencer el middleware responde GUEST_EXPIRED.
+const tokenExpiry = (user) =>
+  user.guestExpiresAt
+    ? Math.max(1, Math.floor((new Date(user.guestExpiresAt).getTime() - Date.now()) / 1000))
+    : JWT_EXPIRES_IN;
 
 const issueToken = (user) => {
   if (!config.jwt.secret) {
@@ -54,19 +68,21 @@ const issueToken = (user) => {
     plan: user.plan,
     name: user.name,
     goal: user.goal,
+    ...(user.guestExpiresAt ? { isGuest: true } : {}),
   };
 
-  return jwt.sign(tokenPayload, config.jwt.secret, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(tokenPayload, config.jwt.secret, { expiresIn: tokenExpiry(user) });
 };
 
 // Respuesta común de los logins. Sin edad, el usuario no terminó el setup
-// del perfil y la app lo manda ahí en vez de al Dashboard.
+// del perfil y la app lo manda ahí en vez de al Dashboard. Las cuentas
+// normales no llevan `guestExpiresAt` ni `isGuest`.
 const buildSession = (user) => {
-  const { passwordHash, ...safeUser } = user;
+  const { passwordHash, guestExpiresAt, ...safeUser } = user;
 
   return {
     token: issueToken(user),
-    user: safeUser,
+    user: guestExpiresAt ? { ...safeUser, isGuest: true, guestExpiresAt } : safeUser,
     needsProfileSetup: user.age == null,
   };
 };
@@ -460,6 +476,54 @@ export const resetPassword = async ({ email, code, password }) => {
       userId: user.userId,
       metadata: {},
     });
+  } catch (error) {
+    throw toAuthError(error);
+  }
+};
+
+// Cuenta de invitado de la beta: real, FREE, con datos de ejemplo y que se
+// borra a las 24 h (guestCleanup.job.js).
+export const loginAsGuest = async ({ lang } = {}) => {
+  try {
+    if (!config.guestMode.enabled) {
+      throw new AppError('El modo invitado no está disponible.', 404, 'GUEST_MODE_DISABLED');
+    }
+
+    const defaults = await getDefaultRoleAndPlanIds();
+    if (!defaults?.roleId || !defaults?.planId) {
+      throw new AppError('Default role or plan is not configured', 500, 'AUTH_DEFAULTS_NOT_FOUND');
+    }
+
+    const email = `guest-${randomUUID()}@${GUEST_EMAIL_DOMAIN}`;
+    const expiresAt = new Date(Date.now() + GUEST_TTL_MS);
+    const sample = buildGuestSampleData(bogotaDayKey(), await findSampleFoodIds());
+
+    const userId = await createGuestAccount({
+      user: {
+        name: GUEST_NAMES[lang] ?? GUEST_NAMES.es,
+        email,
+        passwordHash: null,
+        goal: GUEST_PROFILE.goal,
+        roleId: Number(defaults.roleId),
+        planId: Number(defaults.planId),
+        emailVerifiedAt: new Date(),
+      },
+      expiresAt,
+      profile: GUEST_PROFILE,
+      sample,
+    });
+    await createFridgeService(userId);
+
+    await logEventService({
+      eventType: 'REGISTER',
+      category: 'AUTH',
+      userId,
+      metadata: { method: 'guest' },
+    });
+
+    // Se relee para tener rol, plan y edad con el mismo formato que el login.
+    const user = await findUserByEmail(email);
+    return { ...(await startSession(user)), guestExpiresAt: user.guestExpiresAt };
   } catch (error) {
     throw toAuthError(error);
   }

@@ -20,6 +20,7 @@ const userSelect = `
     r.name AS role,
     p.name AS plan,
     u.pro_until AS "proUntil",
+    u.guest_expires_at AS "guestExpiresAt",
     u.created_at AS "createdAt",
     u.updated_at AS "updatedAt"
   FROM users u

@@ -27,6 +27,9 @@ mock.module(src('modules/auth/auth.repository.js'), {
     REPO_EXPORTS.map((name) => [name, (...args) => repo[name](...args)])
   ),
 });
+mock.module(src('modules/auth/guest.repository.js'), {
+  exports: { findSampleFoodIds: async () => [], createGuestAccount: async () => 0, findExpiredGuestIds: async () => [] },
+});
 mock.module(src('modules/fridge/fridge.service.js'), {
   exports: { createFridgeService: async () => {} },
 });

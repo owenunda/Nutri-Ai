@@ -15,6 +15,7 @@ mock.module(src('modules/auth/auth.service.js'), {
     forgotPassword: record('forgotPassword'),
     getAuthModuleStatus: record('getAuthModuleStatus'),
     linkGoogleAccount: record('linkGoogleAccount'),
+    loginAsGuest: record('loginAsGuest'),
     loginUser: record('loginUser'),
     loginWithGoogle: record('loginWithGoogle'),
     registerUser: record('registerUser'),

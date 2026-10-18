@@ -4,6 +4,7 @@ import {
   getAuthHealth,
   googleLink,
   googleLogin,
+  guestLogin,
   login,
   register,
   resendVerificationController,
@@ -20,7 +21,7 @@ import {
   validateLoginRequest,
   validateRegisterRequest,
 } from './auth.validation.js';
-import { strictAuthRateLimit } from '../../middleware/rateLimit.middleware.js';
+import { guestRateLimit, strictAuthRateLimit } from '../../middleware/rateLimit.middleware.js';
 
 const router = Router();
 
@@ -219,6 +220,23 @@ router.post('/google', strictAuthRateLimit, validateGoogleLoginRequest, googleLo
  *         description: Demasiados intentos
  */
 router.post('/google/link', strictAuthRateLimit, validateGoogleLinkRequest, googleLink);
+
+/**
+ * @openapi
+ * /api/v1/auth/guest:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Crea una cuenta de invitado temporal (24 h) con datos de ejemplo
+ *     security: []
+ *     responses:
+ *       201:
+ *         description: Sesión de invitado (token, user con isGuest y guestExpiresAt)
+ *       404:
+ *         description: El modo invitado está apagado (code GUEST_MODE_DISABLED)
+ *       429:
+ *         description: Demasiadas cuentas de invitado desde esta IP
+ */
+router.post('/guest', guestRateLimit, guestLogin);
 
 /**
  * @openapi
