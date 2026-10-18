@@ -9,6 +9,11 @@ export const PANEL_TIMEZONE = 'America/Bogota';
 
 const localDay = (column) => `((${column}) AT TIME ZONE 'UTC' AT TIME ZONE $2::text)::date`;
 
+// Los invitados de la beta no cuentan como usuarios en los totales del overview.
+const notGuestSql = (alias) => `NOT EXISTS (
+  SELECT 1 FROM users g WHERE g.user_id = ${alias}.user_id AND g.guest_expires_at IS NOT NULL
+)`;
+
 /**
  * Resumen general del panel: usuarios, actividad, IA y series por día.
  * @param {number} days Rango (en días) para las series y los totales "del periodo".
@@ -35,9 +40,9 @@ export const getOverview = async (days, today) => {
 
   const activityQuery = `
     SELECT
-      COUNT(DISTINCT e.user_id) FILTER (WHERE e.created_at >= NOW() - INTERVAL '1 day')::int AS "active24h",
-      COUNT(DISTINCT e.user_id) FILTER (WHERE e.created_at >= NOW() - INTERVAL '7 days')::int AS "active7d",
-      COUNT(DISTINCT e.user_id) FILTER (WHERE ${inRange('e.created_at')})::int AS "activeInRange",
+      COUNT(DISTINCT e.user_id) FILTER (WHERE e.created_at >= NOW() - INTERVAL '1 day' AND ${notGuestSql('e')})::int AS "active24h",
+      COUNT(DISTINCT e.user_id) FILTER (WHERE e.created_at >= NOW() - INTERVAL '7 days' AND ${notGuestSql('e')})::int AS "active7d",
+      COUNT(DISTINCT e.user_id) FILTER (WHERE ${inRange('e.created_at')} AND ${notGuestSql('e')})::int AS "activeInRange",
       COUNT(*) FILTER (WHERE ${aiQuerySql('e')})::int AS "aiQueriesTotal",
       COUNT(*) FILTER (WHERE ${aiQuerySql('e')} AND e.created_at >= NOW() - INTERVAL '1 day')::int AS "aiQueries24h",
       COUNT(*) FILTER (WHERE ${aiQuerySql('e')} AND ${inRange('e.created_at')})::int AS "aiQueriesInRange",
@@ -71,7 +76,7 @@ export const getOverview = async (days, today) => {
       SELECT
         ${localDay('e.created_at')} AS day,
         COUNT(*) FILTER (WHERE ${aiQuerySql('e')}) AS ai,
-        COUNT(DISTINCT e.user_id) AS active,
+        COUNT(DISTINCT e.user_id) FILTER (WHERE ${notGuestSql('e')}) AS active,
         COUNT(*) FILTER (WHERE (${moduleSql('e')}) NOT IN ('bots', 'external')) AS requests,
         COUNT(*) FILTER (WHERE (${moduleSql('e')}) IN ('bots', 'external')) AS bots
       FROM activity_events e
@@ -116,7 +121,7 @@ export const getOverview = async (days, today) => {
     FROM activity_events e
     INNER JOIN users u ON u.user_id = e.user_id
     INNER JOIN plans p ON p.plan_id = u.plan_id
-    WHERE ${aiQuerySql('e')} AND ${inRange('e.created_at')}
+    WHERE ${aiQuerySql('e')} AND ${inRange('e.created_at')} AND u.guest_expires_at IS NULL
     GROUP BY u.user_id, u.name, u.email, p.name
     ORDER BY "aiQueries" DESC
     LIMIT 8
@@ -147,6 +152,7 @@ export const getOverview = async (days, today) => {
       COUNT(*) FILTER (WHERE w.day > $2::date - $1::int AND w.glasses >= $3)::int AS "goalDaysInRange",
       COALESCE(SUM(w.glasses) FILTER (WHERE w.day > $2::date - $1::int), 0)::int AS "glassesInRange"
     FROM water_intake w
+    WHERE ${notGuestSql('w')}
   `;
 
   // Historial de quien cumplió la meta hoy o ayer: los únicos que pueden
@@ -161,9 +167,10 @@ export const getOverview = async (days, today) => {
     FROM water_intake w
     INNER JOIN users u ON u.user_id = w.user_id
     INNER JOIN plans p ON p.plan_id = u.plan_id
-    WHERE w.user_id IN (
-      SELECT user_id FROM water_intake WHERE glasses >= $2 AND day >= $1::date - 1
-    )
+    WHERE u.guest_expires_at IS NULL
+      AND w.user_id IN (
+        SELECT user_id FROM water_intake WHERE glasses >= $2 AND day >= $1::date - 1
+      )
     ORDER BY w.user_id, w.day
   `;
 
