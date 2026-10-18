@@ -7,6 +7,8 @@ import {
   CalendarDays,
   ChefHat,
   Crown,
+  Droplet,
+  Flame,
   KeyRound,
   Loader2,
   MessageCircle,
@@ -16,6 +18,7 @@ import {
   ShieldOff,
   Sparkles,
   Trash2,
+  Trophy,
   UtensilsCrossed,
 } from 'lucide-react';
 import {
@@ -242,6 +245,8 @@ export default function UserDetail() {
         <SmallFact icon={Sparkles} label="Peticiones totales" value={usage.totalEvents} />
       </div>
 
+      <WaterCard water={data.water} />
+
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
@@ -375,6 +380,81 @@ function ProfileFact({ label, value }: { label: string; value: string }) {
     <div className="mr-6">
       <dt className="text-xs text-white/60">{label}</dt>
       <dd className="font-semibold">{value}</dd>
+    </div>
+  );
+}
+
+function WaterCard({ water }: { water: UserDetailData['water'] }) {
+  const days = (n: number) => `${formatNumber(n)} ${n === 1 ? 'día' : 'días'}`;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2">
+          <Droplet className="h-5 w-5 text-sky-400" />
+          Agua
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Meta de {water.goal} vasos al día. La racha se calcula con las mismas reglas que la app.
+        </p>
+      </CardHeader>
+      <CardContent>
+        {water.daysLogged === 0 ? (
+          <EmptyState mood="sentada" title="Sin agua registrada" description="Todavía no ha sumado ningún vaso." />
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-2 gap-3">
+              <WaterFact icon={Flame} label="Racha actual" value={days(water.currentStreak)} />
+              <WaterFact icon={Trophy} label="Mejor racha" value={days(water.bestStreak)} />
+              <WaterFact
+                icon={Droplet}
+                label={`Vasos hoy (${formatAxisDay(water.today)})`}
+                value={`${water.glassesToday} / ${water.goal}`}
+              />
+              <WaterFact
+                icon={CalendarDays}
+                label={`Meta cumplida · ${formatNumber(water.totalGlasses)} vasos en total`}
+                value={`${formatNumber(water.goalDays)} de ${days(water.daysLogged)}`}
+              />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Últimos 7 días</p>
+              <div className="mt-3 grid grid-cols-7 gap-2">
+                {water.lastSevenDays.map(({ day, glasses }) => (
+                  <div key={day} className="flex flex-col items-center gap-1.5" title={`${glasses} de ${water.goal} vasos`}>
+                    <div className="flex h-24 w-full max-w-10 flex-col-reverse gap-1">
+                      {Array.from({ length: water.goal }, (_, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            'flex-1 rounded-md',
+                            i < glasses ? (glasses >= water.goal ? 'bg-sky-400' : 'bg-sky-400/50') : 'bg-muted'
+                          )}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs tabular-nums text-muted-foreground">{formatAxisDay(day)}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Último registro: {water.lastDay ? formatAxisDay(water.lastDay) : '—'}. Los días son la fecha local
+                del teléfono del usuario.
+              </p>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function WaterFact({ icon: Icon, label, value }: { icon: typeof Apple; label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-muted/60 p-3">
+      <Icon className="h-4 w-4 text-sky-400" />
+      <p className="mt-2 text-xl font-bold tabular-nums">{value}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }
@@ -686,8 +766,8 @@ function DeleteUserDialog({
       <div className="flex items-center gap-4">
         <Nutria mood="triste" className="h-20 w-20 shrink-0" />
         <p className="text-sm text-muted-foreground">
-          Se borrarán para siempre la cuenta de {name} y todos sus datos: comidas, nevera, registros de peso,
-          chats y recetas. Esta acción no se puede deshacer.
+          Se borrarán para siempre la cuenta de {name} y todos sus datos: comidas, agua, nevera, registros de
+          peso, chats y recetas. Esta acción no se puede deshacer.
         </p>
       </div>
       <div className="mt-4 space-y-2">

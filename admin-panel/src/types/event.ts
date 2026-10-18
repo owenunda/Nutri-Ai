@@ -8,6 +8,7 @@ export type EventModule =
   | 'user'
   | 'stats'
   | 'meals'
+  | 'hydration'
   | 'ai'
   | 'admin'
   | 'chat'

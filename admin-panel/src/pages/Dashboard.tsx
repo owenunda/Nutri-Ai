@@ -5,6 +5,8 @@ import {
   ArrowRight,
   Bug,
   ChefHat,
+  Droplet,
+  Flame,
   MessageCircle,
   Sparkles,
   UserCheck,
@@ -27,6 +29,7 @@ import { getErrorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { formatAxisDay, formatNumber, formatRelative } from '../lib/utils';
 import type { Overview } from '../types/admin';
+import { PlanBadge } from '../components/CategoryBadge';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { StatCard } from '../components/StatCard';
 import { Nutria } from '../components/Nutria';
@@ -169,6 +172,8 @@ export default function Dashboard() {
             </Card>
           </div>
 
+          <WaterCard data={data} />
+
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Top IA */}
             <Card>
@@ -303,6 +308,62 @@ export default function Dashboard() {
         </div>
       ) : null}
     </div>
+  );
+}
+
+function WaterCard({ data }: { data: Overview }) {
+  const { water } = data;
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2">
+          <Droplet className="h-5 w-5 text-sky-400" />
+          Agua
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          {formatNumber(water.users)} usuarios han registrado agua alguna vez · {formatNumber(water.users7d)} en los
+          últimos 7 días
+        </p>
+      </CardHeader>
+      <CardContent className="grid gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 lg:col-span-2">
+          <MiniStat icon={Users} label={`Registran agua (${data.days} días)`} value={water.usersInRange} />
+          <MiniStat icon={Flame} label="Rachas activas ahora" value={water.activeStreaks} />
+          <MiniStat icon={Droplet} label={`Días con la meta cumplida (${data.days} días)`} value={water.goalDaysInRange} />
+          <MiniStat
+            icon={Droplet}
+            label={`Vasos en ${formatNumber(water.daysInRange)} días registrados`}
+            value={water.glassesInRange}
+          />
+        </div>
+        <div>
+          <p className="text-sm font-semibold">Rachas más largas ahora</p>
+          {water.topStreaks.length === 0 ? (
+            <EmptyState mood="sentada" title="Sin rachas" description="Nadie cumplió la meta de agua hoy ni ayer." />
+          ) : (
+            <ol className="mt-2 space-y-1">
+              {water.topStreaks.map((u) => (
+                <li key={u.userId}>
+                  <Link
+                    to={`/users/${u.userId}`}
+                    className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-accent"
+                  >
+                    <UserAvatar name={u.name} userId={u.userId} className="h-8 w-8" />
+                    <p className="min-w-0 flex-1 truncate text-sm font-semibold">{u.name}</p>
+                    <PlanBadge plan={u.plan} />
+                    <span className="flex items-center gap-1 text-sm font-bold tabular-nums">
+                      <Flame className="h-4 w-4 text-orange-400" />
+                      {u.currentStreak}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

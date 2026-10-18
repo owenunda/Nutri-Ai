@@ -21,6 +21,13 @@ export interface ModuleCount {
   count: number;
 }
 
+export interface WaterStreakUser {
+  userId: number;
+  name: string;
+  plan: Plan;
+  currentStreak: number;
+}
+
 export interface Overview {
   days: number;
   users: { total: number; new7d: number; newInRange: number; pro: number; admins: number };
@@ -56,6 +63,18 @@ export interface Overview {
     goal: string | null;
     createdAt: string;
   }[];
+  /** Los días del agua son la fecha local que manda la app. */
+  water: {
+    users: number;
+    users7d: number;
+    usersInRange: number;
+    daysInRange: number;
+    goalDaysInRange: number;
+    glassesInRange: number;
+    /** Usuarios con la meta cumplida hoy o ayer, seguida de más días. */
+    activeStreaks: number;
+    topStreaks: WaterStreakUser[];
+  };
 }
 
 export interface AdminUser {
@@ -129,6 +148,20 @@ export interface UserDetail {
     weighIns: number;
   };
   series: { day: string; events: number; aiQueries: number }[];
+  /** Racha calculada en el backend con las mismas reglas que la app. */
+  water: {
+    goal: number;
+    /** Hoy del usuario: el del panel, o su último día si ya va por delante. */
+    today: string;
+    glassesToday: number;
+    currentStreak: number;
+    bestStreak: number;
+    lastSevenDays: { day: string; glasses: number }[];
+    daysLogged: number;
+    goalDays: number;
+    totalGlasses: number;
+    lastDay: string | null;
+  };
   byModule: ModuleCount[];
   recentEvents: {
     eventId: number;
