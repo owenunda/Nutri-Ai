@@ -809,9 +809,10 @@ const STORE_LABELS: Record<string, string> = {
 function proSourceLabel(profile: UserDetailData['profile']): string {
   const sub = profile.subscription;
   const store = sub ? `${sub.productId ?? 'suscripción'} en ${STORE_LABELS[sub.store ?? ''] ?? sub.store ?? 'la tienda'}` : '';
+  const expiry = sub?.expiresAt ? ` · vence el ${formatDay(sub.expiresAt)}` : '';
   const renew = sub ? (sub.billingIssue ? ' · problema de cobro' : sub.willRenew ? ' · se renueva' : ' · no se renueva') : '';
   const sandbox = sub?.environment === 'sandbox' ? ' · prueba' : '';
   if (profile.proSource === 'gift') return 'Regalado desde el panel';
-  if (profile.proSource === 'store') return `Pagado: ${store}${renew}${sandbox}`;
-  return `Regalado y pagado: ${store}${renew}${sandbox}`;
+  if (profile.proSource === 'store') return `Pagado: ${store}${expiry}${renew}${sandbox}`;
+  return `Regalado y pagado: ${store}${expiry}${renew}${sandbox}`;
 }
