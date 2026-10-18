@@ -1,10 +1,11 @@
 import { config } from '../../config/env_config.js';
 import { AppError } from '../../utils/AppError.js';
-import { computeEffectivePlan } from './effectivePlan.js';
+import { computeEffectivePlan, STORE_RENEWAL_WAIT_MS } from './effectivePlan.js';
 import { fetchSubscriber } from './revenuecat.client.js';
 import { readStoreSubscription } from './subscriberState.js';
 import {
   findExistingUserIds,
+  findStoreRenewalsDue,
   inTransaction,
   lockPlanInputs,
   setEffectivePlan,
@@ -36,6 +37,52 @@ export const syncUser = async (userId, now = new Date()) => {
     await upsertStoreSubscription(client, userId, store);
     return savePlan(client, userId, { ...inputs, storeExpiresAt: store.expiresAt }, now);
   });
+};
+
+// Más que el intervalo del job (10 min): así se pregunta antes de que pase
+// pro_until, cuando la cuota del Chef IA ya lo trataría como FREE.
+const RENEWAL_LOOKAHEAD_MS = 15 * 60 * 1000;
+const RENEWALS_PER_SWEEP = 100;
+// Tantos fallos seguidos = RevenueCat caído: el resto espera al próximo barrido.
+const MAX_CONSECUTIVE_FAILURES = 3;
+
+/**
+ * Le pregunta a RevenueCat por los suscriptores que iban a renovar y están por
+ * perder el PRO, por si el webhook de renovación no llegó. Nunca lanza: quien
+ * no se pudo confirmar sigue en PRO (expireGiftedPro no lo baja).
+ * @returns {Promise<{checked: number, failed: number, stopped: boolean}>}
+ */
+export const renewDueStoreSubscriptions = async () => {
+  const result = { checked: 0, failed: 0, stopped: false };
+  let userIds;
+  try {
+    userIds = await findStoreRenewalsDue({
+      lookaheadMs: RENEWAL_LOOKAHEAD_MS,
+      waitMs: STORE_RENEWAL_WAIT_MS,
+      limit: RENEWALS_PER_SWEEP,
+    });
+  } catch (error) {
+    console.error('[subscription] no se pudieron leer las renovaciones pendientes:', error.message);
+    return result;
+  }
+
+  let consecutiveFailures = 0;
+  for (const userId of userIds) {
+    result.checked += 1;
+    try {
+      await syncUser(userId);
+      consecutiveFailures = 0;
+    } catch (error) {
+      result.failed += 1;
+      consecutiveFailures += 1;
+      console.error(`[subscription] no se pudo confirmar la renovación del usuario ${userId}:`, error.message);
+      if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        result.stopped = true;
+        break;
+      }
+    }
+  }
+  return result;
 };
 
 /**

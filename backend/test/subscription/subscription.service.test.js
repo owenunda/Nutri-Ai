@@ -6,6 +6,7 @@ const { AppError } = await import(src('utils/AppError.js'));
 
 const REPO_EXPORTS = [
   'findExistingUserIds',
+  'findStoreRenewalsDue',
   'inTransaction',
   'lockPlanInputs',
   'setEffectivePlan',
@@ -26,7 +27,7 @@ mock.module(src('config/env_config.js'), {
   exports: { config: { revenuecat: settings } },
 });
 
-const { handleWebhookEvent, saveGift, syncUser, webhookUserIds } = await import(
+const { handleWebhookEvent, renewDueStoreSubscriptions, saveGift, syncUser, webhookUserIds } = await import(
   src('modules/subscription/subscription.service.js')
 );
 
@@ -51,6 +52,7 @@ beforeEach(() => {
     return { userId, plan, proUntil };
   };
   repo.findExistingUserIds = async (ids) => ids;
+  repo.findStoreRenewalsDue = async () => [];
   subscriberImpl = async () => activeSubscriber();
 });
 
@@ -200,4 +202,94 @@ test('webhook: si un sync falla, el error sale para que RevenueCat reintente', a
   };
 
   await assert.rejects(handleWebhookEvent({ type: 'RENEWAL', app_user_id: '7' }), { status: 502 });
+});
+
+// Los fallos de RevenueCat se registran: se silencian para no ensuciar la salida.
+const quietly = async (fn) => {
+  const original = console.error;
+  console.error = () => {};
+  try {
+    return await fn();
+  } finally {
+    console.error = original;
+  }
+};
+
+const failFor = (failing) => async (id) => {
+  if (failing.includes(Number(id))) throw new AppError('x', 502, 'SUBSCRIPTION_PROVIDER_ERROR');
+  return activeSubscriber();
+};
+
+test('renovaciones: pide los pendientes con la ventana y el tope', async () => {
+  let asked;
+  repo.findStoreRenewalsDue = async (options) => {
+    asked = options;
+    return [];
+  };
+
+  assert.deepEqual(await renewDueStoreSubscriptions(), { checked: 0, failed: 0, stopped: false });
+  assert.deepEqual(asked, { lookaheadMs: 15 * 60 * 1000, waitMs: 3 * 24 * 60 * 60 * 1000, limit: 100 });
+});
+
+test('renovaciones: sincroniza a cada pendiente con RevenueCat', async () => {
+  repo.findStoreRenewalsDue = async () => [3, 8];
+  const synced = [];
+  subscriberImpl = async (id) => {
+    synced.push(id);
+    return activeSubscriber();
+  };
+
+  assert.deepEqual(await renewDueStoreSubscriptions(), { checked: 2, failed: 0, stopped: false });
+  assert.deepEqual(synced, ['3', '8']);
+  assert.deepEqual(
+    calls.filter(([kind]) => kind === 'plan').map(([, userId]) => userId),
+    [3, 8]
+  );
+});
+
+test('renovaciones: un fallo suelto no detiene a los demás', async () => {
+  repo.findStoreRenewalsDue = async () => [1, 2, 3];
+  subscriberImpl = failFor([2]);
+
+  const result = await quietly(() => renewDueStoreSubscriptions());
+
+  assert.deepEqual(result, { checked: 3, failed: 1, stopped: false });
+  assert.deepEqual(
+    calls.filter(([kind]) => kind === 'plan').map(([, userId]) => userId),
+    [1, 3]
+  );
+});
+
+test('renovaciones: 3 fallos seguidos dejan al resto para el próximo barrido', async () => {
+  repo.findStoreRenewalsDue = async () => [1, 2, 3, 4, 5];
+  const asked = [];
+  subscriberImpl = async (id) => {
+    asked.push(Number(id));
+    throw new AppError('x', 502, 'SUBSCRIPTION_PROVIDER_ERROR');
+  };
+
+  const result = await quietly(() => renewDueStoreSubscriptions());
+
+  assert.deepEqual(result, { checked: 3, failed: 3, stopped: true });
+  assert.deepEqual(asked, [1, 2, 3]);
+  assert.equal(calls.length, 0);
+});
+
+test('renovaciones: un sync bueno reinicia la cuenta de fallos', async () => {
+  repo.findStoreRenewalsDue = async () => [1, 2, 3, 4, 5, 6];
+  subscriberImpl = failFor([1, 2, 4, 5]);
+
+  const result = await quietly(() => renewDueStoreSubscriptions());
+
+  assert.deepEqual(result, { checked: 6, failed: 4, stopped: false });
+});
+
+test('renovaciones: si no se pueden leer los pendientes no lanza', async () => {
+  repo.findStoreRenewalsDue = async () => {
+    throw new Error('db caída');
+  };
+
+  const result = await quietly(() => renewDueStoreSubscriptions());
+
+  assert.deepEqual(result, { checked: 0, failed: 0, stopped: false });
 });

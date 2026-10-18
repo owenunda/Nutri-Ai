@@ -1,3 +1,4 @@
+import { renewDueStoreSubscriptions } from '../subscription/subscription.service.js';
 import { expireGiftedPro } from './admin.repository.js';
 
 // Cada cuánto se pasa a FREE a quien tenía PRO regalado y ya venció. La cuota
@@ -5,8 +6,22 @@ import { expireGiftedPro } from './admin.repository.js';
 // el plan para el resto (perfil, anuncios, panel).
 const INTERVAL_MS = 10 * 60 * 1000;
 
+// Antes de vencer, pregunta a RevenueCat por quien iba a renovar, por si no
+// llegó el webhook. Un fallo ahí nunca impide vencer al resto.
+const checkRenewals = async (renew) => {
+  try {
+    const { checked, failed, stopped } = await renew();
+    if (checked > 0) {
+      console.info(`[proExpiry] renovaciones revisadas: ${checked}, sin confirmar: ${failed}${stopped ? ' (RevenueCat no responde)' : ''}`);
+    }
+  } catch (error) {
+    console.error('[proExpiry] no se pudieron revisar las renovaciones:', error.message);
+  }
+};
+
 /** Un barrido. Nunca lanza: un fallo de la base solo se registra. */
-export const runProExpiry = async (expire = expireGiftedPro) => {
+export const runProExpiry = async (expire = expireGiftedPro, renew = renewDueStoreSubscriptions) => {
+  await checkRenewals(renew);
   try {
     const userIds = await expire();
     if (userIds.length > 0) {

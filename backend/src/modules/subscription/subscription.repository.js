@@ -79,3 +79,24 @@ export const findExistingUserIds = async (ids) => {
   const { rows } = await pool.query('SELECT user_id AS "userId" FROM users WHERE user_id = ANY($1::int[])', [ids]);
   return rows.map((row) => row.userId);
 };
+
+/**
+ * Suscriptores que iban a renovar y cuyo PRO vence pronto o ya venció: el job
+ * de vencimiento le pregunta a RevenueCat por ellos antes de bajarlos.
+ * @returns {Promise<number[]>} user_id, el PRO más próximo a vencer primero.
+ */
+export const findStoreRenewalsDue = async ({ lookaheadMs, waitMs, limit }) => {
+  const { rows } = await pool.query(
+    `SELECT u.user_id AS "userId"
+       FROM users u
+       INNER JOIN store_subscriptions ss ON ss.user_id = u.user_id
+      WHERE ss.will_renew = TRUE
+        AND ss.expires_at > NOW() - ($2::bigint * INTERVAL '1 millisecond')
+        AND u.pro_until IS NOT NULL
+        AND u.pro_until <= NOW() + ($1::bigint * INTERVAL '1 millisecond')
+      ORDER BY u.pro_until
+      LIMIT $3`,
+    [lookaheadMs, waitMs, limit]
+  );
+  return rows.map((row) => row.userId);
+};

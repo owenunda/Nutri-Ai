@@ -5,6 +5,11 @@
 // pasar al usuario a FREE unos minutos.
 export const STORE_GRACE_MS = 60 * 60 * 1000;
 
+// Si el webhook de renovación nunca llega, el job de vencimiento le pregunta a
+// RevenueCat antes de bajar a quien iba a renovar. Mientras RevenueCat no
+// responda, ese usuario sigue en PRO hasta este tiempo después de expires_at.
+export const STORE_RENEWAL_WAIT_MS = 3 * 24 * 60 * 60 * 1000;
+
 const toDate = (value) => (value ? new Date(value) : null);
 
 /**

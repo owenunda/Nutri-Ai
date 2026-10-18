@@ -1,6 +1,7 @@
 import pool from '../../database/connection.js';
 import { moduleSql, aiQuerySql } from '../events/events.repository.js';
 import { DAILY_GOAL } from '../hydration/waterStreak.js';
+import { STORE_RENEWAL_WAIT_MS } from '../subscription/effectivePlan.js';
 
 // Las fechas se guardan como TIMESTAMP sin zona (UTC del servidor). Las series
 // por día del panel se agrupan en la zona horaria de quien lo usa.
@@ -438,17 +439,26 @@ export const findUserDetail = async (userId) => {
 };
 
 /**
- * Pasa a FREE a quien tenía PRO con fecha y ya venció.
+ * Pasa a FREE a quien tenía PRO con fecha y ya venció. No baja a quien iba a
+ * renovar en la tienda mientras RevenueCat no lo confirme (hasta
+ * STORE_RENEWAL_WAIT_MS después de expires_at): su sync ya lo pone al día.
  * @returns {Promise<number[]>} ids de los usuarios que volvieron a FREE.
  */
 export const expireGiftedPro = async () => {
   const { rows } = await pool.query(
-    `UPDATE users
+    `UPDATE users u
         SET plan_id = (SELECT plan_id FROM plans WHERE name = 'FREE'),
             pro_until = NULL,
             updated_at = CURRENT_TIMESTAMP
-      WHERE pro_until IS NOT NULL AND pro_until <= NOW()
-      RETURNING user_id AS "userId"`
+      WHERE u.pro_until IS NOT NULL AND u.pro_until <= NOW()
+        AND NOT EXISTS (
+          SELECT 1 FROM store_subscriptions ss
+           WHERE ss.user_id = u.user_id
+             AND ss.will_renew = TRUE
+             AND ss.expires_at > NOW() - ($1::bigint * INTERVAL '1 millisecond')
+        )
+      RETURNING u.user_id AS "userId"`,
+    [STORE_RENEWAL_WAIT_MS]
   );
   return rows.map((row) => row.userId);
 };
