@@ -17,12 +17,13 @@ const later = (a, b) => (!a ? b : !b ? a : a > b ? a : b);
 
 // En Play el producto puede venir como "suscripcion:plan_base" y la clave de
 // subscriptions solo con la suscripción, o al revés.
-const findSubscription = (subscriptions = {}, productId) => {
+const findSubscription = (subscriptions, productId) => {
+  const map = subscriptions ?? {};
   if (!productId) return {};
-  if (subscriptions[productId]) return subscriptions[productId];
+  if (map[productId]) return map[productId];
   const base = productId.split(':')[0];
-  const key = Object.keys(subscriptions).find((k) => k.split(':')[0] === base);
-  return key ? subscriptions[key] : {};
+  const key = Object.keys(map).find((k) => k.split(':')[0] === base);
+  return key ? map[key] : {};
 };
 
 /**

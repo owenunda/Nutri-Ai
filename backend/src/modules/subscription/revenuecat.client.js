@@ -21,14 +21,20 @@ export const fetchSubscriber = async (appUserId) => {
     console.error('[revenuecat] falta REVENUECAT_SECRET_KEY');
     throw providerError();
   }
+  let data;
   try {
-    const { data } = await axios.get(`${BASE_URL}/subscribers/${encodeURIComponent(appUserId)}`, {
+    ({ data } = await axios.get(`${BASE_URL}/subscribers/${encodeURIComponent(appUserId)}`, {
       headers: { Authorization: `Bearer ${secretKey}` },
       timeout: 10_000,
-    });
-    return data?.subscriber;
+    }));
   } catch (error) {
     console.error('[revenuecat] no se pudo leer el suscriptor:', error.response?.status ?? '', error.message);
     throw providerError();
   }
+  // Una respuesta sin suscriptor no es "sin suscripción": nunca debe bajar a un usuario de PRO.
+  if (!data?.subscriber) {
+    console.error('[revenuecat] respuesta sin suscriptor');
+    throw providerError();
+  }
+  return data.subscriber;
 };

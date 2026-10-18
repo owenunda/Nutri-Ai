@@ -94,3 +94,14 @@ test('Play: encuentra la suscripción por el id base si la clave lleva el plan b
   assert.equal(state.store, 'play_store');
   assert.equal(state.productId, 'nutrilife_pro:monthly');
 });
+
+test('un mapa de suscripciones null cuenta como vacío', () => {
+  const state = read({
+    entitlements: {
+      nutrilife_pro: { expires_date: '2026-11-17T15:00:00Z', product_identifier: 'monthly' },
+    },
+    subscriptions: null,
+  });
+  assert.equal(state.store, null);
+  assert.equal(state.expiresAt, '2026-11-17T15:00:00.000Z');
+});
