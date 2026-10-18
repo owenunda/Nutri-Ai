@@ -80,16 +80,50 @@ Sigue estos pasos para configurar el entorno de desarrollo localmente:
    npm start
    ```
 
-## 🔑 Variables de Entorno
+## Variables de entorno
 
-Debes configurar las siguientes variables en tu archivo `.env`:
+Se leen en `src/config/env_config.js`. En local van en `.env`; en producción, en Dokploy.
 
-```env
-PORT=3000
-DB_URL=postgresql://usuario:password@localhost:5432/NutriLife
-JWT_SECRET=tu_clave_secreta_super_segura
-N8N_WEBHOOK_URL=https://tu-instancia-n8n.com/webhook/recetas
+| Variable | Para qué |
+|---|---|
+| `NODE_ENV`, `PORT` | Entorno (`development` / `production`) y puerto (3000 por defecto). |
+| `HOST_DB`, `PORT_DB`, `NAME_DB`, `USER_DB`, `PASS_DB` | PostgreSQL. |
+| `REDIS_URL` | Redis (rate limits y cuota diaria del chat). |
+| `JWT_SECRET` | Firma de los tokens. |
+| `GOOGLE_CLIENT_IDS` | Client IDs de Google Sign-In, separados por coma. |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Envío de correos (verificación, contraseña). |
+| `N8N_URL_DEV`, `N8N_URL_PRO` | Webhook de n8n del Chef IA (según `NODE_ENV`). |
+| `CHAT_DAILY_LIMIT_FREE`, `CHAT_DAILY_LIMIT_PRO` | Mensajes al día del Chef IA (3 y 50 por defecto). `0` no lo apaga: usar un número alto. |
+| `RATE_LIMIT_*_PER_MINUTE` | Límites por minuto (`CHAT`, `AI_WEBHOOK`, `AUTH`, `GLOBAL`, `SUBSCRIPTION_SYNC`). |
+| `REVENUECAT_SECRET_KEY` | Secret API key **V1** de RevenueCat (`sk_…`). Sin ella el sync responde 502. |
+| `REVENUECAT_WEBHOOK_AUTH` | Valor del header `Authorization` que manda el webhook de RevenueCat. Sin él, el webhook responde 401. |
+| `REVENUECAT_ALLOW_SANDBOX` | `true` solo mientras se prueba (Test Store, testers de Play). **En producción, `false`.** |
+
+## Migraciones
+
+Los cambios de base están en `src/database/backups/update_DD_MM_YYYY_*.sql` y se aplican a mano, **antes** de desplegar el código que los usa:
+
+```bash
+npm run db:apply                                   # lista los update_*.sql
+npm run db:apply -- update_17_10_2026_x.sql        # muestra contra qué base va (no ejecuta)
+npm run db:apply -- update_17_10_2026_x.sql --yes  # lo ejecuta
 ```
+
+Ojo: el `--` antes del nombre es necesario para que npm le pase los argumentos al script.
+
+## Pruebas
+
+```bash
+npm test
+```
+
+## Suscripciones (RevenueCat)
+
+- `POST /api/v1/subscription/webhook`: lo llama RevenueCat (header `Authorization` = `REVENUECAT_WEBHOOK_AUTH`).
+- `POST /api/v1/subscription/sync`: lo llama la app después de comprar o restaurar (JWT).
+- Ambos leen el estado real en la API de RevenueCat y recalculan el plan; nunca confían en el contenido del evento.
+- El plan efectivo (`users.plan_id` / `pro_until`) sale de `src/modules/subscription/effectivePlan.js`: PRO si el regalo del panel está vigente **o** la suscripción de tienda sigue activa (con 1 hora de margen).
+- Spec completa: `docs/superpowers/specs/2026-10-17-suscripciones-revenuecat-design.md`.
 
 ## 🛣️ Resumen de la API
 
