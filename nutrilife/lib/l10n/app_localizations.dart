@@ -776,6 +776,12 @@ abstract class AppLocalizations {
   /// **'Crear cuenta'**
   String get homeGuestCreateAccount;
 
+  /// No description provided for @premiumGuestBlocked.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea una cuenta para suscribirte.'**
+  String get premiumGuestBlocked;
+
   /// No description provided for @authErrorGoogleNotConfigured.
   ///
   /// In es, this message translates to:

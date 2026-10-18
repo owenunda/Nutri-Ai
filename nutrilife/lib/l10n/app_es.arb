@@ -155,6 +155,7 @@
   },
   "homeGuestBannerSoon": "Modo invitado · se borra en menos de 1 h",
   "homeGuestCreateAccount": "Crear cuenta",
+  "premiumGuestBlocked": "Crea una cuenta para suscribirte.",
   "authErrorGoogleNotConfigured": "El inicio de sesión con Google no está configurado.",
   "authErrorGoogleNoData": "Google no devolvió tus datos. Inténtalo de nuevo.",
   "commonUser": "Usuario",

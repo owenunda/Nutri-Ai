@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/api_base_url.dart';
+import '../l10n/l10n.dart';
 import '../navigation/navigator_key.dart';
 import '../state/locale_state.dart';
 import 'api_routes.dart';
@@ -28,6 +29,13 @@ bool shouldRedirectToLogin(RequestOptions options, int? statusCode) {
       : fullPath;
 
   return !apiPath.startsWith('/auth/');
+}
+
+/// true si el 401 dice que venció la cuenta de invitado: el login lo avisa.
+bool isGuestExpiredResponse(dynamic body) {
+  if (body is! Map) return false;
+  final error = body['error'];
+  return error is Map && error['code'] == 'GUEST_EXPIRED';
 }
 
 class DioClient {
@@ -105,7 +113,9 @@ class DioClient {
                     error.requestOptions,
                     error.response?.statusCode,
                   )) {
-                _redirectToLogin();
+                _redirectToLogin(
+                  guestExpired: isGuestExpiredResponse(error.response?.data),
+                );
               }
               return handler.next(error);
             },
@@ -124,13 +134,17 @@ class DioClient {
     }
   }
 
-  static Future<void> _redirectToLogin() async {
+  static Future<void> _redirectToLogin({bool guestExpired = false}) async {
     if (_isRedirectingToLogin) return;
     _isRedirectingToLogin = true;
     rateLimit.clear();
     await SessionService.clear();
     navigatorKey.currentState?.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      MaterialPageRoute(
+        builder: (_) => LoginScreen(
+          notice: guestExpired ? currentL10n.authGuestExpired : null,
+        ),
+      ),
       (route) => false,
     );
     _isRedirectingToLogin = false;

@@ -5,6 +5,7 @@ import '../../data/subscription_repository.dart';
 import '../../../../core/ads/ads_service.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/services/purchase_service.dart';
+import '../../../../core/services/session_service.dart';
 import '../../../../core/theme/app_theme.dart';
 
 List<String> premiumBenefits(AppLocalizations l10n) => [
@@ -16,10 +17,13 @@ List<String> premiumBenefits(AppLocalizations l10n) => [
 
 /// Pantalla de compra del PRO. Cierra con `true` cuando el usuario queda PRO.
 class PremiumScreen extends StatefulWidget {
-  const PremiumScreen({super.key, this.purchases, this.subscriptions});
+  const PremiumScreen({super.key, this.purchases, this.subscriptions, this.isGuest});
 
   final PurchaseService? purchases;
   final SubscriptionRepository? subscriptions;
+
+  /// Solo para pruebas; por defecto lo dice la sesión.
+  final bool? isGuest;
 
   @override
   State<PremiumScreen> createState() => _PremiumScreenState();
@@ -28,6 +32,7 @@ class PremiumScreen extends StatefulWidget {
 class _PremiumScreenState extends State<PremiumScreen> {
   late final PurchaseService _purchases = widget.purchases ?? PurchaseService.instance;
   late final SubscriptionRepository _subscriptions = widget.subscriptions ?? SubscriptionRepository();
+  late final bool _isGuest = widget.isGuest ?? SessionService.isGuest;
 
   PremiumPlan _plan = PremiumPlan.yearly;
   PremiumOffer? _offer;
@@ -150,7 +155,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final savings = _offer?.yearlySavingsPercent;
-    final canBuy = !_busy && (!_purchases.isEnabled || (_offer?.priceOf(_plan) != null));
+    final canBuy = !_isGuest && !_busy && (!_purchases.isEnabled || (_offer?.priceOf(_plan) != null));
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7F9),
       appBar: AppBar(
@@ -222,6 +227,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
               ],
             ),
           ],
+          if (_isGuest) ...[
+            const SizedBox(height: 16),
+            Text(
+              l10n.premiumGuestBlocked,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.onSurfaceVariant, fontWeight: FontWeight.w700),
+            ),
+          ],
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: canBuy ? _subscribe : null,
@@ -252,7 +265,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              TextButton(onPressed: _busy ? null : _restore, child: Text(l10n.premiumRestore)),
+              TextButton(onPressed: _busy || _isGuest ? null : _restore, child: Text(l10n.premiumRestore)),
               const Text('·'),
               TextButton(
                 onPressed: () => openLegalDocument(context, LegalDocuments.terms),

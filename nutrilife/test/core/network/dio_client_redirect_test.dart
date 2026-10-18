@@ -39,4 +39,22 @@ void main() {
       expect(shouldRedirectToLogin(request('/user/profile'), null), isFalse);
     });
   });
+
+  group('isGuestExpiredResponse', () {
+    test('reconoce GUEST_EXPIRED', () {
+      expect(
+        isGuestExpiredResponse({
+          'success': false,
+          'error': {'code': 'GUEST_EXPIRED', 'details': []},
+        }),
+        isTrue,
+      );
+    });
+
+    test('otro código o un cuerpo raro no', () {
+      expect(isGuestExpiredResponse({'error': {'code': 'UNAUTHORIZED'}}), isFalse);
+      expect(isGuestExpiredResponse('texto'), isFalse);
+      expect(isGuestExpiredResponse(null), isFalse);
+    });
+  });
 }

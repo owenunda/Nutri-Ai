@@ -28,6 +28,7 @@ Future<List<Object?>> _pump(
   WidgetTester tester, {
   required FakePurchaseService purchases,
   _FakeSubscriptions? subscriptions,
+  bool isGuest = false,
 }) async {
   tester.view.physicalSize = const Size(800, 2000);
   tester.view.devicePixelRatio = 1.0;
@@ -39,7 +40,7 @@ Future<List<Object?>> _pump(
       body: TextButton(
         onPressed: () async {
           results.add(await Navigator.of(context).push<bool>(MaterialPageRoute(
-            builder: (_) => PremiumScreen(purchases: purchases, subscriptions: subscriptions ?? _FakeSubscriptions()),
+            builder: (_) => PremiumScreen(purchases: purchases, subscriptions: subscriptions ?? _FakeSubscriptions(), isGuest: isGuest),
           )));
         },
         child: const Text('abrir'),
@@ -52,6 +53,20 @@ Future<List<Object?>> _pump(
 }
 
 void main() {
+  testWidgets('el invitado no puede comprar ni restaurar', (tester) async {
+    final purchases = FakePurchaseService();
+    await _pump(tester, purchases: purchases, isGuest: true);
+
+    expect(find.text('Crea una cuenta para suscribirte.'), findsOneWidget);
+
+    await tester.tap(find.text('Suscribirme'));
+    await tester.tap(find.text('Restaurar compras'));
+    await tester.pumpAndSettle();
+
+    expect(purchases.purchased, isEmpty);
+    expect(purchases.restoreCalls, 0);
+  });
+
   testWidgets('muestra los precios de la tienda y el ahorro', (tester) async {
     await _pump(tester, purchases: FakePurchaseService());
 

@@ -120,6 +120,7 @@
   },
   "homeGuestBannerSoon": "Guest mode · deleted in under 1 h",
   "homeGuestCreateAccount": "Create account",
+  "premiumGuestBlocked": "Create an account to subscribe.",
   "authErrorGoogleNotConfigured": "Google sign-in is not set up.",
   "authErrorGoogleNoData": "Google didn't return your details. Please try again.",
   "commonUser": "User",
