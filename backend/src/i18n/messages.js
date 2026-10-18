@@ -237,6 +237,9 @@ export const CODE_MESSAGES = {
     CANNOT_DEMOTE_SELF: 'You cannot remove your own admin role.',
     CANNOT_DELETE_SELF: 'You cannot delete your own account from the panel.',
 
+    // Suscripciones
+    SUBSCRIPTION_PROVIDER_ERROR: 'We could not confirm your subscription. Try again in a few minutes.',
+
     // Errores internos: nunca exponen detalles en inglés
     INTERNAL_ERROR: SOMETHING_WENT_WRONG,
     DATABASE_ERROR: SOMETHING_WENT_WRONG,

@@ -48,9 +48,16 @@ export const config = {
     aiWebhookPerMinute: Number(trim(env.RATE_LIMIT_AI_WEBHOOK_PER_MINUTE)) || 60,
     authStrictPerMinute: Number(trim(env.RATE_LIMIT_AUTH_PER_MINUTE)) || 5,
     globalPerMinute: Number(trim(env.RATE_LIMIT_GLOBAL_PER_MINUTE)) || 60,
+    subscriptionSyncPerMinute: Number(trim(env.RATE_LIMIT_SUBSCRIPTION_SYNC_PER_MINUTE)) || 10,
   },
   chatQuota: {
     freePerDay: Number(trim(env.CHAT_DAILY_LIMIT_FREE)) || 3,
     proPerDay: Number(trim(env.CHAT_DAILY_LIMIT_PRO)) || 50,
+  },
+  revenuecat: {
+    secretKey: trim(env.REVENUECAT_SECRET_KEY),
+    webhookAuth: trim(env.REVENUECAT_WEBHOOK_AUTH),
+    // Solo mientras se prueba con la Test Store o con testers de las tiendas.
+    allowSandbox: trim(env.REVENUECAT_ALLOW_SANDBOX) === 'true',
   },
 };
