@@ -710,6 +710,54 @@ abstract class AppLocalizations {
   /// **'No se pudo entrar como invitado. Inténtalo de nuevo.'**
   String get authErrorGuest;
 
+  /// No description provided for @authGuestButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrar como invitado'**
+  String get authGuestButton;
+
+  /// No description provided for @authGuestDialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrar como invitado'**
+  String get authGuestDialogTitle;
+
+  /// No description provided for @authGuestDialogSample.
+  ///
+  /// In es, this message translates to:
+  /// **'Es una cuenta de prueba con datos de ejemplo.'**
+  String get authGuestDialogSample;
+
+  /// No description provided for @authGuestDialogExpires.
+  ///
+  /// In es, this message translates to:
+  /// **'Se borra en 24 horas, junto con todo lo que registres.'**
+  String get authGuestDialogExpires;
+
+  /// No description provided for @authGuestDialogFree.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiene el plan FREE y no puedes comprar PRO.'**
+  String get authGuestDialogFree;
+
+  /// No description provided for @authGuestDialogCreateAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Si quieres guardar tu progreso, crea una cuenta.'**
+  String get authGuestDialogCreateAccount;
+
+  /// No description provided for @authGuestDialogConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrar'**
+  String get authGuestDialogConfirm;
+
+  /// No description provided for @authGuestExpired.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu cuenta de invitado venció. Crea una cuenta para seguir.'**
+  String get authGuestExpired;
+
   /// No description provided for @authErrorGoogleNotConfigured.
   ///
   /// In es, this message translates to:

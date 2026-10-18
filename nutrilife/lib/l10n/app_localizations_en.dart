@@ -348,6 +348,35 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t sign you in as a guest. Please try again.';
 
   @override
+  String get authGuestButton => 'Continue as guest';
+
+  @override
+  String get authGuestDialogTitle => 'Continue as guest';
+
+  @override
+  String get authGuestDialogSample =>
+      'This is a test account with sample data.';
+
+  @override
+  String get authGuestDialogExpires =>
+      'It\'s deleted after 24 hours, along with everything you log.';
+
+  @override
+  String get authGuestDialogFree =>
+      'It\'s on the FREE plan and you can\'t buy PRO.';
+
+  @override
+  String get authGuestDialogCreateAccount =>
+      'To keep your progress, create an account.';
+
+  @override
+  String get authGuestDialogConfirm => 'Continue';
+
+  @override
+  String get authGuestExpired =>
+      'Your guest account expired. Create an account to keep going.';
+
+  @override
   String get authErrorGoogleNotConfigured => 'Google sign-in is not set up.';
 
   @override

@@ -348,6 +348,35 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo entrar como invitado. Inténtalo de nuevo.';
 
   @override
+  String get authGuestButton => 'Entrar como invitado';
+
+  @override
+  String get authGuestDialogTitle => 'Entrar como invitado';
+
+  @override
+  String get authGuestDialogSample =>
+      'Es una cuenta de prueba con datos de ejemplo.';
+
+  @override
+  String get authGuestDialogExpires =>
+      'Se borra en 24 horas, junto con todo lo que registres.';
+
+  @override
+  String get authGuestDialogFree =>
+      'Tiene el plan FREE y no puedes comprar PRO.';
+
+  @override
+  String get authGuestDialogCreateAccount =>
+      'Si quieres guardar tu progreso, crea una cuenta.';
+
+  @override
+  String get authGuestDialogConfirm => 'Entrar';
+
+  @override
+  String get authGuestExpired =>
+      'Tu cuenta de invitado venció. Crea una cuenta para seguir.';
+
+  @override
   String get authErrorGoogleNotConfigured =>
       'El inicio de sesión con Google no está configurado.';
 

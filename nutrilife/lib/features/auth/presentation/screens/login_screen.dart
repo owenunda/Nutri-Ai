@@ -8,14 +8,27 @@ import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../legal/data/legal_documents.dart';
 import '../../../legal/presentation/screens/legal_document_screen.dart';
+import '../../data/auth_repository.dart';
 import '../google_sign_in_flow.dart';
+import '../guest_sign_in_flow.dart';
+import '../widgets/guest_notice_dialog.dart';
 import '../widgets/google_sign_in_button.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 import 'verify_email_screen.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.authRepository, this.notice});
+
+  /// Solo para pruebas; por defecto usa el repositorio real.
+  final AuthRepository? authRepository;
+
+  /// Aviso que se muestra al abrir (p. ej. que venció la cuenta de invitado).
+  final String? notice;
+
+  /// Pregunta al backend si hay modo invitado. Los tests la reemplazan.
+  static Future<bool> Function() guestModeCheck =
+      () => AuthRepository().isGuestModeEnabled();
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +76,13 @@ class LoginScreen extends StatelessWidget {
 
                             SizedBox(height: isCompact ? 16 : 22),
 
-                            Flexible(child: _LoginPanel(isCompact: isCompact)),
+                            Flexible(
+                              child: _LoginPanel(
+                                isCompact: isCompact,
+                                authRepository: authRepository,
+                                notice: notice,
+                              ),
+                            ),
 
                             SizedBox(height: isCompact ? 10 : 12),
 
@@ -147,9 +166,15 @@ class _BrandHeader extends StatelessWidget {
 }
 
 class _LoginPanel extends StatefulWidget {
-  const _LoginPanel({required this.isCompact});
+  const _LoginPanel({
+    required this.isCompact,
+    this.authRepository,
+    this.notice,
+  });
 
   final bool isCompact;
+  final AuthRepository? authRepository;
+  final String? notice;
 
   @override
   State<_LoginPanel> createState() => _LoginPanelState();
@@ -162,6 +187,7 @@ class _LoginPanelState extends State<_LoginPanel> {
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  bool _guestModeEnabled = false;
   String? _errorMessage;
 
   late final TapGestureRecognizer _termsTap = TapGestureRecognizer()
@@ -176,6 +202,23 @@ class _LoginPanelState extends State<_LoginPanel> {
     _emailController = TextEditingController();
 
     _passwordController = TextEditingController();
+
+    final check =
+        widget.authRepository?.isGuestModeEnabled() ??
+        LoginScreen.guestModeCheck();
+    check.then((enabled) {
+      if (enabled && mounted) setState(() => _guestModeEnabled = true);
+    });
+
+    final notice = widget.notice;
+    if (notice != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(notice)),
+        );
+      });
+    }
   }
 
   @override
@@ -196,6 +239,23 @@ class _LoginPanelState extends State<_LoginPanel> {
     // Si sale bien, navega y este panel desaparece; si el usuario cierra el
     // selector, error es null y solo se quita la carga.
     final error = await signInWithGoogle(context);
+    if (!mounted) return;
+    setState(() {
+      _errorMessage = error;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _handleGuestLogin() async {
+    if (!await showGuestNoticeDialog(context) || !mounted) return;
+
+    setState(() {
+      _errorMessage = null;
+      _isLoading = true;
+    });
+
+    // Si sale bien, navega y este panel desaparece.
+    final error = await signInAsGuest(context, repository: widget.authRepository);
     if (!mounted) return;
     setState(() {
       _errorMessage = error;
@@ -503,6 +563,23 @@ class _LoginPanelState extends State<_LoginPanel> {
                   ),
                   textAlign: TextAlign.center,
                 ),
+
+                if (_guestModeEnabled) ...[
+                  const SizedBox(height: 14),
+                  Center(
+                    child: TextButton(
+                      onPressed: _isLoading ? null : _handleGuestLogin,
+                      child: Text(
+                        context.l10n.authGuestButton,
+                        style: const TextStyle(
+                          color: AppTheme.primaryStart,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
