@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import authenticateToken from '../../middleware/auth.middleware.js';
+import authenticateToken, { rejectGuests } from '../../middleware/auth.middleware.js';
 import { subscriptionSyncRateLimit } from '../../middleware/rateLimit.middleware.js';
 import { receiveWebhook, syncSubscription } from './subscription.controller.js';
 import { verifyWebhookAuth } from './webhookAuth.middleware.js';
@@ -43,6 +43,6 @@ router.post('/webhook', verifyWebhookAuth, receiveWebhook);
  *       502:
  *         description: RevenueCat no respondió (SUBSCRIPTION_PROVIDER_ERROR)
  */
-router.post('/sync', authenticateToken(['USER', 'ADMIN']), subscriptionSyncRateLimit, syncSubscription);
+router.post('/sync', authenticateToken(['USER', 'ADMIN']), rejectGuests, subscriptionSyncRateLimit, syncSubscription);
 
 export default router;

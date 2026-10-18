@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import authenticateToken from '../../middleware/auth.middleware.js';
+import authenticateToken, { rejectGuests } from '../../middleware/auth.middleware.js';
 import {
   createPhysical,
   deleteAccount,
@@ -205,6 +205,6 @@ router.delete('/account', authenticateToken(), validateDeleteAccountRequest, del
  *       409:
  *         description: La cuenta ya tiene contraseña (code PASSWORD_ALREADY_SET)
  */
-router.post('/password', authenticateToken(), validateSetPasswordRequest, setPassword);
+router.post('/password', authenticateToken(), rejectGuests, validateSetPasswordRequest, setPassword);
 
 export default router;
