@@ -8,6 +8,7 @@ import 'core/navigation/navigator_key.dart';
 import 'features/auth/presentation/screens/auth_flow_navigator.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/home/presentation/screens/dashboard_screen.dart';
+import 'core/services/purchase_service.dart';
 import 'core/services/session_service.dart';
 import 'core/widgets/dismiss_keyboard_on_tap.dart';
 
@@ -18,6 +19,7 @@ void main() async {
   await LocaleState.instance.load();
   final prefs = await SharedPreferences.getInstance();
   final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+  await PurchaseService.instance.init();
   final session = await SessionService.restore();
 
   Widget home;
