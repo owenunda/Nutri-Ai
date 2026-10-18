@@ -19,6 +19,7 @@ export const getOverview = async (days, today) => {
   const seriesValues = [days, PANEL_TIMEZONE];
   const inRange = (column) => `${column} >= NOW() - ($1::int * INTERVAL '1 day')`;
 
+  // Los invitados de la beta no cuentan como usuarios.
   const usersQuery = `
     SELECT
       COUNT(*)::int AS total,
@@ -29,6 +30,7 @@ export const getOverview = async (days, today) => {
     FROM users u
     INNER JOIN plans p ON p.plan_id = u.plan_id
     INNER JOIN roles r ON r.role_id = u.role_id
+    WHERE u.guest_expires_at IS NULL
   `;
 
   const activityQuery = `
@@ -80,6 +82,7 @@ export const getOverview = async (days, today) => {
       SELECT ${localDay('u.created_at')} AS day, COUNT(*) AS n
       FROM users u
       WHERE u.created_at >= NOW() - (($1::int + 1) * INTERVAL '1 day')
+        AND u.guest_expires_at IS NULL
       GROUP BY 1
     )
     SELECT
@@ -129,6 +132,7 @@ export const getOverview = async (days, today) => {
       u.created_at AS "createdAt"
     FROM users u
     INNER JOIN plans p ON p.plan_id = u.plan_id
+    WHERE u.guest_expires_at IS NULL
     ORDER BY u.created_at DESC, u.user_id DESC
     LIMIT 6
   `;
@@ -198,9 +202,10 @@ const USER_SORTS = {
 };
 export const USER_SORT_KEYS = Object.keys(USER_SORTS);
 
-// Cómo entra el usuario: solo contraseña, solo Google, o ambos.
+// Cómo entra el usuario: invitado, solo contraseña, solo Google, o ambos.
 const authMethodSql = (alias) => `
   CASE
+    WHEN ${alias}.guest_expires_at IS NOT NULL THEN 'GUEST'
     WHEN ${alias}.password IS NULL THEN 'GOOGLE'
     WHEN EXISTS (
       SELECT 1 FROM user_auth_providers ap WHERE ap.user_id = ${alias}.user_id

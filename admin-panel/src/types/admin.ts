@@ -3,7 +3,7 @@ import type { EventModule } from './event';
 export type Plan = 'FREE' | 'PRO';
 export type ProDuration = '7d' | '1m' | '3m' | '6m' | '12m' | 'forever';
 
-export type AuthMethod = 'EMAIL' | 'GOOGLE' | 'BOTH';
+export type AuthMethod = 'EMAIL' | 'GOOGLE' | 'BOTH' | 'GUEST';
 
 export type Role = 'ADMIN' | 'USER';
 

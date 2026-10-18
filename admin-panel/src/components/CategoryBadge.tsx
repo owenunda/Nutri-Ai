@@ -56,15 +56,17 @@ const AUTH_METHOD_LABEL: Record<string, string> = {
   EMAIL: 'Email',
   GOOGLE: 'Google',
   BOTH: 'Ambos',
+  GUEST: 'Invitado',
 };
 
-/** Cómo inicia sesión el usuario: Email, Google o Ambos. */
+/** Cómo inicia sesión el usuario: Email, Google, Ambos o Invitado. */
 export function authMethodLabel(method: string) {
   return AUTH_METHOD_LABEL[method] ?? method;
 }
 
+const AUTH_METHOD_VARIANT = { EMAIL: 'outline', GUEST: 'warning' } as const;
+
 export function AuthMethodBadge({ method }: { method: string }) {
-  return (
-    <Badge variant={method === 'EMAIL' ? 'outline' : 'info'}>{authMethodLabel(method)}</Badge>
-  );
+  const variant = AUTH_METHOD_VARIANT[method as keyof typeof AUTH_METHOD_VARIANT] ?? 'info';
+  return <Badge variant={variant}>{authMethodLabel(method)}</Badge>;
 }
