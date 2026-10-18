@@ -103,6 +103,10 @@ export default function UserDetail() {
 
   const { profile, usage } = data;
   const isPro = profile.plan === 'PRO';
+  // El panel solo maneja el regalo; lo pagado en la tienda no se toca desde aquí.
+  const giftActive =
+    profile.giftPro && (!profile.giftProUntil || new Date(profile.giftProUntil) > new Date());
+  const giftState = { plan: (giftActive ? 'PRO' : 'FREE') as Plan, proUntil: giftActive ? profile.giftProUntil : null };
   const isAdmin = profile.role === 'ADMIN';
   const isSelf = currentUser?.userId === profile.userId;
 
@@ -133,6 +137,9 @@ export default function UserDetail() {
                   {profile.proUntil ? `PRO hasta el ${formatDay(profile.proUntil)}` : 'PRO sin vencimiento'}
                 </p>
               )}
+              {isPro && profile.proSource && (
+                <p className="text-sm text-white/80">{proSourceLabel(profile)}</p>
+              )}
               <p className="mt-1 text-sm text-white/70">
                 #{profile.userId} · Se unió el {formatDay(profile.createdAt)} · Activo {formatRelative(usage.lastActivity)}
               </p>
@@ -150,24 +157,24 @@ export default function UserDetail() {
         </div>
         <div className="relative mt-5 flex flex-wrap gap-2">
           {/* Un PRO sin vencimiento no se extiende: solo se puede quitar. */}
-          {(!isPro || profile.proUntil) && (
+          {(!giftActive || profile.giftProUntil) && (
             <Button
               size="sm"
               onClick={() => setPlanDialog('gift')}
               className="bg-white text-emerald-900 hover:bg-white/90"
             >
               <Crown className="h-4 w-4" />
-              {isPro ? 'Extender PRO' : 'Regalar PRO'}
+              {giftActive ? 'Extender regalo' : 'Regalar PRO'}
             </Button>
           )}
-          {isPro && (
+          {giftActive && (
             <Button
               size="sm"
               onClick={() => setPlanDialog('remove')}
               className="bg-white/15 text-white hover:bg-white/25"
             >
               <Crown className="h-4 w-4" />
-              Pasar a FREE
+              Quitar regalo
             </Button>
           )}
           <Button
@@ -333,10 +340,8 @@ export default function UserDetail() {
         onClose={() => setPlanDialog(null)}
         userId={profile.userId}
         name={profile.name}
-        current={{ plan: profile.plan, proUntil: profile.proUntil }}
-        onChanged={({ plan, proUntil }) =>
-          setData((d) => (d ? { ...d, profile: { ...d.profile, plan, proUntil } } : d))
-        }
+        current={giftState}
+        onChanged={() => load()}
       />
 
       <PasswordDialog
@@ -484,7 +489,7 @@ function PlanDialog({
   userId: number;
   name: string;
   current: { plan: Plan; proUntil: string | null };
-  onChanged: (change: { plan: Plan; proUntil: string | null }) => void;
+  onChanged: () => void;
 }) {
   const gift = mode === 'gift';
   const extending = gift && current.plan === 'PRO';
@@ -504,10 +509,9 @@ function PlanDialog({
     setSaving(true);
     setError(null);
     try {
-      const result = gift
-        ? await updateUserPlan(userId, 'PRO', duration)
-        : await updateUserPlan(userId, 'FREE');
-      onChanged({ plan: result.plan, proUntil: result.proUntil });
+      if (gift) await updateUserPlan(userId, 'PRO', duration);
+      else await updateUserPlan(userId, 'FREE');
+      onChanged();
       close();
     } catch (err) {
       setError(getErrorMessage(err));
@@ -516,7 +520,7 @@ function PlanDialog({
     }
   };
 
-  const title = !gift ? 'Quitar el plan PRO' : extending ? 'Extender NutriLife PRO' : 'Regalar NutriLife PRO';
+  const title = !gift ? 'Quitar el PRO regalado' : extending ? 'Extender NutriLife PRO' : 'Regalar NutriLife PRO';
 
   return (
     <Dialog open={mode !== null} onClose={close} title={title}>
@@ -524,7 +528,7 @@ function PlanDialog({
         <Nutria mood={gift ? 'premium' : 'triste'} className="h-20 w-20 shrink-0" />
         <p className="text-sm text-muted-foreground">
           {!gift
-            ? `${name} volverá al plan FREE.`
+            ? `${name} pierde el PRO regalado. Si paga en la tienda, sigue PRO.`
             : extending
               ? `El tiempo se suma al PRO que ${name} ya tiene.`
               : `${name} pasará al plan PRO.`}{' '}
@@ -566,7 +570,7 @@ function PlanDialog({
         </Button>
         <Button onClick={confirm} disabled={saving} variant={gift ? 'default' : 'destructive'}>
           {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-          {!gift ? 'Pasar a FREE' : extending ? 'Extender PRO' : 'Dar PRO'}
+          {!gift ? 'Quitar regalo' : extending ? 'Extender PRO' : 'Dar PRO'}
         </Button>
       </div>
     </Dialog>
@@ -794,4 +798,20 @@ function DeleteUserDialog({
       </div>
     </Dialog>
   );
+}
+
+const STORE_LABELS: Record<string, string> = {
+  play_store: 'Google Play',
+  app_store: 'App Store',
+  test_store: 'Test Store',
+};
+
+function proSourceLabel(profile: UserDetailData['profile']): string {
+  const sub = profile.subscription;
+  const store = sub ? `${sub.productId ?? 'suscripción'} en ${STORE_LABELS[sub.store ?? ''] ?? sub.store ?? 'la tienda'}` : '';
+  const renew = sub ? (sub.billingIssue ? ' · problema de cobro' : sub.willRenew ? ' · se renueva' : ' · no se renueva') : '';
+  const sandbox = sub?.environment === 'sandbox' ? ' · prueba' : '';
+  if (profile.proSource === 'gift') return 'Regalado desde el panel';
+  if (profile.proSource === 'store') return `Pagado: ${store}${renew}${sandbox}`;
+  return `Regalado y pagado: ${store}${renew}${sandbox}`;
 }

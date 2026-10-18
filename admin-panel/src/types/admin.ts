@@ -112,6 +112,17 @@ export interface UserFilters {
   limit?: number;
 }
 
+export type ProSource = 'gift' | 'store' | 'both';
+
+export interface StoreSubscription {
+  productId: string | null;
+  store: string | null;
+  expiresAt: string | null;
+  willRenew: boolean;
+  billingIssue: boolean;
+  environment: 'sandbox' | 'production' | null;
+}
+
 export interface UserDetail {
   profile: {
     userId: number;
@@ -123,6 +134,10 @@ export interface UserDetail {
     plan: Plan;
     /** Fin del PRO regalado. null = sin vencimiento (o FREE). */
     proUntil: string | null;
+    giftPro: boolean;
+    giftProUntil: string | null;
+    proSource: ProSource | null;
+    subscription: StoreSubscription | null;
     authMethod: AuthMethod;
     height: string | null;
     weight: string | null;
