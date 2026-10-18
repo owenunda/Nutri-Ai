@@ -130,6 +130,28 @@ class AuthRepository {
         currentL10n.authErrorResetPassword,
       );
 
+  /// true si el backend tiene el modo invitado encendido. Ante cualquier
+  /// fallo, false: el botón no aparece y el login sigue como siempre.
+  Future<bool> isGuestModeEnabled() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        ApiRoutes.authHealth,
+        options: Options(receiveTimeout: const Duration(seconds: 5)),
+      );
+      final data = response.data?['data'];
+      return data is Map && data['guestModeEnabled'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Crea una cuenta de invitado de 24 h y devuelve su sesión.
+  Future<GoogleLoginResult> loginAsGuest() => _postSession(
+    ApiRoutes.authGuest,
+    const {},
+    currentL10n.authErrorGuest,
+  );
+
   /// POST que responde una sesión (`token`, `user`, banderas). También la usa
   /// la verificación del correo.
   Future<GoogleLoginResult> _postSession(

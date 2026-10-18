@@ -136,6 +136,7 @@
   "authErrorResetPassword": "No se pudo cambiar tu contraseña. Inténtalo de nuevo.",
   "authErrorSetPassword": "No se pudo guardar tu contraseña. Inténtalo de nuevo.",
   "authErrorGoogle": "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
+  "authErrorGuest": "No se pudo entrar como invitado. Inténtalo de nuevo.",
   "authErrorGoogleNotConfigured": "El inicio de sesión con Google no está configurado.",
   "authErrorGoogleNoData": "Google no devolvió tus datos. Inténtalo de nuevo.",
   "commonUser": "Usuario",

@@ -8,6 +8,7 @@ class ApiRoutes {
   static const String authPasswordForgot = '/auth/password/forgot';
   static const String authPasswordReset = '/auth/password/reset';
   static const String authHealth = '/auth/health';
+  static const String authGuest = '/auth/guest';
   static const String userProfile = '/user/profile';
   static const String userAccount = '/user/account';
   static const String userPassword = '/user/password';

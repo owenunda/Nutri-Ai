@@ -344,6 +344,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo iniciar sesión con Google. Inténtalo de nuevo.';
 
   @override
+  String get authErrorGuest =>
+      'No se pudo entrar como invitado. Inténtalo de nuevo.';
+
+  @override
   String get authErrorGoogleNotConfigured =>
       'El inicio de sesión con Google no está configurado.';
 

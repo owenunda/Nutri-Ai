@@ -117,4 +117,35 @@ void main() {
       DioClient.instance.httpClientAdapter = previousAdapter;
     }
   });
+
+  test('un invitado no se ata a RevenueCat', () async {
+    await SessionService.save(
+      token: 'jwt-guest',
+      user: {'userId': 41, 'isGuest': true, 'guestExpiresAt': '2026-10-19T15:00:00.000Z'},
+    );
+
+    expect(purchases.loggedIn, isEmpty);
+    expect(SessionService.isGuest, isTrue);
+    expect(SessionService.guestExpiresAt, DateTime.utc(2026, 10, 19, 15).toLocal());
+  });
+
+  test('una cuenta normal no es invitado', () async {
+    await SessionService.save(token: 'jwt', user: {'userId': 8});
+
+    expect(SessionService.isGuest, isFalse);
+    expect(SessionService.guestExpiresAt, isNull);
+  });
+
+  test('restaurar la sesión recuerda que es invitado y clear lo olvida', () async {
+    SharedPreferences.setMockInitialValues({
+      'auth_token': 'jwt-guest',
+      'auth_user': '{"userId":41,"isGuest":true,"guestExpiresAt":"2026-10-19T15:00:00.000Z"}',
+    });
+
+    await SessionService.restore();
+    expect(SessionService.isGuest, isTrue);
+
+    await SessionService.clear();
+    expect(SessionService.isGuest, isFalse);
+  });
 }

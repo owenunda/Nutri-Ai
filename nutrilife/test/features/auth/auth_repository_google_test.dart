@@ -284,4 +284,55 @@ void main() {
       ),
     );
   });
+
+  group('modo invitado', () {
+    test('el health con guestModeEnabled true lo enciende', () async {
+      final adapter = _FakeAdapter(200, {
+        'success': true,
+        'data': {'module': 'auth', 'guestModeEnabled': true},
+      });
+      expect(await _repoWith(adapter).isGuestModeEnabled(), isTrue);
+      expect(adapter.lastRequest!.path, ApiRoutes.authHealth);
+    });
+
+    test('sin la bandera está apagado', () async {
+      final adapter = _FakeAdapter(200, {'success': true, 'data': {'module': 'auth'}});
+      expect(await _repoWith(adapter).isGuestModeEnabled(), isFalse);
+    });
+
+    test('si el health falla está apagado', () async {
+      final adapter = _FakeAdapter(500, {'success': false});
+      expect(await _repoWith(adapter).isGuestModeEnabled(), isFalse);
+    });
+
+    test('loginAsGuest pide la sesión de invitado', () async {
+      final adapter = _FakeAdapter(201, {
+        'success': true,
+        'data': {
+          'token': 'jwt-guest',
+          'user': {'userId': 41, 'name': 'Invitado', 'isGuest': true, 'guestExpiresAt': '2026-10-19T15:00:00.000Z'},
+          'needsProfileSetup': false,
+          'guestExpiresAt': '2026-10-19T15:00:00.000Z',
+        },
+      });
+      final result = await _repoWith(adapter).loginAsGuest();
+      expect(adapter.lastRequest!.path, ApiRoutes.authGuest);
+      expect(adapter.lastRequest!.method, 'POST');
+      expect(result.token, 'jwt-guest');
+      expect(result.user['isGuest'], isTrue);
+      expect(result.needsProfileSetup, isFalse);
+    });
+
+    test('si el backend lo apagó, se ve su mensaje', () async {
+      final adapter = _FakeAdapter(404, {
+        'success': false,
+        'message': 'El modo invitado no está disponible.',
+        'error': {'code': 'GUEST_MODE_DISABLED', 'details': <Object>[]},
+      });
+      expect(
+        () => _repoWith(adapter).loginAsGuest(),
+        throwsA(isA<AuthException>().having((e) => e.message, 'message', 'El modo invitado no está disponible.')),
+      );
+    });
+  });
 }

@@ -344,6 +344,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t sign you in with Google. Please try again.';
 
   @override
+  String get authErrorGuest =>
+      'We couldn\'t sign you in as a guest. Please try again.';
+
+  @override
   String get authErrorGoogleNotConfigured => 'Google sign-in is not set up.';
 
   @override

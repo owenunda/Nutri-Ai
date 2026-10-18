@@ -101,6 +101,7 @@
   "authErrorResetPassword": "We couldn't change your password. Please try again.",
   "authErrorSetPassword": "We couldn't save your password. Please try again.",
   "authErrorGoogle": "We couldn't sign you in with Google. Please try again.",
+  "authErrorGuest": "We couldn't sign you in as a guest. Please try again.",
   "authErrorGoogleNotConfigured": "Google sign-in is not set up.",
   "authErrorGoogleNoData": "Google didn't return your details. Please try again.",
   "commonUser": "User",

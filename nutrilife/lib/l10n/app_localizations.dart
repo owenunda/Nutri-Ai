@@ -704,6 +704,12 @@ abstract class AppLocalizations {
   /// **'No se pudo iniciar sesión con Google. Inténtalo de nuevo.'**
   String get authErrorGoogle;
 
+  /// No description provided for @authErrorGuest.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo entrar como invitado. Inténtalo de nuevo.'**
+  String get authErrorGuest;
+
   /// No description provided for @authErrorGoogleNotConfigured.
   ///
   /// In es, this message translates to:
