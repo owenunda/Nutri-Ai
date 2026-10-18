@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../network/dio_client.dart';
@@ -48,7 +49,8 @@ class SessionService {
         return null;
       }
       DioClient.authToken = token;
-      await _linkPurchases(decodedUser);
+      // Sin await: no bloquear el arranque por la red de RevenueCat.
+      unawaited(_linkPurchases(decodedUser));
       return (token: token, user: decodedUser);
     } on FormatException {
       await clear();

@@ -78,6 +78,9 @@ class RevenueCatPurchaseService implements PurchaseService {
     return RevenueCatPurchaseService('');
   }
 
+  /// Tope para logIn/logOut: la red lenta no debe trabar la sesión.
+  static const _sessionTimeout = Duration(seconds: 5);
+
   final String _apiKey;
   bool _configured = false;
   Package? _monthly;
@@ -103,7 +106,7 @@ class RevenueCatPurchaseService implements PurchaseService {
   Future<void> logIn(String userId) async {
     if (!_ready) return;
     try {
-      await Purchases.logIn(userId);
+      await Purchases.logIn(userId).timeout(_sessionTimeout);
     } catch (error) {
       debugPrint('[purchases] logIn falló: $error');
     }
@@ -114,7 +117,9 @@ class RevenueCatPurchaseService implements PurchaseService {
     if (!_ready) return;
     try {
       // Cerrar la sesión de un usuario anónimo lanza error.
-      if (!await Purchases.isAnonymous) await Purchases.logOut();
+      if (!await Purchases.isAnonymous) {
+        await Purchases.logOut().timeout(_sessionTimeout);
+      }
     } catch (error) {
       debugPrint('[purchases] logOut falló: $error');
     }
