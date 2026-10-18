@@ -64,5 +64,7 @@ export const config = {
   // Modo invitado de la beta. Apagado, POST /auth/guest responde 404.
   guestMode: {
     enabled: trim(env.GUEST_MODE_ENABLED) === 'true',
+    // Tope de invitados vigentes a la vez: cada uno trae su cuota FREE de Chef IA.
+    maxActive: Number(trim(env.GUEST_MAX_ACTIVE)) || 100,
   },
 };

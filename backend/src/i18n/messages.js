@@ -165,6 +165,7 @@ export const CODE_MESSAGES = {
     // Auth y correo
     UNAUTHORIZED: 'Please sign in again.',
     GUEST_MODE_DISABLED: 'Guest mode is not available.',
+    GUEST_LIMIT_REACHED: 'Too many guest accounts right now. Try again later or create an account.',
     GUEST_EXPIRED: 'Your guest account expired. Create an account to keep using NutriLife.',
     GUEST_NOT_ALLOWED: 'Create an account to do this.',
     FORBIDDEN: 'You do not have permission to do this.',

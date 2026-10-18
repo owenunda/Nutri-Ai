@@ -80,3 +80,11 @@ export const findExpiredGuestIds = async (limit = 100) => {
   );
   return rows.map((row) => row.userId);
 };
+
+/** Invitados que todavía no vencen. */
+export const countActiveGuests = async () => {
+  const { rows } = await pool.query(
+    'SELECT COUNT(*)::int AS count FROM users WHERE guest_expires_at > NOW()'
+  );
+  return rows[0].count;
+};

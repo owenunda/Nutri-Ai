@@ -30,6 +30,7 @@ mock.module(src('modules/auth/guest.repository.js'), {
     findSampleFoodIds: (...args) => guestRepo.findSampleFoodIds(...args),
     createGuestAccount: (...args) => guestRepo.createGuestAccount(...args),
     findExpiredGuestIds: async () => [],
+    countActiveGuests: (...args) => guestRepo.countActiveGuests(...args),
   },
 });
 mock.module(src('modules/fridge/fridge.service.js'), {
@@ -62,6 +63,7 @@ beforeEach(() => {
   created = null;
   repo.getDefaultRoleAndPlanIds = async () => ({ roleId: 2, planId: 1 });
   repo.getAuthRepositoryStatus = async () => ({ ok: true });
+  guestRepo.countActiveGuests = async () => 0;
   guestRepo.findSampleFoodIds = async () => [5, 6];
   guestRepo.createGuestAccount = async (input) => {
     created = input;
@@ -84,6 +86,13 @@ beforeEach(() => {
 test('con el modo apagado responde 404', async () => {
   config.guestMode.enabled = false;
   await assert.rejects(loginAsGuest({ lang: 'es' }), { status: 404, code: 'GUEST_MODE_DISABLED' });
+});
+
+test('con el tope de invitados activos responde 503 y no crea nada', async () => {
+  guestRepo.countActiveGuests = async () => config.guestMode.maxActive;
+  await assert.rejects(loginAsGuest({ lang: 'es' }), { status: 503, code: 'GUEST_LIMIT_REACHED' });
+  assert.equal(created, null);
+  assert.deepEqual(fridges, []);
 });
 
 test('crea un invitado FREE, verificado, sin contraseña y que vence en 24 h', async () => {

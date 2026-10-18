@@ -10,9 +10,12 @@ export const PANEL_TIMEZONE = 'America/Bogota';
 const localDay = (column) => `((${column}) AT TIME ZONE 'UTC' AT TIME ZONE $2::text)::date`;
 
 // Los invitados de la beta no cuentan como usuarios en los totales del overview.
-const notGuestSql = (alias) => `NOT EXISTS (
-  SELECT 1 FROM users g WHERE g.user_id = ${alias}.user_id AND g.guest_expires_at IS NOT NULL
-)`;
+// NOT IN con una subconsulta sin correlación: Postgres la resuelve una vez
+// (hashed subplan) en vez de una por fila. users.user_id es PK y no nulo, así
+// que el NOT IN no se anula por NULLs; un user_id NULL del lado izquierdo
+// simplemente no cuenta (igual que en COUNT(DISTINCT)).
+const notGuestSql = (alias) =>
+  `${alias}.user_id NOT IN (SELECT user_id FROM users WHERE guest_expires_at IS NOT NULL)`;
 
 /**
  * Resumen general del panel: usuarios, actividad, IA y series por día.
@@ -58,7 +61,10 @@ export const getOverview = async (days, today) => {
   const contentQuery = `
     SELECT
       (SELECT COUNT(*) FROM meal_recipe_logs)::int AS "recipesSaved",
-      (SELECT COUNT(*) FROM meal_record_details)::int AS "mealItems",
+      (SELECT COUNT(*)
+         FROM meal_record_details d
+         JOIN meal_records r ON r.meal_record_id = d.meal_record_id
+         WHERE r.user_id NOT IN (SELECT user_id FROM users WHERE guest_expires_at IS NOT NULL))::int AS "mealItems",
       (SELECT COUNT(*) FROM chat_sessions)::int AS "chatSessions",
       (SELECT COUNT(*) FROM chat_messages WHERE role = 'USER')::int AS "chatMessages",
       (SELECT COUNT(*) FROM foods WHERE is_global = FALSE)::int AS "customFoods"

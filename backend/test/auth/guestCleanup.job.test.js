@@ -5,7 +5,12 @@ const src = (path) => new URL(`../../src/${path}`, import.meta.url).href;
 
 // El job importa los repositorios (y con ellos la base): se reemplazan.
 mock.module(src('modules/auth/guest.repository.js'), {
-  exports: { findExpiredGuestIds: async () => [], findSampleFoodIds: async () => [], createGuestAccount: async () => 0 },
+  exports: {
+    findExpiredGuestIds: async () => [],
+    findSampleFoodIds: async () => [],
+    createGuestAccount: async () => 0,
+    countActiveGuests: async () => 0,
+  },
 });
 mock.module(src('modules/user/user.repository.js'), {
   exports: { deleteUserAccountData: async () => true },
@@ -56,6 +61,15 @@ test('un fallo al buscar no lanza', async () => {
   const result = await quiet(() =>
     runGuestCleanup(async () => {
       throw new Error('db caída');
+    }, async () => true)
+  );
+  assert.deepEqual(result, []);
+});
+
+test('un fallo que no es un Error tampoco lanza', async () => {
+  const result = await quiet(() =>
+    runGuestCleanup(async () => {
+      throw null;
     }, async () => true)
   );
   assert.deepEqual(result, []);

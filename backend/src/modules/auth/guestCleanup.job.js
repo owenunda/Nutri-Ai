@@ -14,7 +14,7 @@ export const runGuestCleanup = async (
   try {
     userIds = await findExpired();
   } catch (error) {
-    console.error('[guestCleanup] no se pudieron buscar los invitados vencidos:', error.message);
+    console.error('[guestCleanup] no se pudieron buscar los invitados vencidos:', error?.message ?? error);
     return [];
   }
 
@@ -23,7 +23,7 @@ export const runGuestCleanup = async (
     try {
       if (await deleteAccount(userId)) deleted.push(userId);
     } catch (error) {
-      console.error(`[guestCleanup] no se pudo borrar al invitado ${userId}:`, error.message);
+      console.error(`[guestCleanup] no se pudo borrar al invitado ${userId}:`, error?.message ?? error);
     }
   }
 

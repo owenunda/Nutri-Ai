@@ -28,7 +28,12 @@ mock.module(src('modules/auth/auth.repository.js'), {
   ),
 });
 mock.module(src('modules/auth/guest.repository.js'), {
-  exports: { findSampleFoodIds: async () => [], createGuestAccount: async () => 0, findExpiredGuestIds: async () => [] },
+  exports: {
+    findSampleFoodIds: async () => [],
+    createGuestAccount: async () => 0,
+    findExpiredGuestIds: async () => [],
+    countActiveGuests: async () => 0,
+  },
 });
 mock.module(src('modules/fridge/fridge.service.js'), {
   exports: { createFridgeService: async () => {} },
@@ -500,6 +505,20 @@ test('Olvidé mi contraseña: envía el código si la cuenta existe y no revela 
   await forgotPassword({ email: 'nadie@gmail.com' });
 
   assert.deepEqual(sent, ['reset_password']);
+});
+
+test('Olvidé mi contraseña y reenvío: nunca mandan correo a un invitado', async () => {
+  const sent = [];
+  codes.sendCode = async (user, purpose) => {
+    sent.push(purpose);
+  };
+  const guest = { ...ana, email: 'guest-1b2c@guest.nutrilife.invalid', emailVerifiedAt: null };
+
+  repo.findUserByEmail = async () => guest;
+  await forgotPassword({ email: guest.email });
+  await resendVerification({ email: guest.email });
+
+  assert.deepEqual(sent, []);
 });
 
 test('Restablecer: código correcto guarda la contraseña nueva', async () => {

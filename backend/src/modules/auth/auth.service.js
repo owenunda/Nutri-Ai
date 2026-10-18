@@ -16,7 +16,7 @@ import {
   setPasswordAndVerify,
 } from './auth.repository.js';
 import { CODE_PURPOSE, consumeCode, sendCode } from './email-code.service.js';
-import { createGuestAccount, findSampleFoodIds } from './guest.repository.js';
+import { countActiveGuests, createGuestAccount, findSampleFoodIds } from './guest.repository.js';
 import { GUEST_PROFILE, GUEST_TTL_MS, buildGuestSampleData } from './guest.sampleData.js';
 import { verifyGoogleIdToken } from './google.verifier.js';
 import { createFridgeService } from '../fridge/fridge.service.js';
@@ -27,7 +27,8 @@ const JWT_EXPIRES_IN = '1h';
 const SALT_ROUNDS = 10;
 const GOOGLE = 'google';
 const UNIQUE_VIOLATION = '23505';
-const GUEST_EMAIL_DOMAIN = 'guest.nutrilife.invalid';
+export const GUEST_EMAIL_DOMAIN = 'guest.nutrilife.invalid';
+const isGuestEmail = (email) => email?.endsWith(`@${GUEST_EMAIL_DOMAIN}`);
 const GUEST_NAMES = { es: 'Invitado', en: 'Guest' };
 
 export const getAuthModuleStatus = async () => {
@@ -441,7 +442,8 @@ export const verifyEmail = async ({ email, code }) => {
 export const resendVerification = async ({ email, lang }) => {
   try {
     const user = await findUserByEmail(email);
-    if (user && !user.emailVerifiedAt) {
+    // Al correo falso de un invitado no se escribe: rebotaría y dañaría la reputación del remitente.
+    if (user && !user.emailVerifiedAt && !isGuestEmail(user.email)) {
       await sendCode(user, CODE_PURPOSE.VERIFY_EMAIL, lang);
     }
   } catch (error) {
@@ -453,7 +455,7 @@ export const resendVerification = async ({ email, lang }) => {
 export const forgotPassword = async ({ email, lang }) => {
   try {
     const user = await findUserByEmail(email);
-    if (user) {
+    if (user && !isGuestEmail(user.email)) {
       await sendCode(user, CODE_PURPOSE.RESET_PASSWORD, lang);
     }
   } catch (error) {
@@ -487,6 +489,14 @@ export const loginAsGuest = async ({ lang } = {}) => {
   try {
     if (!config.guestMode.enabled) {
       throw new AppError('El modo invitado no está disponible.', 404, 'GUEST_MODE_DISABLED');
+    }
+
+    if ((await countActiveGuests()) >= config.guestMode.maxActive) {
+      throw new AppError(
+        'Hay demasiadas cuentas de invitado en este momento. Inténtalo más tarde o crea una cuenta.',
+        503,
+        'GUEST_LIMIT_REACHED'
+      );
     }
 
     const defaults = await getDefaultRoleAndPlanIds();
