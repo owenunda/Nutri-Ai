@@ -27,6 +27,7 @@ class UserProfile {
     required this.createdAt,
     required this.hasPassword,
     this.proUntil,
+    this.proSource,
   });
 
   final String name;
@@ -39,8 +40,13 @@ class UserProfile {
   final String? plan;
   final DateTime? createdAt;
 
-  /// Fin del PRO regalado, en hora local. Null con PRO = sin vencimiento.
+  /// Fin del PRO, en hora local. Null con PRO = sin vencimiento.
   final DateTime? proUntil;
+
+  /// De dónde viene el PRO: 'gift', 'store', 'both' o null.
+  final String? proSource;
+
+  bool get hasStoreSubscription => proSource == 'store' || proSource == 'both';
 
   bool get isPro => plan?.toUpperCase() == 'PRO';
 
@@ -60,6 +66,7 @@ class UserProfile {
       createdAt: _toDateTime(json['createdAt']),
       hasPassword: json['hasPassword'] != false,
       proUntil: _toDateTime(json['proUntil'])?.toLocal(),
+      proSource: json['proSource']?.toString(),
     );
   }
 
@@ -75,6 +82,7 @@ class UserProfile {
     DateTime? createdAt,
     bool? hasPassword,
     DateTime? proUntil,
+    String? proSource,
   }) {
     return UserProfile(
       name: name ?? this.name,
@@ -88,6 +96,7 @@ class UserProfile {
       createdAt: createdAt ?? this.createdAt,
       hasPassword: hasPassword ?? this.hasPassword,
       proUntil: proUntil ?? this.proUntil,
+      proSource: proSource ?? this.proSource,
     );
   }
 

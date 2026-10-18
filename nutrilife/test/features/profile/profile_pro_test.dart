@@ -35,7 +35,7 @@ class _ProfileAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-Map<String, Object?> _profileJson({required String plan, String? proUntil}) => {
+Map<String, Object?> _profileJson({required String plan, String? proUntil, String? proSource}) => {
       'name': 'Ana',
       'email': 'ana@test.com',
       'age': 30,
@@ -44,6 +44,7 @@ Map<String, Object?> _profileJson({required String plan, String? proUntil}) => {
       'goal': 'Perder peso',
       'plan': plan,
       'proUntil': proUntil,
+      'proSource': proSource,
       'createdAt': '2024-05-01T00:00:00.000Z',
       'hasPassword': true,
     };
@@ -81,6 +82,17 @@ void main() {
 
     expect(profile.isPro, isTrue);
     expect(profile.proUntil, DateTime.utc(2026, 11, 24, 12).toLocal());
+  });
+
+  test('lee proSource del perfil', () {
+    final store = UserProfile.fromJson(_profileJson(plan: 'PRO', proSource: 'store'));
+    final both = UserProfile.fromJson(_profileJson(plan: 'PRO', proSource: 'both'));
+    final gift = UserProfile.fromJson(_profileJson(plan: 'PRO', proSource: 'gift'));
+
+    expect(store.proSource, 'store');
+    expect(store.hasStoreSubscription, isTrue);
+    expect(both.hasStoreSubscription, isTrue);
+    expect(gift.hasStoreSubscription, isFalse);
   });
 
   testWidgets('PRO con fecha muestra hasta cuándo dura', (tester) async {

@@ -37,4 +37,5 @@ class ApiRoutes {
   static const String hydrationGlass = '/hydration/glass';
   static const String hydrationGlassUndo = '/hydration/glass/undo';
   static const String hydrationImport = '/hydration/import';
+  static const String subscriptionSync = '/subscription/sync';
 }
