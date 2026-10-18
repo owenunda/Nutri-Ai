@@ -20,6 +20,7 @@ const events = [];
 
 mock.module(src('modules/admin/admin.repository.js'), {
   exports: {
+    PANEL_TIMEZONE: 'America/Bogota',
     USER_SORT_KEYS: ['recent'],
     ...Object.fromEntries(REPO_EXPORTS.map((name) => [name, (...args) => repo[name](...args)])),
   },
@@ -35,9 +36,14 @@ mock.module(src('modules/events/events.service.js'), {
   },
 });
 
-const { deleteUserService, updateUserPasswordService, updateUserPlanService, updateUserRoleService } = await import(
-  src('modules/admin/admin.service.js')
-);
+const {
+  deleteUserService,
+  getOverviewService,
+  getUserDetailService,
+  updateUserPasswordService,
+  updateUserPlanService,
+  updateUserRoleService,
+} = await import(src('modules/admin/admin.service.js'));
 
 const ADMIN_ID = 1;
 
@@ -196,4 +202,68 @@ test('plan: usuario inexistente responde 404', async () => {
     status: 404,
     code: 'USER_NOT_FOUND',
   });
+});
+
+// 01:00 UTC del 18 = 20:00 del 17 en Bogotá: el "hoy" del panel es el 17.
+const NIGHT_IN_BOGOTA = new Date('2026-10-18T01:00:00Z');
+
+test('detalle: agrega el resumen del agua con el hoy de Bogotá', async () => {
+  repo.findUserDetail = async () => ({
+    profile: { userId: 5 },
+    usage: {},
+    series: [],
+    byModule: [],
+    recentEvents: [],
+    waterRows: [
+      { day: '2026-10-16', glasses: 4 },
+      { day: '2026-10-17', glasses: 2 },
+    ],
+  });
+
+  const detail = await getUserDetailService(5, NIGHT_IN_BOGOTA);
+
+  assert.equal(detail.waterRows, undefined);
+  assert.equal(detail.water.today, '2026-10-17');
+  assert.equal(detail.water.glassesToday, 2);
+  assert.equal(detail.water.currentStreak, 1);
+  assert.equal(detail.water.daysLogged, 2);
+});
+
+test('detalle: usuario inexistente responde 404', async () => {
+  repo.findUserDetail = async () => null;
+
+  await assert.rejects(getUserDetailService(99, NIGHT_IN_BOGOTA), { status: 404, code: 'USER_NOT_FOUND' });
+});
+
+test('resumen: cuenta las rachas de agua vivas y las ordena', async () => {
+  const calls = [];
+  repo.getOverview = async (...args) => {
+    calls.push(args);
+    return {
+      days: 30,
+      users: {},
+      water: { users: 3, usersInRange: 3 },
+      waterStreakRows: [
+        // 2 días seguidos, hoy a medias.
+        { userId: 1, name: 'Ana', plan: 'FREE', day: '2026-10-15', glasses: 4 },
+        { userId: 1, name: 'Ana', plan: 'FREE', day: '2026-10-16', glasses: 4 },
+        { userId: 1, name: 'Ana', plan: 'FREE', day: '2026-10-17', glasses: 1 },
+        // 3 días seguidos hasta hoy.
+        { userId: 2, name: 'Bea', plan: 'PRO', day: '2026-10-15', glasses: 4 },
+        { userId: 2, name: 'Bea', plan: 'PRO', day: '2026-10-16', glasses: 4 },
+        { userId: 2, name: 'Bea', plan: 'PRO', day: '2026-10-17', glasses: 4 },
+      ],
+    };
+  };
+
+  const overview = await getOverviewService(30, NIGHT_IN_BOGOTA);
+
+  assert.deepEqual(calls, [[30, '2026-10-17']]);
+  assert.equal(overview.waterStreakRows, undefined);
+  assert.equal(overview.water.users, 3);
+  assert.equal(overview.water.activeStreaks, 2);
+  assert.deepEqual(overview.water.topStreaks, [
+    { userId: 2, name: 'Bea', plan: 'PRO', currentStreak: 3 },
+    { userId: 1, name: 'Ana', plan: 'FREE', currentStreak: 2 },
+  ]);
 });

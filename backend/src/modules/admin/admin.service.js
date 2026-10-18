@@ -2,7 +2,9 @@ import bcrypt from 'bcrypt';
 import { AppError } from '../../utils/AppError.js';
 import { logEventService } from '../events/events.service.js';
 import { deleteUserAccountData } from '../user/user.repository.js';
+import { dayInTimeZone, summarizeWater } from '../hydration/waterStreak.js';
 import {
+  PANEL_TIMEZONE,
   getOverview,
   findUsers,
   findUserDetail,
@@ -26,18 +28,52 @@ const wrap = async (fn) => {
   }
 };
 
+const toHistory = (rows) => Object.fromEntries(rows.map((row) => [row.day, Number(row.glasses)]));
+
+const TOP_WATER_STREAKS = 5;
+
+/** Rachas de agua vivas, de la más larga a la más corta. */
+const activeWaterStreaks = (rows, today) => {
+  const byUser = new Map();
+  for (const row of rows) {
+    if (!byUser.has(row.userId)) byUser.set(row.userId, { userId: row.userId, name: row.name, plan: row.plan, rows: [] });
+    byUser.get(row.userId).rows.push(row);
+  }
+  return [...byUser.values()]
+    .map(({ rows: userRows, ...user }) => ({
+      ...user,
+      currentStreak: summarizeWater(toHistory(userRows), today).currentStreak,
+    }))
+    .filter((user) => user.currentStreak > 0)
+    .sort((a, b) => b.currentStreak - a.currentStreak || a.userId - b.userId);
+};
+
 /** Resumen general del panel admin. */
-export const getOverviewService = (days) => wrap(() => getOverview(days));
+export const getOverviewService = (days, now = new Date()) =>
+  wrap(async () => {
+    const today = dayInTimeZone(now, PANEL_TIMEZONE);
+    const { water, waterStreakRows, ...overview } = await getOverview(days, today);
+    const streaks = activeWaterStreaks(waterStreakRows, today);
+    return {
+      ...overview,
+      water: {
+        ...water,
+        activeStreaks: streaks.length,
+        topStreaks: streaks.slice(0, TOP_WATER_STREAKS),
+      },
+    };
+  });
 
 /** Lista paginada de usuarios con su uso. */
 export const listUsersService = (filters) => wrap(() => findUsers(filters));
 
 /** Detalle de un usuario. */
-export const getUserDetailService = (userId) =>
+export const getUserDetailService = (userId, now = new Date()) =>
   wrap(async () => {
     const detail = await findUserDetail(userId);
     if (!detail) throw new AppError('Usuario no encontrado', 404, 'USER_NOT_FOUND');
-    return detail;
+    const { waterRows, ...rest } = detail;
+    return { ...rest, water: summarizeWater(toHistory(waterRows), dayInTimeZone(now, PANEL_TIMEZONE)) };
   });
 
 /**

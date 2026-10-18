@@ -5,8 +5,9 @@ import {
   importWaterHistory,
   undoWaterGlass,
 } from './hydration.repository.js';
+import { DAILY_GOAL } from './waterStreak.js';
 
-export const DAILY_GOAL = 4;
+export { DAILY_GOAL };
 
 const wrap = async (fn) => {
   try {

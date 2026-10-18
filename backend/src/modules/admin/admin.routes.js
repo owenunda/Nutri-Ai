@@ -26,7 +26,7 @@ const router = Router();
  *   get:
  *     tags: [Admin]
  *     summary: Resumen del panel admin (solo ADMIN)
- *     description: Usuarios, usuarios activos, consultas a la IA, errores, bots y series por día.
+ *     description: Usuarios, usuarios activos, consultas a la IA, errores, bots, agua y rachas de agua vivas, y series por día.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -84,7 +84,7 @@ router.get('/users', authenticateToken(['ADMIN']), validateListUsersQuery, listU
  *   get:
  *     tags: [Admin]
  *     summary: Detalle de un usuario (solo ADMIN)
- *     description: Perfil, consultas a la IA, comidas, nevera, actividad por módulo y eventos recientes.
+ *     description: Perfil, consultas a la IA, comidas, nevera, agua y racha, actividad por módulo y eventos recientes.
  *     security:
  *       - bearerAuth: []
  *     parameters:

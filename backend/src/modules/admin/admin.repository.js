@@ -1,17 +1,19 @@
 import pool from '../../database/connection.js';
 import { moduleSql, aiQuerySql } from '../events/events.repository.js';
+import { DAILY_GOAL } from '../hydration/waterStreak.js';
 
 // Las fechas se guardan como TIMESTAMP sin zona (UTC del servidor). Las series
 // por día del panel se agrupan en la zona horaria de quien lo usa.
-const PANEL_TIMEZONE = 'America/Bogota';
+export const PANEL_TIMEZONE = 'America/Bogota';
 
 const localDay = (column) => `((${column}) AT TIME ZONE 'UTC' AT TIME ZONE $2::text)::date`;
 
 /**
  * Resumen general del panel: usuarios, actividad, IA y series por día.
  * @param {number} days Rango (en días) para las series y los totales "del periodo".
+ * @param {string} today 'YYYY-MM-DD' en PANEL_TIMEZONE, para los días del agua.
  */
-export const getOverview = async (days) => {
+export const getOverview = async (days, today) => {
   const rangeValues = [days];
   const seriesValues = [days, PANEL_TIMEZONE];
   const inRange = (column) => `${column} >= NOW() - ($1::int * INTERVAL '1 day')`;
@@ -130,7 +132,38 @@ export const getOverview = async (days) => {
     LIMIT 6
   `;
 
-  const [users, activity, content, series, byModule, topAiUsers, recentUsers] = await Promise.all([
+  // Los días del agua son fechas locales que manda la app, no timestamps.
+  const waterQuery = `
+    SELECT
+      COUNT(DISTINCT w.user_id)::int AS users,
+      COUNT(DISTINCT w.user_id) FILTER (WHERE w.day > $2::date - 7)::int AS "users7d",
+      COUNT(DISTINCT w.user_id) FILTER (WHERE w.day > $2::date - $1::int)::int AS "usersInRange",
+      COUNT(*) FILTER (WHERE w.day > $2::date - $1::int)::int AS "daysInRange",
+      COUNT(*) FILTER (WHERE w.day > $2::date - $1::int AND w.glasses >= $3)::int AS "goalDaysInRange",
+      COALESCE(SUM(w.glasses) FILTER (WHERE w.day > $2::date - $1::int), 0)::int AS "glassesInRange"
+    FROM water_intake w
+  `;
+
+  // Historial de quien cumplió la meta hoy o ayer: los únicos que pueden
+  // tener una racha viva. La racha se calcula en el servicio.
+  const waterStreakRowsQuery = `
+    SELECT
+      w.user_id AS "userId",
+      u.name,
+      p.name AS plan,
+      to_char(w.day, 'YYYY-MM-DD') AS day,
+      w.glasses
+    FROM water_intake w
+    INNER JOIN users u ON u.user_id = w.user_id
+    INNER JOIN plans p ON p.plan_id = u.plan_id
+    WHERE w.user_id IN (
+      SELECT user_id FROM water_intake WHERE glasses >= $2 AND day >= $1::date - 1
+    )
+    ORDER BY w.user_id, w.day
+  `;
+
+  const waterValues = [days, today, DAILY_GOAL];
+  const [users, activity, content, series, byModule, topAiUsers, recentUsers, water, waterStreakRows] = await Promise.all([
     pool.query(usersQuery, rangeValues),
     pool.query(activityQuery, rangeValues),
     pool.query(contentQuery),
@@ -138,6 +171,8 @@ export const getOverview = async (days) => {
     pool.query(byModuleQuery, rangeValues),
     pool.query(topAiUsersQuery, rangeValues),
     pool.query(recentUsersQuery),
+    pool.query(waterQuery, waterValues),
+    pool.query(waterStreakRowsQuery, [today, DAILY_GOAL]),
   ]);
 
   return {
@@ -149,6 +184,8 @@ export const getOverview = async (days) => {
     byModule: byModule.rows,
     topAiUsers: topAiUsers.rows,
     recentUsers: recentUsers.rows,
+    water: water.rows[0],
+    waterStreakRows: waterStreakRows.rows,
   };
 };
 
@@ -363,12 +400,20 @@ export const findUserDetail = async (userId) => {
     LIMIT 25
   `;
 
+  const waterQuery = `
+    SELECT to_char(day, 'YYYY-MM-DD') AS day, glasses
+    FROM water_intake
+    WHERE user_id = $1
+    ORDER BY day
+  `;
+
   const values = [userId, PANEL_TIMEZONE];
-  const [usage, series, byModule, recentEvents] = await Promise.all([
+  const [usage, series, byModule, recentEvents, water] = await Promise.all([
     pool.query(usageQuery, values),
     pool.query(seriesQuery, values),
     pool.query(byModuleQuery, [userId]),
     pool.query(recentEventsQuery, [userId]),
+    pool.query(waterQuery, [userId]),
   ]);
 
   return {
@@ -377,6 +422,7 @@ export const findUserDetail = async (userId) => {
     series: series.rows,
     byModule: byModule.rows,
     recentEvents: recentEvents.rows,
+    waterRows: water.rows,
   };
 };
 
