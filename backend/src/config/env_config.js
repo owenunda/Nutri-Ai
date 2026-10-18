@@ -49,6 +49,7 @@ export const config = {
     authStrictPerMinute: Number(trim(env.RATE_LIMIT_AUTH_PER_MINUTE)) || 5,
     globalPerMinute: Number(trim(env.RATE_LIMIT_GLOBAL_PER_MINUTE)) || 60,
     subscriptionSyncPerMinute: Number(trim(env.RATE_LIMIT_SUBSCRIPTION_SYNC_PER_MINUTE)) || 10,
+    guestPerHour: Number(trim(env.RATE_LIMIT_GUEST_PER_HOUR)) || 5,
   },
   chatQuota: {
     freePerDay: Number(trim(env.CHAT_DAILY_LIMIT_FREE)) || 3,
@@ -59,5 +60,9 @@ export const config = {
     webhookAuth: trim(env.REVENUECAT_WEBHOOK_AUTH),
     // Solo mientras se prueba con la Test Store o con testers de las tiendas.
     allowSandbox: trim(env.REVENUECAT_ALLOW_SANDBOX) === 'true',
+  },
+  // Modo invitado de la beta. Apagado, POST /auth/guest responde 404.
+  guestMode: {
+    enabled: trim(env.GUEST_MODE_ENABLED) === 'true',
   },
 };
