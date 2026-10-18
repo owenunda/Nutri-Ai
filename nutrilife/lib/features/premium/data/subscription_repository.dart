@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/network/api_routes.dart';
 import '../../../core/network/dio_client.dart';
@@ -36,8 +37,9 @@ class SubscriptionRepository {
       if (body?['success'] == true && data is Map) {
         return SubscriptionState.fromJson(Map<String, dynamic>.from(data));
       }
-    } catch (_) {
+    } catch (error) {
       // Cualquier fallo es lo mismo para quien compra: el PRO llega después.
+      debugPrint('[subscription] sync falló: $error');
     }
     throw const SubscriptionSyncException();
   }

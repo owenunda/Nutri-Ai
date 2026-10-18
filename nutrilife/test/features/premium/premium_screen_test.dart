@@ -9,16 +9,17 @@ import '../../helpers/fake_purchase_service.dart';
 import '../../helpers/l10n_app.dart';
 
 class _FakeSubscriptions extends SubscriptionRepository {
-  _FakeSubscriptions({this.fails = false}) : super(dio: Dio());
+  _FakeSubscriptions({this.fails = false, this.plan = 'PRO'}) : super(dio: Dio());
 
   final bool fails;
+  final String plan;
   int calls = 0;
 
   @override
   Future<SubscriptionState> sync() async {
     calls++;
     if (fails) throw const SubscriptionSyncException();
-    return const SubscriptionState(plan: 'PRO', proSource: 'store');
+    return SubscriptionState(plan: plan, proSource: plan == 'PRO' ? 'store' : null);
   }
 }
 
@@ -101,6 +102,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(results, [true]);
+    expect(find.text('Tu compra se registró. El PRO puede tardar unos minutos en activarse.'), findsOneWidget);
+  });
+
+  testWidgets('si el backend aún no ve el PRO avisa que tarda y cierra igual', (tester) async {
+    final results = await _pump(tester, purchases: FakePurchaseService(), subscriptions: _FakeSubscriptions(plan: 'FREE'));
+
+    await tester.tap(find.text('Suscribirme'));
+    await tester.pumpAndSettle();
+
+    expect(results, [true]);
+    expect(find.text('¡Ya eres PRO!'), findsNothing);
     expect(find.text('Tu compra se registró. El PRO puede tardar unos minutos en activarse.'), findsOneWidget);
   });
 

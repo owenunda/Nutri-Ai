@@ -84,6 +84,9 @@ class RevenueCatPurchaseService implements PurchaseService {
   final String _apiKey;
   bool _configured = false;
   Package? _monthly;
+  // Usuario de NutriLife con el que debe quedar cada compra, y su logIn en curso.
+  String? _expectedUserId;
+  Future<void>? _pendingLogIn;
   Package? _yearly;
 
   @override
@@ -104,9 +107,12 @@ class RevenueCatPurchaseService implements PurchaseService {
 
   @override
   Future<void> logIn(String userId) async {
+    _expectedUserId = userId;
     if (!_ready) return;
+    final attempt = Purchases.logIn(userId).timeout(_sessionTimeout);
+    _pendingLogIn = attempt;
     try {
-      await Purchases.logIn(userId).timeout(_sessionTimeout);
+      await attempt;
     } catch (error) {
       debugPrint('[purchases] logIn falló: $error');
     }
@@ -114,6 +120,8 @@ class RevenueCatPurchaseService implements PurchaseService {
 
   @override
   Future<void> logOut() async {
+    _expectedUserId = null;
+    _pendingLogIn = null;
     if (!_ready) return;
     try {
       // Cerrar la sesión de un usuario anónimo lanza error.
@@ -125,8 +133,31 @@ class RevenueCatPurchaseService implements PurchaseService {
     }
   }
 
+  // Una compra tiene que quedar en el usuario de NutriLife, nunca en un id
+  // anónimo ni en el usuario anterior: el backend solo da el PRO a ese id.
+  // El logIn de la sesión pudo fallar o seguir en curso, así que se revisa aquí.
+  Future<bool> _ensureIdentity() async {
+    final expected = _expectedUserId;
+    if (expected == null) return false;
+    try {
+      try {
+        await _pendingLogIn;
+      } catch (_) {
+        // Ya se registró en logIn; abajo se reintenta.
+      }
+      if (await Purchases.appUserID == expected) return true;
+      await Purchases.logIn(expected).timeout(_sessionTimeout);
+      return await Purchases.appUserID == expected;
+    } catch (error) {
+      debugPrint('[purchases] no se pudo confirmar el usuario: $error');
+      return false;
+    }
+  }
+
   @override
   Future<PremiumOffer> loadOffer() async {
+    // Si el configure falló al arrancar, "Reintentar" lo intenta de nuevo.
+    if (isEnabled && !_configured) await init();
     if (!_ready) throw const PurchaseLoadException();
     try {
       final current = (await Purchases.getOfferings()).current;
@@ -148,6 +179,7 @@ class RevenueCatPurchaseService implements PurchaseService {
   @override
   Future<PurchaseOutcome> purchase(PremiumPlan plan) async {
     if (!_ready) return PurchaseOutcome.storeUnavailable;
+    if (!await _ensureIdentity()) return PurchaseOutcome.storeUnavailable;
     if (_monthly == null && _yearly == null) {
       try {
         await loadOffer();
@@ -165,6 +197,9 @@ class RevenueCatPurchaseService implements PurchaseService {
           : PurchaseOutcome.failed;
     } on PlatformException catch (error) {
       return _outcomeFor(PurchasesErrorHelper.getErrorCode(error));
+    } catch (error) {
+      debugPrint('[purchases] compra falló: $error');
+      return PurchaseOutcome.failed;
     }
   }
 
@@ -183,6 +218,7 @@ class RevenueCatPurchaseService implements PurchaseService {
   @override
   Future<RestoreOutcome> restore() async {
     if (!_ready) return RestoreOutcome.failed;
+    if (!await _ensureIdentity()) return RestoreOutcome.failed;
     try {
       final info = await Purchases.restorePurchases();
       return info.entitlements.active.containsKey(kProEntitlement)

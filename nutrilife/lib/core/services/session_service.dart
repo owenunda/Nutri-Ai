@@ -10,8 +10,9 @@ class SessionService {
   static const _keyUser = 'auth_user';
 
   // Ata las compras de RevenueCat a la cuenta de NutriLife, no al teléfono.
+  // El backend manda el id como `userId`; `id` queda por sesiones viejas.
   static Future<void> _linkPurchases(Map<String, dynamic> user) async {
-    final id = user['id']?.toString().trim();
+    final id = (user['userId'] ?? user['id'])?.toString().trim();
     if (id != null && id.isNotEmpty) await PurchaseService.instance.logIn(id);
   }
 

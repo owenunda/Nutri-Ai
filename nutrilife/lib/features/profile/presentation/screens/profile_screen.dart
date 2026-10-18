@@ -57,7 +57,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final url = await _purchases.managementUrl();
     if (!mounted) return;
     final uri = url == null ? null : Uri.tryParse(url);
-    if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    var opened = false;
+    if (uri != null) {
+      try {
+        opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (error) {
+        debugPrint('[profile] no se pudo abrir la tienda: $error');
+      }
+    }
+    if (!opened) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()

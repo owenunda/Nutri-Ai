@@ -4,7 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nutrilife/core/network/dio_client.dart';
+import 'package:nutrilife/core/services/purchase_service.dart';
 import 'package:nutrilife/core/services/session_service.dart';
+
+import '../../helpers/fake_purchase_service.dart';
 
 class _CapturingAdapter implements HttpClientAdapter {
   RequestOptions? request;
@@ -30,14 +33,45 @@ class _CapturingAdapter implements HttpClientAdapter {
 }
 
 void main() {
+  final originalPurchases = PurchaseService.instance;
+  late FakePurchaseService purchases;
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     DioClient.authToken = null;
+    purchases = FakePurchaseService();
+    PurchaseService.instance = purchases;
   });
 
   tearDown(() async {
     DioClient.authToken = null;
     await SessionService.clear();
+    PurchaseService.instance = originalPurchases;
+  });
+
+  test('save logs in to RevenueCat with the backend userId', () async {
+    await SessionService.save(token: 'jwt-token', user: {'userId': 8, 'name': 'Ana'});
+
+    expect(purchases.loggedIn, ['8']);
+  });
+
+  test('restoring a stored session also logs in to RevenueCat', () async {
+    SharedPreferences.setMockInitialValues({
+      'auth_token': 'jwt-token',
+      'auth_user': '{"userId":8,"name":"Ana"}',
+    });
+
+    final restored = await SessionService.restore();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(restored, isNotNull);
+    expect(purchases.loggedIn, ['8']);
+  });
+
+  test('clear logs out of RevenueCat once', () async {
+    await SessionService.clear();
+
+    expect(purchases.logOutCalls, 1);
   });
 
   test('restoring a saved session also restores the request token', () async {

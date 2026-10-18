@@ -69,9 +69,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
     if (!_purchases.isEnabled) return _say(l10n.premiumPaymentsSoon);
 
     setState(() => _busy = true);
-    final outcome = await _purchases.purchase(_plan);
+    final PurchaseOutcome outcome;
+    try {
+      outcome = await _purchases.purchase(_plan);
+    } finally {
+      // Pase lo que pase, el botón no se queda girando.
+      if (mounted) setState(() => _busy = false);
+    }
     if (!mounted) return;
-    setState(() => _busy = false);
 
     switch (outcome) {
       case PurchaseOutcome.success:
@@ -96,9 +101,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
     if (!_purchases.isEnabled) return _say(l10n.premiumPaymentsSoon);
 
     setState(() => _busy = true);
-    final outcome = await _purchases.restore();
+    final RestoreOutcome outcome;
+    try {
+      outcome = await _purchases.restore();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
     if (!mounted) return;
-    setState(() => _busy = false);
 
     switch (outcome) {
       case RestoreOutcome.restored:
@@ -119,6 +128,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
     try {
       final state = await _subscriptions.sync();
       AdsService.instance.setPlan(state.plan);
+      // La tienda cobró pero el backend todavía no ve el PRO: no decir que ya está.
+      if (state.plan != 'PRO') message = l10n.premiumSyncDelayed;
     } on SubscriptionSyncException {
       message = l10n.premiumSyncDelayed;
     }
