@@ -86,7 +86,7 @@ La llama RevenueCat.
 - Evento `TEST`: responde **200** y no hace nada más.
 - Usuarios a sincronizar: `event.app_user_id`, y en un `TRANSFER` también los de `event.transferred_from` y `event.transferred_to`. Se descartan los ids anónimos (`$RCAnonymousID:…`), los que no son un `user_id` válido y los que no existen en `users`.
 - A cada usuario que queda le hace el **sync**. El contenido del evento no se usa para decidir el plan.
-- Respuesta: **200** si todos los sync salieron bien (también si no quedó ningún usuario). **500** si alguno falló por RevenueCat o por la base, para que RevenueCat reintente.
+- Respuesta: **200** si todos los sync salieron bien (también si no quedó ningún usuario). Un error **5xx** si alguno falló (502 si fue RevenueCat, 500 si fue la base), para que RevenueCat reintente.
 - Queda fuera de `activityLogger`: no aparece en eventos ni cuenta como bot.
 
 ### `POST /api/v1/subscription/sync`
@@ -122,7 +122,7 @@ Como el sync siempre lee el estado real, los eventos repetidos o en desorden no 
 | `REVENUECAT_WEBHOOK_AUTH` | Un valor largo al azar; el mismo va en el dashboard de RevenueCat |
 | `REVENUECAT_ALLOW_SANDBOX` | `true` mientras se prueba con la Test Store. **Pasar a `false` cuando salgan las tiendas reales.** |
 
-Se leen en `env_config.js`. Si falta `REVENUECAT_SECRET_KEY`, el sync responde 502 y el webhook 500. El servidor arranca igual.
+Se leen en `env_config.js`. Si falta `REVENUECAT_SECRET_KEY`, el sync y el webhook responden 502. El servidor arranca igual.
 
 ## App (Flutter)
 
