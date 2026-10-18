@@ -13,6 +13,7 @@ import 'package:nutrilife/features/profile/presentation/screens/profile_screen.d
 import 'package:nutrilife/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helpers/fake_purchase_service.dart';
 import '../../helpers/l10n_app.dart';
 
 /// Responde según el método HTTP y guarda las peticiones.
@@ -334,8 +335,10 @@ void main() {
       addTearDown(tester.view.reset);
 
       await tester.pumpWidget(
-        l10nApp(const PremiumScreen(), locale: const Locale('en')),
+        l10nApp(PremiumScreen(purchases: FakePurchaseService()),
+            locale: const Locale('en')),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text('NutriLife Premium'), findsOneWidget);
       expect(find.text('Take your nutrition to the next level'),
@@ -345,9 +348,21 @@ void main() {
       expect(find.text('\$29.99 / year'), findsOneWidget);
       expect(find.text('\$4.99 / month'), findsOneWidget);
       expect(find.text('Save 50%'), findsOneWidget);
-      expect(find.text('Start your 7-day free trial'), findsOneWidget);
+      expect(find.text('Subscribe'), findsOneWidget);
+      expect(find.text('Privacy'), findsOneWidget);
 
-      await tester.tap(find.text('Start your 7-day free trial'));
+      // Sin la key de RevenueCat la compra no se ofrece todavía.
+      await tester.pumpWidget(
+        l10nApp(
+          PremiumScreen(
+            key: const ValueKey('sin-key'),
+            purchases: FakePurchaseService(isEnabled: false),
+          ),
+          locale: const Locale('en'),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.text('Subscribe'));
       await tester.pump();
       expect(find.text('Payments are coming soon'), findsOneWidget);
     });

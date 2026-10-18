@@ -1274,11 +1274,30 @@
       }
     }
   },
-  "premiumSaveBadge": "Ahorra 50%",
-  "premiumStartTrial": "Empezar 7 días gratis",
+  "premiumSaveBadge": "Ahorra {percent}%",
+  "@premiumSaveBadge": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "premiumSubscribe": "Suscribirme",
   "premiumRestore": "Restaurar compras",
   "premiumTerms": "Términos",
   "premiumPaymentsSoon": "Los pagos llegan pronto",
+  "premiumPrivacy": "Privacidad",
+  "premiumLoadError": "No pudimos cargar los precios.",
+  "premiumWelcome": "¡Ya eres PRO!",
+  "premiumRestored": "Recuperamos tu PRO.",
+  "premiumRestoreNone": "No encontramos compras para restaurar.",
+  "premiumSyncDelayed": "Tu compra se registró. El PRO puede tardar unos minutos en activarse.",
+  "premiumPending": "Tu pago está pendiente. El PRO se activa cuando la tienda lo confirme.",
+  "premiumAlreadyOwned": "Ya tienes esta suscripción. Toca \"Restaurar compras\".",
+  "premiumNotAllowed": "Este dispositivo no permite compras.",
+  "premiumStoreUnavailable": "La tienda no está disponible ahora. Intenta más tarde.",
+  "premiumPurchaseError": "No se pudo completar la compra. Intenta de nuevo.",
+  "premiumAutoRenewNote": "La suscripción se renueva automáticamente. Puedes cancelarla cuando quieras desde la tienda.",
   "premiumPromoTitle": "Desbloquea tu progreso completo",
   "legalLastUpdated": "Última actualización: {date}",
   "@legalLastUpdated": {

@@ -1988,10 +1988,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get premiumSaveBadge => 'Save 50%';
+  String premiumSaveBadge(int percent) {
+    return 'Save $percent%';
+  }
 
   @override
-  String get premiumStartTrial => 'Start your 7-day free trial';
+  String get premiumSubscribe => 'Subscribe';
 
   @override
   String get premiumRestore => 'Restore purchases';
@@ -2001,6 +2003,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumPaymentsSoon => 'Payments are coming soon';
+
+  @override
+  String get premiumPrivacy => 'Privacy';
+
+  @override
+  String get premiumLoadError => 'We couldn\'t load the prices.';
+
+  @override
+  String get premiumWelcome => 'You\'re PRO now!';
+
+  @override
+  String get premiumRestored => 'We restored your PRO.';
+
+  @override
+  String get premiumRestoreNone => 'We didn\'t find any purchases to restore.';
+
+  @override
+  String get premiumSyncDelayed =>
+      'Your purchase went through. PRO may take a few minutes to activate.';
+
+  @override
+  String get premiumPending =>
+      'Your payment is pending. PRO activates once the store confirms it.';
+
+  @override
+  String get premiumAlreadyOwned =>
+      'You already have this subscription. Tap \"Restore purchases\".';
+
+  @override
+  String get premiumNotAllowed => 'This device doesn\'t allow purchases.';
+
+  @override
+  String get premiumStoreUnavailable =>
+      'The store isn\'t available right now. Try again later.';
+
+  @override
+  String get premiumPurchaseError =>
+      'We couldn\'t complete the purchase. Try again.';
+
+  @override
+  String get premiumAutoRenewNote =>
+      'Your subscription renews automatically. Cancel anytime from the store.';
 
   @override
   String get premiumPromoTitle => 'Unlock your full progress';

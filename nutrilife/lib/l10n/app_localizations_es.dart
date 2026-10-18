@@ -1992,10 +1992,12 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get premiumSaveBadge => 'Ahorra 50%';
+  String premiumSaveBadge(int percent) {
+    return 'Ahorra $percent%';
+  }
 
   @override
-  String get premiumStartTrial => 'Empezar 7 días gratis';
+  String get premiumSubscribe => 'Suscribirme';
 
   @override
   String get premiumRestore => 'Restaurar compras';
@@ -2005,6 +2007,48 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get premiumPaymentsSoon => 'Los pagos llegan pronto';
+
+  @override
+  String get premiumPrivacy => 'Privacidad';
+
+  @override
+  String get premiumLoadError => 'No pudimos cargar los precios.';
+
+  @override
+  String get premiumWelcome => '¡Ya eres PRO!';
+
+  @override
+  String get premiumRestored => 'Recuperamos tu PRO.';
+
+  @override
+  String get premiumRestoreNone => 'No encontramos compras para restaurar.';
+
+  @override
+  String get premiumSyncDelayed =>
+      'Tu compra se registró. El PRO puede tardar unos minutos en activarse.';
+
+  @override
+  String get premiumPending =>
+      'Tu pago está pendiente. El PRO se activa cuando la tienda lo confirme.';
+
+  @override
+  String get premiumAlreadyOwned =>
+      'Ya tienes esta suscripción. Toca \"Restaurar compras\".';
+
+  @override
+  String get premiumNotAllowed => 'Este dispositivo no permite compras.';
+
+  @override
+  String get premiumStoreUnavailable =>
+      'La tienda no está disponible ahora. Intenta más tarde.';
+
+  @override
+  String get premiumPurchaseError =>
+      'No se pudo completar la compra. Intenta de nuevo.';
+
+  @override
+  String get premiumAutoRenewNote =>
+      'La suscripción se renueva automáticamente. Puedes cancelarla cuando quieras desde la tienda.';
 
   @override
   String get premiumPromoTitle => 'Desbloquea tu progreso completo';

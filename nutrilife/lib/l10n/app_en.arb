@@ -983,11 +983,30 @@
       }
     }
   },
-  "premiumSaveBadge": "Save 50%",
-  "premiumStartTrial": "Start your 7-day free trial",
+  "premiumSaveBadge": "Save {percent}%",
+  "@premiumSaveBadge": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "premiumSubscribe": "Subscribe",
   "premiumRestore": "Restore purchases",
   "premiumTerms": "Terms",
   "premiumPaymentsSoon": "Payments are coming soon",
+  "premiumPrivacy": "Privacy",
+  "premiumLoadError": "We couldn't load the prices.",
+  "premiumWelcome": "You're PRO now!",
+  "premiumRestored": "We restored your PRO.",
+  "premiumRestoreNone": "We didn't find any purchases to restore.",
+  "premiumSyncDelayed": "Your purchase went through. PRO may take a few minutes to activate.",
+  "premiumPending": "Your payment is pending. PRO activates once the store confirms it.",
+  "premiumAlreadyOwned": "You already have this subscription. Tap \"Restore purchases\".",
+  "premiumNotAllowed": "This device doesn't allow purchases.",
+  "premiumStoreUnavailable": "The store isn't available right now. Try again later.",
+  "premiumPurchaseError": "We couldn't complete the purchase. Try again.",
+  "premiumAutoRenewNote": "Your subscription renews automatically. Cancel anytime from the store.",
   "premiumPromoTitle": "Unlock your full progress",
   "legalLastUpdated": "Last updated: {date}",
   "hydrationKicker": "HYDRATION",

@@ -3323,14 +3323,14 @@ abstract class AppLocalizations {
   /// No description provided for @premiumSaveBadge.
   ///
   /// In es, this message translates to:
-  /// **'Ahorra 50%'**
-  String get premiumSaveBadge;
+  /// **'Ahorra {percent}%'**
+  String premiumSaveBadge(int percent);
 
-  /// No description provided for @premiumStartTrial.
+  /// No description provided for @premiumSubscribe.
   ///
   /// In es, this message translates to:
-  /// **'Empezar 7 días gratis'**
-  String get premiumStartTrial;
+  /// **'Suscribirme'**
+  String get premiumSubscribe;
 
   /// No description provided for @premiumRestore.
   ///
@@ -3349,6 +3349,78 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Los pagos llegan pronto'**
   String get premiumPaymentsSoon;
+
+  /// No description provided for @premiumPrivacy.
+  ///
+  /// In es, this message translates to:
+  /// **'Privacidad'**
+  String get premiumPrivacy;
+
+  /// No description provided for @premiumLoadError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar los precios.'**
+  String get premiumLoadError;
+
+  /// No description provided for @premiumWelcome.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Ya eres PRO!'**
+  String get premiumWelcome;
+
+  /// No description provided for @premiumRestored.
+  ///
+  /// In es, this message translates to:
+  /// **'Recuperamos tu PRO.'**
+  String get premiumRestored;
+
+  /// No description provided for @premiumRestoreNone.
+  ///
+  /// In es, this message translates to:
+  /// **'No encontramos compras para restaurar.'**
+  String get premiumRestoreNone;
+
+  /// No description provided for @premiumSyncDelayed.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu compra se registró. El PRO puede tardar unos minutos en activarse.'**
+  String get premiumSyncDelayed;
+
+  /// No description provided for @premiumPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu pago está pendiente. El PRO se activa cuando la tienda lo confirme.'**
+  String get premiumPending;
+
+  /// No description provided for @premiumAlreadyOwned.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya tienes esta suscripción. Toca \"Restaurar compras\".'**
+  String get premiumAlreadyOwned;
+
+  /// No description provided for @premiumNotAllowed.
+  ///
+  /// In es, this message translates to:
+  /// **'Este dispositivo no permite compras.'**
+  String get premiumNotAllowed;
+
+  /// No description provided for @premiumStoreUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda no está disponible ahora. Intenta más tarde.'**
+  String get premiumStoreUnavailable;
+
+  /// No description provided for @premiumPurchaseError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo completar la compra. Intenta de nuevo.'**
+  String get premiumPurchaseError;
+
+  /// No description provided for @premiumAutoRenewNote.
+  ///
+  /// In es, this message translates to:
+  /// **'La suscripción se renueva automáticamente. Puedes cancelarla cuando quieras desde la tienda.'**
+  String get premiumAutoRenewNote;
 
   /// No description provided for @premiumPromoTitle.
   ///
