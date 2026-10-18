@@ -377,6 +377,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your guest account expired. Create an account to keep going.';
 
   @override
+  String homeGuestBanner(int hours) {
+    return 'Guest mode · deleted in $hours h';
+  }
+
+  @override
+  String get homeGuestBannerSoon => 'Guest mode · deleted in under 1 h';
+
+  @override
+  String get homeGuestCreateAccount => 'Create account';
+
+  @override
   String get authErrorGoogleNotConfigured => 'Google sign-in is not set up.';
 
   @override

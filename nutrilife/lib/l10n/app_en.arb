@@ -110,6 +110,16 @@
   "authGuestDialogCreateAccount": "To keep your progress, create an account.",
   "authGuestDialogConfirm": "Continue",
   "authGuestExpired": "Your guest account expired. Create an account to keep going.",
+  "homeGuestBanner": "Guest mode · deleted in {hours} h",
+  "@homeGuestBanner": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "homeGuestBannerSoon": "Guest mode · deleted in under 1 h",
+  "homeGuestCreateAccount": "Create account",
   "authErrorGoogleNotConfigured": "Google sign-in is not set up.",
   "authErrorGoogleNoData": "Google didn't return your details. Please try again.",
   "commonUser": "User",

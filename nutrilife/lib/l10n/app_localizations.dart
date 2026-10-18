@@ -758,6 +758,24 @@ abstract class AppLocalizations {
   /// **'Tu cuenta de invitado venció. Crea una cuenta para seguir.'**
   String get authGuestExpired;
 
+  /// No description provided for @homeGuestBanner.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo invitado · se borra en {hours} h'**
+  String homeGuestBanner(int hours);
+
+  /// No description provided for @homeGuestBannerSoon.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo invitado · se borra en menos de 1 h'**
+  String get homeGuestBannerSoon;
+
+  /// No description provided for @homeGuestCreateAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear cuenta'**
+  String get homeGuestCreateAccount;
+
   /// No description provided for @authErrorGoogleNotConfigured.
   ///
   /// In es, this message translates to:

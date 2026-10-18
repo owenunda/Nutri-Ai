@@ -11,12 +11,14 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/custom_bottom_nav_bar.dart';
 import '../../../../features/chatbot/presentation/screens/ai_chat_view.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
+import '../../../auth/presentation/screens/register_screen.dart';
 import '../../../hydration/presentation/screens/water_streak_screen.dart';
 import '../../../meals/presentation/screens/meal_history_screen.dart';
 import '../../../nutrition/presentation/screens/foods_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../progress/presentation/screens/progress_screen.dart';
 import '../widgets/ai_suggestion_card.dart';
+import '../widgets/guest_banner.dart';
 import '../widgets/home_header.dart';
 import '../widgets/today_meals_section.dart';
 import '../widgets/water_streak_home_card.dart';
@@ -80,6 +82,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             children: [
               const HomeHeader(),
+              if (SessionService.isGuest &&
+                  SessionService.guestExpiresAt != null)
+                GuestBanner(
+                  expiresAt: SessionService.guestExpiresAt!,
+                  onCreateAccount: _createAccountFromGuest,
+                ),
               Expanded(
                 child: IndexedStack(
                   index: _currentTab,
@@ -198,6 +206,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
+  }
+
+  /// Sale del invitado y abre el registro encima del login. La cuenta de
+  /// invitado se queda hasta que venza; sus datos no pasan a la nueva.
+  Future<void> _createAccountFromGuest() async {
+    await SessionService.clear();
+    if (!mounted) return;
+    final navigator = Navigator.of(context);
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (_) => false,
+    );
+    navigator.push(MaterialPageRoute(builder: (_) => const RegisterScreen()));
   }
 
   Widget _buildProfileTab() {

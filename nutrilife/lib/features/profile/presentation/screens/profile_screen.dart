@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/services/google_auth_service.dart';
 import '../../../../core/services/purchase_service.dart';
+import '../../../../core/services/session_service.dart';
 import '../../../../core/state/locale_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -337,8 +338,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const _LegalCard(),
                 const SizedBox(height: 44),
                 _LogoutButton(onPressed: widget.onLogout),
-                const SizedBox(height: 12),
-                _DeleteAccountButton(onPressed: () => _deleteAccount(profile)),
+                // El invitado se borra solo a las 24 h y no tiene contraseña
+                // ni Google para confirmar.
+                if (!SessionService.isGuest) ...[
+                  const SizedBox(height: 12),
+                  _DeleteAccountButton(
+                    onPressed: () => _deleteAccount(profile),
+                  ),
+                ],
               ],
             ),
           ),

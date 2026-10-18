@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilife/core/services/purchase_service.dart';
+import 'package:nutrilife/core/services/session_service.dart';
 import 'package:nutrilife/core/state/locale_state.dart';
 import 'package:nutrilife/features/premium/presentation/screens/premium_screen.dart';
 import 'package:nutrilife/features/premium/presentation/widgets/premium_promo_card.dart';
@@ -114,6 +116,23 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   group('ProfileScreen', () {
+    testWidgets('el invitado no ve Eliminar cuenta', (tester) async {
+      _tallScreen(tester);
+      final originalPurchases = PurchaseService.instance;
+      PurchaseService.instance = FakePurchaseService();
+      addTearDown(() async {
+        await SessionService.clear();
+        PurchaseService.instance = originalPurchases;
+      });
+      await SessionService.save(token: 'jwt-guest', user: {'userId': 41, 'isGuest': true});
+
+      await tester.pumpWidget(_profileScreen(const Locale('es')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cerrar sesión'), findsOneWidget);
+      expect(find.text('Eliminar cuenta'), findsNothing);
+    });
+
     testWidgets('se ve en español', (tester) async {
       _tallScreen(tester);
       await tester.pumpWidget(_profileScreen(const Locale('es')));

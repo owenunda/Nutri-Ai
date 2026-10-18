@@ -377,6 +377,17 @@ class AppLocalizationsEs extends AppLocalizations {
       'Tu cuenta de invitado venció. Crea una cuenta para seguir.';
 
   @override
+  String homeGuestBanner(int hours) {
+    return 'Modo invitado · se borra en $hours h';
+  }
+
+  @override
+  String get homeGuestBannerSoon => 'Modo invitado · se borra en menos de 1 h';
+
+  @override
+  String get homeGuestCreateAccount => 'Crear cuenta';
+
+  @override
   String get authErrorGoogleNotConfigured =>
       'El inicio de sesión con Google no está configurado.';
 
