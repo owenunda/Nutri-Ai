@@ -1,7 +1,7 @@
 import pool from '../../database/connection.js';
 
 // Módulos de la API que se reconocen a partir de la ruta (/api/v1/<módulo>/...).
-export const KNOWN_MODULES = ['food', 'fridge', 'recipe', 'user', 'stats', 'meals', 'ai', 'admin'];
+export const KNOWN_MODULES = ['food', 'fridge', 'recipe', 'user', 'stats', 'meals', 'hydration', 'ai', 'admin'];
 export const EVENT_MODULES = [...KNOWN_MODULES, 'chat', 'auth', 'bots', 'external', 'other'];
 
 // Módulos que no son tráfico de la app: se ocultan juntos con hideBots.
