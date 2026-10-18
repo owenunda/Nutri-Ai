@@ -163,6 +163,17 @@ test('webhook: ids del evento, sin anónimos ni repetidos', () => {
   assert.deepEqual(webhookUserIds(undefined), []);
 });
 
+test('webhook: ids fuera de int4 o cero se descartan', () => {
+  assert.deepEqual(webhookUserIds({ app_user_id: '99999999999' }), []);
+  assert.deepEqual(webhookUserIds({ app_user_id: '0' }), []);
+  assert.deepEqual(webhookUserIds({ app_user_id: '2147483647' }), [2147483647]);
+});
+
+test('webhook: transferred_from/to solo se leen si son arreglos', () => {
+  assert.deepEqual(webhookUserIds({ type: 'TRANSFER', transferred_from: '7', transferred_to: ['9'] }), [9]);
+  assert.deepEqual(webhookUserIds({ type: 'TRANSFER', transferred_from: ['7'], transferred_to: '9' }), [7]);
+});
+
 test('webhook: TEST no sincroniza nada', async () => {
   repo.findExistingUserIds = async () => assert.fail('no debería buscar usuarios');
 

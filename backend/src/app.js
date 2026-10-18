@@ -12,6 +12,7 @@ import mealRoutes from './modules/meal/meal.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
 import chatRoutes from './modules/chat/chat.routes.js';
 import hydrationRoutes from './modules/hydration/hydration.routes.js';
+import subscriptionRoutes from './modules/subscription/subscription.routes.js';
 import { sendChatMessageController } from './modules/chat/chatMessage.controller.js';
 import eventsRoutes from './modules/events/events.routes.js';
 import adminRoutes from './modules/admin/admin.routes.js';
@@ -121,6 +122,7 @@ app.use('/api/v1/meals', mealRoutes);
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/hydration', hydrationRoutes);
+app.use('/api/v1/subscription', subscriptionRoutes);
 app.use('/api/v1/admin/events', eventsRoutes);
 app.use('/api/v1/admin', adminRoutes);
 

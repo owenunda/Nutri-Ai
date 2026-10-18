@@ -100,3 +100,13 @@ export const globalRateLimit = buildMiddleware({
   keyPrefix: 'rl:global',
   keyExtractor: keyGlobal,
 });
+
+/**
+ * Rate limit del sync de suscripción (la app lo llama al comprar o restaurar).
+ * Default: 10 req/min por usuario.
+ */
+export const subscriptionSyncRateLimit = buildMiddleware({
+  points: config.rateLimit.subscriptionSyncPerMinute,
+  keyPrefix: 'rl:subscription-sync',
+  keyExtractor: (req) => `subscription:user:${req.user?.userId ?? req.ip}`,
+});

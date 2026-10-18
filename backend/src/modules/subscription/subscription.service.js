@@ -53,11 +53,19 @@ export const saveGift = (userId, giftFor, now = new Date()) =>
   });
 
 const USER_ID_PATTERN = /^\d+$/;
+const MAX_INT4 = 2147483647;
+
+const isUserId = (id) => {
+  if (typeof id !== 'string' || !USER_ID_PATTERN.test(id)) return false;
+  const number = Number(id);
+  return number >= 1 && number <= MAX_INT4;
+};
 
 /** Usuarios de NutriLife que menciona un evento de RevenueCat. */
 export const webhookUserIds = (event) => {
-  const ids = [event?.app_user_id, ...(event?.transferred_from ?? []), ...(event?.transferred_to ?? [])];
-  const valid = ids.filter((id) => typeof id === 'string' && USER_ID_PATTERN.test(id)).map(Number);
+  const transferred = (list) => (Array.isArray(list) ? list : []);
+  const ids = [event?.app_user_id, ...transferred(event?.transferred_from), ...transferred(event?.transferred_to)];
+  const valid = ids.filter(isUserId).map(Number);
   return [...new Set(valid)];
 };
 

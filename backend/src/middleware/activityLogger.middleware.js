@@ -1,8 +1,9 @@
 import { logEventService } from '../modules/events/events.service.js';
 
-// Rutas que no aportan valor de auditoría (ruido / health checks / docs)
-// o que se registran de forma explícita con mayor semántica (/auth).
-const IGNORED_PREFIXES = ['/api/v1/health', '/api-docs', '/favicon', '/api/v1/auth'];
+// Rutas que no aportan valor de auditoría (ruido / health checks / docs),
+// que se registran de forma explícita con mayor semántica (/auth) o que llama
+// un servicio externo (el webhook de RevenueCat, que parecería un bot).
+const IGNORED_PREFIXES = ['/api/v1/health', '/api-docs', '/favicon', '/api/v1/auth', '/api/v1/subscription/webhook'];
 
 // Al terminar este request el usuario ya no existe y el insert fallaría por la
 // FK; el borrado se registra de forma explícita y anónima en user.service.
