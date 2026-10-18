@@ -34,9 +34,9 @@ test('el entitlement es nutrilife_pro', () => {
 });
 
 test('suscripción activa', () => {
-  assert.deepEqual(read(subscriber()), {
+  assert.deepEqual(read(subscriber({ subscription: { store: 'play_store' } }), false), {
     productId: 'monthly',
-    store: 'test_store',
+    store: 'play_store',
     expiresAt: '2026-11-17T15:00:00.000Z',
     willRenew: true,
     billingIssue: false,
@@ -85,6 +85,22 @@ test('sandbox no permitido no da PRO', () => {
   const state = read(subscriber({ subscription: { is_sandbox: true } }), false);
   assert.equal(state.environment, 'sandbox');
   assert.equal(state.expiresAt, null);
+});
+
+test('la Test Store cuenta como sandbox aunque is_sandbox sea false', () => {
+  const state = read(subscriber({ subscription: { store: 'test_store', is_sandbox: false } }), false);
+  assert.equal(state.environment, 'sandbox');
+  assert.equal(state.expiresAt, null);
+});
+
+test('sin sandbox permitido, un entitlement sin suscripción que lo respalde no da PRO', () => {
+  const state = read(subscriber({ productKey: 'otro_producto', subscription: { store: 'play_store' } }), false);
+  assert.equal(state.expiresAt, null);
+});
+
+test('con sandbox permitido, un entitlement sin suscripción conserva su vencimiento', () => {
+  const state = read(subscriber({ productKey: 'otro_producto', subscription: { store: 'play_store' } }), true);
+  assert.equal(state.expiresAt, '2026-11-17T15:00:00.000Z');
 });
 
 test('Play: encuentra la suscripción por el id base si la clave lleva el plan base', () => {

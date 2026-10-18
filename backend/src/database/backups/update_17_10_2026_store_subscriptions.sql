@@ -11,6 +11,9 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS gift_pro BOOLEAN NOT NULL DEFAULT FAL
 ALTER TABLE users ADD COLUMN IF NOT EXISTS gift_pro_until TIMESTAMPTZ;
 
 -- Todo PRO de hoy es regalado: se copia al regalo para que nadie lo pierda.
+-- Correr UNA sola vez, antes de que la app pueda vender suscripciones: si se
+-- vuelve a correr cuando ya hay suscriptores de la tienda, los marcaría como
+-- regalo.
 UPDATE users u
    SET gift_pro = TRUE,
        gift_pro_until = u.pro_until

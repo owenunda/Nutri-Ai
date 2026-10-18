@@ -105,12 +105,14 @@ router.get('/users/:userId', authenticateToken(['ADMIN']), validateUserIdParam, 
  * /api/v1/admin/users/{userId}/plan:
  *   patch:
  *     tags: [Admin]
- *     summary: Cambiar el plan de un usuario (solo ADMIN)
+ *     summary: Cambiar el PRO regalado de un usuario (solo ADMIN)
  *     description: >
- *       PRO necesita duration. Si el usuario ya tenía PRO con fecha, la
- *       duración se suma a esa fecha; si no, cuenta desde ahora. forever deja
- *       el PRO sin vencimiento. FREE borra la fecha. Al vencer, el usuario
- *       vuelve a FREE solo.
+ *       Solo cambia el regalo; lo pagado en la tienda no se toca y el plan
+ *       efectivo se recalcula. PRO necesita duration: si el regalo ya tenía
+ *       fecha, la duración se suma a esa fecha; si no, cuenta desde ahora.
+ *       forever deja el regalo sin vencimiento. FREE quita el regalo, pero un
+ *       usuario que paga en la tienda sigue PRO. Al vencer el regalo, el
+ *       usuario vuelve a FREE solo si no tiene una suscripción activa.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -130,7 +132,9 @@ router.get('/users/:userId', authenticateToken(['ADMIN']), validateUserIdParam, 
  *               duration: { type: string, enum: [7d, 1m, 3m, 6m, 12m, forever], description: Obligatorio con PRO }
  *     responses:
  *       200:
- *         description: Plan actualizado ({ userId, plan, proUntil })
+ *         description: >
+ *           Plan efectivo después del cambio ({ userId, plan, proUntil, proSource }).
+ *           proSource es 'gift', 'store', 'both' o null.
  *       404:
  *         description: Usuario no encontrado
  */
