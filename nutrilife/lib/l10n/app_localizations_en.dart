@@ -391,6 +391,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumGuestBlocked => 'Create an account to subscribe.';
 
   @override
+  String get profileGuestAccount => 'Guest account';
+
+  @override
   String get authErrorGoogleNotConfigured => 'Google sign-in is not set up.';
 
   @override

@@ -782,6 +782,12 @@ abstract class AppLocalizations {
   /// **'Crea una cuenta para suscribirte.'**
   String get premiumGuestBlocked;
 
+  /// No description provided for @profileGuestAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta de invitado'**
+  String get profileGuestAccount;
+
   /// No description provided for @authErrorGoogleNotConfigured.
   ///
   /// In es, this message translates to:

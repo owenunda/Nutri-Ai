@@ -391,6 +391,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get premiumGuestBlocked => 'Crea una cuenta para suscribirte.';
 
   @override
+  String get profileGuestAccount => 'Cuenta de invitado';
+
+  @override
   String get authErrorGoogleNotConfigured =>
       'El inicio de sesión con Google no está configurado.';
 

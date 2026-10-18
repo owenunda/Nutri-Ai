@@ -79,10 +79,14 @@ const _profileJson = {
   },
 };
 
-UserProfile _profile({String? goal = 'Perder peso', String? sex}) {
+UserProfile _profile({
+  String? goal = 'Perder peso',
+  String? sex,
+  String email = 'ana@test.com',
+}) {
   return UserProfile(
     name: 'Ana',
-    email: 'ana@test.com',
+    email: email,
     age: 30,
     weight: 70,
     height: 170,
@@ -186,6 +190,22 @@ void main() {
   });
 
   group('EditProfileScreen', () {
+    testWidgets('el invitado ve "Cuenta de invitado" y no su correo falso', (tester) async {
+      _tallScreen(tester);
+      addTearDown(SessionService.clear);
+      await SessionService.save(token: 'jwt-guest', user: {'userId': 41, 'isGuest': true});
+
+      await tester.pumpWidget(l10nApp(
+        EditProfileScreen(
+          profile: _profile(email: 'guest-1b2c@guest.nutrilife.invalid'),
+        ),
+      ));
+      await tester.pump();
+
+      expect(find.text('Cuenta de invitado'), findsOneWidget);
+      expect(find.textContaining('guest.nutrilife.invalid'), findsNothing);
+    });
+
     testWidgets('se ve en inglés con los valores en inglés', (tester) async {
       _tallScreen(tester);
       await tester.pumpWidget(l10nApp(

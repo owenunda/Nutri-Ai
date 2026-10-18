@@ -82,7 +82,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             children: [
               const HomeHeader(),
-              if (SessionService.isGuest &&
+              // La franja de invitado va solo en Inicio, como pide el diseño.
+              if (_currentTab == 0 &&
+                  SessionService.isGuest &&
                   SessionService.guestExpiresAt != null)
                 GuestBanner(
                   expiresAt: SessionService.guestExpiresAt!,

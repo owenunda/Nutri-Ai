@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
+import '../../../../core/services/session_service.dart';
 
 import '../../data/profile_repository.dart';
 
@@ -410,7 +411,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   _StaticInfoRow(
                     label: l10n.profileEditEmail,
-                    value: widget.profile.email.isEmpty
+                    // El invitado tiene un correo inventado: no se le muestra.
+                    value: SessionService.isGuest
+                        ? l10n.profileGuestAccount
+                        : widget.profile.email.isEmpty
                         ? l10n.profileEditEmailMissing
                         : widget.profile.email,
                     icon: Icons.email_outlined,
