@@ -2314,12 +2314,12 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get profileStreaksNoWeekData =>
-      'Aún no hay datos semanales para calcular esta racha.';
+  String get profileStreaksNoGoal =>
+      'Completa tu edad, altura y peso para calcular esta racha.';
 
   @override
   String get profileStreaksCalorieNote =>
-      'Racha calórica calculada con los últimos 7 días disponibles.';
+      'Un día cuenta si comes dentro del rango de tu meta.';
 
   @override
   String profileStreaksDays(String value) {
@@ -2328,7 +2328,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String profileStreaksCurrentBest(String best) {
-    return 'actual · mejor 7d $best';
+    return 'actual · mejor $best';
   }
 
   @override

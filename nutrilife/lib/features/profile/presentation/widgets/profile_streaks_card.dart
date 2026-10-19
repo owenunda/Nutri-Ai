@@ -71,9 +71,9 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
 
   Future<_ProfileStreaks> _loadStreaks() async {
     final waterFuture = _loadWater();
-    late ProgressData progress;
+    late CalorieStreak calories;
     try {
-      progress = await _progressRepository.fetchProgress();
+      calories = await _progressRepository.fetchCalorieStreak();
     } on ProgressException catch (error) {
       final water = await waterFuture;
       return _ProfileStreaks(
@@ -86,17 +86,12 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
       );
     }
     final water = await waterFuture;
-    final week = progress.week;
     return _ProfileStreaks(
       waterCurrent: water?.currentStreak,
       waterBest: water?.bestStreak,
-      caloriesCurrent: week?.hasTargetHistory == true
-          ? week!.currentGoalStreak()
-          : null,
-      caloriesBest: week?.hasTargetHistory == true
-          ? week!.bestGoalStreak()
-          : null,
-      calorieGoalAvailable: week?.hasTargetHistory ?? false,
+      caloriesCurrent: calories.current,
+      caloriesBest: calories.best,
+      calorieGoalAvailable: calories.hasGoal,
       calorieErrorMessage: null,
     );
   }
@@ -186,7 +181,7 @@ class _ProfileStreaksCardState extends State<ProfileStreaksCard>
               ] else if (!streaks.calorieGoalAvailable) ...[
                 const SizedBox(height: 8),
                 Text(
-                  l10n.profileStreaksNoWeekData,
+                  l10n.profileStreaksNoGoal,
                   style: const TextStyle(
                     color: AppTheme.onSurfaceVariant,
                     fontSize: 9,
@@ -245,12 +240,8 @@ class _StreakMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentValue = current != null && current! >= 7
-        ? '7+'
-        : current?.toString() ?? '--';
-    final bestValue = best != null && best! >= 7
-        ? '7+'
-        : best?.toString() ?? '--';
+    final currentValue = current?.toString() ?? '--';
+    final bestValue = best?.toString() ?? '--';
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(

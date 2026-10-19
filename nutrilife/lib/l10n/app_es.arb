@@ -1453,8 +1453,8 @@
       }
     }
   },
-  "profileStreaksNoWeekData": "Aún no hay datos semanales para calcular esta racha.",
-  "profileStreaksCalorieNote": "Racha calórica calculada con los últimos 7 días disponibles.",
+  "profileStreaksNoGoal": "Completa tu edad, altura y peso para calcular esta racha.",
+  "profileStreaksCalorieNote": "Un día cuenta si comes dentro del rango de tu meta.",
   "profileStreaksDays": "{value} días",
   "@profileStreaksDays": {
     "placeholders": {
@@ -1463,7 +1463,7 @@
       }
     }
   },
-  "profileStreaksCurrentBest": "actual · mejor 7d {best}",
+  "profileStreaksCurrentBest": "actual · mejor {best}",
   "@profileStreaksCurrentBest": {
     "placeholders": {
       "best": {

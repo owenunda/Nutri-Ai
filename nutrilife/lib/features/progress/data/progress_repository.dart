@@ -254,6 +254,16 @@ class ProgressData {
   }
 }
 
+/// Racha del objetivo calórico. Null si falta la meta (edad, altura o peso).
+class CalorieStreak {
+  const CalorieStreak({required this.current, required this.best});
+
+  final int? current;
+  final int? best;
+
+  bool get hasGoal => current != null;
+}
+
 class ProgressRepository {
   ProgressRepository({Dio? dio}) : _dio = dio ?? DioClient.instance;
 
@@ -325,6 +335,26 @@ class ProgressRepository {
     }
   }
 
+  /// Racha del objetivo calórico que calcula el backend con toda la historia.
+  Future<CalorieStreak> fetchCalorieStreak({DateTime? now}) async {
+    try {
+      final data = await _getMap(
+        ApiRoutes.statsCalorieStreak,
+        query: {'date': localDateString(now)},
+      );
+      return CalorieStreak(
+        current: _toInt(data['current']),
+        best: _toInt(data['best']),
+      );
+    } on ProgressException {
+      rethrow;
+    } on DioException catch (error) {
+      throw ProgressException(_fallbackMessage(error));
+    } catch (_) {
+      throw ProgressException(currentL10n.progressErrorLoad);
+    }
+  }
+
   Future<void> addWeight({required double weight, required double height}) async {
     try {
       await _dio.post<Map<String, dynamic>>(
@@ -338,8 +368,11 @@ class ProgressRepository {
     }
   }
 
-  Future<Map<String, dynamic>> _getMap(String route) async {
-    final data = await _getData(route);
+  Future<Map<String, dynamic>> _getMap(
+    String route, {
+    Map<String, dynamic>? query,
+  }) async {
+    final data = await _getData(route, query: query);
     if (data is Map<String, dynamic>) {
       return data;
     }

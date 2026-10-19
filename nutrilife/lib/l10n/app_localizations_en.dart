@@ -2307,12 +2307,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get profileStreaksNoWeekData =>
-      'There\'s no weekly data to calculate this streak yet.';
+  String get profileStreaksNoGoal =>
+      'Add your age, height and weight to calculate this streak.';
 
   @override
   String get profileStreaksCalorieNote =>
-      'Calorie streak based on the last 7 available days.';
+      'A day counts when you eat within your goal range.';
 
   @override
   String profileStreaksDays(String value) {
@@ -2321,7 +2321,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String profileStreaksCurrentBest(String best) {
-    return 'current · best 7d $best';
+    return 'current · best $best';
   }
 
   @override

@@ -3812,16 +3812,16 @@ abstract class AppLocalizations {
   /// **'No pudimos cargar las calorías: {error}'**
   String profileStreaksCalorieError(String error);
 
-  /// No description provided for @profileStreaksNoWeekData.
+  /// No description provided for @profileStreaksNoGoal.
   ///
   /// In es, this message translates to:
-  /// **'Aún no hay datos semanales para calcular esta racha.'**
-  String get profileStreaksNoWeekData;
+  /// **'Completa tu edad, altura y peso para calcular esta racha.'**
+  String get profileStreaksNoGoal;
 
   /// No description provided for @profileStreaksCalorieNote.
   ///
   /// In es, this message translates to:
-  /// **'Racha calórica calculada con los últimos 7 días disponibles.'**
+  /// **'Un día cuenta si comes dentro del rango de tu meta.'**
   String get profileStreaksCalorieNote;
 
   /// No description provided for @profileStreaksDays.
@@ -3833,7 +3833,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileStreaksCurrentBest.
   ///
   /// In es, this message translates to:
-  /// **'actual · mejor 7d {best}'**
+  /// **'actual · mejor {best}'**
   String profileStreaksCurrentBest(String best);
 
   /// No description provided for @profileStreaksLoadError.
