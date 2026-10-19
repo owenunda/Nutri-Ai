@@ -75,7 +75,33 @@ export interface Overview {
     activeStreaks: number;
     topStreaks: WaterStreakUser[];
   };
+  /** Racha calórica con la misma regla que la app (rango según el objetivo). */
+  calories: {
+    activeStreaks: number;
+    topStreaks: WaterStreakUser[];
+  };
 }
+
+export type CalorieGoal = 'lose' | 'maintain' | 'gain';
+
+/** Sin edad, altura o peso no hay meta: solo `dailyLimit: null`. */
+export type UserCalories =
+  | { dailyLimit: null }
+  | {
+      dailyLimit: number;
+      goal: CalorieGoal;
+      /** Kcal que cuentan como día cumplido. */
+      min: number;
+      max: number;
+      /** Hoy del usuario: el del panel, o su último día si ya va por delante. */
+      today: string;
+      caloriesToday: number;
+      currentStreak: number;
+      bestStreak: number;
+      daysLogged: number;
+      goalDays: number;
+      lastSevenDays: { day: string; calories: number }[];
+    };
 
 export interface AdminUser {
   userId: number;
@@ -177,6 +203,7 @@ export interface UserDetail {
     totalGlasses: number;
     lastDay: string | null;
   };
+  calories: UserCalories;
   byModule: ModuleCount[];
   recentEvents: {
     eventId: number;

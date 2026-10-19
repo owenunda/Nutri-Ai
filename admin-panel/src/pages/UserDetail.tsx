@@ -43,7 +43,7 @@ import { getErrorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { cn, formatAxisDay, formatDate, formatDay, formatNumber, formatRelative } from '../lib/utils';
 import { PRO_DURATIONS, previewProUntil } from '../lib/proGift';
-import type { Plan, ProDuration, Role, UserDetail as UserDetailData } from '../types/admin';
+import type { CalorieGoal, Plan, ProDuration, Role, UserCalories, UserDetail as UserDetailData } from '../types/admin';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button, buttonVariants } from '../components/ui/button';
 import { Dialog } from '../components/ui/dialog';
@@ -254,6 +254,8 @@ export default function UserDetail() {
 
       <WaterCard water={data.water} />
 
+      <CaloriesCard calories={data.calories} />
+
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
@@ -452,6 +454,99 @@ function WaterCard({ water }: { water: UserDetailData['water'] }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+const GOAL_LABEL: Record<CalorieGoal, string> = { lose: 'bajar', maintain: 'mantener', gain: 'subir' };
+
+function CaloriesCard({ calories }: { calories: UserCalories }) {
+  const days = (n: number) => `${formatNumber(n)} ${n === 1 ? 'día' : 'días'}`;
+  const kcal = (n: number) => `${formatNumber(n)} kcal`;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2">
+          <Flame className="h-5 w-5 text-orange-400" />
+          Calorías
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          {calories.dailyLimit === null
+            ? 'Sin meta: le faltan edad, altura o peso.'
+            : `Meta de ${kcal(calories.dailyLimit)} para ${GOAL_LABEL[calories.goal]}. Un día cuenta entre ${kcal(calories.min)} y ${kcal(calories.max)}, la misma regla que la app.`}
+        </p>
+      </CardHeader>
+      <CardContent>
+        {calories.dailyLimit === null ? (
+          <EmptyState mood="sentada" title="Sin meta calórica" description="Cuando complete su perfil aparece su racha." />
+        ) : calories.daysLogged === 0 ? (
+          <EmptyState mood="sentada" title="Sin comidas registradas" description="Todavía no ha registrado ninguna comida." />
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-2 gap-3">
+              <CalorieFact icon={Flame} label="Racha actual" value={days(calories.currentStreak)} />
+              <CalorieFact icon={Trophy} label="Mejor racha" value={days(calories.bestStreak)} />
+              <CalorieFact
+                icon={UtensilsCrossed}
+                label={`Hoy (${formatAxisDay(calories.today)})`}
+                value={kcal(calories.caloriesToday)}
+              />
+              <CalorieFact
+                icon={CalendarDays}
+                label="Días en rango"
+                value={`${formatNumber(calories.goalDays)} de ${days(calories.daysLogged)}`}
+              />
+            </div>
+            <CalorieWeek calories={calories} />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function CalorieWeek({ calories }: { calories: Extract<UserCalories, { min: number }> }) {
+  const top = Math.max(calories.max * 1.2, ...calories.lastSevenDays.map((d) => d.calories));
+  const pct = (n: number) => `${Math.min(100, (n / top) * 100)}%`;
+
+  return (
+    <div>
+      <p className="text-sm font-semibold">Últimos 7 días</p>
+      <div className="mt-3 grid grid-cols-7 gap-2">
+        {calories.lastSevenDays.map(({ day, calories: value }) => {
+          const inRange = value > 0 && value >= calories.min && value <= calories.max;
+          return (
+            <div key={day} className="flex flex-col items-center gap-1.5" title={`${formatNumber(value)} kcal`}>
+              <div className="relative flex h-24 w-full max-w-10 items-end rounded-md bg-muted">
+                {/* Franja del rango que cuenta. */}
+                <div
+                  className="absolute inset-x-0 border-y border-dashed border-orange-400/60"
+                  style={{ bottom: pct(calories.min), height: `calc(${pct(calories.max)} - ${pct(calories.min)})` }}
+                />
+                <div
+                  className={cn('w-full rounded-md', inRange ? 'bg-orange-400' : 'bg-orange-400/35')}
+                  style={{ height: pct(value) }}
+                />
+              </div>
+              <span className="text-xs tabular-nums text-muted-foreground">{formatAxisDay(day)}</span>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        Las barras llenas cayeron en el rango (línea punteada). Los días son la fecha local del teléfono del usuario.
+      </p>
+    </div>
+  );
+}
+
+function CalorieFact({ icon: Icon, label, value }: { icon: typeof Apple; label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-muted/60 p-3">
+      <Icon className="h-4 w-4 text-orange-400" />
+      <p className="mt-2 text-xl font-bold tabular-nums">{value}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
+    </div>
   );
 }
 
