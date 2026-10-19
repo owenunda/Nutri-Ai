@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/widgets/segmented_tabs.dart';
+import '../../../../core/widgets/sheet_insets.dart';
 import '../../../nutrition/data/food_repository.dart';
 import '../../../nutrition/data/fridge_repository.dart';
 import '../../../nutrition/data/models/food_model.dart';
@@ -152,7 +153,7 @@ class _FridgePickerSheetState extends State<FridgePickerSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          24, 16, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
+          24, 16, 24, 24 + sheetBottomInset(context)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

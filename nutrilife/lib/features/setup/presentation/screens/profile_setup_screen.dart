@@ -4,6 +4,7 @@ import '../../../../core/theme/motion.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/widgets/sheet_insets.dart';
 import '../../data/setup_repository.dart';
 import 'goal_setup_screen.dart';
 
@@ -637,8 +638,8 @@ class _PickerField extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          constraints: const BoxConstraints(maxHeight: 360),
-          padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
+          constraints: BoxConstraints(maxHeight: 360 + sheetBottomInset(context)),
+          padding: EdgeInsets.fromLTRB(18, 12, 18, 18 + sheetBottomInset(context)),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),

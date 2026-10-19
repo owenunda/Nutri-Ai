@@ -4,6 +4,7 @@ import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/segmented_tabs.dart';
+import '../../../../core/widgets/sheet_insets.dart';
 import '../../../meals/data/meal_repository.dart';
 import '../../../meals/domain/meal_type.dart';
 import '../../data/food_repository.dart';
@@ -121,7 +122,7 @@ class _FoodsScreenState extends State<FoodsScreen> {
         return StatefulBuilder(
           builder: (sheetContext, setSheetState) => Padding(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+              bottom: sheetBottomInset(sheetContext) + 24,
               left: 24,
               right: 24,
               top: 24,

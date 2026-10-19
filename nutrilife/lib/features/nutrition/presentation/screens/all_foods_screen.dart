@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/widgets/sheet_insets.dart';
 import '../../../meals/domain/meal_type.dart';
 import '../../data/food_repository.dart';
 import '../../data/fridge_repository.dart';
@@ -541,7 +542,7 @@ class _FridgeItemManagementSheetState
         left: 20,
         right: 20,
         top: 12,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        bottom: sheetBottomInset(context) + 16,
       ),
       child: SingleChildScrollView(
         child: Column(

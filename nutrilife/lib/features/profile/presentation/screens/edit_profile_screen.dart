@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/services/session_service.dart';
+import '../../../../core/widgets/sheet_insets.dart';
 
 import '../../data/profile_repository.dart';
 
@@ -510,8 +511,8 @@ class _PickerRowState extends State<_PickerRow> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          constraints: const BoxConstraints(maxHeight: 380),
-          padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
+          constraints: BoxConstraints(maxHeight: 380 + sheetBottomInset(context)),
+          padding: EdgeInsets.fromLTRB(18, 12, 18, 18 + sheetBottomInset(context)),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
