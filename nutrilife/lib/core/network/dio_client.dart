@@ -18,17 +18,18 @@ import 'rate_limit_state.dart';
 /// login está a punto de mostrar.
 bool shouldRedirectToLogin(RequestOptions options, int? statusCode) {
   if (statusCode != 401) return false;
+  return !_apiPath(options).startsWith('/auth/');
+}
 
-  // `options.uri` resuelve rutas relativas y absolutas; se le quita el
-  // prefijo del baseUrl (p. ej. /api/v1) para comparar solo la ruta del API.
+/// Ruta del API sin el prefijo del baseUrl (p. ej. /api/v1). `options.uri`
+/// resuelve rutas relativas y absolutas.
+String _apiPath(RequestOptions options) {
   final fullPath = options.uri.path;
   final basePath =
       Uri.tryParse(options.baseUrl)?.path.replaceAll(RegExp(r'/+$'), '') ?? '';
-  final apiPath = basePath.isNotEmpty && fullPath.startsWith(basePath)
+  return basePath.isNotEmpty && fullPath.startsWith(basePath)
       ? fullPath.substring(basePath.length)
       : fullPath;
-
-  return !apiPath.startsWith('/auth/');
 }
 
 /// true si el 401 dice que venció la cuenta de invitado: el login lo avisa.
@@ -72,11 +73,14 @@ class DioClient {
               return handler.next(options);
             },
             onResponse: (response, handler) {
-              _parseRateLimitHeaders(response.headers);
+              _parseRateLimitHeaders(response.requestOptions, response.headers);
               return handler.next(response);
             },
             onError: (error, handler) {
-              _parseRateLimitHeaders(error.response?.headers);
+              _parseRateLimitHeaders(
+                error.requestOptions,
+                error.response?.headers,
+              );
               if (error.response?.statusCode == 429) {
                 final retryAfter =
                     int.tryParse(
@@ -122,8 +126,10 @@ class DioClient {
           ),
         );
 
-  static void _parseRateLimitHeaders(Headers? headers) {
-    if (headers == null) return;
+  // El contador es el de mensajes del Chef IA: otras rutas mandan sus propios
+  // límites (p. ej. POST /auth/guest, 5 por hora) que no son mensajes.
+  static void _parseRateLimitHeaders(RequestOptions options, Headers? headers) {
+    if (headers == null || _apiPath(options) != ApiRoutes.n8nChat) return;
     final limit = int.tryParse(headers.value('X-RateLimit-Limit') ?? '');
     final remaining = int.tryParse(
       headers.value('X-RateLimit-Remaining') ?? '',
