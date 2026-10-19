@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import authenticateToken from '../../middleware/auth.middleware.js';
-import { getConsumptionValidation, getTodayCalories, getWeekStats } from './stats.controller.js';
+import { getCalorieStreak, getConsumptionValidation, getTodayCalories, getWeekStats } from './stats.controller.js';
 
 const router = Router();
 
@@ -145,7 +145,7 @@ router.get('/today-calories',
  *                           description: Promedio diario de kcal de los 7 días
  *                         daysOnTarget:
  *                           type: integer
- *                           description: Días con consumo mayor a 0 y dentro de la meta
+ *                           description: Días dentro del rango de la meta según el objetivo (mismo criterio que /stats/calorie-streak)
  *       400:
  *         description: Fecha inválida (INVALID_DATE)
  *       401:
@@ -156,6 +156,39 @@ router.get('/today-calories',
 router.get('/week',
   authenticateToken(['USER', 'ADMIN']),
   getWeekStats
+);
+
+/**
+ * @openapi
+ * /api/v1/stats/calorie-streak:
+ *   get:
+ *     summary: Racha del objetivo calórico con toda la historia
+ *     description: >
+ *       Un día cuenta si lo comido cae dentro del rango de la meta según el
+ *       objetivo (bajar 70-100 %, mantener 85-115 %, subir 100-130 %).
+ *     tags: [Stats]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Hoy en la fecha local de la app (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: current, best, dailyLimit, min y max (todos null si faltan edad, altura o peso)
+ *       400:
+ *         description: Fecha inválida (INVALID_DATE)
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: Usuario no encontrado
+ */
+router.get('/calorie-streak',
+  authenticateToken(['USER', 'ADMIN']),
+  getCalorieStreak
 );
 
 export default router;

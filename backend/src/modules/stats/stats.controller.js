@@ -1,4 +1,4 @@
-import { validateConsumptionService, getTodayCaloriesService, getWeekStatsService } from './stats.service.js';
+import { validateConsumptionService, getTodayCaloriesService, getWeekStatsService, getCalorieStreakService } from './stats.service.js';
 import { successResponse } from '../../utils/response.js';
 
 export const getConsumptionValidation = async (req, res, next) => {
@@ -31,6 +31,15 @@ export const getWeekStats = async (req, res, next) => {
   try {
     const stats = await getWeekStatsService(req.user.userId, req.query.end);
     return successResponse(res, stats, 'Resumen semanal consultado con éxito');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCalorieStreak = async (req, res, next) => {
+  try {
+    const streak = await getCalorieStreakService(req.user.userId, req.query.date);
+    return successResponse(res, streak, 'Racha calórica consultada con éxito');
   } catch (error) {
     next(error);
   }

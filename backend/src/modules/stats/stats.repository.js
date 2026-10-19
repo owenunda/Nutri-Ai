@@ -82,7 +82,7 @@ export const getConsumptionCaloriesByDate = async (userId, date) => {
  * @param {string} end Fecha YYYY-MM-DD
  * @returns {Promise<Array<{date: string, totalConsumed: number}>>}
  */
-export const getWeekConsumptionRepository = async (userId, start, end) => {
+export const getDailyConsumptionRepository = async (userId, start, end) => {
   const query = `
     WITH days AS (
       SELECT generate_series($2::date, $3::date, '1 day')::date AS day
@@ -118,4 +118,20 @@ export const getWeekConsumptionRepository = async (userId, start, end) => {
   `;
   const { rows } = await pool.query(query, [userId, start, end]);
   return rows.map((r) => ({ date: r.date, totalConsumed: Math.round(r.total) }));
+};
+
+/**
+ * Primer día con comidas registradas, o null si no hay ninguno.
+ * @param {number} userId
+ * @returns {Promise<string|null>} Fecha YYYY-MM-DD
+ */
+export const getFirstMealDateRepository = async (userId) => {
+  const { rows } = await pool.query(
+    `SELECT to_char(MIN(mr.record_date), 'YYYY-MM-DD') AS first
+     FROM meal_records mr
+     WHERE mr.user_id = $1
+       AND EXISTS (SELECT 1 FROM meal_record_details d WHERE d.meal_record_id = mr.meal_record_id)`,
+    [userId]
+  );
+  return rows[0]?.first ?? null;
 };
