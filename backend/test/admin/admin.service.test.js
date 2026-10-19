@@ -313,3 +313,87 @@ test('detalle: sin suscripción ni regalo no hay proSource', async () => {
 
   assert.equal(detail.profile.proSource, null);
 });
+
+// Perfil con meta calórica: bajar peso.
+const ANA_BODY = { age: 30, goal: 'lose', height: 165, weight: 70 };
+
+test('detalle: agrega la racha calórica con la misma regla que la app', async () => {
+  const { calculateDailyLimit } = await import(src('modules/stats/stats.service.js'));
+  const limit = calculateDailyLimit(ANA_BODY);
+  const ok = Math.round(limit * 0.9);
+  repo.findUserDetail = async () => ({
+    profile: { userId: 5, ...ANA_BODY },
+    usage: {},
+    series: [],
+    byModule: [],
+    recentEvents: [],
+    waterRows: [],
+    calorieRows: [
+      { day: '2026-10-15', calories: ok },
+      { day: '2026-10-16', calories: ok },
+      { day: '2026-10-17', calories: 200 }, // hoy, a medias
+    ],
+  });
+
+  const detail = await getUserDetailService(5, NIGHT_IN_BOGOTA);
+
+  assert.equal(detail.calorieRows, undefined);
+  assert.equal(detail.calories.dailyLimit, limit);
+  assert.equal(detail.calories.goal, 'lose');
+  assert.equal(detail.calories.min, Math.round(limit * 0.7));
+  assert.equal(detail.calories.max, limit);
+  assert.equal(detail.calories.today, '2026-10-17');
+  assert.equal(detail.calories.caloriesToday, 200);
+  assert.equal(detail.calories.currentStreak, 2);
+  assert.equal(detail.calories.goalDays, 2);
+  assert.equal(detail.calories.daysLogged, 3);
+});
+
+test('detalle: sin edad, altura o peso no hay meta calórica', async () => {
+  repo.findUserDetail = async () => ({
+    profile: { userId: 5, age: null, goal: 'lose', height: 165, weight: 70 },
+    usage: {},
+    series: [],
+    byModule: [],
+    recentEvents: [],
+    waterRows: [],
+    calorieRows: [{ day: '2026-10-17', calories: 1500 }],
+  });
+
+  const detail = await getUserDetailService(5, NIGHT_IN_BOGOTA);
+
+  assert.deepEqual(detail.calories, { dailyLimit: null });
+});
+
+test('resumen: cuenta las rachas calóricas vivas y las ordena', async () => {
+  const { calculateDailyLimit } = await import(src('modules/stats/stats.service.js'));
+  const ok = Math.round(calculateDailyLimit(ANA_BODY) * 0.9);
+  const row = (userId, name, plan, day, calories, body = ANA_BODY) => ({ userId, name, plan, ...body, day, calories });
+  repo.getOverview = async () => ({
+    days: 30,
+    users: {},
+    water: {},
+    waterStreakRows: [],
+    calorieStreakRows: [
+      row(1, 'Ana', 'FREE', '2026-10-16', ok),
+      row(1, 'Ana', 'FREE', '2026-10-17', ok),
+      row(2, 'Bea', 'PRO', '2026-10-15', ok),
+      row(2, 'Bea', 'PRO', '2026-10-16', ok),
+      row(2, 'Bea', 'PRO', '2026-10-17', ok),
+      // Se pasó hoy: racha cortada.
+      row(3, 'Caro', 'FREE', '2026-10-16', ok),
+      row(3, 'Caro', 'FREE', '2026-10-17', ok * 3),
+      // Sin datos físicos: no tiene meta, no cuenta.
+      row(4, 'Dani', 'FREE', '2026-10-17', 1500, { age: null, goal: null, height: null, weight: null }),
+    ],
+  });
+
+  const overview = await getOverviewService(30, NIGHT_IN_BOGOTA);
+
+  assert.equal(overview.calorieStreakRows, undefined);
+  assert.equal(overview.calories.activeStreaks, 2);
+  assert.deepEqual(overview.calories.topStreaks, [
+    { userId: 2, name: 'Bea', plan: 'PRO', currentStreak: 3 },
+    { userId: 1, name: 'Ana', plan: 'FREE', currentStreak: 2 },
+  ]);
+});

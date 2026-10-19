@@ -17,6 +17,28 @@ const localDay = (column) => `((${column}) AT TIME ZONE 'UTC' AT TIME ZONE $2::t
 const notGuestSql = (alias) =>
   `${alias}.user_id NOT IN (SELECT user_id FROM users WHERE guest_expires_at IS NOT NULL)`;
 
+// Kcal por usuario y día, con la misma cuenta que /stats: alimentos más los
+// ingredientes de las recetas. `where` filtra meal_records (alias mr).
+const dailyCaloriesSql = (where) => `
+  SELECT
+    mr.user_id,
+    mr.record_date AS day,
+    SUM(
+      COALESCE(mrd.quantity * f.calories_per_unit, 0)
+      + COALESCE(mrd.quantity * (
+          SELECT COALESCE(SUM(ri.quantity * rf.calories_per_unit), 0)
+          FROM recipe_ingredients ri
+          INNER JOIN foods rf ON rf.food_id = ri.food_id
+          WHERE ri.recipe_id = mrd.recipe_id
+        ), 0)
+    ) AS calories
+  FROM meal_records mr
+  INNER JOIN meal_record_details mrd ON mrd.meal_record_id = mr.meal_record_id
+  LEFT JOIN foods f ON f.food_id = mrd.food_id
+  WHERE ${where}
+  GROUP BY mr.user_id, mr.record_date
+`;
+
 /**
  * Resumen general del panel: usuarios, actividad, IA y series por día.
  * @param {number} days Rango (en días) para las series y los totales "del periodo".
@@ -180,8 +202,39 @@ export const getOverview = async (days, today) => {
     ORDER BY w.user_id, w.day
   `;
 
+  // Kcal por día de quien registró comida hoy o ayer (los únicos con una racha
+  // calórica viva), con edad, objetivo, altura y peso para su meta. Basta con
+  // el último año: una racha más larga se vería cortada a 400 días.
+  const calorieStreakRowsQuery = `
+    SELECT
+      u.user_id AS "userId",
+      u.name,
+      p.name AS plan,
+      u.age,
+      u.goal,
+      pr.height,
+      pr.weight,
+      to_char(dc.day, 'YYYY-MM-DD') AS day,
+      dc.calories::float AS calories
+    FROM (${dailyCaloriesSql(`mr.record_date >= $1::date - 400
+      AND mr.user_id IN (SELECT user_id FROM meal_records WHERE record_date >= $1::date - 1)`)}) dc
+    INNER JOIN users u ON u.user_id = dc.user_id
+    INNER JOIN plans p ON p.plan_id = u.plan_id
+    LEFT JOIN LATERAL (
+      SELECT height, weight
+      FROM physical_records
+      WHERE user_id = u.user_id
+      ORDER BY record_date DESC, physical_record_id DESC
+      LIMIT 1
+    ) pr ON true
+    WHERE u.guest_expires_at IS NULL
+    ORDER BY u.user_id, dc.day
+  `;
+
   const waterValues = [days, today, DAILY_GOAL];
-  const [users, activity, content, series, byModule, topAiUsers, recentUsers, water, waterStreakRows] = await Promise.all([
+  const [
+    users, activity, content, series, byModule, topAiUsers, recentUsers, water, waterStreakRows, calorieStreakRows,
+  ] = await Promise.all([
     pool.query(usersQuery, rangeValues),
     pool.query(activityQuery, rangeValues),
     pool.query(contentQuery),
@@ -191,6 +244,7 @@ export const getOverview = async (days, today) => {
     pool.query(recentUsersQuery),
     pool.query(waterQuery, waterValues),
     pool.query(waterStreakRowsQuery, [today, DAILY_GOAL]),
+    pool.query(calorieStreakRowsQuery, [today]),
   ]);
 
   return {
@@ -204,6 +258,7 @@ export const getOverview = async (days, today) => {
     recentUsers: recentUsers.rows,
     water: water.rows[0],
     waterStreakRows: waterStreakRows.rows,
+    calorieStreakRows: calorieStreakRows.rows,
   };
 };
 
@@ -437,13 +492,20 @@ export const findUserDetail = async (userId) => {
     ORDER BY day
   `;
 
+  const caloriesQuery = `
+    SELECT to_char(dc.day, 'YYYY-MM-DD') AS day, dc.calories::float AS calories
+    FROM (${dailyCaloriesSql('mr.user_id = $1')}) dc
+    ORDER BY dc.day
+  `;
+
   const values = [userId, PANEL_TIMEZONE];
-  const [usage, series, byModule, recentEvents, water] = await Promise.all([
+  const [usage, series, byModule, recentEvents, water, calories] = await Promise.all([
     pool.query(usageQuery, values),
     pool.query(seriesQuery, values),
     pool.query(byModuleQuery, [userId]),
     pool.query(recentEventsQuery, [userId]),
     pool.query(waterQuery, [userId]),
+    pool.query(caloriesQuery, [userId]),
   ]);
 
   return {
@@ -453,6 +515,7 @@ export const findUserDetail = async (userId) => {
     byModule: byModule.rows,
     recentEvents: recentEvents.rows,
     waterRows: water.rows,
+    calorieRows: calories.rows,
   };
 };
 

@@ -3,6 +3,8 @@ import { AppError } from '../../utils/AppError.js';
 import { logEventService } from '../events/events.service.js';
 import { deleteUserAccountData } from '../user/user.repository.js';
 import { dayInTimeZone, summarizeWater } from '../hydration/waterStreak.js';
+import { calculateDailyLimit } from '../stats/stats.service.js';
+import { calorieRange, goalKind, summarizeCalories } from '../stats/calorieStreak.js';
 import {
   PANEL_TIMEZONE,
   getOverview,
@@ -48,18 +50,56 @@ const activeWaterStreaks = (rows, today) => {
     .sort((a, b) => b.currentStreak - a.currentStreak || a.userId - b.userId);
 };
 
+/**
+ * Calorías de un usuario con la misma regla que la app (stats/calorieStreak).
+ * Sin edad, altura o peso no hay meta: { dailyLimit: null }.
+ * @param {{ age, goal, height, weight }} body
+ * @param {Array<{ day: string, calories: number }>} rows
+ */
+const summarizeUserCalories = (body, rows, today) => {
+  const dailyLimit = calculateDailyLimit(body);
+  if (dailyLimit === null) return { dailyLimit: null };
+  const goal = goalKind(body.goal);
+  const range = calorieRange(goal, dailyLimit);
+  const history = Object.fromEntries(rows.map((row) => [row.day, Math.round(Number(row.calories))]));
+  return { dailyLimit, goal, ...range, ...summarizeCalories(history, today, range) };
+};
+
+/** Rachas calóricas vivas, de la más larga a la más corta. */
+const activeCalorieStreaks = (rows, today) => {
+  const byUser = new Map();
+  for (const { day, calories, ...user } of rows) {
+    if (!byUser.has(user.userId)) byUser.set(user.userId, { user, rows: [] });
+    byUser.get(user.userId).rows.push({ day, calories });
+  }
+  return [...byUser.values()]
+    .map(({ user, rows: userRows }) => ({
+      userId: user.userId,
+      name: user.name,
+      plan: user.plan,
+      currentStreak: summarizeUserCalories(user, userRows, today).currentStreak ?? 0,
+    }))
+    .filter((user) => user.currentStreak > 0)
+    .sort((a, b) => b.currentStreak - a.currentStreak || a.userId - b.userId);
+};
+
 /** Resumen general del panel admin. */
 export const getOverviewService = (days, now = new Date()) =>
   wrap(async () => {
     const today = dayInTimeZone(now, PANEL_TIMEZONE);
-    const { water, waterStreakRows, ...overview } = await getOverview(days, today);
+    const { water, waterStreakRows, calorieStreakRows = [], ...overview } = await getOverview(days, today);
     const streaks = activeWaterStreaks(waterStreakRows, today);
+    const calorieStreaks = activeCalorieStreaks(calorieStreakRows, today);
     return {
       ...overview,
       water: {
         ...water,
         activeStreaks: streaks.length,
         topStreaks: streaks.slice(0, TOP_WATER_STREAKS),
+      },
+      calories: {
+        activeStreaks: calorieStreaks.length,
+        topStreaks: calorieStreaks.slice(0, TOP_WATER_STREAKS),
       },
     };
   });
@@ -72,15 +112,17 @@ export const getUserDetailService = (userId, now = new Date()) =>
   wrap(async () => {
     const detail = await findUserDetail(userId);
     if (!detail) throw new AppError('Usuario no encontrado', 404, 'USER_NOT_FOUND');
-    const { waterRows, profile, ...rest } = detail;
+    const { waterRows, calorieRows = [], profile, ...rest } = detail;
     const { proSource } = computeEffectivePlan(
       { giftPro: profile.giftPro, giftProUntil: profile.giftProUntil, storeExpiresAt: profile.subscription?.expiresAt },
       now
     );
+    const today = dayInTimeZone(now, PANEL_TIMEZONE);
     return {
       ...rest,
       profile: { ...profile, proSource },
-      water: summarizeWater(toHistory(waterRows), dayInTimeZone(now, PANEL_TIMEZONE)),
+      water: summarizeWater(toHistory(waterRows), today),
+      calories: summarizeUserCalories(profile, calorieRows, today),
     };
   });
 

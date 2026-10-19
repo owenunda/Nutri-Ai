@@ -4,6 +4,7 @@ import {
   calorieRange,
   currentCalorieStreak,
   bestCalorieStreak,
+  summarizeCalories,
   goalKind,
   isGoalDay,
 } from '../../src/modules/stats/calorieStreak.js';
@@ -85,4 +86,31 @@ test('mejor racha: la más larga de toda la historia, cruzando meses', () => {
 test('mejor racha: sin días en rango es 0', () => {
   assert.equal(bestCalorieStreak({ '2026-10-01': 100 }, range), 0);
   assert.equal(bestCalorieStreak({}, range), 0);
+});
+
+test('summarizeCalories: resumen para el panel con los últimos 7 días', () => {
+  const history = {
+    '2026-10-15': 1800,
+    '2026-10-16': 300, // muy poco
+    '2026-10-17': 1900,
+    '2026-10-18': 1500,
+  };
+  const summary = summarizeCalories(history, '2026-10-18', range);
+
+  assert.equal(summary.today, '2026-10-18');
+  assert.equal(summary.caloriesToday, 1500);
+  assert.equal(summary.currentStreak, 2);
+  assert.equal(summary.bestStreak, 2);
+  assert.equal(summary.daysLogged, 4);
+  assert.equal(summary.goalDays, 3);
+  assert.deepEqual(summary.lastSevenDays.map((d) => d.day), [
+    '2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16', '2026-10-17', '2026-10-18',
+  ]);
+  assert.deepEqual(summary.lastSevenDays.map((d) => d.calories), [0, 0, 0, 1800, 300, 1900, 1500]);
+});
+
+test('summarizeCalories: si la app ya registró mañana (otra zona), ese es su hoy', () => {
+  const summary = summarizeCalories({ '2026-10-17': 1800, '2026-10-18': 1700 }, '2026-10-17', range);
+  assert.equal(summary.today, '2026-10-18');
+  assert.equal(summary.currentStreak, 2);
 });

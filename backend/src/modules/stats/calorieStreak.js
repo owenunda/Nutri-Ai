@@ -58,3 +58,29 @@ export const bestCalorieStreak = (history, range) => {
   }
   return best;
 };
+
+/**
+ * Resumen de calorías de un usuario para el panel admin.
+ * El "día" lo pone la app con su fecha local, que puede ir un día por delante
+ * de `today` (la fecha del panel). Si ya registró ese día, ese es su hoy.
+ * @param {Record<string, number>} history { 'YYYY-MM-DD': kcal }
+ * @param {string} today 'YYYY-MM-DD'
+ */
+export const summarizeCalories = (history, today, range) => {
+  const days = Object.keys(history).filter((day) => history[day] > 0).sort();
+  const lastDay = days.at(-1) ?? null;
+  const ref = lastDay !== null && lastDay > today ? lastDay : today;
+
+  return {
+    today: ref,
+    caloriesToday: history[ref] ?? 0,
+    currentStreak: currentCalorieStreak(history, ref, range),
+    bestStreak: bestCalorieStreak(history, range),
+    daysLogged: days.length,
+    goalDays: days.filter((day) => isGoalDay(history[day], range)).length,
+    lastSevenDays: Array.from({ length: 7 }, (_, i) => {
+      const day = addDays(ref, i - 6);
+      return { day, calories: history[day] ?? 0 };
+    }),
+  };
+};
