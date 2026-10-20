@@ -2492,4 +2492,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gamePlaceEspacioDiamante => 'Crystal island';
+
+  @override
+  String get gameSleep => 'Sleep';
+
+  @override
+  String get gameWake => 'Wake up';
+
+  @override
+  String get gameSleepingHint =>
+      'Shh… your otter is asleep. Pet it to wake it up.';
 }

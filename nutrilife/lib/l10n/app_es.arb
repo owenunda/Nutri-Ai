@@ -1539,5 +1539,8 @@
   "gamePlaceEspacioBasico": "Estación espacial",
   "gamePlaceEspacioAurora": "Mirador aurora",
   "gamePlaceEspacioOro": "Observatorio dorado",
-  "gamePlaceEspacioDiamante": "Isla de cristal"
+  "gamePlaceEspacioDiamante": "Isla de cristal",
+  "gameSleep": "Dormir",
+  "gameWake": "Despertar",
+  "gameSleepingHint": "Shh… está dormida. Acaríciala para despertarla."
 }

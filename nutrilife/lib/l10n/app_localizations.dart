@@ -4123,6 +4123,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Isla de cristal'**
   String get gamePlaceEspacioDiamante;
+
+  /// No description provided for @gameSleep.
+  ///
+  /// In es, this message translates to:
+  /// **'Dormir'**
+  String get gameSleep;
+
+  /// No description provided for @gameWake.
+  ///
+  /// In es, this message translates to:
+  /// **'Despertar'**
+  String get gameWake;
+
+  /// No description provided for @gameSleepingHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Shh… está dormida. Acaríciala para despertarla.'**
+  String get gameSleepingHint;
 }
 
 class _AppLocalizationsDelegate

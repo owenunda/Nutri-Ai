@@ -14,6 +14,8 @@ class OtterSkin {
 
   String get idleSheet => 'assets/game/otters/$id/idle.webp';
   String get happinessSheet => 'assets/game/otters/$id/happiness.webp';
+  String get sleepSheet => 'assets/game/otters/$id/sleep.webp';
+  String get wakeSheet => 'assets/game/otters/$id/wake.webp';
 
   static final normal = OtterSkin._('normal', (l) => l.gameSkinNormal);
   static final chef = OtterSkin._('chef', (l) => l.gameSkinChef);

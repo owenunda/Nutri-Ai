@@ -15,6 +15,10 @@ void main() {
     (w) => w is OtterSprite && w.sheet == skin.idleSheet && w.size > 200,
   );
 
+  Finder sheetShown(String sheet) => find.byWidgetPredicate(
+    (w) => w is OtterSprite && w.sheet == sheet && w.size > 200,
+  );
+
   Finder backgroundOf(String asset) => find.byWidgetPredicate(
     (w) =>
         w is Image &&
@@ -142,5 +146,52 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Prender la luz'));
     await tester.pump();
     expect(darkness(), findsNothing);
+  });
+
+  testWidgets('se duerme con el botón y una caricia la despierta', (
+    tester,
+  ) async {
+    await tester.pumpWidget(l10nApp(const OtterPetScreen()));
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Dormir'));
+    await tester.pump();
+    expect(sheetShown(OtterSkin.normal.sleepSheet), findsOneWidget);
+    expect(
+      find.text('Shh… está dormida. Acaríciala para despertarla.'),
+      findsOneWidget,
+    );
+
+    // Ya acostada salen las "z".
+    for (var i = 0; i < 80; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(find.text('z'), findsWidgets);
+
+    // Dormida, acariciar no saca corazones: la despierta.
+    await stroke(tester, passes: 2);
+    expect(find.byIcon(Icons.favorite_rounded), findsNothing);
+    expect(sheetShown(OtterSkin.normal.wakeSheet), findsOneWidget);
+    expect(find.byTooltip('Dormir'), findsOneWidget);
+
+    // Al terminar de despertar vuelve al reposo.
+    await tester.pump(const Duration(seconds: 2));
+    expect(sheetShown(OtterSkin.normal.idleSheet), findsOneWidget);
+  });
+
+  testWidgets('de noche, apagar el foco la duerme y prenderlo la despierta', (
+    tester,
+  ) async {
+    await tester.pumpWidget(l10nApp(const OtterPetScreen()));
+    await tester.pump();
+    await goToNight(tester);
+
+    await tester.tap(find.bySemanticsLabel('Apagar la luz'));
+    await tester.pump();
+    expect(sheetShown(OtterSkin.normal.sleepSheet), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('Prender la luz'));
+    await tester.pump();
+    expect(sheetShown(OtterSkin.normal.wakeSheet), findsOneWidget);
   });
 }

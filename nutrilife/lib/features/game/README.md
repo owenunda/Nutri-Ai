@@ -7,6 +7,7 @@ Mini juego didáctico dentro de NutriLife: una nutria en pixel art que reacciona
 - **Lugares:** con el botón de paisaje (🏞) eliges dónde vive. Hay 8: **Habitación, Bosque, Costa, Montaña, Estación espacial, Mirador aurora, Observatorio dorado e Isla de cristal**. La elección se guarda.
 - **Día y noche:** el lugar sigue la hora del teléfono (de noche desde las 19:00 hasta las 5:59), y el botón de sol/luna lo cambia a mano.
 - **Foco colgante:** en la habitación cuelga un foco. Al tocarlo se prende o se apaga, y de noche, apagado, la habitación queda a oscuras.
+- **Dormir:** el botón de luna (🌙), junto a la pista de abajo, la duerme en cualquier lugar. En la habitación, de noche, apagar el foco también la duerme. Mientras duerme se queda enroscada y le salen "z". Se despierta acariciándola, con el botón de sol, prendiendo el foco o pasando a de día.
 
 ## Cómo se entra
 
@@ -48,7 +49,9 @@ lib/features/game/
 
 assets/game/otters/<id>/                   ← una carpeta por nutria, cada una en pubspec.yaml
 ├── idle.webp                              ← reposo (3072×512, 6 cuadros, WebP sin pérdida)
-└── happiness.webp                         ← salto de alegría (3072×512, 6 cuadros)
+├── happiness.webp                         ← salto de alegría (3072×512, 6 cuadros)
+├── sleep.webp                             ← se acuesta y queda enroscada (3072×512, 6 cuadros)
+└── wake.webp                              ← se despierta y se estira (3072×512, 6 cuadros)
     (hoy: normal/, chef/, deportiva/, alien_mint/, arcade_racer/, galaxia/, rpg_explorer/)
 
 assets/game/habitat/                       ← registrado en pubspec.yaml
@@ -71,7 +74,7 @@ La nutria base es `nutrilifeGame/NutriLife_normal_sin_ropa/NutriLife_normal_sin_
 - Acciones disponibles: `idle`, `eat`, `sleep`, `wake`, `curiosity`, `idea`, `sadness`, `happiness`, `jump`, `look_around`, `healthy_recovery`, `interaction_special`.
 - `previews/sequence_review_*.jpg` muestran todas las secuencias de un vistazo.
 
-**En la app solo se copian los spritesheets que se usan, convertidos a WebP sin pérdida.** Tienen los mismos píxeles que el PNG original, alfa incluido (se comprobó píxel a píxel), y pesan un 39 % menos: las 7 nutrias pasaron de 13,0 MB a 7,9 MB, unos 0,5–0,7 MB por spritesheet. Flutter decodifica WebP en Android e iOS sin nada extra. Los cuadros sueltos sumados pesan más, así que no se usan.
+**En la app solo se copian los spritesheets que se usan, convertidos a WebP sin pérdida.** Tienen los mismos píxeles que el PNG original, alfa incluido (se comprobó píxel a píxel), y pesan un 39 % menos: `idle` y `happiness` de las 7 nutrias pasaron de 13,0 MB a 7,9 MB, y `sleep` y `wake` suman otros 7,6 MB: unos 0,5–0,7 MB por spritesheet y 15,5 MB entre todas. Flutter decodifica WebP en Android e iOS sin nada extra. Los cuadros sueltos sumados pesan más, así que no se usan.
 
 Para convertir una nutria nueva (necesita Pillow):
 
@@ -88,10 +91,10 @@ assert ImageChops.difference(src, back).getbbox() is None
 
 **Qué nutrias entran:** solo las que traen `idle` y `happiness` completos (6 cuadros de 512×512). Las de `nutrilifeGame/NutriLife_Pending_Exclusive_Animations_5/pending_exclusives/` (oro, diamante, dragón de bayas, guardián del bosque y piloto cósmico) solo tienen su animación exclusiva, así que todavía no se pueden sumar.
 
-Para agregar una animación nueva (por ejemplo `sleep`) a todas las nutrias:
+Para agregar una animación nueva (por ejemplo `eat`) a todas las nutrias:
 
 1. Convierte a WebP (ver arriba) el `<acción>.png` de cada nutria y déjalo en `nutrilife/assets/game/otters/<id>/<acción>.webp`. Todas las nutrias del catálogo deben tenerla, porque la pantalla arma la ruta igual para cualquiera.
-2. Agrega un getter en `OtterSkin`, junto a `idleSheet` y `happinessSheet`: `String get sleepSheet => 'assets/game/otters/$id/sleep.webp';`.
+2. Agrega un getter en `OtterSkin`, junto a `idleSheet` y `happinessSheet`: `String get eatSheet => 'assets/game/otters/$id/eat.webp';`. Así se agregaron `sleepSheet` y `wakeSheet`..
 
 ### Lugares, foco y globo
 
@@ -216,10 +219,12 @@ Las capas, de abajo hacia arriba:
 
 Un solo `Ticker` hace `setState` en cada frame de pantalla (60 fps) y guarda el tiempo transcurrido en `_now`. **El sprite no cambia a 60 fps**: el cuadro se calcula a partir de `_now` y los fps de cada estado. Esos 60 fps solo mueven con suavidad los corazones y la escala.
 
-Estados (getter `_sprite`), en orden de prioridad:
+Estados (`_sprite`), en orden de prioridad:
 
 | Estado | Cuándo | Qué se ve |
 | --- | --- | --- |
+| Dormida | Desde `_sleep()` hasta `_wake()` (`_sleepSince` no es null) | `sleep`, cuadros 0→5 a `_sleepFps` (6 fps) una vez, y después el cuadro 5 fijo |
+| Despertando | Durante `_sleepDuration` (1 s) después de `_wake()` | `wake`, cuadros 0→5 a 6 fps, una sola vez |
 | Feliz | Durante `_happyDuration` después de `_celebrate()` | `happiness`, cuadros 0→5 a `_happyFps` (6 fps), una sola vez |
 | Acariciada | Hubo roce en los últimos `_strokeGrace` (150 ms) | `idle`, cuadro `petFrame` fijo (ojos cerrados y sonrisa) y escala 0,96 |
 | Reposo | El resto del tiempo | `idle`, cuadro 0 quieto durante `_idleRestMs` (3,5 s); luego la secuencia completa una vez a `_idleFps` (6 fps) |
@@ -236,7 +241,19 @@ Está en `_onPointerMove`:
    - `_sinceHeart`: cada `_heartEvery` (60 px) sale un corazón en la posición del dedo, con una vibración suave (`selectionClick`).
    - `_petDistance`: al llegar a `_petsToHappy` (900 px, unas 4 o 5 pasadas) se llama a `_celebrate()`. Eso dispara la animación de alegría, 8 corazones, una vibración fuerte (`mediumImpact`) y el globo "¡Le encantó! 💚" durante 2 s. Después el contador vuelve a 0.
 4. Un toque sin mover el dedo no genera `delta`, así que no cuenta.
-5. Mientras dura la alegría se ignoran las caricias.
+5. Mientras dura la alegría, o mientras se está despertando, se ignoran las caricias.
+6. **Dormida**, el roce no suma corazones: va a `_wakeDistance`, y al llegar a `_strokeToWake` (150 px, menos de una pasada) se llama a `_wake()`.
+
+## Dormir y despertar
+
+- `_sleep()` guarda `_sleepSince` y corta lo que estaba pasando (alegría, caricias en curso). `_wake()` lo borra y guarda `_wakeSince` para reproducir `wake` una vez. Las dos ignoran la llamada si ya está en ese estado.
+- **Qué la duerme:** el botón de luna (`_toggleSleep`, tooltip "Dormir") y, de noche en un lugar con foco, apagarlo (`_toggleLamp`). De día el foco no la duerme.
+- **Qué la despierta:** el botón de sol ("Despertar"), acariciarla, prender el foco de noche y pasar a de día con `_toggleNight`. Anochecer no la duerme, porque el foco empieza prendido.
+- Con lector de pantalla, el doble toque sobre la nutria la despierta si duerme; si no, cuenta como una caricia completa.
+- **Las "z":** cuando ya terminó de acostarse, `_addZIfDue` (llamado en cada tick) suma una cada `_zEvery` (0,9 s). Son `_Heart` con `isZ: true`: salen por encima de la cabeza (70 % del ancho, 40 % del alto de la caja), viven `_zLife` (2 s), crecen al subir y se desvanecen.
+- La pista de abajo cambia a "Shh… está dormida. Acaríciala para despertarla."
+- Dormir no se guarda: al volver a entrar está despierta.
+- Las 7 nutrias tienen `sleep` y `wake` con la misma forma (terminan y empiezan enroscadas), así que el cambio entre una y otra no salta.
 
 Los corazones (`_Heart`) guardan su origen, una deriva horizontal aleatoria y su momento de nacimiento. En cada tick se dibujan según su edad `t ∈ [0,1]`: suben 90 px y se desvanecen. Se borran al pasar `_heartLife` (1 s). Van dentro de `IgnorePointer` para no robar el gesto.
 
@@ -255,12 +272,13 @@ Todo está en constantes al inicio de `_OtterPetScreenState`:
 | `_otterSize` | Tamaño de la nutria en pantalla |
 | `_lampWidth` | Tamaño del foco |
 | `HabitatScene.isNightAt` | Desde qué hora es de noche |
+| `_sleepFps`, `_zEvery`, `_strokeToWake` | Velocidad al dormirse o despertar, cada cuánto sale una "z", cuánto roce la despierta |
 
 Para ver un cambio: hot reload (`r`) en `flutter run`. Si un `static const` no se actualiza, usa hot restart (`R`).
 
 ## Tests
 
-`test/features/game/otter_skin_test.dart` comprueba que cada nutria del catálogo tiene sus dos spritesheets declarados en `pubspec.yaml` y que se decodifican a 3072×512, que su `petFrame` está entre 0 y 5, que no hay ids repetidos y que un id desconocido vuelve a la Clásica.
+`test/features/game/otter_skin_test.dart` comprueba que cada nutria del catálogo tiene sus cuatro spritesheets (`idle`, `happiness`, `sleep`, `wake`) declarados en `pubspec.yaml` y que se decodifican a 3072×512, que su `petFrame` está entre 0 y 5, que no hay ids repetidos y que un id desconocido vuelve a la Clásica.
 
 `test/features/game/habitat_scene_test.dart` comprueba que cada lugar tiene su fondo de día y de noche y que se decodifican a 1440×2560, que los dos focos existen, que no hay ids repetidos, que un id desconocido vuelve a la habitación y el borde de la regla día/noche (5:59 noche, 6:00 día, 18:59 día, 19:00 noche).
 
@@ -270,7 +288,9 @@ Para ver un cambio: hot reload (`r`) en `flutter run`. Si un `static const` no s
 - los toques sin mover el dedo no cuentan;
 - elegir la Chef en "Tu colección" la muestra, la guarda y sigue elegida al volver a entrar, sin mostrar antes la Clásica;
 - elegir "Costa" en "Lugares" cambia el fondo, lo guarda, no muestra el foco (no es bajo techo) y el botón de sol/luna pasa a la versión de día;
-- de noche, apagar el foco oscurece la habitación y prenderlo la aclara.
+- de noche, apagar el foco oscurece la habitación y prenderlo la aclara;
+- el botón de luna la duerme (se ve `sleep`, cambia la pista y salen "z"), y una caricia la despierta (se ve `wake`, sin corazones) y vuelve al reposo;
+- de noche, apagar el foco la duerme y prenderlo la despierta.
 
 Como la escena empieza de día o de noche según la hora real, los tests que dependen de eso primero tocan "Ver de noche" si hace falta (`goToNight`).
 
@@ -284,7 +304,7 @@ flutter test test/features/game
 
 - **Persistencia del estado:** hoy solo se guardan la nutria y el lugar elegidos. Para un tamagotchi real faltan estados (cariño, hambre, energía) guardados con `shared_preferences` (ya está en la app) o en el backend, y que bajen con el tiempo.
 - **Más interacciones** con las otras acciones: dar de comer (`eat`, con la comida como objeto aparte, ver el README de assets y la carpeta `nutrilifeGame/comida`), dormir/despertar (`sleep` se reproduce una vez y se queda en el último cuadro; luego `wake`), tristeza si la descuidas (`sadness`), etc.
-- **Dormir:** de noche con el foco apagado sería el momento natural para la animación `sleep` (y `wake` al prenderlo o al llegar el día).
+- **Sueño con sentido:** hoy dormir es solo visual. En un tamagotchi recuperaría energía, y despertarla a cada rato la pondría de mal humor (`sadness`).
 - **Más nutrias:** ya están todas las de `nutrilifeGame/` que tienen animaciones. Faltan las de `pending_exclusives` (cuando lleguen sus `idle` y `happiness`). `nutrias_vestimenta` y `nutrias_desbloqueables` son imágenes de referencia sueltas, sin animaciones.
 - **Más fondos:** ya se usan todos los de `habitads`. Falta `fondos/isla flotante/`, que trae otras piezas (bóveda, refugio de cristal) y no tiene versión día/noche.
 - **¿Flame?** Hoy no hace falta: con una sola nutria, un gesto y un fondo, Flutter puro alcanza y no suma dependencias. Conviene pasarse a [Flame](https://flame-engine.org/) (motor 2D sobre Flutter: game loop, `SpriteAnimation`, colisiones, cámara, audio) si el juego llega a tener varios objetos que se mueven y chocan (comida que cae, minijuegos, mundo con cámara). [Flutter Scene](https://fscene.dev/) es para 3D, así que no aplica a este pixel art.

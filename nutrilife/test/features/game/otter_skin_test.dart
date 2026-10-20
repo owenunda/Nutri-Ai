@@ -11,7 +11,12 @@ void main() {
   // elegirla en la app.
   test('cada nutria del catálogo tiene sus spritesheets', () async {
     for (final skin in OtterSkin.all) {
-      for (final sheet in [skin.idleSheet, skin.happinessSheet]) {
+      for (final sheet in [
+        skin.idleSheet,
+        skin.happinessSheet,
+        skin.sleepSheet,
+        skin.wakeSheet,
+      ]) {
         // Se decodifica de verdad: un WebP mal convertido fallaría acá.
         final bytes = await rootBundle.load(sheet);
         final codec = await ui.instantiateImageCodec(

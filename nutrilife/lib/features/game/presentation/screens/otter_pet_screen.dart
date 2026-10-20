@@ -13,8 +13,8 @@ import '../widgets/game_picker_sheet.dart';
 import '../widgets/otter_sprite.dart';
 
 /// La nutria tipo tamagotchi. Se acaricia pasando el dedo por encima (un
-/// toque sin mover el dedo no cuenta), se elige qué nutria y en qué lugar
-/// vive, y el lugar cambia entre día y noche.
+/// toque sin mover el dedo no cuenta), duerme y despierta, se elige qué nutria
+/// y en qué lugar vive, y el lugar cambia entre día y noche.
 class OtterPetScreen extends StatefulWidget {
   const OtterPetScreen({super.key});
 
@@ -22,12 +22,14 @@ class OtterPetScreen extends StatefulWidget {
   State<OtterPetScreen> createState() => _OtterPetScreenState();
 }
 
+/// Algo que sube y se desvanece sobre la nutria: un corazón o una "z".
 class _Heart {
-  _Heart(this.origin, this.drift, this.born);
+  _Heart(this.origin, this.drift, this.born, {this.isZ = false});
 
   final Offset origin;
   final double drift;
   final Duration born;
+  final bool isZ;
 }
 
 class _OtterPetScreenState extends State<OtterPetScreen>
@@ -52,6 +54,12 @@ class _OtterPetScreenState extends State<OtterPetScreen>
   static const _happyDuration = Duration(milliseconds: 6 * 1000 ~/ _happyFps);
   static const _happyMessage = Duration(seconds: 2);
   static const _heartLife = Duration(milliseconds: 1000);
+  static const _sleepFps = 6;
+  // sleep y wake tienen 6 cuadros y se reproducen una sola vez.
+  static const _sleepDuration = Duration(milliseconds: 6 * 1000 ~/ _sleepFps);
+  static const _zEvery = Duration(milliseconds: 900);
+  static const _zLife = Duration(milliseconds: 2000);
+  static const _strokeToWake = 150.0; // px de caricia para despertarla
 
   late final Ticker _ticker;
   final _prefs = GamePreferences();
@@ -69,6 +77,11 @@ class _OtterPetScreenState extends State<OtterPetScreen>
   Duration? _happySince;
   double _petDistance = 0;
   double _sinceHeart = 0;
+  // Dormida desde ese momento; null = despierta.
+  Duration? _sleepSince;
+  Duration? _wakeSince;
+  Duration? _lastZ;
+  double _wakeDistance = 0;
 
   @override
   void initState() {
@@ -76,7 +89,10 @@ class _OtterPetScreenState extends State<OtterPetScreen>
     _ticker = createTicker((elapsed) {
       setState(() {
         _now = elapsed;
-        _hearts.removeWhere((h) => _now - h.born > _heartLife);
+        _hearts.removeWhere(
+          (h) => _now - h.born > (h.isZ ? _zLife : _heartLife),
+        );
+        _addZIfDue();
       });
     })..start();
     // El hábitat está pensado en vertical: de lado la nutria no cae en la alfombra.
@@ -141,7 +157,55 @@ class _OtterPetScreenState extends State<OtterPetScreen>
   void _toggleNight() => setState(() {
     _night = !_night;
     _lampOn = _night;
+    // Amanece: se despierta. Anochecer no la duerme: la luz empieza prendida.
+    if (!_night) _wake();
   });
+
+  // De noche en la habitación, el foco también la duerme y la despierta.
+  void _toggleLamp() => setState(() {
+    _lampOn = !_lampOn;
+    if (!_night) return;
+    _lampOn ? _wake() : _sleep();
+  });
+
+  void _toggleSleep() => setState(() => _isAsleep ? _wake() : _sleep());
+
+  bool get _isAsleep => _sleepSince != null;
+
+  bool get _isWaking =>
+      _wakeSince != null && _now - _wakeSince! < _sleepDuration;
+
+  void _sleep() {
+    if (_isAsleep) return;
+    _sleepSince = _now;
+    _wakeSince = null;
+    _happySince = null;
+    _lastStroke = null;
+    _petDistance = 0;
+    _wakeDistance = 0;
+  }
+
+  void _wake() {
+    if (!_isAsleep) return;
+    _sleepSince = null;
+    _wakeSince = _now;
+    _lastZ = null;
+  }
+
+  // Ya acostada, cada tanto sale una "z" por encima de su cabeza.
+  void _addZIfDue() {
+    if (!_isAsleep || _now - _sleepSince! < _sleepDuration) return;
+    if (_lastZ != null && _now - _lastZ! < _zEvery) return;
+    _lastZ = _now;
+    _hearts.add(
+      _Heart(
+        const Offset(_otterSize * 0.7, _otterSize * 0.4),
+        20 + _random.nextDouble() * 20,
+        _now,
+        isZ: true,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -157,12 +221,19 @@ class _OtterPetScreenState extends State<OtterPetScreen>
       _lastStroke != null && _now - _lastStroke! < _strokeGrace;
 
   void _onPointerMove(PointerMoveEvent e) {
-    if (_isHappy) return;
+    if (_isHappy || _isWaking) return;
     // El sprite tiene margen transparente: solo cuenta el roce sobre el cuerpo.
     final body = (Offset.zero & const Size.square(_otterSize)).deflate(
       _otterSize * 0.15,
     );
     if (!body.contains(e.localPosition)) return;
+
+    // Dormida, una caricia suave la despierta en vez de sumar corazones.
+    if (_isAsleep) {
+      _wakeDistance += e.delta.distance;
+      if (_wakeDistance >= _strokeToWake) _wake();
+      return;
+    }
 
     final distance = e.delta.distance;
     _lastStroke = _now;
@@ -195,6 +266,15 @@ class _OtterPetScreenState extends State<OtterPetScreen>
       _hearts.add(_Heart(at, (_random.nextDouble() - 0.5) * 60, _now));
 
   (String, int) _sprite(OtterSkin skin) {
+    // Se acuesta una vez y se queda en el último cuadro mientras duerme.
+    if (_isAsleep) {
+      final frame = (_now - _sleepSince!).inMilliseconds * _sleepFps ~/ 1000;
+      return (skin.sleepSheet, frame.clamp(0, 5));
+    }
+    if (_isWaking) {
+      final frame = (_now - _wakeSince!).inMilliseconds * _sleepFps ~/ 1000;
+      return (skin.wakeSheet, frame.clamp(0, 5));
+    }
     if (_isHappy) {
       final frame = (_now - _happySince!).inMilliseconds * _happyFps ~/ 1000;
       return (skin.happinessSheet, frame.clamp(0, 5));
@@ -290,7 +370,7 @@ class _OtterPetScreenState extends State<OtterPetScreen>
                   // equivale a una caricia completa.
                   child: Semantics(
                     label: l10n.gamePetHint,
-                    onTap: () => setState(_celebrate),
+                    onTap: () => setState(_isAsleep ? _wake : _celebrate),
                     child: Listener(
                       onPointerMove: _onPointerMove,
                       child: SizedBox.square(
@@ -330,7 +410,7 @@ class _OtterPetScreenState extends State<OtterPetScreen>
                     button: true,
                     label: _lampOn ? l10n.gameLampOff : l10n.gameLampOn,
                     child: GestureDetector(
-                      onTap: () => setState(() => _lampOn = !_lampOn),
+                      onTap: _toggleLamp,
                       child: Image.asset(
                         _lampOn ? _lampOnAsset : _lampOffAsset,
                         width: _lampWidth,
@@ -345,7 +425,28 @@ class _OtterPetScreenState extends State<OtterPetScreen>
                 bottom: MediaQuery.paddingOf(context).bottom + 16,
                 left: 24,
                 right: 24,
-                child: Center(child: _pill(_hintText(l10n.gamePetHint))),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: _pill(
+                        _hintText(
+                          _isAsleep ? l10n.gameSleepingHint : l10n.gamePetHint,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _barButton(
+                      icon: Icon(
+                        _isAsleep
+                            ? Icons.wb_sunny_rounded
+                            : Icons.bedtime_rounded,
+                      ),
+                      tooltip: _isAsleep ? l10n.gameWake : l10n.gameSleep,
+                      onPressed: _toggleSleep,
+                    ),
+                  ],
+                ),
               ),
               if (_happySince != null && _now - _happySince! < _happyMessage)
                 // La punta del globo (abajo, a ~25 % de su ancho) apunta a la
@@ -458,18 +559,31 @@ class _OtterPetScreenState extends State<OtterPetScreen>
   }
 
   Widget _buildHeart(_Heart heart) {
-    final t = (_now - heart.born).inMicroseconds / _heartLife.inMicroseconds;
+    final life = heart.isZ ? _zLife : _heartLife;
+    final t = (_now - heart.born).inMicroseconds / life.inMicroseconds;
     return Positioned(
       left: heart.origin.dx + heart.drift * t - 12,
       top: heart.origin.dy - 90 * t - 12,
       child: IgnorePointer(
         child: Opacity(
           opacity: (1 - t).clamp(0, 1),
-          child: const Icon(
-            Icons.favorite_rounded,
-            color: Color(0xFFFF6B8B),
-            size: 24,
-          ),
+          child: heart.isZ
+              ? Text(
+                  'z',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    // Crecen al subir, como en los dibujos animados.
+                    fontSize: 18 + 14 * t,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF4F5FB8),
+                    shadows: const [Shadow(color: Colors.white, blurRadius: 4)],
+                  ),
+                )
+              : const Icon(
+                  Icons.favorite_rounded,
+                  color: Color(0xFFFF6B8B),
+                  size: 24,
+                ),
         ),
       ),
     );

@@ -1130,5 +1130,8 @@
   "gamePlaceEspacioBasico": "Space station",
   "gamePlaceEspacioAurora": "Aurora lookout",
   "gamePlaceEspacioOro": "Golden observatory",
-  "gamePlaceEspacioDiamante": "Crystal island"
+  "gamePlaceEspacioDiamante": "Crystal island",
+  "gameSleep": "Sleep",
+  "gameWake": "Wake up",
+  "gameSleepingHint": "Shh… your otter is asleep. Pet it to wake it up."
 }
