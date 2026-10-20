@@ -2423,4 +2423,79 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get gamePetHappy => '¡Le encantó! 💚';
+
+  @override
+  String get gameChangeOtter => 'Cambiar de nutria';
+
+  @override
+  String get gameCollectionTitle => 'Tu colección';
+
+  @override
+  String get gameCollectionSubtitle => 'Elige qué nutria te acompaña.';
+
+  @override
+  String get gameSkinNormal => 'Clásica';
+
+  @override
+  String get gameSkinChef => 'Chef';
+
+  @override
+  String get gameSkinDeportiva => 'Deportiva';
+
+  @override
+  String get gameSkinAlienMint => 'Alien menta';
+
+  @override
+  String get gameSkinArcadeRacer => 'Corredor arcade';
+
+  @override
+  String get gameSkinGalaxia => 'Galaxia';
+
+  @override
+  String get gameSkinRpgExplorer => 'Explorador RPG';
+
+  @override
+  String get gameChangePlace => 'Cambiar de lugar';
+
+  @override
+  String get gamePlacesTitle => 'Lugares';
+
+  @override
+  String get gamePlacesSubtitle => 'Elige dónde vive tu nutria.';
+
+  @override
+  String get gameShowDay => 'Ver de día';
+
+  @override
+  String get gameShowNight => 'Ver de noche';
+
+  @override
+  String get gameLampOn => 'Prender la luz';
+
+  @override
+  String get gameLampOff => 'Apagar la luz';
+
+  @override
+  String get gamePlaceHabitacion => 'Habitación';
+
+  @override
+  String get gamePlaceBosque => 'Bosque';
+
+  @override
+  String get gamePlaceCosta => 'Costa';
+
+  @override
+  String get gamePlaceMontana => 'Montaña';
+
+  @override
+  String get gamePlaceEspacioBasico => 'Estación espacial';
+
+  @override
+  String get gamePlaceEspacioAurora => 'Mirador aurora';
+
+  @override
+  String get gamePlaceEspacioOro => 'Observatorio dorado';
+
+  @override
+  String get gamePlaceEspacioDiamante => 'Isla de cristal';
 }

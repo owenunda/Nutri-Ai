@@ -2417,4 +2417,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gamePetHappy => 'It loved it! 💚';
+
+  @override
+  String get gameChangeOtter => 'Change otter';
+
+  @override
+  String get gameCollectionTitle => 'Your collection';
+
+  @override
+  String get gameCollectionSubtitle => 'Choose which otter keeps you company.';
+
+  @override
+  String get gameSkinNormal => 'Classic';
+
+  @override
+  String get gameSkinChef => 'Chef';
+
+  @override
+  String get gameSkinDeportiva => 'Sporty';
+
+  @override
+  String get gameSkinAlienMint => 'Mint alien';
+
+  @override
+  String get gameSkinArcadeRacer => 'Arcade racer';
+
+  @override
+  String get gameSkinGalaxia => 'Galaxy';
+
+  @override
+  String get gameSkinRpgExplorer => 'RPG explorer';
+
+  @override
+  String get gameChangePlace => 'Change place';
+
+  @override
+  String get gamePlacesTitle => 'Places';
+
+  @override
+  String get gamePlacesSubtitle => 'Choose where your otter lives.';
+
+  @override
+  String get gameShowDay => 'Show day';
+
+  @override
+  String get gameShowNight => 'Show night';
+
+  @override
+  String get gameLampOn => 'Turn on the light';
+
+  @override
+  String get gameLampOff => 'Turn off the light';
+
+  @override
+  String get gamePlaceHabitacion => 'Bedroom';
+
+  @override
+  String get gamePlaceBosque => 'Forest';
+
+  @override
+  String get gamePlaceCosta => 'Coast';
+
+  @override
+  String get gamePlaceMontana => 'Mountain';
+
+  @override
+  String get gamePlaceEspacioBasico => 'Space station';
+
+  @override
+  String get gamePlaceEspacioAurora => 'Aurora lookout';
+
+  @override
+  String get gamePlaceEspacioOro => 'Golden observatory';
+
+  @override
+  String get gamePlaceEspacioDiamante => 'Crystal island';
 }

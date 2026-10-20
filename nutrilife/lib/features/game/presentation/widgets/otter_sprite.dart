@@ -11,8 +11,6 @@ class OtterSprite extends StatelessWidget {
   });
 
   static const frameCount = 6;
-  static const idleSheet = 'assets/game/otter/idle.png';
-  static const happinessSheet = 'assets/game/otter/happiness.png';
 
   final String sheet;
   final int frame;

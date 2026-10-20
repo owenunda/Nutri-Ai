@@ -34,7 +34,14 @@ flutter:
   assets:
     - assets/images/
     - assets/images/hydration/
-    - assets/game/otter/
+    - assets/game/otters/normal/
+    - assets/game/otters/chef/
+    - assets/game/otters/deportiva/
+    - assets/game/otters/alien_mint/
+    - assets/game/otters/arcade_racer/
+    - assets/game/otters/galaxia/
+    - assets/game/otters/rpg_explorer/
+    - assets/game/habitat/
     - assets/images/nutria tomando agua.png
     - assets/images/nutria_celebracion.png
     - assets/images/nutria_estadisticas_cientifica_borde_negro_1024.png

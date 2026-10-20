@@ -3973,6 +3973,156 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¡Le encantó! 💚'**
   String get gamePetHappy;
+
+  /// No description provided for @gameChangeOtter.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar de nutria'**
+  String get gameChangeOtter;
+
+  /// No description provided for @gameCollectionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu colección'**
+  String get gameCollectionTitle;
+
+  /// No description provided for @gameCollectionSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige qué nutria te acompaña.'**
+  String get gameCollectionSubtitle;
+
+  /// No description provided for @gameSkinNormal.
+  ///
+  /// In es, this message translates to:
+  /// **'Clásica'**
+  String get gameSkinNormal;
+
+  /// No description provided for @gameSkinChef.
+  ///
+  /// In es, this message translates to:
+  /// **'Chef'**
+  String get gameSkinChef;
+
+  /// No description provided for @gameSkinDeportiva.
+  ///
+  /// In es, this message translates to:
+  /// **'Deportiva'**
+  String get gameSkinDeportiva;
+
+  /// No description provided for @gameSkinAlienMint.
+  ///
+  /// In es, this message translates to:
+  /// **'Alien menta'**
+  String get gameSkinAlienMint;
+
+  /// No description provided for @gameSkinArcadeRacer.
+  ///
+  /// In es, this message translates to:
+  /// **'Corredor arcade'**
+  String get gameSkinArcadeRacer;
+
+  /// No description provided for @gameSkinGalaxia.
+  ///
+  /// In es, this message translates to:
+  /// **'Galaxia'**
+  String get gameSkinGalaxia;
+
+  /// No description provided for @gameSkinRpgExplorer.
+  ///
+  /// In es, this message translates to:
+  /// **'Explorador RPG'**
+  String get gameSkinRpgExplorer;
+
+  /// No description provided for @gameChangePlace.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar de lugar'**
+  String get gameChangePlace;
+
+  /// No description provided for @gamePlacesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Lugares'**
+  String get gamePlacesTitle;
+
+  /// No description provided for @gamePlacesSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige dónde vive tu nutria.'**
+  String get gamePlacesSubtitle;
+
+  /// No description provided for @gameShowDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver de día'**
+  String get gameShowDay;
+
+  /// No description provided for @gameShowNight.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver de noche'**
+  String get gameShowNight;
+
+  /// No description provided for @gameLampOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Prender la luz'**
+  String get gameLampOn;
+
+  /// No description provided for @gameLampOff.
+  ///
+  /// In es, this message translates to:
+  /// **'Apagar la luz'**
+  String get gameLampOff;
+
+  /// No description provided for @gamePlaceHabitacion.
+  ///
+  /// In es, this message translates to:
+  /// **'Habitación'**
+  String get gamePlaceHabitacion;
+
+  /// No description provided for @gamePlaceBosque.
+  ///
+  /// In es, this message translates to:
+  /// **'Bosque'**
+  String get gamePlaceBosque;
+
+  /// No description provided for @gamePlaceCosta.
+  ///
+  /// In es, this message translates to:
+  /// **'Costa'**
+  String get gamePlaceCosta;
+
+  /// No description provided for @gamePlaceMontana.
+  ///
+  /// In es, this message translates to:
+  /// **'Montaña'**
+  String get gamePlaceMontana;
+
+  /// No description provided for @gamePlaceEspacioBasico.
+  ///
+  /// In es, this message translates to:
+  /// **'Estación espacial'**
+  String get gamePlaceEspacioBasico;
+
+  /// No description provided for @gamePlaceEspacioAurora.
+  ///
+  /// In es, this message translates to:
+  /// **'Mirador aurora'**
+  String get gamePlaceEspacioAurora;
+
+  /// No description provided for @gamePlaceEspacioOro.
+  ///
+  /// In es, this message translates to:
+  /// **'Observatorio dorado'**
+  String get gamePlaceEspacioOro;
+
+  /// No description provided for @gamePlaceEspacioDiamante.
+  ///
+  /// In es, this message translates to:
+  /// **'Isla de cristal'**
+  String get gamePlaceEspacioDiamante;
 }
 
 class _AppLocalizationsDelegate

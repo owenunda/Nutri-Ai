@@ -12,6 +12,7 @@ import '../../../../core/widgets/custom_bottom_nav_bar.dart';
 import '../../../../features/chatbot/presentation/screens/ai_chat_view.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
 import '../../../auth/presentation/screens/register_screen.dart';
+import '../../../game/domain/otter_skin.dart';
 import '../../../game/presentation/screens/otter_pet_screen.dart';
 import '../../../game/presentation/widgets/otter_sprite.dart';
 import '../../../hydration/presentation/screens/water_streak_screen.dart';
@@ -209,10 +210,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 16),
           HomeShortcutCard(
-            leading: const ColoredBox(
+            leading: ColoredBox(
               color: AppTheme.primaryContainer,
               child: OtterSprite(
-                sheet: OtterSprite.idleSheet,
+                sheet: OtterSkin.normal.idleSheet,
                 frame: 0,
                 size: 52,
               ),
