@@ -2402,4 +2402,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hydrationErrorLoad =>
       'Couldn\'t load your water streak. Check your connection.';
+
+  @override
+  String get homeGameCardTitle => 'Play with your otter';
+
+  @override
+  String get homeGameCardSubtitle => 'Pet it and see how it reacts.';
+
+  @override
+  String get gameTitle => 'Your otter';
+
+  @override
+  String get gamePetHint => 'Pet the otter with your finger';
+
+  @override
+  String get gamePetHappy => 'It loved it! 💚';
 }

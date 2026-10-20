@@ -2408,4 +2408,19 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get hydrationErrorLoad =>
       'No se pudo cargar tu racha de agua. Revisa tu conexión.';
+
+  @override
+  String get homeGameCardTitle => 'Juega con tu nutria';
+
+  @override
+  String get homeGameCardSubtitle => 'Acaríciala y mira cómo reacciona.';
+
+  @override
+  String get gameTitle => 'Tu nutria';
+
+  @override
+  String get gamePetHint => 'Acaricia a la nutria con el dedo';
+
+  @override
+  String get gamePetHappy => '¡Le encantó! 💚';
 }

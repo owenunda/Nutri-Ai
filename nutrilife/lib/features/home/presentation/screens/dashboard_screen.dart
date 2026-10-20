@@ -12,14 +12,16 @@ import '../../../../core/widgets/custom_bottom_nav_bar.dart';
 import '../../../../features/chatbot/presentation/screens/ai_chat_view.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
 import '../../../auth/presentation/screens/register_screen.dart';
+import '../../../game/presentation/screens/otter_pet_screen.dart';
+import '../../../game/presentation/widgets/otter_sprite.dart';
 import '../../../hydration/presentation/screens/water_streak_screen.dart';
 import '../../../meals/presentation/screens/meal_history_screen.dart';
 import '../../../nutrition/presentation/screens/foods_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../progress/presentation/screens/progress_screen.dart';
-import '../widgets/ai_suggestion_card.dart';
 import '../widgets/guest_banner.dart';
 import '../widgets/home_header.dart';
+import '../widgets/home_shortcut_card.dart';
 import '../widgets/today_meals_section.dart';
 import '../widgets/water_streak_home_card.dart';
 
@@ -196,7 +198,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onTap: _openWaterTracker,
           ),
           const SizedBox(height: 24),
-          AiSuggestionCard(onTap: () => _onTabSelected(2)),
+          HomeShortcutCard(
+            leading: Image.asset(
+              'assets/images/nutria_comiendo.png',
+              fit: BoxFit.cover,
+            ),
+            title: context.l10n.homeAiCardTitle,
+            subtitle: context.l10n.homeAiCardSubtitle,
+            onTap: () => _onTabSelected(2),
+          ),
+          const SizedBox(height: 16),
+          HomeShortcutCard(
+            leading: const ColoredBox(
+              color: AppTheme.primaryContainer,
+              child: OtterSprite(
+                sheet: OtterSprite.idleSheet,
+                frame: 0,
+                size: 52,
+              ),
+            ),
+            title: context.l10n.homeGameCardTitle,
+            subtitle: context.l10n.homeGameCardSubtitle,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const OtterPetScreen()),
+            ),
+          ),
           const SizedBox(height: 28),
           TodayMealsSection(
             onOpenHistory: () => Navigator.push(

@@ -1100,5 +1100,10 @@
   "profilePremiumActiveUntil": "Active until {date}",
   "profilePremiumActiveForever": "Active with no end date",
   "profilePremiumManageUnavailable": "Manage your subscription from your phone's app store.",
-  "hydrationErrorLoad": "Couldn't load your water streak. Check your connection."
+  "hydrationErrorLoad": "Couldn't load your water streak. Check your connection.",
+  "homeGameCardTitle": "Play with your otter",
+  "homeGameCardSubtitle": "Pet it and see how it reacts.",
+  "gameTitle": "Your otter",
+  "gamePetHint": "Pet the otter with your finger",
+  "gamePetHappy": "It loved it! 💚"
 }

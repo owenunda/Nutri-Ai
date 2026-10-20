@@ -1509,5 +1509,10 @@
   },
   "profilePremiumActiveForever": "Activo sin vencimiento",
   "profilePremiumManageUnavailable": "Administra tu suscripción desde la tienda de tu teléfono.",
-  "hydrationErrorLoad": "No se pudo cargar tu racha de agua. Revisa tu conexión."
+  "hydrationErrorLoad": "No se pudo cargar tu racha de agua. Revisa tu conexión.",
+  "homeGameCardTitle": "Juega con tu nutria",
+  "homeGameCardSubtitle": "Acaríciala y mira cómo reacciona.",
+  "gameTitle": "Tu nutria",
+  "gamePetHint": "Acaricia a la nutria con el dedo",
+  "gamePetHappy": "¡Le encantó! 💚"
 }

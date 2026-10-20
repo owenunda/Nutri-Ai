@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/l10n/l10n.dart';
-class AiSuggestionCard extends StatelessWidget {
+/// Tarjeta del inicio que lleva a otra parte de la app.
+class HomeShortcutCard extends StatelessWidget {
+  final Widget leading;
+  final String title;
+  final String subtitle;
   final VoidCallback onTap;
 
-  const AiSuggestionCard({super.key, required this.onTap});
+  const HomeShortcutCard({
+    super.key,
+    required this.leading,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,21 +35,14 @@ class AiSuggestionCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            ClipOval(
-              child: Image.asset(
-                'assets/images/nutria_comiendo.png',
-                width: 52,
-                height: 52,
-                fit: BoxFit.cover,
-              ),
-            ),
+            ClipOval(child: SizedBox.square(dimension: 52, child: leading)),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.l10n.homeAiCardTitle,
+                    title,
                     style: const TextStyle(
                       color: Color(0xFF2C2F31),
                       fontSize: 16,
@@ -49,7 +51,7 @@ class AiSuggestionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    context.l10n.homeAiCardSubtitle,
+                    subtitle,
                     style: const TextStyle(
                       color: Color(0xFF64748B),
                       fontSize: 13,
@@ -71,4 +73,3 @@ class AiSuggestionCard extends StatelessWidget {
     );
   }
 }
-

@@ -3943,6 +3943,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo cargar tu racha de agua. Revisa tu conexión.'**
   String get hydrationErrorLoad;
+
+  /// No description provided for @homeGameCardTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Juega con tu nutria'**
+  String get homeGameCardTitle;
+
+  /// No description provided for @homeGameCardSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Acaríciala y mira cómo reacciona.'**
+  String get homeGameCardSubtitle;
+
+  /// No description provided for @gameTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu nutria'**
+  String get gameTitle;
+
+  /// No description provided for @gamePetHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Acaricia a la nutria con el dedo'**
+  String get gamePetHint;
+
+  /// No description provided for @gamePetHappy.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Le encantó! 💚'**
+  String get gamePetHappy;
 }
 
 class _AppLocalizationsDelegate
