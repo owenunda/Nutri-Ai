@@ -14,7 +14,9 @@ export const sendChatMessageController = async (req, res) => {
     const { userId, name } = req.user;
     const token = req.headers.authorization?.split(' ')[1];
 
-    if (!message) throw new AppError('Bad request', 400, 'BAD_REQUEST');
+    if (typeof message !== 'string' || !message.trim() || message.length > 2000) {
+      throw new AppError('Bad request', 400, 'BAD_REQUEST');
+    }
 
     // Los ids se releen de la nevera y del catálogo visible para el usuario
     // autenticado: lo que el cliente mande y no sea suyo nunca llega a n8n.

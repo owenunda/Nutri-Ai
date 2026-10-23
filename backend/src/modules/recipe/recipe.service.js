@@ -1,5 +1,5 @@
 import { getAllRecipesRepository, createRecipeRepository, addIngredientsToRecipeRepository, getRecipeByIdRepository, updateRecipeStatusRepository, updateRecipeActionRepository } from "./recipe.repository.js";
-import { checkFoodsExist } from "../food/food.repository.js";
+import { checkFoodsVisible } from "../food/food.repository.js";
 import { AppError } from "../../utils/AppError.js";
 
 export const getAllRecipesService = async (userId) => {
@@ -72,12 +72,11 @@ export const addIngredientsToRecipeService = async (userId, recipeId, ingredient
       foodIds.push(food_id);
     }
 
-    // Check if all foods exist
-    const existingFoodIds = await checkFoodsExist(foodIds);
-    const missingFoodIds = foodIds.filter(id => !existingFoodIds.includes(id));
-
-    if (missingFoodIds.length > 0) {
-      throw new AppError(`Los siguientes alimentos no existen: ${missingFoodIds.join(', ')}`, 404, 'FOOD_NOT_FOUND');
+    const visibleFoodIds = new Set(
+      (await checkFoodsVisible(userId, foodIds)).map(Number)
+    );
+    if (foodIds.some((id) => !visibleFoodIds.has(Number(id)))) {
+      throw new AppError('Uno o más alimentos no están disponibles', 404, 'FOOD_NOT_FOUND');
     }
 
     const recipe = await addIngredientsToRecipeRepository(userId, recipeId, ingredients);

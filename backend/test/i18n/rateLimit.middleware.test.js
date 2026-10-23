@@ -17,7 +17,7 @@ mock.module('rate-limiter-flexible', {
   },
 });
 
-const { chatRateLimit } = await import(src('middleware/rateLimit.middleware.js'));
+const { chatRateLimit, strictAuthRateLimit } = await import(src('middleware/rateLimit.middleware.js'));
 
 const fakeRes = () => {
   const res = { headers: {}, statusCode: null, body: null };
@@ -55,4 +55,14 @@ test('el 429 sin idioma sigue en español', async () => {
     res.body.message,
     'Has superado el límite de solicitudes. Intenta de nuevo en unos segundos.'
   );
+});
+
+test('el límite estricto de autenticación bloquea al superar el máximo', async () => {
+  const res = fakeRes();
+  await strictAuthRateLimit({ lang: 'en', ip: '1.1.1.1' }, res, () => {
+    assert.fail('no debe dejar pasar la petición');
+  });
+
+  assert.equal(res.statusCode, 429);
+  assert.equal(res.body.error.code, 'RATE_LIMIT_EXCEEDED');
 });

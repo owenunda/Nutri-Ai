@@ -6,6 +6,9 @@ const URL_WEBHOOK = config.node_env === "development" ? config.n8n.url_dev : con
 if (!URL_WEBHOOK) {
   throw new AppError("URL del webhook de n8n no está configurada", 500, "N8N_CONFIG_ERROR");
 }
+if (!config.n8n.webhookSecret) {
+  throw new AppError("La clave compartida del webhook de n8n no está configurada", 500, "N8N_CONFIG_ERROR");
+}
 
 export const sendChatN8n = async (message, userId, userName, token, attachedFoods = [], language = 'es') => {
   try {
@@ -18,7 +21,10 @@ export const sendChatN8n = async (message, userId, userName, token, attachedFood
       language,
     };
     // La app corta a los 90 s; fallar antes permite devolver el mensaje de la cuota.
-    const response = await axios.post(URL_WEBHOOK, payload, { timeout: 85_000 });
+    const response = await axios.post(URL_WEBHOOK, payload, {
+      timeout: 85_000,
+      headers: { 'X-NutriLife-Key': config.n8n.webhookSecret },
+    });
     return response.data;
   } catch (error) {
     console.error("Error al enviar mensaje a n8n:", error.response?.data || error.message);

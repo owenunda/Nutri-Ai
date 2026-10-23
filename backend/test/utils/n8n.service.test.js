@@ -25,6 +25,7 @@ mock.module('axios', {
 const { config } = await import(src('config/env_config.js'));
 config.n8n.url_dev = config.n8n.url_dev || 'http://n8n.test/webhook';
 config.n8n.url_pro = config.n8n.url_pro || 'http://n8n.test/webhook';
+config.n8n.webhookSecret = 'test-shared-secret';
 
 const { sendChatN8n } = await import(src('utils/n8n.service.js'));
 
@@ -41,6 +42,11 @@ test('sin idioma manda español', async () => {
 test('la llamada a n8n lleva timeout de 85 s', async () => {
   await sendChatN8n('hola', 7, 'Ana', 'jwt');
   assert.equal(postOptions.at(-1).timeout, 85000);
+});
+
+test('la llamada a n8n lleva la clave compartida en el header esperado', async () => {
+  await sendChatN8n('hola', 7, 'Ana', 'jwt');
+  assert.equal(postOptions.at(-1).headers['X-NutriLife-Key'], 'test-shared-secret');
 });
 
 test('si n8n falla el error es 503 con mensaje amigable', async () => {

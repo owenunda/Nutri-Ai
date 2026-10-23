@@ -237,15 +237,42 @@ test('Google: si dos logins chocan con un UNIQUE, se reintenta la búsqueda', as
   assert.equal(lookups, 2);
 });
 
-test('Email: cuenta sin contraseña responde 409 USE_GOOGLE_SIGN_IN', async () => {
+test('Email: cuenta sin contraseña no se distingue de credenciales inválidas', async () => {
   repo.findUserByEmail = async () => ({ ...ana, passwordHash: null });
 
   await assert.rejects(loginUser({ email: 'ana@gmail.com', password: 'loquesea' }), {
-    status: 409,
-    code: 'USE_GOOGLE_SIGN_IN',
+    status: 401,
+    code: 'INVALID_CREDENTIALS',
   });
   assert.deepEqual(eventTypes(), ['LOGIN_FAILED']);
   assert.equal(events[0].metadata.reason, 'USE_GOOGLE_SIGN_IN');
+});
+
+test('Email: correo inexistente y contraseña incorrecta tienen la misma respuesta', async () => {
+  const passwordHash = await bcrypt.hash('secreto123', 4);
+  repo.findUserByEmail = async () => null;
+  await assert.rejects(loginUser({ email: 'nadie@gmail.com', password: 'otra' }), {
+    status: 401,
+    code: 'INVALID_CREDENTIALS',
+    message: 'Invalid credentials',
+  });
+
+  repo.findUserByEmail = async () => ({ ...ana, passwordHash });
+  await assert.rejects(loginUser({ email: 'ana@gmail.com', password: 'otra' }), {
+    status: 401,
+    code: 'INVALID_CREDENTIALS',
+    message: 'Invalid credentials',
+  });
+});
+
+test('Sesión: usuario conserva JWT por 30 días y admin por 1 hora', async () => {
+  const passwordHash = await bcrypt.hash('secreto123', 4);
+  for (const [role, expectedSeconds] of [['USER', 30 * 24 * 60 * 60], ['ADMIN', 60 * 60]]) {
+    repo.findUserByEmail = async () => ({ ...ana, role, passwordHash });
+    const session = await loginUser({ email: 'ana@gmail.com', password: 'secreto123' });
+    const { iat, exp } = jwt.verify(session.token, 'test_secret');
+    assert.equal(exp - iat, expectedSeconds);
+  }
 });
 
 test('Email: la respuesta incluye needsProfileSetup', async () => {
@@ -446,7 +473,7 @@ test('Login: sin verificar y con contraseña incorrecta no envía código', asyn
 
   await assert.rejects(loginUser({ email: 'ana@gmail.com', password: 'otra' }), {
     status: 401,
-    code: 'INVALID_PASSWORD',
+    code: 'INVALID_CREDENTIALS',
   });
 });
 
