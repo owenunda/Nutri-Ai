@@ -10,8 +10,6 @@ const keyByUserId = (req) =>
 const keyByIp = (req) => `ai:webhook:ip:${req.ip}`;
 
 const keyAuthStrict = (req) => `auth:ip:${req.ip}`;
-const keyGlobal = (req) =>
-  req.user?.userId ? `global:user:${req.user.userId}` : `global:ip:${req.ip}`;
 
 const buildMiddleware = ({ points, keyPrefix, keyExtractor, duration = 60 }) => {
   const middleware = async (req, res, next) => {
@@ -89,16 +87,6 @@ export const strictAuthRateLimit = buildMiddleware({
   points: config.rateLimit.authStrictPerMinute,
   keyPrefix: 'rl:auth',
   keyExtractor: keyAuthStrict,
-});
-
-/**
- * Rate limit global por usuario (fallback a IP) para endpoints autenticados.
- * Default: 60 req/min.
- */
-export const globalRateLimit = buildMiddleware({
-  points: config.rateLimit.globalPerMinute,
-  keyPrefix: 'rl:global',
-  keyExtractor: keyGlobal,
 });
 
 /**

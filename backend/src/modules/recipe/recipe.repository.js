@@ -31,6 +31,8 @@ export const getAllRecipesRepository = async (userId) => {
                         FROM recipe_ingredients ri
                         JOIN foods f ON ri.food_id = f.food_id
                         WHERE ri.recipe_id = r.recipe_id
+                          AND f.is_active = true
+                          AND (f.is_global = true OR f.created_by_user_id = $1)
                     ), 
                     '[]'::json
                 ) AS ingredients
@@ -63,6 +65,8 @@ export const getRecipeByIdRepository = async (userId, recipeId) => {
                     FROM recipe_ingredients ri2
                     JOIN foods f2 ON ri2.food_id = f2.food_id
                     WHERE ri2.recipe_id = r.recipe_id
+                      AND f2.is_active = true
+                      AND (f2.is_global = true OR f2.created_by_user_id = $2)
                 ) AS total_calories,
                 COALESCE(
                     (
@@ -83,6 +87,8 @@ export const getRecipeByIdRepository = async (userId, recipeId) => {
                         FROM recipe_ingredients ri
                         JOIN foods f ON ri.food_id = f.food_id
                         WHERE ri.recipe_id = r.recipe_id
+                          AND f.is_active = true
+                          AND (f.is_global = true OR f.created_by_user_id = $2)
                     ), 
                     '[]'::json
                 ) AS ingredients
@@ -202,6 +208,8 @@ export const addIngredientsToRecipeRepository = async (userId, recipeId, ingredi
                         FROM recipe_ingredients ri
                         JOIN foods f ON ri.food_id = f.food_id
                         WHERE ri.recipe_id = r.recipe_id
+                          AND f.is_active = true
+                          AND (f.is_global = true OR f.created_by_user_id = $2)
                     ), 
                     '[]'::json
                 ) AS ingredients

@@ -82,11 +82,9 @@ router.get('/health', validateAuthHealthRequest, getAuthHealth);
  *                         user:
  *                           $ref: '#/components/schemas/User'
  *       401:
- *         description: Contraseña incorrecta
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
+ *         description: Correo o contraseña inválidos
  */
-router.post('/login', validateLoginRequest, login);
+router.post('/login', strictAuthRateLimit, validateLoginRequest, login);
 
 /**
  * @openapi
@@ -131,7 +129,7 @@ router.post('/login', validateLoginRequest, login);
  *       409:
  *         description: El email ya está registrado
  */
-router.post('/register', validateRegisterRequest, register);
+router.post('/register', strictAuthRateLimit, validateRegisterRequest, register);
 
 /**
  * @openapi

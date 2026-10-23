@@ -62,23 +62,10 @@ export const findAllFoods = async ({ userId = null, page = null, limit = null } 
 };
 
 /**
- * Verifica la existencia de múltiples IDs de alimentos.
- */
-export const checkFoodsExist = async (foodIds) => {
-  const query = `
-        SELECT food_id 
-        FROM foods 
-        WHERE food_id = ANY($1)
-    `;
-  const { rows } = await pool.query(query, [foodIds]);
-  return rows.map(row => row.food_id);
-};
-
-/**
  * Devuelve los IDs de alimentos activos visibles para el usuario
  * (globales o creados por él).
  */
-export const checkFoodsVisible = async (userId, foodIds) => {
+export const checkFoodsVisible = async (userId, foodIds, db = pool) => {
   const query = `
         SELECT food_id
         FROM foods
@@ -86,7 +73,7 @@ export const checkFoodsVisible = async (userId, foodIds) => {
           AND is_active = TRUE
           AND (is_global = TRUE OR created_by_user_id = $2)
     `;
-  const { rows } = await pool.query(query, [foodIds, userId]);
+  const { rows } = await db.query(query, [foodIds, userId]);
   return rows.map(row => row.food_id);
 };
 

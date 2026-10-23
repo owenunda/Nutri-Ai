@@ -23,7 +23,8 @@ import { createFridgeService } from '../fridge/fridge.service.js';
 import { logEventService } from '../events/events.service.js';
 import { bogotaDayKey } from '../../utils/bogotaDay.js';
 
-const JWT_EXPIRES_IN = '1h';
+const JWT_ADMIN_EXPIRES_IN = '1h';
+const JWT_USER_EXPIRES_IN = '30d';
 const SALT_ROUNDS = 10;
 const GOOGLE = 'google';
 const UNIQUE_VIOLATION = '23505';
@@ -55,7 +56,9 @@ export const getAuthModuleStatus = async () => {
 const tokenExpiry = (user) =>
   user.guestExpiresAt
     ? Math.max(1, Math.floor((new Date(user.guestExpiresAt).getTime() - Date.now()) / 1000))
-    : JWT_EXPIRES_IN;
+    : user.role === 'ADMIN'
+      ? JWT_ADMIN_EXPIRES_IN
+      : JWT_USER_EXPIRES_IN;
 
 const issueToken = (user) => {
   if (!config.jwt.secret) {
@@ -164,7 +167,7 @@ export const loginUser = async ({ email, password, lang }) => {
         userId: null,
         metadata: { email, reason: 'USER_NOT_FOUND' },
       });
-      throw new AppError('Cuenta no existe', 404, 'USER_NOT_FOUND');
+      throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
     if (!user.passwordHash) {
@@ -174,11 +177,7 @@ export const loginUser = async ({ email, password, lang }) => {
         userId: user.userId,
         metadata: { email, reason: 'USE_GOOGLE_SIGN_IN' },
       });
-      throw new AppError(
-        'Esta cuenta usa Google. Toca «Continuar con Google».',
-        409,
-        'USE_GOOGLE_SIGN_IN'
-      );
+      throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
@@ -190,7 +189,7 @@ export const loginUser = async ({ email, password, lang }) => {
         userId: user.userId,
         metadata: { email, reason: 'INVALID_PASSWORD' },
       });
-      throw new AppError('Contraseña incorrecta', 401, 'INVALID_PASSWORD');
+      throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
     if (!user.emailVerifiedAt) {

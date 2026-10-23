@@ -5,6 +5,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "ce62552f-3888-4987-8e21-0386984abda1",
+        "authentication": "headerAuth",
         "responseMode": "responseNode",
         "options": {}
       },

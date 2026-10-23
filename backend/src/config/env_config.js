@@ -39,6 +39,7 @@ export const config = {
   n8n: {
     url_dev: trim(env.N8N_URL_DEV),
     url_pro: trim(env.N8N_URL_PRO),
+    webhookSecret: trim(env.N8N_WEBHOOK_SECRET),
   },
   redis: {
     url: trim(env.REDIS_URL),
@@ -47,7 +48,6 @@ export const config = {
     chatPerMinute: Number(trim(env.RATE_LIMIT_CHAT_PER_MINUTE)) || 10,
     aiWebhookPerMinute: Number(trim(env.RATE_LIMIT_AI_WEBHOOK_PER_MINUTE)) || 60,
     authStrictPerMinute: Number(trim(env.RATE_LIMIT_AUTH_PER_MINUTE)) || 5,
-    globalPerMinute: Number(trim(env.RATE_LIMIT_GLOBAL_PER_MINUTE)) || 60,
     subscriptionSyncPerMinute: Number(trim(env.RATE_LIMIT_SUBSCRIPTION_SYNC_PER_MINUTE)) || 10,
     guestPerHour: Number(trim(env.RATE_LIMIT_GUEST_PER_HOUR)) || 5,
   },

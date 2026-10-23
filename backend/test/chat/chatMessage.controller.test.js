@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 const src = (path) => new URL(`../../src/${path}`, import.meta.url).href;
 
 let sendImpl;
+let sendCalls;
 mock.module(src('utils/n8n.service.js'), {
   namedExports: { sendChatN8n: (...args) => sendImpl(...args) },
 });
@@ -47,7 +48,11 @@ const buildReq = (overrides = {}) => ({
 
 beforeEach(() => {
   refunds = 0;
-  sendImpl = async () => ({ type: 'CHAT', message: 'hola', recipe: null });
+  sendCalls = 0;
+  sendImpl = async () => {
+    sendCalls++;
+    return { type: 'CHAT', message: 'hola', recipe: null };
+  };
 });
 
 test('la respuesta del chat trae la cuota', async () => {
@@ -95,6 +100,29 @@ test('un mensaje vacío no cuenta', async () => {
   await sendChatMessageController(buildReq({ body: { message: '' } }), res);
 
   assert.equal(res.statusCode, 400);
+  assert.equal(refunds, 1);
+});
+
+test('rechaza mensajes que no sean texto o que solo tengan espacios', async () => {
+  for (const message of [null, 42, {}, '   ']) {
+    const res = fakeRes();
+    await sendChatMessageController(buildReq({ body: { message } }), res);
+    assert.equal(res.statusCode, 400);
+    assert.equal(sendCalls, 0);
+  }
+  assert.equal(refunds, 4);
+});
+
+test('acepta mensajes de hasta 2000 caracteres y rechaza los que exceden el máximo', async () => {
+  let res = fakeRes();
+  await sendChatMessageController(buildReq({ body: { message: 'a'.repeat(2000) } }), res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(sendCalls, 1);
+
+  res = fakeRes();
+  await sendChatMessageController(buildReq({ body: { message: 'a'.repeat(2001) } }), res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(sendCalls, 1);
   assert.equal(refunds, 1);
 });
 

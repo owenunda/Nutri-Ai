@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Panel administrativo de NutriLife: visualización y análisis de eventos de actividad.",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "vite --config vite.config.ts",
+    "build": "tsc -b && vite build --config vite.config.ts",
     "preview": "vite preview",
     "lint": "eslint ."
   },

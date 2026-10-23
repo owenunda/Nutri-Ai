@@ -34,6 +34,22 @@ export const getFridgeByUserIdRepository = async (userId) => {
     const { rows } = await pool.query(query, [userId]);
     return rows[0] || null;
 };
+
+// Recupera usuarios antiguos/incompletos creando su nevera si hace falta.
+// ON CONFLICT hace segura la recuperación si dos solicitudes llegan a la vez.
+export const getOrCreateFridgeByUserIdRepository = async (userId) => {
+    const existing = await getFridgeByUserIdRepository(userId);
+    if (existing) return existing;
+
+    await pool.query(`
+        INSERT INTO fridges (user_id)
+        VALUES ($1)
+        ON CONFLICT (user_id) DO NOTHING
+    `, [userId]);
+
+    return await getFridgeByUserIdRepository(userId);
+};
+
 // Crea una nevera nueva para el usuario recién registrado
 export const createFridgeRepository = async (userId) => {
     const query = `
@@ -89,17 +105,6 @@ export const addOrUpdateFridgeItemRepository = async (fridgeId, foodId, quantity
     return rows[0];
 };
 
-// Verifica si un alimento existe y está activo
-export const checkFoodExistsRepository = async (foodId) => {
-    const query = `
-        SELECT food_id AS "foodId", name, is_active AS "isActive"
-        FROM foods
-        WHERE food_id = $1 AND is_active = true
-    `;
-    const { rows } = await pool.query(query, [foodId]);
-    return rows[0] || null;
-};
-
 // Actualiza la cantidad de un item en la nevera, verificando propiedad
 export const updateFridgeItemRepository = async (itemId, userId, quantity) => {
     const query = `
@@ -109,6 +114,13 @@ export const updateFridgeItemRepository = async (itemId, userId, quantity) => {
         WHERE fi.fridge_item_id = $2
         AND fi.fridge_id = fr.fridge_id
         AND fr.user_id = $3
+        AND EXISTS (
+            SELECT 1
+            FROM foods f
+            WHERE f.food_id = fi.food_id
+              AND f.is_active = true
+              AND (f.is_global = true OR f.created_by_user_id = $3)
+        )
         RETURNING
             fi.fridge_item_id AS "fridgeItemId",
             fi.fridge_id      AS "fridgeId",

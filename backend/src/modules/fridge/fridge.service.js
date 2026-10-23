@@ -1,21 +1,10 @@
 import { AppError } from '../../utils/AppError.js';
-import { addFridgeItemRepository, findFridgeItemsByIdsRepository, findAttachableFoodsByIdsRepository, addOrUpdateFridgeItemRepository, checkFoodExistsRepository, createFridgeRepository, getFridgeByUserIdRepository, updateFridgeItemRepository, deleteFridgeItemRepository } from './fridge.repository.js';
+import { addFridgeItemRepository, findFridgeItemsByIdsRepository, findAttachableFoodsByIdsRepository, addOrUpdateFridgeItemRepository, createFridgeRepository, getFridgeByUserIdRepository, getOrCreateFridgeByUserIdRepository, updateFridgeItemRepository, deleteFridgeItemRepository } from './fridge.repository.js';
+import { checkFoodsVisible } from '../food/food.repository.js';
 
 export const getFridge = async (userId) => {
     try {
-        const fridge = await getFridgeByUserIdRepository(userId);
-
-        if (!fridge) {
-            return {
-                fridgeId: null,
-                userId,
-                createdAt: null,
-                updatedAt: null,
-                items: [],
-            };
-        }
-
-        return fridge;
+        return await getOrCreateFridgeByUserIdRepository(userId);
     } catch (error) {
         if (error instanceof AppError) {
             throw error;
@@ -52,7 +41,7 @@ export const createFridgeService = async (userId) => {
 // Agrega automáticamente un alimento recién creado a la nevera del usuario
 export const addItemToFridgeService = async (userId, foodId, unit) => {
     try {
-        const fridge = await getFridgeByUserIdRepository(userId);
+        const fridge = await getOrCreateFridgeByUserIdRepository(userId);
 
         if (!fridge) {
             throw new AppError('Fridge not found for this user', 404, 'FRIDGE_NOT_FOUND');
@@ -69,14 +58,14 @@ export const addItemToFridgeService = async (userId, foodId, unit) => {
 // Agrega o actualiza un item en la nevera del usuario con cantidad específica
 export const addItemToFridgeWithQuantityService = async (userId, foodId, quantity, unit) => {
     try {
-        // Verificar que el alimento existe y está activo
-        const food = await checkFoodExistsRepository(foodId);
-        if (!food) {
-            throw new AppError('Food item not found or inactive', 404, 'FOOD_NOT_FOUND');
+        // Solo se permiten alimentos activos globales o creados por el usuario.
+        const visibleFoodIds = await checkFoodsVisible(userId, [foodId]);
+        if (!visibleFoodIds.map(Number).includes(Number(foodId))) {
+            throw new AppError('Food item not found or unavailable', 404, 'FOOD_NOT_FOUND');
         }
 
         // Obtener la nevera del usuario
-        const fridge = await getFridgeByUserIdRepository(userId);
+        const fridge = await getOrCreateFridgeByUserIdRepository(userId);
         if (!fridge) {
             throw new AppError('Fridge not found for this user', 404, 'FRIDGE_NOT_FOUND');
         }
